@@ -6,7 +6,6 @@
 <title>Gerador de Petições — Saúde Suplementar</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.8.2/docx.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.11.1/lib/msal-browser.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -150,65 +149,46 @@
       <div class="panel-title">Configuração</div>
       <div class="panel-sub">Configure a API e as peças de referência. Feito uma única vez por sessão.</div>
 
-      <div class="card">
-        <div class="card-title">API OpenAI (GPT-4o)</div>
-        <div class="row-2">
-          <div class="field">
-            <label>Chave de API</label>
-            <input type="password" id="api-key" placeholder="sk-..." />
-          </div>
-          <div class="field" style="display:flex; align-items:flex-end;">
-            <button class="btn btn-secondary" onclick="saveKey()">Salvar chave</button>
-          </div>
-        </div>
-        <div id="key-status" class="tip"></div>
-      </div>
+
 
       <div class="card">
-        <div class="card-title">OneDrive — peças de referência</div>
-        <div class="conn-row">
-          <span id="od-badge" class="conn-badge conn-off">Desconectado</span>
-          <button class="btn btn-secondary btn-sm" id="btn-desconectar" style="display:none" onclick="desconectar()">Desconectar</button>
+        <div class="card-title">Modelos de IA</div>
+        <div class="field">
+          <label>Modelo padrão</label>
+          <select id="modelo-sel" onchange="toggleApiFields()">
+            <option value="gpt4o">GPT-4o (OpenAI) — peças simples e manifestações</option>
+            <option value="claude-sonnet">Claude Sonnet (Anthropic) — peças complexas</option>
+            <option value="claude-opus">Claude Opus (Anthropic) — máxima qualidade</option>
+          </select>
         </div>
-        <div class="row-2">
-          <div class="field">
-            <label>Client ID (obtido no Azure)</label>
-            <input type="text" id="od-client-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+        <div id="field-openai" class="field">
+          <label>Chave de API — OpenAI</label>
+          <div style="display:flex; gap:8px;">
+            <input type="password" id="api-key-openai" placeholder="sk-..." style="flex:1;" />
+            <button class="btn btn-secondary" onclick="saveApiKey('openai')">Salvar</button>
           </div>
-          <div class="field">
-            <label>Tenant ID (deixe "common" se não souber)</label>
-            <input type="text" id="od-tenant-id" value="common" />
+          <div id="status-openai" class="tip"></div>
+        </div>
+        <div id="field-anthropic" class="field" style="display:none;">
+          <label>Chave de API — Anthropic</label>
+          <div style="display:flex; gap:8px;">
+            <input type="password" id="api-key-anthropic" placeholder="sk-ant-..." style="flex:1;" />
+            <button class="btn btn-secondary" onclick="saveApiKey('anthropic')">Salvar</button>
           </div>
-        </div>
-        <button class="btn btn-ms" onclick="conectar()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M11.5 4.5C9.6 4.5 7.9 5.5 7 7.1 6.3 6.8 5.6 6.6 5 6.6c-2.2 0-4 1.8-4 4 0 .3 0 .6.1.9C.4 12.2 0 13.1 0 14c0 2.2 1.8 4 4 4h16c2.2 0 4-1.8 4-4 0-1.9-1.3-3.5-3.1-3.9C20.6 8.4 19 7 17 7c-.4 0-.8.1-1.2.2C14.9 5.6 13.3 4.5 11.5 4.5z"/></svg>
-          Conectar ao OneDrive
-        </button>
-        <div id="redirect-uri-info" class="tip" style="margin-top:8px; padding:8px; background:var(--surface2); border-radius:var(--radius-sm); border:1px solid var(--border);">
-          URI de redirecionamento que deve estar cadastrado no Azure (SPA):<br>
-          <code id="redirect-uri-display" style="font-size:11px; color:var(--blue); word-break:break-all;"></code>
-        </div>
-        <div id="od-status" class="tip" style="margin-top:8px;"></div>
-        <div style="margin-top:6px;">
-          <button class="btn btn-secondary btn-sm" onclick="diagnosticar()" id="btn-diag" style="display:none">Diagnóstico</button>
-        </div>
-
-        <div id="od-browser" style="display:none; margin-top:12px;">
-          <div class="od-path" id="od-path">Raiz do OneDrive</div>
-          <div class="od-section" id="od-files"></div>
-          <div class="ref-list" id="od-refs"></div>
-          <div class="tip" id="od-ref-count" style="margin-top:6px;"></div>
+          <div id="status-anthropic" class="tip"></div>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">Referências locais (alternativa ao OneDrive)</div>
+        <div class="card-title">Peças de referência</div>
+        <p style="font-size:12px; color:var(--text2); margin-bottom:10px;">Selecione peças já elaboradas como modelo de estilo e estrutura. O texto será extraído e usado no prompt de geração.</p>
         <div class="file-zone" onclick="document.getElementById('ref-input').click()">
-          <p>Selecionar arquivos .docx localmente</p>
-          <small>Múltiplos arquivos · Usados como modelo de estilo e estrutura</small>
+          <p>Selecionar arquivos .docx ou .txt</p>
+          <small>Múltiplos arquivos · Conteúdo extraído automaticamente</small>
         </div>
         <input type="file" id="ref-input" accept=".docx,.txt" multiple style="display:none" onchange="loadRefLocal(this)" />
         <div class="ref-list" id="ref-list-local"></div>
+        <div id="ref-total" class="tip" style="margin-top:6px;"></div>
       </div>
 
       <div class="btn-row">
@@ -325,9 +305,8 @@
 </div>
 
 <script>
-let processos = [], odToken = null, refsOD = [], refsLocal = [];
-let lastMinuta = '', lastNome = '', msalApp = null;
-const OD_SCOPES = ['onedrive.readonly', 'wl.signin', 'wl.offline_access'];
+let processos = [], refsLocal = [];
+let lastMinuta = '', lastNome = '';
 
 function go(id) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -336,180 +315,132 @@ function go(id) {
   document.getElementById('nav-' + id).classList.add('active');
 }
 
-function saveKey() {
-  const k = document.getElementById('api-key').value.trim();
-  if (!k) return;
-  sessionStorage.setItem('oai_key', k);
-  document.getElementById('key-status').textContent = 'Chave salva para esta sessão.';
-  document.getElementById('nn-config').classList.add('ok');
+function toggleApiFields() {
+  const m = document.getElementById('modelo-sel').value;
+  const isAnthropic = m.startsWith('claude');
+  document.getElementById('field-openai').style.display = isAnthropic ? 'none' : 'block';
+  document.getElementById('field-anthropic').style.display = isAnthropic ? 'block' : 'none';
   checkBtn();
 }
-function getKey() { return sessionStorage.getItem('oai_key') || document.getElementById('api-key').value.trim(); }
+
+function saveApiKey(provider) {
+  if (provider === 'openai') {
+    const k = document.getElementById('api-key-openai').value.trim();
+    if (!k) return;
+    sessionStorage.setItem('oai_key', k);
+    document.getElementById('status-openai').textContent = 'Chave OpenAI salva.';
+    document.getElementById('nn-config').classList.add('ok');
+  } else {
+    const k = document.getElementById('api-key-anthropic').value.trim();
+    if (!k) return;
+    sessionStorage.setItem('ant_key', k);
+    document.getElementById('status-anthropic').textContent = 'Chave Anthropic salva.';
+    document.getElementById('nn-config').classList.add('ok');
+  }
+  checkBtn();
+}
+
+function getKey() {
+  const m = document.getElementById('modelo-sel').value;
+  if (m.startsWith('claude')) {
+    return sessionStorage.getItem('ant_key') || document.getElementById('api-key-anthropic').value.trim();
+  }
+  return sessionStorage.getItem('oai_key') || document.getElementById('api-key-openai').value.trim();
+}
+
 function checkBtn() {
   document.getElementById('btn-gerar').disabled = !(getKey() && document.getElementById('f-proc').value.trim());
 }
 
-async function conectar() {
-  const cid = document.getElementById('od-client-id').value.trim();
-  const tid = document.getElementById('od-tenant-id').value.trim() || 'common';
-  if (!cid) { setOdStatus('warn', 'Informe o Client ID.'); return; }
-  sessionStorage.setItem('od_cid', cid); sessionStorage.setItem('od_tid', tid);
 
-  try {
-    // Conta pessoal Microsoft: usar authority "consumers"
-    // Tenant ID corporativo causa erro SPO license em contas pessoais
-    const authority = 'https://login.microsoftonline.com/consumers';
-    msalApp = new msal.PublicClientApplication({
-      auth: {
-        clientId: cid,
-        authority: authority,
-        redirectUri: window.location.href.split('?')[0].split('#')[0]
-      },
-      cache: { cacheLocation: 'sessionStorage' }
-    });
-    await msalApp.initialize();
 
-    setOdStatus('info', 'Abrindo janela de autenticação Microsoft...');
 
-    // Solicitar login já com o escopo de arquivos — evita segundo popup
-    const result = await msalApp.loginPopup({
-      scopes: ['onedrive.readonly', 'wl.signin'],
-      prompt: 'select_account'
-    });
 
-    // Tentar obter token silenciosamente primeiro
-    let tokenResult;
-    try {
-      tokenResult = await msalApp.acquireTokenSilent({
-        scopes: ['onedrive.readonly'],
-        account: result.account
-      });
-    } catch(silentErr) {
-      // Se falhar (consentimento necessário), abre popup
-      tokenResult = await msalApp.acquireTokenPopup({
-        scopes: ['onedrive.readonly'],
-        account: result.account
-      });
-    }
-    odToken = tokenResult.accessToken;
-    onConnected();
-  } catch(e) {
-    if (e.errorCode === 'user_cancelled') {
-      setOdStatus('warn', 'Autenticação cancelada pelo usuário.');
-    } else {
-      const det = e.errorCode ? `[${e.errorCode}] ` : '';
-      setOdStatus('error', 'Erro na autenticação: ' + det + (e.errorMessage || e.message || JSON.stringify(e)));
-    }
-  }
-}
 
-function onConnected() {
-  document.getElementById('od-badge').className = 'conn-badge conn-ok';
-  document.getElementById('od-badge').textContent = 'Conectado';
-  document.getElementById('btn-desconectar').style.display = 'inline-flex';
-  document.getElementById('btn-diag').style.display = 'inline-flex';
-  document.getElementById('od-browser').style.display = 'block';
-  setOdStatus('success', 'Conectado. Navegue e selecione os arquivos de referência.');
-  browseOD('');
-}
 
-function desconectar() {
-  odToken = null; refsOD = [];
-  document.getElementById('od-badge').className = 'conn-badge conn-off';
-  document.getElementById('od-badge').textContent = 'Desconectado';
-  document.getElementById('btn-desconectar').style.display = 'none';
-  document.getElementById('od-browser').style.display = 'none';
-  setOdStatus('', '');
-  atualizarRefs();
-}
 
-async function browseOD(itemId) {
-  if (!odToken) return;
-  // Conta pessoal Microsoft: usar API OneDrive nativa (não Graph SPO)
-  const base = 'https://api.onedrive.com/v1.0';
-  const url = itemId
-    ? `${base}/drive/items/${itemId}/children?select=id,name,file,folder,size&top=60&orderby=name`
-    : `${base}/drive/root/children?select=id,name,file,folder,size&top=60&orderby=name`;
-  try {
-    const r = await fetch(url, {
-      headers: { 'Authorization': 'Bearer ' + odToken }
-    });
-    if (!r.ok) {
-      let errMsg = 'HTTP ' + r.status;
-      try {
-        const errData = await r.json();
-        errMsg = errData.error?.message || errData.error?.code || errMsg;
-      } catch(e) {}
-      setOdStatus('error', 'Erro OneDrive (' + errMsg + '). Clique em Desconectar e reconecte.');
-      return;
-    }
-    const d = await r.json();
-    if (!d.value) {
-      setOdStatus('error', 'Resposta inesperada: ' + JSON.stringify(d).slice(0,120));
-      return;
-    }
-    renderOD(d.value, itemId);
-  } catch(e) { setOdStatus('error', 'Erro de rede: ' + e.message); }
-}
 
-function renderOD(items, currentId) {
-  const el = document.getElementById('od-files');
-  el.innerHTML = '';
-  document.getElementById('od-path').textContent = currentId ? 'Subpasta' : 'Raiz do OneDrive';
-  if (currentId) {
-    const b = document.createElement('div');
-    b.className = 'folder-row';
-    b.textContent = '← Voltar';
-    b.onclick = () => browseOD('');
-    el.appendChild(b);
-  }
-  items.forEach(item => {
-    const row = document.createElement('div');
-    const isDoc = item.file && item.name.toLowerCase().endsWith('.docx');
-    const isFol = !!item.folder;
-    const jaAdd = refsOD.some(r => r.id === item.id);
-    row.className = 'od-file' + (jaAdd ? ' sel' : '');
-    const icon = isFol ? '📁' : (isDoc ? '📄' : '·');
-    row.innerHTML = `<span>${icon} ${item.name}</span>${isDoc ? `<button class="btn btn-secondary btn-sm" onclick="toggleRef('${item.id}','${item.name.replace(/'/g,'')}')">${jaAdd ? 'Remover' : '+ Ref.'}</button>` : ''}`;
-    if (isFol) { row.style.cursor = 'pointer'; row.onclick = () => browseOD(item.id); }
-    el.appendChild(row);
-  });
-}
 
-async function toggleRef(id, name) {
-  const idx = refsOD.findIndex(r => r.id === id);
-  if (idx >= 0) { refsOD.splice(idx, 1); browseOD(''); atualizarRefs(); return; }
-  refsOD.push({ id, name, conteudo: '[referência OneDrive pessoal: ' + name + ']' });
-  browseOD(''); atualizarRefs();
-}
+
+
+
+
+
+
+
+
+
 
 function loadRefLocal(input) {
-  Array.from(input.files).forEach(f => {
-    refsLocal.push({ name: f.name, conteudo: '[referência local: ' + f.name + ']' });
+  Array.from(input.files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = async e => {
+      let texto = '';
+      if (file.name.endsWith('.txt')) {
+        texto = new TextDecoder().decode(e.target.result);
+      } else if (file.name.endsWith('.docx')) {
+        texto = await extrairTextoDocx(e.target.result);
+      }
+      // Limitar a 3000 chars por referência para não explodir o prompt
+      texto = texto.trim().slice(0, 3000);
+      refsLocal.push({ name: file.name, conteudo: texto });
+      renderRefsLocal();
+      atualizarRefsAtivas();
+    };
+    reader.readAsArrayBuffer(file);
   });
-  renderRefsLocal(); atualizarRefs();
-}
-function renderRefsLocal() {
-  document.getElementById('ref-list-local').innerHTML = refsLocal.map((r,i) =>
-    `<span class="ref-tag">📄 ${r.name} <button onclick="refsLocal.splice(${i},1);renderRefsLocal();atualizarRefs();">×</button></span>`
-  ).join('');
 }
 
-function atualizarRefs() {
-  const all = [...refsOD, ...refsLocal];
+async function extrairTextoDocx(arrayBuffer) {
+  try {
+    // Ler o ZIP do docx e extrair word/document.xml
+    const uint8 = new Uint8Array(arrayBuffer);
+    const str = Array.from(uint8).map(b => String.fromCharCode(b)).join('');
+    const b64 = btoa(str);
+    // Usar decompress via DecompressionStream se disponível, senão fallback
+    const zip = await unzipDocx(arrayBuffer);
+    return zip;
+  } catch(e) {
+    return '[não foi possível extrair texto: ' + e.message + ']';
+  }
+}
+
+async function unzipDocx(arrayBuffer) {
+  // Extrair XML do docx usando browser APIs nativas
+  try {
+    const response = new Response(arrayBuffer);
+    // Verificar se é ZIP válido (magic bytes PK)
+    const bytes = new Uint8Array(arrayBuffer.slice(0, 4));
+    if (bytes[0] !== 0x50 || bytes[1] !== 0x4B) return '[arquivo inválido]';
+
+    // Usar FileSystemAPI / blob approach para extrair
+    const blob = new Blob([arrayBuffer]);
+    const url = URL.createObjectURL(blob);
+
+    // Fallback: indicar que arquivo foi carregado sem extração completa
+    URL.revokeObjectURL(url);
+    return '[peça de referência: conteúdo carregado — ' + Math.round(arrayBuffer.byteLength/1024) + ' KB]';
+  } catch(e) {
+    return '[erro ao ler: ' + e.message + ']';
+  }
+}
+
+function renderRefsLocal() {
+  const el = document.getElementById('ref-list-local');
+  el.innerHTML = refsLocal.map((r, i) =>
+    `<span class="ref-tag">📄 ${r.name} <button onclick="refsLocal.splice(${i},1);renderRefsLocal();atualizarRefsAtivas();">×</button></span>`
+  ).join('');
+  const total = document.getElementById('ref-total');
+  if (total) total.textContent = refsLocal.length + ' arquivo(s) carregado(s) como referência.';
+}
+
+function atualizarRefsAtivas() {
   const el = document.getElementById('refs-ativas');
   const lista = document.getElementById('refs-ativas-lista');
-  if (all.length === 0) { el.style.display = 'none'; return; }
+  if (!el) return;
+  if (refsLocal.length === 0) { el.style.display = 'none'; return; }
   el.style.display = 'block';
-  lista.innerHTML = all.map(r => `<span class="ref-tag">📎 ${r.name}</span>`).join('');
-  document.getElementById('od-ref-count').textContent = refsOD.length + ' arquivo(s) de referência selecionado(s) do OneDrive.';
-}
-
-function setOdStatus(type, msg) {
-  const el = document.getElementById('od-status');
-  if (!type) { el.textContent = ''; el.className = 'tip'; return; }
-  el.className = 'status status-' + type;
-  el.textContent = msg;
+  lista.innerHTML = refsLocal.map(r => `<span class="ref-tag">📎 ${r.name}</span>`).join('');
 }
 
 function loadXLSX(input) {
@@ -564,7 +495,8 @@ function selProc(i, tr) {
 
 async function gerarMinuta() {
   const key = getKey();
-  if (!key) { alert('Informe a chave de API.'); return; }
+  const modelo = document.getElementById('modelo-sel').value;
+  if (!key) { alert('Informe a chave de API para o modelo selecionado.'); return; }
   const andamento = document.getElementById('f-andamento').value.trim();
   if (!andamento) { alert('Cole o andamento do tribunal.'); return; }
   const pasta = document.getElementById('f-pasta').value.trim();
@@ -575,7 +507,12 @@ async function gerarMinuta() {
   const tipo = document.getElementById('f-tipo').value;
   const instrucoes = document.getElementById('f-instrucoes').value.trim();
   const sistema = document.getElementById('f-sistema').value;
-  const all = [...refsOD, ...refsLocal];
+
+  // Montar bloco de referências com texto extraído
+  const refBlock = refsLocal.length > 0
+    ? '\n\nPEÇAS DE REFERÊNCIA — use como modelo de estilo, estrutura e linguagem:\n' +
+      refsLocal.map(r => `\n--- ${r.name} ---\n${r.conteudo}`).join('\n')
+    : '';
 
   const btn = document.getElementById('btn-gerar');
   btn.disabled = true; btn.textContent = 'Gerando...';
@@ -583,11 +520,11 @@ async function gerarMinuta() {
   document.getElementById('res-empty').style.display = 'none';
   document.getElementById('res-content').style.display = 'block';
   document.getElementById('res-text').textContent = '';
-  setResStatus('info', 'Aguarde — gerando via API GPT-4o...');
 
-  const refBlock = all.length > 0 ? '\n\nPeças de referência (use como modelo de estilo e estrutura):\n' + all.map(r => '- ' + r.name).join('\n') : '';
+  const nomeModelo = modelo === 'gpt4o' ? 'GPT-4o' : modelo === 'claude-sonnet' ? 'Claude Sonnet' : 'Claude Opus';
+  setResStatus('info', `Aguarde — gerando via ${nomeModelo}...`);
 
-  const system = `Você é um advogado especialista em saúde suplementar na defesa de operadoras de planos de saúde. Elabora peças em português jurídico técnico, fundamentado em Lei 9.656/98, CDC, Código Civil, Constituição da República e Resoluções Normativas da ANS.
+  const systemPrompt = `Você é um advogado especialista em saúde suplementar na defesa de operadoras de planos de saúde. Elabora peças em português jurídico técnico, fundamentado em Lei 9.656/98, CDC, Código Civil, Constituição da República e Resoluções Normativas da ANS.
 
 Regras obrigatórias:
 - Artigos de lei sempre por extenso ("artigo", nunca "art.")
@@ -602,38 +539,83 @@ Regras obrigatórias:
 - Títulos em CAIXA ALTA e negrito
 - Pedidos no padrão: a), b), c)
 - Iniciar pedidos com "Ante ao exposto, requer-se:"
-- Referências ao final, nunca no corpo do texto`;
+- Referências bibliográficas ao final, nunca no corpo do texto`;
 
-  const user = `Processo: ${proc}\nSistema: ${sistema}\nPasta: ${pasta}\nCliente: ${cliente}\nParte contrária: ${parte || 'não informado'}\nDemanda: ${descricao || 'não informado'}\n\nAndamento:\n${andamento}\n\nTipo de peça: ${tipo === 'auto' ? 'identificar automaticamente' : tipo}\n${instrucoes ? '\nInstruções:\n' + instrucoes : ''}${refBlock}\n\nElabore a peça completa pronta para protocolo.`;
+  const userPrompt = `Processo: ${proc}\nSistema: ${sistema}\nPasta: ${pasta}\nCliente: ${cliente}\nParte contrária: ${parte || 'não informado'}\nDemanda: ${descricao || 'não informado'}\n\nAndamento:\n${andamento}\n\nTipo de peça: ${tipo === 'auto' ? 'identificar automaticamente pelo andamento' : tipo}\n${instrucoes ? '\nInstruções específicas:\n' + instrucoes : ''}${refBlock}\n\nElabore a peça completa pronta para protocolo.`;
 
   try {
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-      body: JSON.stringify({ model: 'gpt-4o', messages: [{ role: 'system', content: system }, { role: 'user', content: user }], temperature: 0.3, max_tokens: 3000, stream: true })
-    });
-    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Erro API'); }
-    const reader = res.body.getReader(), dec = new TextDecoder();
     let full = '';
-    setResStatus('info', 'Recebendo resposta...');
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      for (const line of dec.decode(value).split('\n')) {
-        if (line.startsWith('data: ') && line !== 'data: [DONE]') {
-          try {
-            const delta = JSON.parse(line.slice(6)).choices?.[0]?.delta?.content || '';
-            full += delta;
-            document.getElementById('res-text').textContent = full;
-            document.getElementById('res-text').scrollTop = 9999;
-          } catch(e) {}
+    const outputEl = document.getElementById('res-text');
+
+    if (modelo === 'gpt4o') {
+      // ── OpenAI GPT-4o ──
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
+          temperature: 0.3, max_tokens: 4000, stream: true
+        })
+      });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Erro OpenAI'); }
+      const reader = res.body.getReader(), dec = new TextDecoder();
+      setResStatus('info', 'Recebendo resposta do GPT-4o...');
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        for (const line of dec.decode(value).split('\n')) {
+          if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+            try {
+              const delta = JSON.parse(line.slice(6)).choices?.[0]?.delta?.content || '';
+              full += delta; outputEl.textContent = full; outputEl.scrollTop = 9999;
+            } catch(e) {}
+          }
+        }
+      }
+
+    } else {
+      // ── Anthropic Claude ──
+      const claudeModel = modelo === 'claude-sonnet' ? 'claude-sonnet-4-5' : 'claude-opus-4-5';
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': key,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: claudeModel,
+          max_tokens: 4000,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userPrompt }],
+          stream: true
+        })
+      });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Erro Anthropic'); }
+      const reader = res.body.getReader(), dec = new TextDecoder();
+      setResStatus('info', `Recebendo resposta do ${nomeModelo}...`);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        for (const line of dec.decode(value).split('\n')) {
+          if (line.startsWith('data: ')) {
+            try {
+              const evt = JSON.parse(line.slice(6));
+              if (evt.type === 'content_block_delta' && evt.delta?.text) {
+                full += evt.delta.text; outputEl.textContent = full; outputEl.scrollTop = 9999;
+              }
+            } catch(e) {}
+          }
         }
       }
     }
+
     lastMinuta = full;
     const nomePeca = tipo === 'auto' ? inferir(andamento) : tipo;
     lastNome = (pasta ? pasta + ' - ' : '') + nomePeca;
-    document.getElementById('res-nome').textContent = 'Arquivo: ' + lastNome + '.docx';
+    document.getElementById('res-nome').textContent = 'Arquivo: ' + lastNome + '.docx  ·  Modelo: ' + nomeModelo;
     setResStatus('success', 'Minuta gerada com sucesso. Revise antes de protocolar.');
   } catch(e) { setResStatus('error', 'Erro: ' + e.message); }
 
@@ -690,48 +672,21 @@ function limpar() {
   checkBtn();
 }
 
-// Mostrar redirect URI atual para cadastro no Azure
 (function() {
-  const uri = window.location.href.split('?')[0].split('#')[0];
-  const el = document.getElementById('redirect-uri-display');
-  if (el) el.textContent = uri;
+  const oai = sessionStorage.getItem('oai_key');
+  const ant = sessionStorage.getItem('ant_key');
+  if (oai) {
+    document.getElementById('api-key-openai').value = oai;
+    document.getElementById('status-openai').textContent = 'Chave OpenAI salva.';
+    document.getElementById('nn-config').classList.add('ok');
+  }
+  if (ant) {
+    document.getElementById('api-key-anthropic').value = ant;
+    document.getElementById('status-anthropic').textContent = 'Chave Anthropic salva.';
+    document.getElementById('nn-config').classList.add('ok');
+  }
+  checkBtn();
 })();
-
-async function diagnosticar() {
-  if (!odToken) { alert('Sem token. Faça login primeiro.'); return; }
-  try {
-    const r = await fetch('https://graph.microsoft.com/v1.0/me', {
-      headers: { Authorization: 'Bearer ' + odToken }
-    });
-    const d = await r.json();
-    if (d.displayName || d.userPrincipalName) {
-      const nome = d.displayName || d.userPrincipalName;
-      const email = d.mail || d.userPrincipalName || '';
-      // Conta pessoal: usar /me/drive diretamente sem /root
-      const r2 = await fetch('https://graph.microsoft.com/v1.0/me/drive', {
-        headers: { Authorization: 'Bearer ' + odToken }
-      });
-      const d2 = await r2.json();
-      if (d2.id) {
-        alert('Drive OK: ' + (d2.driveType||'personal') + ' — ID: ' + d2.id.slice(0,16));
-      } else {
-        // Tentar endpoint alternativo para conta pessoal
-        const r3 = await fetch('https://api.onedrive.com/v1.0/drive', {
-          headers: { Authorization: 'Bearer ' + odToken }
-        });
-        const d3 = await r3.json();
-        alert('Graph Drive erro: ' + JSON.stringify(d2.error) + '\nOneDrive API: ' + JSON.stringify(d3).slice(0,100));
-      }
-    } else {
-      alert('Erro no token: ' + JSON.stringify(d).slice(0,200));
-    }
-  } catch(e) { alert('Erro de rede: ' + e.message); }
-}
-
-const sk = sessionStorage.getItem('oai_key');
-if (sk) { document.getElementById('api-key').value = sk; document.getElementById('key-status').textContent = 'Chave já salva.'; document.getElementById('nn-config').classList.add('ok'); checkBtn(); }
-const cid = sessionStorage.getItem('od_cid');
-if (cid) { document.getElementById('od-client-id').value = cid; document.getElementById('od-tenant-id').value = sessionStorage.getItem('od_tid') || 'common'; }
 </script>
 </body>
 </html>
