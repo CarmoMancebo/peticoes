@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Gerador de Petições — Saúde Suplementar</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.8.2/docx.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -250,13 +251,23 @@
           </div>
         </div>
         <div style="margin-top:6px;">
-          <input type="text" id="proc-busca" placeholder="Buscar por pasta, processo ou parte contrária..." oninput="renderTable()" style="font-size:12px;" />
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <input type="text" id="proc-busca" placeholder="Buscar por pasta, processo, parte ou descrição..." oninput="renderTable()" style="font-size:12px; flex:1; min-width:200px;" />
+          <select id="proc-resp" onchange="renderTable()" style="font-size:12px; width:140px;">
+            <option value="">Todos os responsáveis</option>
+            <option value="CARMO">CARMO</option>
+            <option value="MAY">MAY / MAYARA</option>
+            <option value="BIANCA">BIANCA</option>
+            <option value="GABI">GABI</option>
+            <option value="CINTHIA">CINTHIA</option>
+          </select>
+        </div>
         </div>
       </div>
 
       <div id="table-wrap" style="display:none; overflow-x:auto;">
         <table>
-          <thead><tr><th>Pasta</th><th>Processo</th><th>Cliente</th><th>Parte contrária</th><th>Descrição</th><th style="text-align:center;">Status</th></tr></thead>
+          <thead><tr><th>Pasta</th><th>Processo</th><th>Prazo</th><th>Tipo</th><th>Parte contrária</th><th>Descrição</th><th>Resp.</th><th style="text-align:center;">Tratativa</th></tr></thead>
           <tbody id="proc-tbody"></tbody>
         </table>
       </div>
@@ -498,13 +509,24 @@ function loadXLSX(input) {
     const wb = XLSX.read(e.target.result, { type: 'array' });
     const ws = wb.Sheets[wb.SheetNames[0]];
     const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
-    processos = data.map(r => ({
-      pasta: getCol(r, ['pasta','folder','id']),
-      processo: getCol(r, ['processo','number','número','proc']),
-      cliente: getCol(r, ['cliente','client']) || 'Amil Assistência Médica Internacional S.A.',
-      parte: getCol(r, ['contrária','contra','adversa','réu','reu','parte']),
-      descricao: getCol(r, ['descri','tarefa','task','objeto','assunto']),
-      _raw: r  // preservar linha original completa para exportação
+    // Mapear cabeçalhos reais da planilha
+  const headers = Object.keys(data[0] || {});
+  processos = data.map(r => ({
+      pasta:    getCol(r, ['pasta']),
+      processo: getCol(r, ['processo']),
+      cliente:  getCol(r, ['cliente principal','cliente']) || 'Notre Dame Intermédica Saúde S/A',
+      parte:    getCol(r, ['contrario principal','contrário principal','contrario','contrário','parte']),
+      descricao:getCol(r, ['descrição','descricao','description']),
+      prazo:    getCol(r, ['prazo fatal','prazo']),
+      tipo:     getCol(r, ['tipo - subtipo','tipo subtipo','tipo']),
+      responsavel: getCol(r, ['responsável','responsavel']),
+      // Colunas de tratativa (J-O)
+      _tratativa:   getCol(r, ['tratativa']),
+      _transferido: getCol(r, ['transferido para','transferido']),
+      _data:        getCol(r, ['data']),
+      _justificativa: getCol(r, ['justificativa']),
+      _conclusao:   getCol(r, ['conclusão','conclusao']),
+      _raw: r
     }));
     try { localStorage.setItem(LS_PROC, JSON.stringify(processos)); } catch(e) {}
     document.getElementById('card-upload-xlsx').style.display = 'none';
@@ -532,6 +554,36 @@ function setStatus(pasta, val) {
 }
 
 function iniciarTabelaProc() {
+  // Importar tratativas já existentes na planilha para o localStorage
+  const s = getStatus();
+  processos.forEach(p => {
+    const key = p.pasta || p.processo;
+    if (p._tratativa && !s[key]) {
+      // Converter data serial do Excel para ISO se necessário
+      let dataISO = '';
+      if (p._data) {
+        const num = parseFloat(p._data);
+        if (!isNaN(num) && num > 40000) {
+          const d = new Date((num - 25569) * 86400 * 1000);
+          dataISO = d.toISOString().slice(0,10);
+        } else if (String(p._data).includes('/')) {
+          const parts = String(p._data).split('/');
+          if (parts.length === 3) dataISO = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+        } else {
+          dataISO = String(p._data);
+        }
+      }
+      s[key] = {
+        responsavel: p.responsavel || '',
+        tratativa: p._tratativa || '',
+        transferido: p._transferido || '',
+        data: dataISO,
+        justificativa: p._justificativa || '',
+        conclusao: p._conclusao || ''
+      };
+    }
+  });
+  try { localStorage.setItem(LS_STATUS, JSON.stringify(s)); } catch(e) {}
   document.getElementById('proc-header').style.display = 'block';
   document.getElementById('table-wrap').style.display = 'block';
   renderTable();
@@ -557,7 +609,13 @@ function renderTable() {
 
     if (filtroAtual === 'pendentes' && tratado) return;
     if (filtroAtual === 'tratados' && !tratado) return;
-    if (busca && !`${p.pasta} ${p.processo} ${p.parte} ${p.descricao}`.toLowerCase().includes(busca)) return;
+    if (busca && !`${p.pasta} ${p.processo} ${p.parte} ${p.descricao} ${p.responsavel}`.toLowerCase().includes(busca)) return;
+    const filtroResp = (document.getElementById('proc-resp')?.value || '').toLowerCase();
+    if (filtroResp) {
+      const resp = (p.responsavel || '').toLowerCase();
+      if (filtroResp === 'may') { if (!resp.includes('may')) return; }
+      else { if (!resp.includes(filtroResp)) return; }
+    }
 
     visiveis++;
     const tr = document.createElement('tr');
@@ -578,15 +636,27 @@ function renderTable() {
     const badgeLabel = tratativa || 'Pendente';
     const badgeClass = tratativa ? 'badge-' + tratativa.toLowerCase().replace('.','').replace(' ','-') : 'badge-pendente';
 
+    // Formatar prazo
+    let prazoStr = '';
+    if (p.prazo) {
+      const num = parseFloat(p.prazo);
+      if (!isNaN(num) && num > 40000) {
+        prazoStr = new Date((num - 25569) * 86400 * 1000).toLocaleDateString('pt-BR');
+      } else { prazoStr = p.prazo; }
+    }
+    const tipoStr = (p.tipo || '').replace('Prazos Cíveis - ','').replace('Prazo Interno - ','');
+
     tr.innerHTML = `
       <td>${p.pasta}</td>
-      <td style="font-family:monospace;font-size:11px;">${p.processo}</td>
-      <td style="font-size:12px;">${p.cliente}</td>
+      <td style="font-family:monospace;font-size:10px;">${p.processo}</td>
+      <td style="font-size:11px; white-space:nowrap;">${prazoStr}</td>
+      <td style="font-size:11px;">${tipoStr}</td>
       <td style="font-size:12px;">${p.parte}</td>
       <td style="font-size:12px;">${p.descricao}</td>
+      <td style="font-size:11px;">${p.responsavel||''}</td>
       <td style="text-align:center; white-space:nowrap;">
         <span class="badge" style="margin-bottom:3px;">${badgeLabel}</span><br>
-        ${conclusao ? `<span style="font-size:10px; color:var(--text3);">${conclusao.slice(0,30)}${conclusao.length>30?'…':''}</span><br>` : ''}
+        ${conclusao ? `<span style="font-size:10px; color:var(--text3);">${conclusao.slice(0,28)}${conclusao.length>28?'…':''}</span><br>` : ''}
         <button class="btn btn-secondary btn-sm" style="margin-top:3px;" onclick="event.stopPropagation();abrirTP(${i})">
           Tratativa
         </button>
@@ -934,64 +1004,106 @@ function setResStatus(type, msg) {
   el.textContent = msg;
 }
 
-async function baixarDocx() {
+function baixarDocx() {
   if (!lastMinuta) return;
   try {
-    const { Document, Packer, Paragraph, TextRun, AlignmentType } = docx;
     const linhas = lastMinuta.split('\n');
-    const children = [];
 
-    for (const l of linhas) {
-      const txt = l.replace(/\*\*/g, '').trim();
-      // Detectar título: linha em maiúsculas
+    // Gerar XML do Word (OOXML) nativo — sem dependência de biblioteca
+    const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+    const paragrafos = linhas.map(l => {
+      const txt = esc(l.replace(/\*\*/g,'').trim());
+      if (!txt) return '<w:p><w:pPr><w:spacing w:after="80"/></w:pPr></w:p>';
       const isTitulo = txt.length > 3 && txt.length < 100 &&
         /^[A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ][A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ\s\d\-–—\.,:;()]+$/.test(txt);
-      if (!txt) {
-        children.push(new Paragraph({ children: [new TextRun('')], spacing: { after: 100 } }));
-      } else {
-        children.push(new Paragraph({
-          alignment: AlignmentType.JUSTIFIED,
-          spacing: { after: 160, line: 360 },
-          children: [new TextRun({
-            text: txt,
-            bold: isTitulo,
-            font: 'Arial',
-            size: 24
-          })]
-        }));
-      }
-    }
+      const bold = isTitulo ? '<w:b/>' : '';
+      return `<w:p>
+        <w:pPr>
+          <w:jc w:val="both"/>
+          <w:spacing w:after="160" w:line="360" w:lineRule="auto"/>
+        </w:pPr>
+        <w:r>
+          <w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/>${bold}</w:rPr>
+          <w:t xml:space="preserve">${txt}</w:t>
+        </w:r>
+      </w:p>`;
+    }).join('\n');
 
-    const doc = new Document({
-      sections: [{
-        properties: {
-          page: {
-            size: { width: 11906, height: 16838 },
-            margin: { top: 1701, right: 1134, bottom: 1701, left: 1701 }
-          }
-        },
-        children
-      }]
-    });
+    const docXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    ${paragrafos}
+    <w:sectPr>
+      <w:pgSz w:w="11906" w:h="16838"/>
+      <w:pgMar w:top="1701" w:right="1134" w:bottom="1701" w:left="1701"/>
+    </w:sectPr>
+  </w:body>
+</w:document>`;
 
-    const blob = await Packer.toBlob(doc);
-    const url = URL.createObjectURL(blob);
+    const relsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`;
 
-    // Método robusto de download
-    const a = document.createElement('a');
-    a.style.display = 'none';
-    a.href = url;
-    a.download = lastNome + '.docx';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 1000);
+    const wordRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+</Relationships>`;
+
+    const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+</Types>`;
+
+    // Montar ZIP usando JSZip (já incluído via XLSX que usa o mesmo motor)
+    // Fallback: usar Blob com tipo correto
+    gerarZipDocx({
+      '[Content_Types].xml': contentTypesXml,
+      '_rels/.rels': relsXml,
+      'word/document.xml': docXml,
+      'word/_rels/document.xml.rels': wordRelsXml
+    }, lastNome + '.docx');
 
   } catch(e) {
     setResStatus('error', 'Erro ao gerar .docx: ' + e.message);
   }
+}
+
+function gerarZipDocx(arquivos, nomeArquivo) {
+  // Usar a API nativa de compressão do browser via fflate (já disponível via XLSX)
+  // ou gerar usando escritura manual de ZIP
+  try {
+    // XLSX já carregou a lib; usar JSZip se disponível, senão usar método alternativo
+    if (typeof JSZip !== 'undefined') {
+      const zip = new JSZip();
+      for (const [path, content] of Object.entries(arquivos)) {
+        zip.file(path, content);
+      }
+      zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
+        .then(blob => triggerDownload(blob, nomeArquivo));
+    } else {
+      // Fallback: baixar como .txt se ZIP não estiver disponível
+      const txt = arquivos['word/document.xml'];
+      const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+      triggerDownload(blob, nomeArquivo.replace('.docx','.txt'));
+      setResStatus('warn', 'Download em .txt — para .docx, adicione JSZip ao GitHub.');
+    }
+  } catch(e) {
+    setResStatus('error', 'Erro ZIP: ' + e.message);
+  }
+}
+
+function triggerDownload(blob, nome) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = url;
+  a.download = nome;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1500);
 }
 
 function copiar() {
