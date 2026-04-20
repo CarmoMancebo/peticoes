@@ -125,6 +125,21 @@ tbody tr.st-p td{background:#b3e5fc}
 
 
       <div class="card">
+        <div class="card-title">Timbrado do escritório</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Faça upload do arquivo .docx com o timbrado. O cabeçalho, rodapé e formatação serão aplicados a todas as petições geradas.</p>
+        <div class="fzone" id="fzone-timbrado" onclick="document.getElementById('inp-timbrado').click()">
+          <p>Selecionar timbrado (.docx)</p>
+          <small>Cabeçalho com logo + rodapé · Formatação preservada</small>
+        </div>
+        <input type="file" id="inp-timbrado" accept=".docx" style="display:none" onchange="loadTimbrado(this)" />
+        <div id="timbrado-st"></div>
+        <div id="timbrado-info" style="display:none;margin-top:8px;padding:8px;background:var(--green-bg);border-radius:var(--rsm);font-size:12px;color:var(--green);">
+          ✓ <span id="timbrado-nome"></span> — cabeçalho e rodapé carregados.
+          <button class="btn btn-s btn-sm" style="margin-left:8px;" onclick="limparTimbrado()">Remover</button>
+        </div>
+      </div>
+
+      <div class="card">
         <div class="card-title">Peças de referência</div>
         <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Selecione peças elaboradas como modelo. O texto é extraído e usado no prompt.</p>
         <div class="fzone" onclick="document.getElementById('inp-ref').click()">
@@ -367,6 +382,7 @@ tbody tr.st-p td{background:#b3e5fc}
 
 <script>
 var procs = [], refs = [], minuta = '', nomeArq = '', tpIdx = -1, filtro = 'todos';
+var timbrado = null; // {headers, footers, images, sectPr, styles}
 var LSP = 'gp_p', LSS = 'gp_s';
 
 function go(id) {
@@ -789,6 +805,103 @@ function salvarTP() {
 }
 
 // GERAR MINUTA
+// ── TIMBRADO ──────────────────────────────────────────────────
+async function loadTimbrado(inp) {
+  var f = inp.files[0]; if (!f) return;
+  setSt('timbrado-st','info','Carregando timbrado "'+f.name+'"...');
+  try {
+    var ab = await lerArqBin(f);
+    var zip = await JSZip.loadAsync(ab);
+
+    // Extrair XMLs de headers e footers
+    var h1 = await zipFile(zip,'word/header1.xml');
+    var h2 = await zipFile(zip,'word/header2.xml');
+    var h3 = await zipFile(zip,'word/header3.xml');
+    var ft1 = await zipFile(zip,'word/footer1.xml');
+    var ft2 = await zipFile(zip,'word/footer2.xml');
+
+    // Extrair relacionamentos dos headers
+    var h1rels = await zipFile(zip,'word/_rels/header1.xml.rels');
+    var h2rels = await zipFile(zip,'word/_rels/header2.xml.rels');
+    var h3rels = await zipFile(zip,'word/_rels/header3.xml.rels');
+    var docRels = await zipFile(zip,'word/_rels/document.xml.rels');
+
+    // Extrair imagens como base64
+    var imgs = {};
+    var mediaFiles = Object.keys(zip.files).filter(function(k){return k.startsWith('word/media/');});
+    for (var i=0; i<mediaFiles.length; i++) {
+      var imgAb = await zip.files[mediaFiles[i]].async('arraybuffer');
+      var b64 = arrayBufferToBase64(imgAb);
+      var nome = mediaFiles[i].replace('word/media/','');
+      imgs[nome] = b64;
+    }
+
+    // Extrair sectPr do documento original
+    var docXml = await zipFile(zip,'word/document.xml');
+    var sectMatch = docXml.match(/<w:sectPr[\s\S]*?<\/w:sectPr>/);
+    var sectPr = sectMatch ? sectMatch[0] : '';
+
+    // Extrair estilos
+    var styles = await zipFile(zip,'word/styles.xml');
+
+    timbrado = {
+      nome: f.name,
+      h1: h1, h2: h2, h3: h3,
+      ft1: ft1, ft2: ft2,
+      h1rels: h1rels, h2rels: h2rels, h3rels: h3rels,
+      docRels: docRels,
+      imgs: imgs,
+      sectPr: sectPr,
+      styles: styles
+    };
+
+    document.getElementById('timbrado-st').textContent='';
+    document.getElementById('timbrado-nome').textContent=f.name;
+    document.getElementById('timbrado-info').style.display='block';
+    document.getElementById('fzone-timbrado').style.display='none';
+    document.getElementById('nn-cfg').classList.add('ok');
+  } catch(e) {
+    setSt('timbrado-st','err','Erro ao carregar timbrado: '+e.message);
+  }
+  inp.value='';
+}
+
+function limparTimbrado() {
+  timbrado=null;
+  document.getElementById('timbrado-info').style.display='none';
+  document.getElementById('fzone-timbrado').style.display='block';
+  document.getElementById('timbrado-st').textContent='';
+}
+
+function lerArqBin(f) {
+  return new Promise(function(res,rej){
+    var rd=new FileReader();
+    rd.onload=function(e){res(e.target.result);};
+    rd.onerror=function(){rej(new Error('Erro ao ler'));};
+    rd.readAsArrayBuffer(f);
+  });
+}
+
+async function zipFile(zip, path) {
+  var f = zip.files[path];
+  if (!f) return '';
+  return await f.async('string');
+}
+
+function arrayBufferToBase64(ab) {
+  var bytes = new Uint8Array(ab);
+  var bin = '';
+  for (var i=0; i<bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+
+function base64ToArrayBuffer(b64) {
+  var bin = atob(b64);
+  var bytes = new Uint8Array(bin.length);
+  for (var i=0; i<bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes.buffer;
+}
+
 async function gerarMinuta() {
   var key=getKey(), modelo=document.getElementById('sel-modelo').value;
   if (!key){alert('Informe a chave de API.');return;}
@@ -857,6 +970,75 @@ function setSt2(id,tipo,msg){var e=document.getElementById(id);e.className='st s
 async function baixarDocx() {
   if (!minuta) return;
   try {
+    if (timbrado) {
+      await baixarDocxComTimbrado();
+    } else {
+      await baixarDocxSimples();
+    }
+  } catch(e) { setSt2('res-st','err','Erro ao gerar .docx: '+e.message); }
+}
+
+async function baixarDocxComTimbrado() {
+  var esc=function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+  var linhas=minuta.split('\n');
+  var pars=linhas.map(function(l){
+    var txt=esc(l.replace(/\*\*/g,'').trim());
+    if (!txt) return '<w:p><w:pPr><w:spacing w:after="100"/></w:pPr></w:p>';
+    var isTit=/^[A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ][A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ\s\d\-\u2013\u2014\.,:;()]{3,}$/.test(txt)&&txt.length<100;
+    return '<w:p><w:pPr><w:jc w:val="both"/><w:spacing w:after="160" w:line="360" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/>'+(isTit?'<w:b/>':'')+'</w:rPr><w:t xml:space="preserve">'+txt+'</w:t></w:r></w:p>';
+  }).join('');
+
+  // Extrair sectPr do timbrado e adicionar referências de header/footer
+  var sectPr = timbrado.sectPr;
+  if (!sectPr) {
+    sectPr = '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1985" w:right="1133" w:bottom="1418" w:left="1701" w:header="4" w:footer="118" w:gutter="0"/><w:titlePg/></w:sectPr>';
+  }
+  // Injetar referências de header/footer no sectPr
+  sectPr = sectPr.replace('<w:sectPr', '<w:sectPr')
+    .replace(/<w:headerReference[^\/]*\/>/g,'')
+    .replace(/<w:footerReference[^\/]*\/>/g,'');
+  var secRefs = '<w:headerReference w:type="even" r:id="rHdr1"/><w:headerReference w:type="default" r:id="rHdr2"/><w:footerReference w:type="default" r:id="rFtr1"/><w:headerReference w:type="first" r:id="rHdr3"/><w:footerReference w:type="first" r:id="rFtr2"/>';
+  sectPr = sectPr.replace('<w:pgSz', secRefs+'<w:pgSz');
+
+  var docXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"><w:body>'+pars+sectPr+'</w:body></w:document>';
+
+  // Montar relacionamentos do documento com headers e footers
+  var docRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rHdr1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/><Relationship Id="rHdr2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header2.xml"/><Relationship Id="rHdr3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header3.xml"/><Relationship Id="rFtr1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/><Relationship Id="rFtr2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer2.xml"/><Relationship Id="rStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>';
+
+  var relsXml='<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';
+  var ctXml='<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Default Extension="jpeg" ContentType="image/jpeg"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/header2.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/header3.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/><Override PartName="/word/footer2.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/></Types>';
+
+  var zip = new JSZip();
+  zip.file('[Content_Types].xml', ctXml);
+  zip.file('_rels/.rels', relsXml);
+  zip.file('word/document.xml', docXml);
+  zip.file('word/_rels/document.xml.rels', docRels);
+  zip.file('word/header1.xml', timbrado.h1);
+  zip.file('word/header2.xml', timbrado.h2);
+  zip.file('word/header3.xml', timbrado.h3);
+  zip.file('word/footer1.xml', timbrado.ft1);
+  zip.file('word/footer2.xml', timbrado.ft2);
+  zip.file('word/_rels/header1.xml.rels', timbrado.h1rels);
+  zip.file('word/_rels/header2.xml.rels', timbrado.h2rels);
+  zip.file('word/_rels/header3.xml.rels', timbrado.h3rels);
+  if (timbrado.styles) zip.file('word/styles.xml', timbrado.styles);
+
+  // Adicionar imagens
+  var imgNomes = Object.keys(timbrado.imgs);
+  for (var i=0; i<imgNomes.length; i++) {
+    var nome = imgNomes[i];
+    var ab = base64ToArrayBuffer(timbrado.imgs[nome]);
+    zip.file('word/media/'+nome, ab);
+  }
+
+  var blob = await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  triggerDownload(blob, nomeArq+'.docx');
+  setSt2('res-st','ok','Download iniciado com timbrado: '+nomeArq+'.docx');
+}
+
+async function baixarDocxSimples() {
+  if (!minuta) return;
+  try {
     var esc=function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
     var linhas=minuta.split('\n');
     var pars=linhas.map(function(l){
@@ -875,13 +1057,17 @@ async function baixarDocx() {
     zip.file('word/document.xml',docXml);
     zip.file('word/_rels/document.xml.rels',wRels);
     var blob=await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-    var url=URL.createObjectURL(blob);
-    var a=document.createElement('a');
-    a.style.display='none'; a.href=url; a.download=nomeArq+'.docx';
-    document.body.appendChild(a); a.click();
-    setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},1500);
+    triggerDownload(blob, nomeArq+'.docx');
     setSt2('res-st','ok','Download iniciado: '+nomeArq+'.docx');
   } catch(e){setSt2('res-st','err','Erro ao gerar .docx: '+e.message);}
+}
+
+function triggerDownload(blob, nome) {
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.style.display='none'; a.href=url; a.download=nome;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},1500);
 }
 
 function copiar(){if(!minuta)return;navigator.clipboard.writeText(minuta).then(function(){setSt2('res-st','ok','Copiado para a área de transferência.');});}
