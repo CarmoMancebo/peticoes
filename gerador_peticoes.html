@@ -327,7 +327,7 @@
 <script>
 let processos = [], odToken = null, refsOD = [], refsLocal = [];
 let lastMinuta = '', lastNome = '', msalApp = null;
-const OD_SCOPES = ['files.read', 'user.read'];
+const OD_SCOPES = ['onedrive.readonly', 'wl.signin', 'wl.offline_access'];
 
 function go(id) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -373,7 +373,7 @@ async function conectar() {
 
     // Solicitar login já com o escopo de arquivos — evita segundo popup
     const result = await msalApp.loginPopup({
-      scopes: ['openid', 'profile', 'user.read', 'files.read'],
+      scopes: ['onedrive.readonly', 'wl.signin'],
       prompt: 'select_account'
     });
 
@@ -381,13 +381,13 @@ async function conectar() {
     let tokenResult;
     try {
       tokenResult = await msalApp.acquireTokenSilent({
-        scopes: ['files.read', 'user.read'],
+        scopes: ['onedrive.readonly'],
         account: result.account
       });
     } catch(silentErr) {
       // Se falhar (consentimento necessário), abre popup
       tokenResult = await msalApp.acquireTokenPopup({
-        scopes: ['files.read', 'user.read'],
+        scopes: ['onedrive.readonly'],
         account: result.account
       });
     }
@@ -425,17 +425,14 @@ function desconectar() {
 
 async function browseOD(itemId) {
   if (!odToken) return;
-  // Conta pessoal Microsoft 365: usar endpoint v1.0 com onedrive pessoal
-  const base = 'https://graph.microsoft.com/v1.0';
+  // Conta pessoal Microsoft: usar API OneDrive nativa (não Graph SPO)
+  const base = 'https://api.onedrive.com/v1.0';
   const url = itemId
-    ? `${base}/me/drive/items/${itemId}/children?$select=id,name,file,folder,size&$top=60&$orderby=name`
-    : `${base}/me/drive/root/children?$select=id,name,file,folder,size&$top=60&$orderby=name`;
+    ? `${base}/drive/items/${itemId}/children?select=id,name,file,folder,size&top=60&orderby=name`
+    : `${base}/drive/root/children?select=id,name,file,folder,size&top=60&orderby=name`;
   try {
     const r = await fetch(url, {
-      headers: {
-        'Authorization': 'Bearer ' + odToken,
-        'Content-Type': 'application/json'
-      }
+      headers: { 'Authorization': 'Bearer ' + odToken }
     });
     if (!r.ok) {
       let errMsg = 'HTTP ' + r.status;
@@ -482,7 +479,7 @@ function renderOD(items, currentId) {
 async function toggleRef(id, name) {
   const idx = refsOD.findIndex(r => r.id === id);
   if (idx >= 0) { refsOD.splice(idx, 1); browseOD(''); atualizarRefs(); return; }
-  refsOD.push({ id, name, conteudo: '[referência OneDrive: ' + name + ']' });
+  refsOD.push({ id, name, conteudo: '[referência OneDrive pessoal: ' + name + ']' });
   browseOD(''); atualizarRefs();
 }
 
@@ -710,14 +707,20 @@ async function diagnosticar() {
     if (d.displayName || d.userPrincipalName) {
       const nome = d.displayName || d.userPrincipalName;
       const email = d.mail || d.userPrincipalName || '';
-      const r2 = await fetch('https://graph.microsoft.com/v1.0/me/drive/root', {
+      // Conta pessoal: usar /me/drive diretamente sem /root
+      const r2 = await fetch('https://graph.microsoft.com/v1.0/me/drive', {
         headers: { Authorization: 'Bearer ' + odToken }
       });
       const d2 = await r2.json();
       if (d2.id) {
-        alert('OK — Usuário: ' + nome + '\nDrive: ' + (d2.name||'root') + ' (' + (d2.parentReference?.driveType||'personal') + ')');
+        alert('Drive OK: ' + (d2.driveType||'personal') + ' — ID: ' + d2.id.slice(0,16));
       } else {
-        alert('Usuário OK: ' + nome + '\nErro no Drive: ' + JSON.stringify(d2.error));
+        // Tentar endpoint alternativo para conta pessoal
+        const r3 = await fetch('https://api.onedrive.com/v1.0/drive', {
+          headers: { Authorization: 'Bearer ' + odToken }
+        });
+        const d3 = await r3.json();
+        alert('Graph Drive erro: ' + JSON.stringify(d2.error) + '\nOneDrive API: ' + JSON.stringify(d3).slice(0,100));
       }
     } else {
       alert('Erro no token: ' + JSON.stringify(d).slice(0,200));
