@@ -930,14 +930,14 @@ async function gerarMinuta() {
     var full='';
     var out=document.getElementById('res-txt');
     if (modelo==='gpt4o') {
-      var res=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.3,max_tokens:4000,stream:true})});
+      var res=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.3,max_tokens:12000,stream:true})});
       if (!res.ok){var er=await res.json();throw new Error(er.error?er.error.message:'Erro OpenAI');}
       var rd=res.body.getReader(),dc=new TextDecoder();
       setSt2('res-st','info','Recebendo resposta do GPT-4o...');
       while(true){var rv=await rd.read();if(rv.done)break;dc.decode(rv.value).split('\n').forEach(function(ln){if(ln.startsWith('data: ')&&ln!=='data: [DONE]'){try{var d=JSON.parse(ln.slice(6)).choices[0].delta.content;if(d){full+=d;out.textContent=full;out.scrollTop=99999;}}catch(e){}}});}
     } else {
       var cm=modelo==='claude-sonnet'?'claude-sonnet-4-5':'claude-opus-4-5';
-      var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:cm,max_tokens:4000,system:sys,messages:[{role:'user',content:usr}],stream:true})});
+      var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:cm,max_tokens:12000,system:sys,messages:[{role:'user',content:usr}],stream:true})});
       if (!res.ok){var er=await res.json();throw new Error(er.error?er.error.message:'Erro Anthropic');}
       var rd=res.body.getReader(),dc=new TextDecoder();
       setSt2('res-st','info','Recebendo resposta do '+nomeModelo+'...');
