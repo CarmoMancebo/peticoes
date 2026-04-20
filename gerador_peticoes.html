@@ -641,17 +641,62 @@ function setResStatus(type, msg) {
 
 async function baixarDocx() {
   if (!lastMinuta) return;
-  const { Document, Packer, Paragraph, TextRun, AlignmentType } = docx;
-  const linhas = lastMinuta.split('\n');
-  const children = linhas.map(l => {
-    const txt = l.replace(/\*\*/g, '').trim();
-    const bold = /^[A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ\s\d\-–—\.]+$/.test(txt) && txt.length > 3 && txt.length < 90;
-    if (!txt) return new Paragraph({ children: [new TextRun('')], spacing: { after: 80 } });
-    return new Paragraph({ alignment: AlignmentType.JUSTIFIED, spacing: { after: 160, line: 360 }, children: [new TextRun({ text: txt, bold, font: 'Arial', size: 24 })] });
-  });
-  const d = new Document({ sections: [{ properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1701, right: 1134, bottom: 1701, left: 1701 } } }, children }] });
-  const blob = await Packer.toBlob(d);
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = lastNome + '.docx'; a.click();
+  try {
+    const { Document, Packer, Paragraph, TextRun, AlignmentType } = docx;
+    const linhas = lastMinuta.split('\n');
+    const children = [];
+
+    for (const l of linhas) {
+      const txt = l.replace(/\*\*/g, '').trim();
+      // Detectar título: linha em maiúsculas
+      const isTitulo = txt.length > 3 && txt.length < 100 &&
+        /^[A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ][A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ\s\d\-–—\.,:;()]+$/.test(txt);
+      if (!txt) {
+        children.push(new Paragraph({ children: [new TextRun('')], spacing: { after: 100 } }));
+      } else {
+        children.push(new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          spacing: { after: 160, line: 360 },
+          children: [new TextRun({
+            text: txt,
+            bold: isTitulo,
+            font: 'Arial',
+            size: 24
+          })]
+        }));
+      }
+    }
+
+    const doc = new Document({
+      sections: [{
+        properties: {
+          page: {
+            size: { width: 11906, height: 16838 },
+            margin: { top: 1701, right: 1134, bottom: 1701, left: 1701 }
+          }
+        },
+        children
+      }]
+    });
+
+    const blob = await Packer.toBlob(doc);
+    const url = URL.createObjectURL(blob);
+
+    // Método robusto de download
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = lastNome + '.docx';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 1000);
+
+  } catch(e) {
+    setResStatus('error', 'Erro ao gerar .docx: ' + e.message);
+  }
 }
 
 function copiar() {
