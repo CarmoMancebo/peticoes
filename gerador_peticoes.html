@@ -194,6 +194,27 @@ tbody tr.st-p td{background:#b3e5fc}
             <option value="GABI">GABI</option>
             <option value="CINTHIA">CINTHIA</option>
           </select>
+          <select id="filtro-tribunal" onchange="renderTabela()" style="font-size:12px;width:140px">
+            <option value="">Todos os tribunais</option>
+            <option value="TJSP">TJSP</option>
+            <option value="TJMG">TJMG</option>
+            <option value="TJRJ">TJRJ</option>
+            <option value="TJBA">TJBA</option>
+            <option value="TJRS">TJRS</option>
+            <option value="TJSC">TJSC</option>
+            <option value="TJPR">TJPR</option>
+            <option value="TJPE">TJPE</option>
+            <option value="TJDF">TJDF</option>
+            <option value="TJCE">TJCE</option>
+            <option value="TJGO">TJGO</option>
+            <option value="TJMT">TJMT</option>
+            <option value="TJMS">TJMS</option>
+            <option value="TJPI">TJPI</option>
+            <option value="TJRN">TJRN</option>
+            <option value="TJRO">TJRO</option>
+            <option value="STJ">STJ</option>
+            <option value="STF">STF</option>
+          </select>
         </div>
       </div>
 
@@ -545,9 +566,11 @@ function loadXLSX(inp) {
     var ws = wb.Sheets[wb.SheetNames[0]];
     var data = XLSX.utils.sheet_to_json(ws,{defval:''});
     procs = data.map(function(r){
+      var numProc = gc(r,['processo']);
       return {
         pasta:    gc(r,['pasta']),
-        proc:     gc(r,['processo']),
+        proc:     numProc,
+        tribunal: extrairTribunal(numProc),
         cliente:  gc(r,['cliente principal','cliente'])||'Notre Dame Intermédica Saúde S/A',
         parte:    gc(r,['contrario principal','contrário principal','contrario','parte']),
         desc:     gc(r,['descrição','descricao']),
@@ -568,6 +591,31 @@ function loadXLSX(inp) {
   };
   rd.readAsArrayBuffer(f);
   inp.value='';
+}
+
+// Mapeamento de tribunais pelo padrão CNJ
+var TRIBUNAL_MAP = {
+  '8.26': 'TJSP', '8.13': 'TJMG', '8.09': 'TJBA', '8.04': 'TJCE',
+  '8.25': 'TJRS', '8.24': 'TJSC', '8.27': 'TJPR', '8.15': 'TJPE',
+  '8.07': 'TJDF', '8.28': 'TJGO', '8.01': 'TJAC', '8.02': 'TJAL',
+  '8.03': 'TJAP', '8.05': 'TJAM', '8.06': 'TJPA', '8.08': 'TJMT',
+  '8.10': 'TJMS', '8.11': 'TJPI', '8.12': 'TJRJ', '8.14': 'TJRN',
+  '8.16': 'TJRO', '8.17': 'TJRR', '8.18': 'TJTO', '8.19': 'TJSE',
+  '8.20': 'TJMM', '8.21': 'TJPB', '8.22': 'TJSP', '8.23': 'TJMA',
+  '8.29': 'TJSP', '8.30': 'TJSP'
+};
+
+function extrairTribunal(numProc) {
+  if (!numProc || numProc.length < 20) return 'Desconhecido';
+  // Formato: NNNNNNN-DD.AAAA.J.TT.OOOO (7-2-4-1-2-4)
+  // Posições: 0-6: 7 algarismos, 8-9: 2, 11-14: 4, 16: 1, 17-18: 2 (TT), 20-23: 4
+  var partes = numProc.replace(/[^0-9]/g, '');
+  if (partes.length < 20) return 'Desconhecido';
+  // J.TT = posição 15-16 (J) e 17-18 (TT)
+  var j = partes[14];
+  var tt = partes.slice(15, 17);
+  var chave = j + '.' + tt;
+  return TRIBUNAL_MAP[chave] || 'TJ-' + tt;
 }
 
 function gc(r, termos) {
@@ -638,6 +686,8 @@ function renderTabela() {
       if (fResp==='may') { if (r.indexOf('may')<0) return; }
       else { if (r.indexOf(fResp)<0) return; }
     }
+    var fTrib = (document.getElementById('filtro-tribunal').value||'').trim();
+    if (fTrib && (p.tribunal||'') !== fTrib) return;
     vis++;
     var tr = document.createElement('tr');
     var cls = {CUMPRIDO:'st-c',CANCELADO:'st-x',REAGENDADO:'st-r',TRANSFERIDO:'st-t','AG. RETORNO':'st-a',PENDENTE:'st-p'}[trat];
