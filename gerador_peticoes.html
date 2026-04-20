@@ -327,7 +327,7 @@
 <script>
 let processos = [], odToken = null, refsOD = [], refsLocal = [];
 let lastMinuta = '', lastNome = '', msalApp = null;
-const OD_SCOPES = ['files.read'];
+const OD_SCOPES = ['files.read', 'user.read'];
 
 function go(id) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -370,7 +370,7 @@ async function conectar() {
 
     // Solicitar login já com o escopo de arquivos — evita segundo popup
     const result = await msalApp.loginPopup({
-      scopes: ['openid', 'profile', 'files.read'],
+      scopes: ['openid', 'profile', 'user.read', 'files.read'],
       prompt: 'select_account'
     });
 
@@ -378,13 +378,13 @@ async function conectar() {
     let tokenResult;
     try {
       tokenResult = await msalApp.acquireTokenSilent({
-        scopes: ['files.read'],
+        scopes: ['files.read', 'user.read'],
         account: result.account
       });
     } catch(silentErr) {
       // Se falhar (consentimento necessário), abre popup
       tokenResult = await msalApp.acquireTokenPopup({
-        scopes: ['files.read'],
+        scopes: ['files.read', 'user.read'],
         account: result.account
       });
     }
@@ -422,11 +422,18 @@ function desconectar() {
 
 async function browseOD(itemId) {
   if (!odToken) return;
+  // Conta pessoal Microsoft 365: usar endpoint v1.0 com onedrive pessoal
+  const base = 'https://graph.microsoft.com/v1.0';
   const url = itemId
-    ? `https://graph.microsoft.com/v1.0/me/drive/items/${itemId}/children?$select=id,name,file,folder,size&$top=60`
-    : `https://graph.microsoft.com/v1.0/me/drive/root/children?$select=id,name,file,folder,size&$top=60`;
+    ? `${base}/me/drive/items/${itemId}/children?$select=id,name,file,folder,size&$top=60&$orderby=name`
+    : `${base}/me/drive/root/children?$select=id,name,file,folder,size&$top=60&$orderby=name`;
   try {
-    const r = await fetch(url, { headers: { Authorization: 'Bearer ' + odToken } });
+    const r = await fetch(url, {
+      headers: {
+        'Authorization': 'Bearer ' + odToken,
+        'Content-Type': 'application/json'
+      }
+    });
     if (!r.ok) {
       let errMsg = 'HTTP ' + r.status;
       try {
@@ -437,7 +444,11 @@ async function browseOD(itemId) {
       return;
     }
     const d = await r.json();
-    renderOD(d.value || [], itemId);
+    if (!d.value) {
+      setOdStatus('error', 'Resposta inesperada: ' + JSON.stringify(d).slice(0,120));
+      return;
+    }
+    renderOD(d.value, itemId);
   } catch(e) { setOdStatus('error', 'Erro de rede: ' + e.message); }
 }
 
@@ -693,19 +704,20 @@ async function diagnosticar() {
       headers: { Authorization: 'Bearer ' + odToken }
     });
     const d = await r.json();
-    if (d.displayName) {
-      alert('Token válido. Usuário: ' + d.displayName + ' (' + d.mail + ')\nAgora testando Drive...');
-      const r2 = await fetch('https://graph.microsoft.com/v1.0/me/drive', {
+    if (d.displayName || d.userPrincipalName) {
+      const nome = d.displayName || d.userPrincipalName;
+      const email = d.mail || d.userPrincipalName || '';
+      const r2 = await fetch('https://graph.microsoft.com/v1.0/me/drive/root', {
         headers: { Authorization: 'Bearer ' + odToken }
       });
       const d2 = await r2.json();
       if (d2.id) {
-        alert('Drive OK: ' + (d2.driveType || 'personal') + ' — ' + Math.round((d2.quota?.used||0)/1024/1024) + ' MB usado');
+        alert('OK — Usuário: ' + nome + '\nDrive: ' + (d2.name||'root') + ' (' + (d2.parentReference?.driveType||'personal') + ')');
       } else {
-        alert('Erro no Drive: ' + JSON.stringify(d2.error));
+        alert('Usuário OK: ' + nome + '\nErro no Drive: ' + JSON.stringify(d2.error));
       }
     } else {
-      alert('Erro no token: ' + JSON.stringify(d.error));
+      alert('Erro no token: ' + JSON.stringify(d).slice(0,200));
     }
   } catch(e) { alert('Erro de rede: ' + e.message); }
 }
