@@ -92,6 +92,32 @@
   .badge { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 600; }
   .badge-esaj { background: var(--blue-bg); color: var(--blue); }
   .badge-eproc { background: var(--green-bg); color: var(--green); }
+  .badge-tratado { background: var(--green-bg); color: var(--green); }
+  .badge-pendente { background: var(--amber-bg); color: var(--amber); }
+  tbody tr.tratado td { opacity: .6; }
+  tbody tr.tratado td:first-child::before { content: '✓ '; color: var(--green); font-weight: 700; }
+  .filter-bar { display: flex; gap: 6px; margin-bottom: 10px; align-items: center; }
+  .filter-btn { padding: 4px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; border: 1px solid var(--border2); background: var(--surface); color: var(--text2); font-family: inherit; }
+  .filter-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .proc-info { font-size: 11px; color: var(--text3); }
+  /* Cores de linha por status */
+  tbody tr.st-cumprido td { background: #d4edda !important; }
+  tbody tr.st-cancelado td { background: #e2e3e5 !important; }
+  tbody tr.st-reagendado td { background: #ffe5b4 !important; }
+  tbody tr.st-transferido td { background: #d1c4e9 !important; }
+  tbody tr.st-ag-retorno td { background: #fff9c4 !important; }
+  tbody tr.st-pendente td { background: #b3e5fc !important; }
+  /* Painel de tratativa */
+  .tratativa-panel { position: fixed; top: 0; right: 0; width: 380px; height: 100vh; background: var(--surface); border-left: 1px solid var(--border2); box-shadow: -4px 0 20px rgba(0,0,0,.12); z-index: 200; display: flex; flex-direction: column; transform: translateX(100%); transition: transform .2s; }
+  .tratativa-panel.open { transform: translateX(0); }
+  .tp-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .tp-header h3 { font-size: 14px; font-weight: 600; }
+  .tp-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text2); line-height: 1; }
+  .tp-body { flex: 1; overflow-y: auto; padding: 1.25rem; }
+  .tp-footer { padding: 1rem 1.25rem; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+  .tp-proc-info { font-size: 11px; color: var(--text3); margin-bottom: 1rem; padding-bottom: 10px; border-bottom: 1px solid var(--border); line-height: 1.6; }
+  .alert-field { border: 1.5px solid #dc3545 !important; background: #fff5f5 !important; }
+  .field-hidden { display: none; }
   .ref-tag { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 500; background: var(--amber-bg); color: var(--amber); border: 1px solid #FAC775; }
   .ref-tag button { background: none; border: none; cursor: pointer; color: var(--amber); font-size: 14px; line-height: 1; padding: 0; }
   .ref-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
@@ -199,20 +225,38 @@
     <!-- PROCESSOS -->
     <div id="panel-processos" class="panel">
       <div class="panel-title">Processos</div>
-      <div class="panel-sub">Carregue a planilha e clique no processo para abrir o formulário.</div>
+      <div class="panel-sub">Clique em um processo para selecionar. Marque como "Tratado" após concluir.</div>
 
-      <div class="card">
+      <div class="card" id="card-upload-xlsx">
         <div class="file-zone" onclick="document.getElementById('xlsx-input').click()">
           <p>Selecionar planilha Excel (.xlsx)</p>
-          <small>Colunas: pasta · número do processo · cliente · parte contrária · descrição</small>
+          <small>Carregada uma única vez — dados salvos automaticamente no navegador</small>
         </div>
         <input type="file" id="xlsx-input" accept=".xlsx,.xls" style="display:none" onchange="loadXLSX(this)" />
-        <div class="tip" id="proc-count" style="margin-top:8px;"></div>
+      </div>
+
+      <div id="proc-header" style="display:none; margin-bottom:10px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+          <div class="filter-bar">
+            <span style="font-size:12px; color:var(--text2);">Filtrar:</span>
+            <button class="filter-btn active" id="f-todos" onclick="filtrar('todos')">Todos</button>
+            <button class="filter-btn" id="f-pendentes" onclick="filtrar('pendentes')">Pendentes</button>
+            <button class="filter-btn" id="f-tratados" onclick="filtrar('tratados')">Tratados</button>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <span class="proc-info" id="proc-count"></span>
+            <button class="btn btn-secondary btn-sm" onclick="exportarXLSX()">Baixar .xlsx atualizado</button>
+            <button class="btn btn-secondary btn-sm" onclick="confirmarLimparPlanilha()">Trocar planilha</button>
+          </div>
+        </div>
+        <div style="margin-top:6px;">
+          <input type="text" id="proc-busca" placeholder="Buscar por pasta, processo ou parte contrária..." oninput="renderTable()" style="font-size:12px;" />
+        </div>
       </div>
 
       <div id="table-wrap" style="display:none; overflow-x:auto;">
         <table>
-          <thead><tr><th>Pasta</th><th>Processo</th><th>Cliente</th><th>Parte contrária</th><th>Descrição</th><th>Sistema</th></tr></thead>
+          <thead><tr><th>Pasta</th><th>Processo</th><th>Cliente</th><th>Parte contrária</th><th>Descrição</th><th style="text-align:center;">Status</th></tr></thead>
           <tbody id="proc-tbody"></tbody>
         </table>
       </div>
@@ -443,6 +487,10 @@ function atualizarRefsAtivas() {
   lista.innerHTML = refsLocal.map(r => `<span class="ref-tag">📎 ${r.name}</span>`).join('');
 }
 
+const LS_PROC = 'gp_processos';
+const LS_STATUS = 'gp_status';
+let filtroAtual = 'todos';
+
 function loadXLSX(input) {
   const f = input.files[0]; if (!f) return;
   const reader = new FileReader();
@@ -456,13 +504,15 @@ function loadXLSX(input) {
       cliente: getCol(r, ['cliente','client']) || 'Amil Assistência Médica Internacional S.A.',
       parte: getCol(r, ['contrária','contra','adversa','réu','reu','parte']),
       descricao: getCol(r, ['descri','tarefa','task','objeto','assunto']),
+      _raw: r  // preservar linha original completa para exportação
     }));
-    renderTable();
-    document.getElementById('proc-count').textContent = processos.length + ' processo(s) carregado(s). Clique para selecionar.';
-    document.getElementById('table-wrap').style.display = 'block';
+    try { localStorage.setItem(LS_PROC, JSON.stringify(processos)); } catch(e) {}
+    document.getElementById('card-upload-xlsx').style.display = 'none';
+    iniciarTabelaProc();
   };
   reader.readAsArrayBuffer(f);
 }
+
 function getCol(r, terms) {
   for (const t of terms) {
     const k = Object.keys(r).find(k => k.toLowerCase().includes(t));
@@ -470,16 +520,261 @@ function getCol(r, terms) {
   }
   return '';
 }
+
+function getStatus() {
+  try { return JSON.parse(localStorage.getItem(LS_STATUS) || '{}'); } catch(e) { return {}; }
+}
+
+function setStatus(pasta, val) {
+  const s = getStatus();
+  if (val) s[pasta] = true; else delete s[pasta];
+  try { localStorage.setItem(LS_STATUS, JSON.stringify(s)); } catch(e) {}
+}
+
+function iniciarTabelaProc() {
+  document.getElementById('proc-header').style.display = 'block';
+  document.getElementById('table-wrap').style.display = 'block';
+  renderTable();
+}
+
+function filtrar(tipo) {
+  filtroAtual = tipo;
+  ['todos','pendentes','tratados'].forEach(t => {
+    document.getElementById('f-' + t).classList.toggle('active', t === tipo);
+  });
+  renderTable();
+}
+
 function renderTable() {
+  const status = getStatus();
+  const busca = (document.getElementById('proc-busca')?.value || '').toLowerCase();
   const tbody = document.getElementById('proc-tbody');
   tbody.innerHTML = '';
+  let visiveis = 0;
+
   processos.forEach((p, i) => {
+    const tratado = !!status[p.pasta || p.processo];
+
+    if (filtroAtual === 'pendentes' && tratado) return;
+    if (filtroAtual === 'tratados' && !tratado) return;
+    if (busca && !`${p.pasta} ${p.processo} ${p.parte} ${p.descricao}`.toLowerCase().includes(busca)) return;
+
+    visiveis++;
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${p.pasta}</td><td style="font-family:monospace;font-size:11px;">${p.processo}</td><td>${p.cliente}</td><td>${p.parte}</td><td>${p.descricao}</td><td><span class="badge badge-esaj">e-SAJ</span></td>`;
+    if (tratado) tr.classList.add('tratado');
+
+    const s = getStatus();
+    const key = p.pasta || p.processo;
+    const tratativa = (s[key] && s[key].tratativa) || '';
+    const classeStatus = {
+      'CUMPRIDO': 'st-cumprido', 'CANCELADO': 'st-cancelado',
+      'REAGENDADO': 'st-reagendado', 'TRANSFERIDO': 'st-transferido',
+      'AG. RETORNO': 'st-ag-retorno', 'PENDENTE': 'st-pendente'
+    }[tratativa] || '';
+    if (classeStatus) tr.classList.add(classeStatus);
+    if (tratativa === 'CUMPRIDO') tr.classList.add('tratado');
+
+    const conclusao = calcularConclusao(s[key] || {});
+    const badgeLabel = tratativa || 'Pendente';
+    const badgeClass = tratativa ? 'badge-' + tratativa.toLowerCase().replace('.','').replace(' ','-') : 'badge-pendente';
+
+    tr.innerHTML = `
+      <td>${p.pasta}</td>
+      <td style="font-family:monospace;font-size:11px;">${p.processo}</td>
+      <td style="font-size:12px;">${p.cliente}</td>
+      <td style="font-size:12px;">${p.parte}</td>
+      <td style="font-size:12px;">${p.descricao}</td>
+      <td style="text-align:center; white-space:nowrap;">
+        <span class="badge" style="margin-bottom:3px;">${badgeLabel}</span><br>
+        ${conclusao ? `<span style="font-size:10px; color:var(--text3);">${conclusao.slice(0,30)}${conclusao.length>30?'…':''}</span><br>` : ''}
+        <button class="btn btn-secondary btn-sm" style="margin-top:3px;" onclick="event.stopPropagation();abrirTP(${i})">
+          Tratativa
+        </button>
+      </td>`;
+
     tr.onclick = () => selProc(i, tr);
     tbody.appendChild(tr);
   });
+
+  const pendentes = processos.filter(p => !status[p.pasta || p.processo]).length;
+  const tratados = processos.length - pendentes;
+  document.getElementById('proc-count').textContent =
+    `${processos.length} processos · ${pendentes} pendentes · ${tratados} tratados · exibindo ${visiveis}`;
 }
+
+function toggleTratado(key, idx) {
+  const s = getStatus();
+  const atual = !!s[key];
+  setStatus(key, !atual);
+  renderTable();
+}
+
+// ── CÁLCULO CONCLUSÃO (coluna O) ─────────────────────────────
+function calcularConclusao(t) {
+  const fmt = d => d ? new Date(d).toLocaleDateString('pt-BR') : '';
+  const suf = n => n ? ' - ' + n : '';
+  switch(t.tratativa) {
+    case 'CUMPRIDO':    return 'cumprido' + suf(t.justificativa);
+    case 'CANCELADO':   return 'cancelado' + suf(t.justificativa);
+    case 'REAGENDADO':  return 'reagendado em ' + fmt(t.data) + suf(t.justificativa);
+    case 'TRANSFERIDO': return 'transferido para ' + (t.transferido||'') + (t.data ? ' em ' + fmt(t.data) : '') + suf(t.justificativa);
+    case 'AG. RETORNO': return 'ag. retorno em ' + fmt(t.data) + suf(t.justificativa);
+    case 'PENDENTE':    return 'pendente' + suf(t.justificativa);
+    default:            return '';
+  }
+}
+
+// ── VALIDAÇÃO ────────────────────────────────────────────────
+function validarTratativa(t) {
+  const erros = [];
+  if (!t.tratativa) return erros;
+  if (t.tratativa === 'CANCELADO' && !t.justificativa) erros.push('Justificativa obrigatória para CANCELADO.');
+  if (t.tratativa === 'REAGENDADO' && !t.data) erros.push('Data obrigatória para REAGENDADO.');
+  if (t.tratativa === 'REAGENDADO' && t.data && !t.justificativa) erros.push('Justificativa obrigatória para REAGENDADO.');
+  if (t.tratativa === 'TRANSFERIDO' && !t.transferido) erros.push('Responsável obrigatório para TRANSFERIDO.');
+  if (t.tratativa === 'TRANSFERIDO' && t.transferido && !t.justificativa) erros.push('Justificativa obrigatória para TRANSFERIDO.');
+  if (t.tratativa === 'AG. RETORNO' && !t.data) erros.push('Data obrigatória para AG. RETORNO.');
+  if (t.tratativa === 'AG. RETORNO' && t.data && !t.justificativa) erros.push('Justificativa obrigatória para AG. RETORNO.');
+  if (t.tratativa === 'PENDENTE' && !t.justificativa) erros.push('Justificativa obrigatória para PENDENTE.');
+  return erros;
+}
+
+// ── PAINEL DE TRATATIVA ───────────────────────────────────────
+let tpIdx = -1;
+
+function abrirTP(i) {
+  tpIdx = i;
+  const p = processos[i];
+  const key = p.pasta || p.processo;
+  const s = getStatus();
+  const t = s[key] || {};
+
+  document.getElementById('tp-titulo').textContent = 'Tratativa — Pasta ' + (p.pasta || p.processo);
+  document.getElementById('tp-info').innerHTML =
+    `<b>Processo:</b> ${p.processo}<br><b>Parte:</b> ${p.parte || '—'}<br><b>Descrição:</b> ${p.descricao || '—'}`;
+
+  document.getElementById('tp-responsavel').value = t.responsavel || '';
+  document.getElementById('tp-tratativa').value = t.tratativa || '';
+  document.getElementById('tp-transferido').value = t.transferido || '';
+  document.getElementById('tp-data').value = t.data || '';
+  document.getElementById('tp-justificativa').value = t.justificativa || '';
+
+  onTratativaChange();
+  document.getElementById('tp').classList.add('open');
+  document.getElementById('tp-overlay').style.display = 'block';
+}
+
+function fecharTP() {
+  document.getElementById('tp').classList.remove('open');
+  document.getElementById('tp-overlay').style.display = 'none';
+  tpIdx = -1;
+}
+
+function onTratativaChange() {
+  const tv = document.getElementById('tp-tratativa').value;
+  const showTransferido = tv === 'TRANSFERIDO';
+  const showData = ['REAGENDADO','TRANSFERIDO','AG. RETORNO'].includes(tv);
+  const showJust = ['CANCELADO','REAGENDADO','TRANSFERIDO','AG. RETORNO','PENDENTE'].includes(tv);
+
+  document.getElementById('tp-field-transferido').classList.toggle('field-hidden', !showTransferido);
+  document.getElementById('tp-field-data').classList.toggle('field-hidden', !showData);
+  document.getElementById('tp-field-justificativa').classList.toggle('field-hidden', !showJust);
+
+  // Atualizar preview conclusão
+  const t = coletarCamposTP();
+  document.getElementById('tp-conclusao').textContent = calcularConclusao(t) || '—';
+
+  // Alertas em tempo real
+  const erros = validarTratativa(t);
+  const al = document.getElementById('tp-alertas');
+  al.innerHTML = erros.map(e => `<div class="status status-error" style="margin-bottom:4px;">${e}</div>`).join('');
+}
+
+function coletarCamposTP() {
+  return {
+    responsavel: document.getElementById('tp-responsavel').value.trim(),
+    tratativa: document.getElementById('tp-tratativa').value,
+    transferido: document.getElementById('tp-transferido').value,
+    data: document.getElementById('tp-data').value,
+    justificativa: document.getElementById('tp-justificativa').value.trim(),
+  };
+}
+
+function salvarTratativa() {
+  if (tpIdx < 0) return;
+  const t = coletarCamposTP();
+  const erros = validarTratativa(t);
+  if (erros.length > 0) {
+    document.getElementById('tp-alertas').innerHTML =
+      erros.map(e => `<div class="status status-error" style="margin-bottom:4px;">${e}</div>`).join('');
+    return;
+  }
+  const p = processos[tpIdx];
+  const key = p.pasta || p.processo;
+  t.conclusao = calcularConclusao(t);
+  const s = getStatus();
+  s[key] = t;
+  try { localStorage.setItem(LS_STATUS, JSON.stringify(s)); } catch(e) {}
+  fecharTP();
+  renderTable();
+}
+
+// ── EXPORTAR XLSX ATUALIZADO ──────────────────────────────────
+function exportarXLSX() {
+  if (processos.length === 0) { alert('Nenhuma planilha carregada.'); return; }
+  const s = getStatus();
+
+  // Reconstruir dados com colunas J-O atualizadas
+  const rows = processos.map(p => {
+    const key = p.pasta || p.processo;
+    const t = s[key] || {};
+    const raw = { ...(p._raw || {}) };
+    // Mapear colunas pela letra (J=9, K=10, L=11, M=12, N=13, O=14 — 0-indexed)
+    // Usar os nomes de cabeçalho existentes ou padrão
+    const colJ = encontrarColuna(raw, ['responsável','responsavel','j']) || 'Responsável';
+    const colK = encontrarColuna(raw, ['tratativa','k']) || 'Tratativa';
+    const colL = encontrarColuna(raw, ['transferido','l']) || 'Transferido para';
+    const colM = encontrarColuna(raw, ['data','m']) || 'Data';
+    const colN = encontrarColuna(raw, ['justificativa','n']) || 'Justificativa';
+    const colO = encontrarColuna(raw, ['conclusão','conclusao','o']) || 'Conclusão';
+    raw[colJ] = t.responsavel || raw[colJ] || '';
+    raw[colK] = t.tratativa || raw[colK] || '';
+    raw[colL] = t.transferido || raw[colL] || '';
+    raw[colM] = t.data || raw[colM] || '';
+    raw[colN] = t.justificativa || raw[colN] || '';
+    raw[colO] = t.conclusao || raw[colO] || '';
+    return raw;
+  });
+
+  const ws = XLSX.utils.json_to_sheet(rows);
+
+  // Aplicar larguras
+  ws['!cols'] = Array(20).fill({ wch: 18 });
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Processos');
+  XLSX.writeFile(wb, 'processos_atualizado_' + new Date().toISOString().slice(0,10) + '.xlsx');
+}
+
+function encontrarColuna(row, termos) {
+  for (const t of termos) {
+    const k = Object.keys(row).find(k => k.toLowerCase().replace(/[^a-z]/g,'').includes(t.replace(/[^a-z]/g,'')));
+    if (k) return k;
+  }
+  return null;
+}
+
+function confirmarLimparPlanilha() {
+  if (confirm('Isso removerá a planilha salva e os status de processos. Confirma?')) {
+    localStorage.removeItem(LS_PROC);
+    localStorage.removeItem(LS_STATUS);
+    processos = [];
+    document.getElementById('card-upload-xlsx').style.display = 'block';
+    document.getElementById('proc-header').style.display = 'none';
+    document.getElementById('table-wrap').style.display = 'none';
+  }
+}
+
 function selProc(i, tr) {
   document.querySelectorAll('#proc-tbody tr').forEach(r => r.classList.remove('sel'));
   tr.classList.add('sel');
@@ -718,6 +1013,7 @@ function limpar() {
 }
 
 (function() {
+  // Restaurar chaves de API
   const oai = sessionStorage.getItem('oai_key');
   const ant = sessionStorage.getItem('ant_key');
   if (oai) {
@@ -730,8 +1026,82 @@ function limpar() {
     document.getElementById('status-anthropic').textContent = 'Chave Anthropic salva.';
     document.getElementById('nn-config').classList.add('ok');
   }
+
+  // Restaurar planilha salva no localStorage
+  try {
+    const saved = localStorage.getItem(LS_PROC);
+    if (saved) {
+      processos = JSON.parse(saved);
+      if (processos.length > 0) {
+        document.getElementById('card-upload-xlsx').style.display = 'none';
+        iniciarTabelaProc();
+        document.getElementById('nn-processos').classList.add('ok');
+      }
+    }
+  } catch(e) {}
+
   checkBtn();
 })();
 </script>
+  <!-- PAINEL TRATATIVA -->
+  <div class="tratativa-panel" id="tp">
+    <div class="tp-header">
+      <h3 id="tp-titulo">Tratativa</h3>
+      <button class="tp-close" onclick="fecharTP()">×</button>
+    </div>
+    <div class="tp-body">
+      <div class="tp-proc-info" id="tp-info"></div>
+
+      <div class="field">
+        <label>Responsável (coluna J)</label>
+        <input type="text" id="tp-responsavel" placeholder="Nome do responsável" oninput="onTratativaChange()" />
+      </div>
+
+      <div class="field">
+        <label>Tratativa (coluna K)</label>
+        <select id="tp-tratativa" onchange="onTratativaChange()">
+          <option value="">— selecione —</option>
+          <option value="CUMPRIDO">CUMPRIDO</option>
+          <option value="CANCELADO">CANCELADO</option>
+          <option value="REAGENDADO">REAGENDADO</option>
+          <option value="TRANSFERIDO">TRANSFERIDO</option>
+          <option value="AG. RETORNO">AG. RETORNO</option>
+          <option value="PENDENTE">PENDENTE</option>
+        </select>
+      </div>
+
+      <div class="field" id="tp-field-transferido">
+        <label>Transferido para (coluna L)</label>
+        <select id="tp-transferido" onchange="onTratativaChange()">
+          <option value="">— selecione —</option>
+          <option value="CARMO">CARMO</option>
+          <option value="MAYARA">MAYARA</option>
+        </select>
+      </div>
+
+      <div class="field" id="tp-field-data">
+        <label>Data (coluna M)</label>
+        <input type="date" id="tp-data" onchange="onTratativaChange()" />
+      </div>
+
+      <div class="field" id="tp-field-justificativa">
+        <label>Justificativa (coluna N)</label>
+        <textarea id="tp-justificativa" style="min-height:70px;" placeholder="Justificativa..." oninput="onTratativaChange()"></textarea>
+      </div>
+
+      <div class="field" style="margin-top:12px;">
+        <label>Conclusão (coluna O — gerada automaticamente)</label>
+        <div id="tp-conclusao" style="font-size:12px; padding:8px; background:var(--surface2); border-radius:var(--radius-sm); border:1px solid var(--border); color:var(--text2); min-height:32px;"></div>
+      </div>
+
+      <div id="tp-alertas" style="margin-top:10px;"></div>
+    </div>
+    <div class="tp-footer">
+      <button class="btn btn-primary" style="flex:1;" onclick="salvarTratativa()">Salvar tratativa</button>
+      <button class="btn btn-secondary" onclick="fecharTP()">Cancelar</button>
+    </div>
+  </div>
+  <div id="tp-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.3); z-index:199;" onclick="fecharTP()"></div>
+
 </body>
 </html>
