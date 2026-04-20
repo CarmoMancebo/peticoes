@@ -189,6 +189,9 @@
           <code id="redirect-uri-display" style="font-size:11px; color:var(--blue); word-break:break-all;"></code>
         </div>
         <div id="od-status" class="tip" style="margin-top:8px;"></div>
+        <div style="margin-top:6px;">
+          <button class="btn btn-secondary btn-sm" onclick="diagnosticar()" id="btn-diag" style="display:none">Diagnóstico</button>
+        </div>
 
         <div id="od-browser" style="display:none; margin-top:12px;">
           <div class="od-path" id="od-path">Raiz do OneDrive</div>
@@ -391,7 +394,8 @@ async function conectar() {
     if (e.errorCode === 'user_cancelled') {
       setOdStatus('warn', 'Autenticação cancelada pelo usuário.');
     } else {
-      setOdStatus('error', 'Erro na autenticação: ' + (e.errorMessage || e.message || String(e)));
+      const det = e.errorCode ? `[${e.errorCode}] ` : '';
+      setOdStatus('error', 'Erro na autenticação: ' + det + (e.errorMessage || e.message || JSON.stringify(e)));
     }
   }
 }
@@ -400,6 +404,7 @@ function onConnected() {
   document.getElementById('od-badge').className = 'conn-badge conn-ok';
   document.getElementById('od-badge').textContent = 'Conectado';
   document.getElementById('btn-desconectar').style.display = 'inline-flex';
+  document.getElementById('btn-diag').style.display = 'inline-flex';
   document.getElementById('od-browser').style.display = 'block';
   setOdStatus('success', 'Conectado. Navegue e selecione os arquivos de referência.');
   browseOD('');
@@ -422,10 +427,18 @@ async function browseOD(itemId) {
     : `https://graph.microsoft.com/v1.0/me/drive/root/children?$select=id,name,file,folder,size&$top=60`;
   try {
     const r = await fetch(url, { headers: { Authorization: 'Bearer ' + odToken } });
-    if (!r.ok) { setOdStatus('error', 'Erro ao acessar OneDrive. Tente reconectar.'); return; }
+    if (!r.ok) {
+      let errMsg = 'HTTP ' + r.status;
+      try {
+        const errData = await r.json();
+        errMsg = errData.error?.message || errData.error?.code || errMsg;
+      } catch(e) {}
+      setOdStatus('error', 'Erro OneDrive (' + errMsg + '). Clique em Desconectar e reconecte.');
+      return;
+    }
     const d = await r.json();
     renderOD(d.value || [], itemId);
-  } catch(e) { setOdStatus('error', e.message); }
+  } catch(e) { setOdStatus('error', 'Erro de rede: ' + e.message); }
 }
 
 function renderOD(items, currentId) {
@@ -672,6 +685,30 @@ function limpar() {
   const el = document.getElementById('redirect-uri-display');
   if (el) el.textContent = uri;
 })();
+
+async function diagnosticar() {
+  if (!odToken) { alert('Sem token. Faça login primeiro.'); return; }
+  try {
+    const r = await fetch('https://graph.microsoft.com/v1.0/me', {
+      headers: { Authorization: 'Bearer ' + odToken }
+    });
+    const d = await r.json();
+    if (d.displayName) {
+      alert('Token válido. Usuário: ' + d.displayName + ' (' + d.mail + ')\nAgora testando Drive...');
+      const r2 = await fetch('https://graph.microsoft.com/v1.0/me/drive', {
+        headers: { Authorization: 'Bearer ' + odToken }
+      });
+      const d2 = await r2.json();
+      if (d2.id) {
+        alert('Drive OK: ' + (d2.driveType || 'personal') + ' — ' + Math.round((d2.quota?.used||0)/1024/1024) + ' MB usado');
+      } else {
+        alert('Erro no Drive: ' + JSON.stringify(d2.error));
+      }
+    } else {
+      alert('Erro no token: ' + JSON.stringify(d.error));
+    }
+  } catch(e) { alert('Erro de rede: ' + e.message); }
+}
 
 const sk = sessionStorage.getItem('oai_key');
 if (sk) { document.getElementById('api-key').value = sk; document.getElementById('key-status').textContent = 'Chave já salva.'; document.getElementById('nn-config').classList.add('ok'); checkBtn(); }
