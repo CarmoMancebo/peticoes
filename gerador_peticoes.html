@@ -356,10 +356,13 @@ async function conectar() {
   sessionStorage.setItem('od_cid', cid); sessionStorage.setItem('od_tid', tid);
 
   try {
+    // Conta pessoal Microsoft: usar authority "consumers"
+    // Tenant ID corporativo causa erro SPO license em contas pessoais
+    const authority = 'https://login.microsoftonline.com/consumers';
     msalApp = new msal.PublicClientApplication({
       auth: {
         clientId: cid,
-        authority: `https://login.microsoftonline.com/${tid}`,
+        authority: authority,
         redirectUri: window.location.href.split('?')[0].split('#')[0]
       },
       cache: { cacheLocation: 'sessionStorage' }
