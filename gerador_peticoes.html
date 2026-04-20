@@ -120,35 +120,9 @@ tbody tr.st-p td{background:#b3e5fc}
     <!-- CONFIG -->
     <div id="panel-cfg" class="panel active">
       <div class="panel-title">Configuração</div>
-      <div class="panel-sub">Configure o modelo de IA e peças de referência.</div>
+      <div class="panel-sub">Selecione peças de referência para uso como modelo de estilo e estrutura.</div>
 
-      <div class="card">
-        <div class="card-title">Modelo de IA</div>
-        <div class="field">
-          <label>Modelo padrão</label>
-          <select id="sel-modelo" onchange="toggleApi()">
-            <option value="gpt4o">GPT-4o (OpenAI) — peças simples e manifestações</option>
-            <option value="claude-sonnet">Claude Sonnet (Anthropic) — peças complexas</option>
-            <option value="claude-opus">Claude Opus (Anthropic) — máxima qualidade</option>
-          </select>
-        </div>
-        <div id="div-openai" class="field">
-          <label>Chave de API — OpenAI</label>
-          <div style="display:flex;gap:8px">
-            <input type="password" id="key-openai" placeholder="sk-..." style="flex:1" />
-            <button class="btn btn-s" onclick="saveKey('openai')">Salvar</button>
-          </div>
-          <div id="st-openai" class="tip"></div>
-        </div>
-        <div id="div-anthropic" class="field fhide">
-          <label>Chave de API — Anthropic</label>
-          <div style="display:flex;gap:8px">
-            <input type="password" id="key-anthropic" placeholder="sk-ant-..." style="flex:1" />
-            <button class="btn btn-s" onclick="saveKey('anthropic')">Salvar</button>
-          </div>
-          <div id="st-anthropic" class="tip"></div>
-        </div>
-      </div>
+
 
       <div class="card">
         <div class="card-title">Peças de referência</div>
@@ -223,6 +197,36 @@ tbody tr.st-p td{background:#b3e5fc}
     <div id="panel-ger" class="panel">
       <div class="panel-title">Gerar petição</div>
       <div class="panel-sub">Preencha os dados, informe o andamento e gere a minuta.</div>
+
+      <div class="card">
+        <div class="card-title">Modelo de IA e API</div>
+        <div class="row2">
+          <div class="field">
+            <label>Modelo</label>
+            <select id="sel-modelo" onchange="toggleApi()">
+              <option value="gpt4o">GPT-4o (OpenAI) — peças simples e manifestações</option>
+              <option value="claude-sonnet">Claude Sonnet (Anthropic) — peças complexas</option>
+              <option value="claude-opus">Claude Opus (Anthropic) — máxima qualidade</option>
+            </select>
+          </div>
+          <div id="div-openai" class="field">
+            <label>Chave de API — OpenAI</label>
+            <div style="display:flex;gap:8px">
+              <input type="password" id="key-openai" placeholder="sk-..." style="flex:1" />
+              <button class="btn btn-s btn-sm" onclick="saveKey('openai')">Salvar</button>
+            </div>
+            <div id="st-openai" class="tip"></div>
+          </div>
+          <div id="div-anthropic" class="field fhide">
+            <label>Chave de API — Anthropic</label>
+            <div style="display:flex;gap:8px">
+              <input type="password" id="key-anthropic" placeholder="sk-ant-..." style="flex:1" />
+              <button class="btn btn-s btn-sm" onclick="saveKey('anthropic')">Salvar</button>
+            </div>
+            <div id="st-anthropic" class="tip"></div>
+          </div>
+        </div>
+      </div>
 
       <div class="card">
         <div class="card-title">Dados do processo</div>
