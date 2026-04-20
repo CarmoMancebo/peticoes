@@ -3,183 +3,128 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Gerador de Petições — Saúde Suplementar</title>
+<title>Gerador de Petições — Carmo Mancebo</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #f5f4f0;
-    --surface: #ffffff;
-    --surface2: #f1efe9;
-    --border: rgba(0,0,0,0.10);
-    --border2: rgba(0,0,0,0.18);
-    --text: #1a1a18;
-    --text2: #5f5e5a;
-    --text3: #888780;
-    --blue: #185FA5;
-    --blue-bg: #E6F1FB;
-    --blue-mid: #378ADD;
-    --green-bg: #EAF3DE;
-    --green: #3B6D11;
-    --amber-bg: #FAEEDA;
-    --amber: #854F0B;
-    --red-bg: #FCEBEB;
-    --red: #A32D2D;
-    --radius: 10px;
-    --radius-sm: 6px;
-  }
-  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; min-height: 100vh; }
-  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; gap: 1rem; height: 56px; position: sticky; top: 0; z-index: 100; }
-  .topbar-logo { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -.01em; }
-  .topbar-logo span { color: var(--blue); }
-  .topbar-meta { font-size: 12px; color: var(--text3); margin-left: auto; }
-  .layout { display: flex; min-height: calc(100vh - 56px); }
-  .sidebar { width: 220px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); padding: 1.5rem 0; position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto; }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 1.5rem; cursor: pointer; font-size: 13px; color: var(--text2); border-left: 2px solid transparent; transition: all .12s; }
-  .nav-item:hover { background: var(--surface2); color: var(--text); }
-  .nav-item.active { color: var(--blue); border-left-color: var(--blue); background: var(--blue-bg); font-weight: 500; }
-  .nav-num { width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--border2); font-size: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .nav-num.ok { background: var(--green-bg); border-color: var(--green); color: var(--green); }
-  .nav-num.active { background: var(--blue-bg); border-color: var(--blue-mid); color: var(--blue); }
-  .nav-sep { height: 1px; background: var(--border); margin: 0.75rem 1.5rem; }
-  .main { flex: 1; padding: 2rem; max-width: 820px; }
-  .panel { display: none; }
-  .panel.active { display: block; }
-  .panel-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
-  .panel-sub { font-size: 13px; color: var(--text2); margin-bottom: 1.5rem; }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; }
-  .card-title { font-size: 13px; font-weight: 600; margin-bottom: 1rem; color: var(--text); }
-  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-  .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-  .field { margin-bottom: 12px; }
-  .field:last-child { margin-bottom: 0; }
-  label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 4px; font-weight: 500; }
-  input[type=text], input[type=password], select, textarea {
-    width: 100%; padding: 8px 10px; border: 1px solid var(--border2); border-radius: var(--radius-sm);
-    font-size: 13px; font-family: inherit; background: var(--surface); color: var(--text);
-    outline: none; transition: border-color .12s;
-  }
-  input:focus, select:focus, textarea:focus { border-color: var(--blue-mid); box-shadow: 0 0 0 3px rgba(56,138,221,0.12); }
-  textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
-  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; cursor: pointer; font-weight: 500; transition: all .12s; border: 1px solid transparent; }
-  .btn:active { transform: scale(0.98); }
-  .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
-  .btn-primary { background: var(--blue); color: #fff; border-color: var(--blue); }
-  .btn-primary:hover:not(:disabled) { background: #1450880; opacity: .9; }
-  .btn-secondary { background: var(--surface); border-color: var(--border2); color: var(--text); }
-  .btn-secondary:hover { background: var(--surface2); }
-  .btn-ms { background: #0078D4; color: #fff; border-color: #0078D4; }
-  .btn-ms:hover { opacity: .9; }
-  .btn-danger { background: var(--surface); border-color: var(--border2); color: var(--red); }
-  .btn-danger:hover { background: var(--red-bg); }
-  .btn-sm { padding: 5px 10px; font-size: 12px; }
-  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-  .status { font-size: 12px; padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
-  .status-info { background: var(--blue-bg); color: var(--blue); }
-  .status-success { background: var(--green-bg); color: var(--green); }
-  .status-error { background: var(--red-bg); color: var(--red); }
-  .status-warn { background: var(--amber-bg); color: var(--amber); }
-  .file-zone { border: 1.5px dashed var(--border2); border-radius: var(--radius); padding: 1.25rem; text-align: center; cursor: pointer; transition: all .12s; }
-  .file-zone:hover { background: var(--surface2); border-color: var(--blue-mid); }
-  .file-zone p { font-size: 13px; color: var(--text2); margin-bottom: 4px; }
-  .file-zone small { font-size: 11px; color: var(--text3); }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  thead th { font-weight: 600; font-size: 11px; color: var(--text2); text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); background: var(--surface2); }
-  tbody td { padding: 7px 10px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
-  tbody tr:hover td { background: var(--surface2); cursor: pointer; }
-  tbody tr.sel td { background: var(--blue-bg); }
-  .badge { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 600; }
-  .badge-esaj { background: var(--blue-bg); color: var(--blue); }
-  .badge-eproc { background: var(--green-bg); color: var(--green); }
-  .badge-tratado { background: var(--green-bg); color: var(--green); }
-  .badge-pendente { background: var(--amber-bg); color: var(--amber); }
-  tbody tr.tratado td { opacity: .6; }
-  tbody tr.tratado td:first-child::before { content: '✓ '; color: var(--green); font-weight: 700; }
-  .filter-bar { display: flex; gap: 6px; margin-bottom: 10px; align-items: center; }
-  .filter-btn { padding: 4px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; border: 1px solid var(--border2); background: var(--surface); color: var(--text2); font-family: inherit; }
-  .filter-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
-  .proc-info { font-size: 11px; color: var(--text3); }
-  /* Cores de linha por status */
-  tbody tr.st-cumprido td { background: #d4edda !important; }
-  tbody tr.st-cancelado td { background: #e2e3e5 !important; }
-  tbody tr.st-reagendado td { background: #ffe5b4 !important; }
-  tbody tr.st-transferido td { background: #d1c4e9 !important; }
-  tbody tr.st-ag-retorno td { background: #fff9c4 !important; }
-  tbody tr.st-pendente td { background: #b3e5fc !important; }
-  /* Painel de tratativa */
-  .tratativa-panel { position: fixed; top: 0; right: 0; width: 380px; height: 100vh; background: var(--surface); border-left: 1px solid var(--border2); box-shadow: -4px 0 20px rgba(0,0,0,.12); z-index: 200; display: flex; flex-direction: column; transform: translateX(100%); transition: transform .2s; }
-  .tratativa-panel.open { transform: translateX(0); }
-  .tp-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .tp-header h3 { font-size: 14px; font-weight: 600; }
-  .tp-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text2); line-height: 1; }
-  .tp-body { flex: 1; overflow-y: auto; padding: 1.25rem; }
-  .tp-footer { padding: 1rem 1.25rem; border-top: 1px solid var(--border); display: flex; gap: 8px; }
-  .tp-proc-info { font-size: 11px; color: var(--text3); margin-bottom: 1rem; padding-bottom: 10px; border-bottom: 1px solid var(--border); line-height: 1.6; }
-  .alert-field { border: 1.5px solid #dc3545 !important; background: #fff5f5 !important; }
-  .field-hidden { display: none; }
-  .ref-tag { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 500; background: var(--amber-bg); color: var(--amber); border: 1px solid #FAC775; }
-  .ref-tag button { background: none; border: none; cursor: pointer; color: var(--amber); font-size: 14px; line-height: 1; padding: 0; }
-  .ref-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .od-section { background: var(--surface2); border-radius: var(--radius-sm); padding: 10px; margin-top: 10px; max-height: 220px; overflow-y: auto; border: 1px solid var(--border); }
-  .od-file { display: flex; align-items: center; justify-content: space-between; padding: 5px 8px; border-radius: 4px; font-size: 12px; }
-  .od-file:hover { background: var(--surface); }
-  .od-file.sel { background: #FAEEDA; }
-  .folder-row { display: flex; align-items: center; gap: 6px; padding: 5px 8px; cursor: pointer; font-size: 12px; border-radius: 4px; color: var(--blue); }
-  .folder-row:hover { background: var(--surface); }
-  .od-path { font-size: 11px; color: var(--text3); margin-bottom: 6px; padding: 0 2px; }
-  .conn-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-  .conn-badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 500; }
-  .conn-off { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
-  .conn-ok { background: var(--green-bg); color: var(--green); border: 1px solid #C0DD97; }
-  .output-area { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; font-size: 13px; line-height: 1.8; white-space: pre-wrap; max-height: 500px; overflow-y: auto; color: var(--text); }
-  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text3); }
-  .empty-state svg { margin-bottom: 12px; opacity: .4; }
-  .empty-state p { font-size: 13px; }
-  .tip { font-size: 11px; color: var(--text3); margin-top: 6px; }
-  @media (max-width: 680px) {
-    .sidebar { display: none; }
-    .main { padding: 1rem; }
-    .row-2, .row-3 { grid-template-columns: 1fr; }
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;--surface:#fff;--surface2:#f1efe9;
+  --border:rgba(0,0,0,.10);--border2:rgba(0,0,0,.18);
+  --text:#1a1a18;--text2:#5f5e5a;--text3:#888780;
+  --blue:#185FA5;--blue-bg:#E6F1FB;--blue-mid:#378ADD;
+  --green-bg:#EAF3DE;--green:#3B6D11;
+  --amber-bg:#FAEEDA;--amber:#854F0B;
+  --red-bg:#FCEBEB;--red:#A32D2D;
+  --radius:10px;--radius-sm:6px;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;gap:1rem;height:64px;position:sticky;top:0;z-index:100}
+.topbar-brand{display:flex;flex-direction:column}
+.topbar-name{font-size:13px;font-weight:700;color:var(--text);letter-spacing:.02em}
+.topbar-sub{font-size:11px;color:var(--text3);letter-spacing:.03em}
+.topbar-divider{width:1px;height:28px;background:var(--border2)}
+.topbar-title{font-size:15px;font-weight:500;color:var(--blue)}
+.topbar-meta{font-size:12px;color:var(--text3);margin-left:auto}
+.layout{display:flex;min-height:calc(100vh - 64px)}
+.sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:1.5rem 0;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 1.5rem;cursor:pointer;font-size:13px;color:var(--text2);border-left:2px solid transparent;transition:all .12s}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{color:var(--blue);border-left-color:var(--blue);background:var(--blue-bg);font-weight:500}
+.nav-num{width:20px;height:20px;border-radius:50%;border:1px solid var(--border2);font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-num.ok{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.nav-sep{height:1px;background:var(--border);margin:.75rem 1.5rem}
+.main{flex:1;padding:2rem;max-width:860px}
+.panel{display:none}.panel.active{display:block}
+.panel-title{font-size:18px;font-weight:600;margin-bottom:4px}
+.panel-sub{font-size:13px;color:var(--text2);margin-bottom:1.5rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem}
+.card-title{font-size:13px;font-weight:600;margin-bottom:1rem}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.field{margin-bottom:12px}.field:last-child{margin-bottom:0}
+label{font-size:12px;color:var(--text2);display:block;margin-bottom:4px;font-weight:500}
+input[type=text],input[type=password],input[type=date],select,textarea{width:100%;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;background:var(--surface);color:var(--text);outline:none;transition:border-color .12s}
+input:focus,select:focus,textarea:focus{border-color:var(--blue-mid);box-shadow:0 0 0 3px rgba(56,138,221,.12)}
+textarea{resize:vertical;min-height:90px;line-height:1.6}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;cursor:pointer;font-weight:500;transition:all .12s;border:1px solid transparent}
+.btn:active{transform:scale(.98)}.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}.btn-primary:hover:not(:disabled){opacity:.9}
+.btn-secondary{background:var(--surface);border-color:var(--border2);color:var(--text)}.btn-secondary:hover{background:var(--surface2)}
+.btn-danger{background:var(--surface);border-color:var(--border2);color:var(--red)}.btn-danger:hover{background:var(--red-bg)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.status{font-size:12px;padding:8px 12px;border-radius:var(--radius-sm);margin-bottom:10px}
+.s-info{background:var(--blue-bg);color:var(--blue)}
+.s-ok{background:var(--green-bg);color:var(--green)}
+.s-err{background:var(--red-bg);color:var(--red)}
+.s-warn{background:var(--amber-bg);color:var(--amber)}
+.file-zone{border:1.5px dashed var(--border2);border-radius:var(--radius);padding:1.25rem;text-align:center;cursor:pointer;transition:all .12s}
+.file-zone:hover{background:var(--surface2);border-color:var(--blue-mid)}
+.file-zone p{font-size:13px;color:var(--text2);margin-bottom:4px}
+.file-zone small{font-size:11px;color:var(--text3)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{font-weight:600;font-size:11px;color:var(--text2);text-align:left;padding:7px 8px;border-bottom:1px solid var(--border);background:var(--surface2)}
+tbody td{padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tbody tr:hover td{background:var(--surface2);cursor:pointer}
+tbody tr.sel td{background:var(--blue-bg)}
+tbody tr.s-cumprido td{background:#d4edda}
+tbody tr.s-cancelado td{background:#e2e3e5}
+tbody tr.s-reagendado td{background:#ffe5b4}
+tbody tr.s-transferido td{background:#d1c4e9}
+tbody tr.s-agretorno td{background:#fff9c4}
+tbody tr.s-pendente td{background:#b3e5fc}
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;background:var(--surface2);color:var(--text2)}
+.filter-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.fbtn{padding:4px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text2);font-family:inherit}
+.fbtn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.ref-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;background:var(--amber-bg);color:var(--amber);border:1px solid #FAC775}
+.ref-tag button{background:none;border:none;cursor:pointer;color:var(--amber);font-size:14px;line-height:1;padding:0}
+.ref-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.output-area{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem;font-size:13px;line-height:1.8;white-space:pre-wrap;max-height:500px;overflow-y:auto;color:var(--text)}
+.tip{font-size:11px;color:var(--text3);margin-top:4px}
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--text3)}
+.tp{position:fixed;top:0;right:0;width:380px;height:100vh;background:var(--surface);border-left:1px solid var(--border2);box-shadow:-4px 0 20px rgba(0,0,0,.12);z-index:200;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .2s}
+.tp.open{transform:translateX(0)}
+.tp-hdr{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.tp-hdr h3{font-size:14px;font-weight:600}
+.tp-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);line-height:1;padding:0}
+.tp-body{flex:1;overflow-y:auto;padding:1.25rem}
+.tp-foot{padding:1rem 1.25rem;border-top:1px solid var(--border);display:flex;gap:8px}
+.tp-info{font-size:11px;color:var(--text3);margin-bottom:1rem;padding-bottom:10px;border-bottom:1px solid var(--border);line-height:1.6}
+.fhidden{display:none}
+#tp-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:199}
+@media(max-width:680px){.sidebar{display:none}.main{padding:1rem}.row-2,.row-3{grid-template-columns:1fr}.tp{width:100%}}
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="topbar-logo">Gerador de <span>Petições</span></div>
-  <div class="topbar-meta">Saúde Suplementar · Defesa de Operadoras</div>
+  <div class="topbar-brand">
+    <span class="topbar-name">CARMO MANCEBO</span>
+    <span class="topbar-sub">Advogado</span>
+  </div>
+  <div class="topbar-divider"></div>
+  <span class="topbar-title">Gerador de Petições</span>
+  <span class="topbar-meta">Saúde Suplementar · Defesa de Operadoras</span>
 </div>
 
 <div class="layout">
   <nav class="sidebar">
-    <div class="nav-item active" onclick="go('config')" id="nav-config">
-      <span class="nav-num active" id="nn-config">1</span> Configuração
-    </div>
-    <div class="nav-item" onclick="go('processos')" id="nav-processos">
-      <span class="nav-num" id="nn-processos">2</span> Processos
-    </div>
+    <div class="nav-item active" onclick="go('config')" id="nav-config"><span class="nav-num" id="nn-config">1</span> Configuração</div>
+    <div class="nav-item" onclick="go('processos')" id="nav-processos"><span class="nav-num" id="nn-processos">2</span> Processos</div>
     <div class="nav-sep"></div>
-    <div class="nav-item" onclick="go('gerar')" id="nav-gerar">
-      <span class="nav-num" id="nn-gerar">3</span> Gerar petição
-    </div>
-    <div class="nav-item" onclick="go('resultado')" id="nav-resultado">
-      <span class="nav-num" id="nn-resultado">4</span> Resultado
-    </div>
+    <div class="nav-item" onclick="go('gerar')" id="nav-gerar"><span class="nav-num">3</span> Gerar petição</div>
+    <div class="nav-item" onclick="go('resultado')" id="nav-resultado"><span class="nav-num">4</span> Resultado</div>
   </nav>
 
   <main class="main">
 
-    <!-- CONFIGURAÇÃO -->
     <div id="panel-config" class="panel active">
       <div class="panel-title">Configuração</div>
-      <div class="panel-sub">Configure a API e as peças de referência. Feito uma única vez por sessão.</div>
-
-
-
+      <div class="panel-sub">Configure o modelo de IA e as peças de referência.</div>
       <div class="card">
-        <div class="card-title">Modelos de IA</div>
+        <div class="card-title">Modelo de IA</div>
         <div class="field">
           <label>Modelo padrão</label>
           <select id="modelo-sel" onchange="toggleApiFields()">
@@ -190,99 +135,93 @@
         </div>
         <div id="field-openai" class="field">
           <label>Chave de API — OpenAI</label>
-          <div style="display:flex; gap:8px;">
-            <input type="password" id="api-key-openai" placeholder="sk-..." style="flex:1;" />
-            <button class="btn btn-secondary" onclick="saveApiKey('openai')">Salvar</button>
+          <div style="display:flex;gap:8px">
+            <input type="password" id="api-key-openai" placeholder="sk-..." style="flex:1" />
+            <button class="btn btn-secondary" onclick="saveKey('openai')">Salvar</button>
           </div>
-          <div id="status-openai" class="tip"></div>
+          <div id="st-openai" class="tip"></div>
         </div>
-        <div id="field-anthropic" class="field" style="display:none;">
+        <div id="field-anthropic" class="field" style="display:none">
           <label>Chave de API — Anthropic</label>
-          <div style="display:flex; gap:8px;">
-            <input type="password" id="api-key-anthropic" placeholder="sk-ant-..." style="flex:1;" />
-            <button class="btn btn-secondary" onclick="saveApiKey('anthropic')">Salvar</button>
+          <div style="display:flex;gap:8px">
+            <input type="password" id="api-key-anthropic" placeholder="sk-ant-..." style="flex:1" />
+            <button class="btn btn-secondary" onclick="saveKey('anthropic')">Salvar</button>
           </div>
-          <div id="status-anthropic" class="tip"></div>
+          <div id="st-anthropic" class="tip"></div>
         </div>
       </div>
-
       <div class="card">
         <div class="card-title">Peças de referência</div>
-        <p style="font-size:12px; color:var(--text2); margin-bottom:10px;">Selecione peças já elaboradas como modelo de estilo e estrutura. O texto será extraído e usado no prompt de geração.</p>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Selecione peças elaboradas como modelo de estilo. O texto é extraído e usado no prompt.</p>
         <div class="file-zone" onclick="document.getElementById('ref-input').click()">
           <p>Selecionar arquivos .docx ou .txt</p>
           <small>Múltiplos arquivos · Conteúdo extraído automaticamente</small>
         </div>
-        <input type="file" id="ref-input" accept=".docx,.txt" multiple style="display:none" onchange="loadRefLocal(this)" />
-        <div class="ref-list" id="ref-list-local"></div>
-        <div id="ref-total" class="tip" style="margin-top:6px;"></div>
+        <input type="file" id="ref-input" accept=".docx,.txt" multiple style="display:none" onchange="loadRefs(this)" />
+        <div class="ref-list" id="ref-list"></div>
+        <div class="tip" id="ref-total"></div>
       </div>
-
       <div class="btn-row">
         <button class="btn btn-primary" onclick="go('processos')">Próximo: Processos →</button>
       </div>
     </div>
 
-    <!-- PROCESSOS -->
     <div id="panel-processos" class="panel">
       <div class="panel-title">Processos</div>
-      <div class="panel-sub">Clique em um processo para selecionar. Marque como "Tratado" após concluir.</div>
-
-      <div class="card" id="card-upload-xlsx">
+      <div class="panel-sub">Clique em um processo para selecioná-lo. Use "Tratativa" para registrar o andamento.</div>
+      <div class="card" id="card-xlsx">
         <div class="file-zone" onclick="document.getElementById('xlsx-input').click()">
           <p>Selecionar planilha Excel (.xlsx)</p>
-          <small>Carregada uma única vez — dados salvos automaticamente no navegador</small>
+          <small>Carregada uma vez — dados salvos automaticamente no navegador</small>
         </div>
         <input type="file" id="xlsx-input" accept=".xlsx,.xls" style="display:none" onchange="loadXLSX(this)" />
       </div>
-
-      <div id="proc-header" style="display:none; margin-bottom:10px;">
-        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+      <div id="proc-header" style="display:none;margin-bottom:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
           <div class="filter-bar">
-            <span style="font-size:12px; color:var(--text2);">Filtrar:</span>
-            <button class="filter-btn active" id="f-todos" onclick="filtrar('todos')">Todos</button>
-            <button class="filter-btn" id="f-pendentes" onclick="filtrar('pendentes')">Pendentes</button>
-            <button class="filter-btn" id="f-tratados" onclick="filtrar('tratados')">Tratados</button>
+            <span style="font-size:12px;color:var(--text2)">Filtrar:</span>
+            <button class="fbtn active" id="f-todos" onclick="filtrar('todos')">Todos</button>
+            <button class="fbtn" id="f-pendentes" onclick="filtrar('pendentes')">Pendentes</button>
+            <button class="fbtn" id="f-tratados" onclick="filtrar('tratados')">Tratados</button>
           </div>
-          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-            <span class="proc-info" id="proc-count"></span>
-            <button class="btn btn-secondary btn-sm" onclick="exportarXLSX()">Baixar .xlsx atualizado</button>
-            <button class="btn btn-secondary btn-sm" onclick="confirmarLimparPlanilha()">Trocar planilha</button>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <span class="tip" id="proc-count"></span>
+            <button class="btn btn-secondary btn-sm" onclick="exportXLSX()">Baixar .xlsx</button>
+            <button class="btn btn-secondary btn-sm" onclick="trocarPlanilha()">Trocar planilha</button>
           </div>
         </div>
-        <div style="margin-top:6px;">
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <input type="text" id="proc-busca" placeholder="Buscar por pasta, processo, parte ou descrição..." oninput="renderTable()" style="font-size:12px; flex:1; min-width:200px;" />
-          <select id="proc-resp" onchange="renderTable()" style="font-size:12px; width:140px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="text" id="proc-busca" placeholder="Buscar pasta, processo, parte, descrição..." oninput="renderTable()" style="font-size:12px;flex:1;min-width:200px" />
+          <select id="proc-resp" onchange="renderTable()" style="font-size:12px;width:150px">
             <option value="">Todos os responsáveis</option>
-            <option value="CARMO">CARMO</option>
-            <option value="MAY">MAY / MAYARA</option>
-            <option value="BIANCA">BIANCA</option>
-            <option value="GABI">GABI</option>
-            <option value="CINTHIA">CINTHIA</option>
+            <option value="carmo">CARMO</option>
+            <option value="may">MAY / MAYARA</option>
+            <option value="bianca">BIANCA</option>
+            <option value="gabi">GABI</option>
+            <option value="cinthia">CINTHIA</option>
           </select>
         </div>
-        </div>
       </div>
-
-      <div id="table-wrap" style="display:none; overflow-x:auto;">
+      <div id="table-wrap" style="display:none;overflow-x:auto">
         <table>
-          <thead><tr><th>Pasta</th><th>Processo</th><th>Prazo</th><th>Tipo</th><th>Parte contrária</th><th>Descrição</th><th>Resp.</th><th style="text-align:center;">Tratativa</th></tr></thead>
+          <thead><tr>
+            <th>Pasta</th><th>Processo</th><th>Prazo</th><th>Tipo</th>
+            <th>Parte contrária</th><th>Descrição</th><th>Resp.</th>
+            <th style="text-align:center">Tratativa</th>
+          </tr></thead>
           <tbody id="proc-tbody"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- GERAR -->
     <div id="panel-gerar" class="panel">
       <div class="panel-title">Gerar petição</div>
-      <div class="panel-sub">Preencha os dados, cole o andamento e gere a minuta.</div>
-
+      <div class="panel-sub">Preencha os dados, informe o andamento e gere a minuta.</div>
       <div class="card">
         <div class="card-title">Dados do processo</div>
         <div class="row-3">
-          <div class="field"><label>Pasta</label><input type="text" id="f-pasta" placeholder="Ex.: 12345" /></div>
-          <div class="field"><label>Número do processo</label><input type="text" id="f-proc" placeholder="0000000-00.0000.8.26.0000" oninput="checkBtn()" /></div>
+          <div class="field"><label>Pasta</label><input type="text" id="f-pasta" /></div>
+          <div class="field"><label>Número do processo</label><input type="text" id="f-proc" oninput="checkBtn()" /></div>
           <div class="field"><label>Sistema</label>
             <select id="f-sistema">
               <option>e-SAJ (TJSP)</option><option>e-Proc (TJSP)</option><option>PJe</option><option>Outro</option>
@@ -290,32 +229,29 @@
           </div>
         </div>
         <div class="row-2">
-          <div class="field"><label>Cliente (executada / ré)</label><input type="text" id="f-cliente" value="Amil Assistência Médica Internacional S.A." /></div>
-          <div class="field"><label>Parte contrária</label><input type="text" id="f-parte" placeholder="Nome do autor / exequente" /></div>
+          <div class="field"><label>Cliente (executada / ré)</label><input type="text" id="f-cliente" value="Notre Dame Intermédica Saúde S/A" /></div>
+          <div class="field"><label>Parte contrária</label><input type="text" id="f-parte" /></div>
         </div>
-        <div class="field"><label>Descrição da demanda</label><input type="text" id="f-descricao" placeholder="Ex.: Cumprimento provisório — cobertura de tratamento" /></div>
+        <div class="field"><label>Descrição da demanda</label><input type="text" id="f-descricao" /></div>
       </div>
-
       <div class="card">
         <div class="card-title">Andamento do tribunal</div>
-        <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
-          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('andamento-file').click()">
-            📎 Carregar arquivo (PDF, DOCX, TXT)
-          </button>
-          <span id="andamento-file-nome" style="font-size:11px; color:var(--text3); align-self:center;"></span>
-          <button class="btn btn-secondary btn-sm" id="btn-limpar-andamento" style="display:none;" onclick="limparAndamento()">× Limpar</button>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('and-file').click()">📎 Carregar arquivo (PDF, DOCX, TXT)</button>
+          <span id="and-nome" style="font-size:11px;color:var(--text3)"></span>
+          <button class="btn btn-secondary btn-sm" id="btn-limpar-and" style="display:none" onclick="limparAnd()">× Limpar</button>
         </div>
-        <input type="file" id="andamento-file" accept=".pdf,.docx,.txt" style="display:none" onchange="carregarAndamento(this)" />
+        <input type="file" id="and-file" accept=".pdf,.docx,.txt" style="display:none" onchange="carregarAnd(this)" />
+        <div id="and-status"></div>
         <div class="field">
           <label>Texto do andamento / decisão / despacho / sentença / acórdão</label>
-          <textarea id="f-andamento" style="min-height:140px;" placeholder="Cole o texto diretamente ou carregue um arquivo acima (PDF, DOCX ou TXT)..."></textarea>
+          <textarea id="f-andamento" style="min-height:140px" placeholder="Cole o texto ou carregue um arquivo acima..."></textarea>
         </div>
-        <div id="andamento-status" style="display:none;"></div>
       </div>
-
       <div class="card">
         <div class="card-title">Configurações da peça</div>
-        <div class="field"><label>Tipo de peça</label>
+        <div class="field">
+          <label>Tipo de peça</label>
           <select id="f-tipo">
             <option value="auto">Identificar automaticamente pelo andamento</option>
             <option value="impugnação ao cumprimento de sentença">Impugnação ao cumprimento de sentença (artigo 525 CPC)</option>
@@ -328,39 +264,33 @@
             <option value="petição simples">Petição simples / informativa</option>
           </select>
         </div>
-        <div class="field"><label>Instruções adicionais / teses específicas (opcional)</label>
-          <textarea id="f-instrucoes" style="min-height:70px;" placeholder="Ex.: incluir tese sobre inexistência de cobertura pelo rol da ANS, questionar quantidade de horas de terapia, abordar ADI 7265..."></textarea>
+        <div class="field">
+          <label>Instruções adicionais / teses específicas (opcional)</label>
+          <textarea id="f-instrucoes" style="min-height:70px" placeholder="Ex.: incluir tese sobre inexistência de cobertura pelo rol da ANS, questionar horas de terapia, abordar ADI 7265..."></textarea>
         </div>
-        <div id="refs-ativas" style="display:none;">
-          <div class="tip" style="margin-bottom:4px;">Referências ativas:</div>
+        <div id="refs-ativas" style="display:none">
+          <div class="tip" style="margin-bottom:4px">Referências ativas:</div>
           <div class="ref-list" id="refs-ativas-lista"></div>
         </div>
       </div>
-
       <div class="btn-row">
         <button class="btn btn-primary" id="btn-gerar" onclick="gerarMinuta()" disabled>Gerar minuta</button>
-        <button class="btn btn-secondary" onclick="limpar()">Limpar formulário</button>
+        <button class="btn btn-secondary" onclick="limparForm()">Limpar</button>
       </div>
     </div>
 
-    <!-- RESULTADO -->
     <div id="panel-resultado" class="panel">
       <div class="panel-title">Resultado</div>
       <div class="panel-sub">Minuta gerada — revise antes de protocolar.</div>
-
-      <div id="res-empty" class="empty-state">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        <p>Nenhuma minuta gerada ainda.<br>Vá para "Gerar petição" para começar.</p>
-      </div>
-
-      <div id="res-content" style="display:none;">
+      <div id="res-empty" class="empty-state"><p>Nenhuma minuta gerada ainda.<br>Vá para "Gerar petição" para começar.</p></div>
+      <div id="res-content" style="display:none">
         <div id="res-status"></div>
-        <div id="res-nome" class="tip" style="margin-bottom:8px;"></div>
+        <div id="res-nome" class="tip" style="margin-bottom:8px"></div>
         <div class="output-area" id="res-text"></div>
         <div class="btn-row">
           <button class="btn btn-primary" onclick="baixarDocx()">Baixar .docx</button>
-          <button class="btn btn-secondary" onclick="copiar()">Copiar texto</button>
-          <button class="btn btn-danger" onclick="descartar()">Descartar</button>
+          <button class="btn btn-secondary" onclick="copiarTexto()">Copiar texto</button>
+          <button class="btn btn-danger" onclick="descartarRes()">Descartar</button>
         </div>
       </div>
     </div>
@@ -368,377 +298,459 @@
   </main>
 </div>
 
+<!-- PAINEL TRATATIVA -->
+<div class="tp" id="tp">
+  <div class="tp-hdr">
+    <h3 id="tp-titulo">Tratativa</h3>
+    <button class="tp-close" onclick="fecharTP()">×</button>
+  </div>
+  <div class="tp-body">
+    <div class="tp-info" id="tp-info"></div>
+    <div class="field"><label>Responsável (col. J)</label><input type="text" id="tp-resp" oninput="updConclusao()" /></div>
+    <div class="field">
+      <label>Tratativa (col. K)</label>
+      <select id="tp-trat" onchange="onTratChange()">
+        <option value="">— selecione —</option>
+        <option value="CUMPRIDO">CUMPRIDO</option>
+        <option value="CANCELADO">CANCELADO</option>
+        <option value="REAGENDADO">REAGENDADO</option>
+        <option value="TRANSFERIDO">TRANSFERIDO</option>
+        <option value="AG. RETORNO">AG. RETORNO</option>
+        <option value="PENDENTE">PENDENTE</option>
+      </select>
+    </div>
+    <div class="field fhidden" id="tp-f-transf">
+      <label>Transferido para (col. L)</label>
+      <select id="tp-transf" onchange="updConclusao()">
+        <option value="">— selecione —</option>
+        <option value="CARMO">CARMO</option>
+        <option value="MAYARA">MAYARA</option>
+      </select>
+    </div>
+    <div class="field fhidden" id="tp-f-data">
+      <label>Data (col. M)</label>
+      <input type="date" id="tp-data" onchange="updConclusao()" />
+    </div>
+    <div class="field fhidden" id="tp-f-just">
+      <label>Justificativa (col. N)</label>
+      <textarea id="tp-just" style="min-height:70px" oninput="updConclusao()"></textarea>
+    </div>
+    <div class="field">
+      <label>Conclusão (col. O — automática)</label>
+      <div id="tp-conclusao" style="font-size:12px;padding:8px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border);color:var(--text2);min-height:32px">—</div>
+    </div>
+    <div id="tp-alertas"></div>
+  </div>
+  <div class="tp-foot">
+    <button class="btn btn-primary" style="flex:1" onclick="salvarTP()">Salvar tratativa</button>
+    <button class="btn btn-secondary" onclick="fecharTP()">Cancelar</button>
+  </div>
+</div>
+<div id="tp-overlay" onclick="fecharTP()"></div>
+
 <script>
-let processos = [], refsLocal = [];
-let lastMinuta = '', lastNome = '';
+var processos = [], refs = [], lastMinuta = '', lastNome = '', tpIdx = -1, filtroAtual = 'todos';
+var LS_P = 'gp_proc', LS_S = 'gp_status';
 
 function go(id) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('panel-' + id).classList.add('active');
-  document.getElementById('nav-' + id).classList.add('active');
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active')});
+  document.getElementById('panel-'+id).classList.add('active');
+  document.getElementById('nav-'+id).classList.add('active');
 }
 
 function toggleApiFields() {
-  const m = document.getElementById('modelo-sel').value;
-  const isAnthropic = m.startsWith('claude');
-  document.getElementById('field-openai').style.display = isAnthropic ? 'none' : 'block';
-  document.getElementById('field-anthropic').style.display = isAnthropic ? 'block' : 'none';
+  var isAnt = document.getElementById('modelo-sel').value.startsWith('claude');
+  document.getElementById('field-openai').style.display = isAnt ? 'none' : 'block';
+  document.getElementById('field-anthropic').style.display = isAnt ? 'block' : 'none';
   checkBtn();
 }
 
-function saveApiKey(provider) {
-  if (provider === 'openai') {
-    const k = document.getElementById('api-key-openai').value.trim();
-    if (!k) return;
-    sessionStorage.setItem('oai_key', k);
-    document.getElementById('status-openai').textContent = 'Chave OpenAI salva.';
-    document.getElementById('nn-config').classList.add('ok');
-  } else {
-    const k = document.getElementById('api-key-anthropic').value.trim();
-    if (!k) return;
-    sessionStorage.setItem('ant_key', k);
-    document.getElementById('status-anthropic').textContent = 'Chave Anthropic salva.';
-    document.getElementById('nn-config').classList.add('ok');
-  }
+function saveKey(prov) {
+  var k = document.getElementById('api-key-'+prov).value.trim();
+  if (!k) return;
+  sessionStorage.setItem(prov === 'openai' ? 'oai_key' : 'ant_key', k);
+  document.getElementById('st-'+prov).textContent = 'Chave salva para esta sessão.';
+  document.getElementById('nn-config').classList.add('ok');
   checkBtn();
 }
 
 function getKey() {
-  const m = document.getElementById('modelo-sel').value;
-  if (m.startsWith('claude')) {
-    return sessionStorage.getItem('ant_key') || document.getElementById('api-key-anthropic').value.trim();
-  }
-  return sessionStorage.getItem('oai_key') || document.getElementById('api-key-openai').value.trim();
+  var m = document.getElementById('modelo-sel').value;
+  return m.startsWith('claude')
+    ? (sessionStorage.getItem('ant_key') || document.getElementById('api-key-anthropic').value.trim())
+    : (sessionStorage.getItem('oai_key') || document.getElementById('api-key-openai').value.trim());
 }
 
 function checkBtn() {
-  document.getElementById('btn-gerar').disabled = !(getKey() && document.getElementById('f-proc').value.trim());
+  var btn = document.getElementById('btn-gerar');
+  if (!btn) return;
+  var proc = document.getElementById('f-proc');
+  btn.disabled = !(getKey() && proc && proc.value.trim());
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function loadRefLocal(input) {
-  Array.from(input.files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = async e => {
-      let texto = '';
-      if (file.name.endsWith('.txt')) {
-        texto = new TextDecoder().decode(e.target.result);
-      } else if (file.name.endsWith('.docx')) {
-        texto = await extrairTextoDocx(e.target.result);
+function loadRefs(input) {
+  Array.from(input.files).forEach(function(file) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var ab = e.target.result;
+      var ext = file.name.split('.').pop().toLowerCase();
+      if (ext === 'txt') {
+        var txt = new TextDecoder().decode(ab).slice(0,3000);
+        refs.push({name: file.name, txt: txt});
+        renderRefs();
+      } else if (ext === 'docx') {
+        JSZip.loadAsync(ab).then(function(zip) {
+          return zip.file('word/document.xml').async('string');
+        }).then(function(xml) {
+          var tags = xml.match(/<w:t[^>]*>([^<]*)<\/w:t>/g) || [];
+          var txt = tags.map(function(t){return t.replace(/<w:t[^>]*>/,'').replace(/<\/w:t>/,'')}).join(' ').replace(/\s+/g,' ').trim().slice(0,3000);
+          refs.push({name: file.name, txt: txt});
+          renderRefs();
+        }).catch(function(){refs.push({name:file.name,txt:'[erro ao extrair]'}); renderRefs();});
       }
-      // Limitar a 3000 chars por referência para não explodir o prompt
-      texto = texto.trim().slice(0, 3000);
-      refsLocal.push({ name: file.name, conteudo: texto });
-      renderRefsLocal();
-      atualizarRefsAtivas();
     };
     reader.readAsArrayBuffer(file);
   });
+  input.value = '';
+  setTimeout(function(){atualizarRefsAtivas()}, 500);
 }
 
-async function extrairTextoDocx(arrayBuffer) {
-  try {
-    // Ler o ZIP do docx e extrair word/document.xml
-    const uint8 = new Uint8Array(arrayBuffer);
-    const str = Array.from(uint8).map(b => String.fromCharCode(b)).join('');
-    const b64 = btoa(str);
-    // Usar decompress via DecompressionStream se disponível, senão fallback
-    const zip = await unzipDocx(arrayBuffer);
-    return zip;
-  } catch(e) {
-    return '[não foi possível extrair texto: ' + e.message + ']';
-  }
-}
-
-async function unzipDocx(arrayBuffer) {
-  // Extrair XML do docx usando browser APIs nativas
-  try {
-    const response = new Response(arrayBuffer);
-    // Verificar se é ZIP válido (magic bytes PK)
-    const bytes = new Uint8Array(arrayBuffer.slice(0, 4));
-    if (bytes[0] !== 0x50 || bytes[1] !== 0x4B) return '[arquivo inválido]';
-
-    // Usar FileSystemAPI / blob approach para extrair
-    const blob = new Blob([arrayBuffer]);
-    const url = URL.createObjectURL(blob);
-
-    // Fallback: indicar que arquivo foi carregado sem extração completa
-    URL.revokeObjectURL(url);
-    return '[peça de referência: conteúdo carregado — ' + Math.round(arrayBuffer.byteLength/1024) + ' KB]';
-  } catch(e) {
-    return '[erro ao ler: ' + e.message + ']';
-  }
-}
-
-function renderRefsLocal() {
-  const el = document.getElementById('ref-list-local');
-  el.innerHTML = refsLocal.map((r, i) =>
-    `<span class="ref-tag">📄 ${r.name} <button onclick="refsLocal.splice(${i},1);renderRefsLocal();atualizarRefsAtivas();">×</button></span>`
-  ).join('');
-  const total = document.getElementById('ref-total');
-  if (total) total.textContent = refsLocal.length + ' arquivo(s) carregado(s) como referência.';
+function renderRefs() {
+  document.getElementById('ref-list').innerHTML = refs.map(function(r,i){
+    return '<span class="ref-tag">📄 '+r.name+' <button onclick="refs.splice('+i+',1);renderRefs();atualizarRefsAtivas()">×</button></span>';
+  }).join('');
+  document.getElementById('ref-total').textContent = refs.length + ' arquivo(s) carregado(s).';
 }
 
 function atualizarRefsAtivas() {
-  const el = document.getElementById('refs-ativas');
-  const lista = document.getElementById('refs-ativas-lista');
+  var el = document.getElementById('refs-ativas');
   if (!el) return;
-  if (refsLocal.length === 0) { el.style.display = 'none'; return; }
+  if (refs.length === 0) { el.style.display = 'none'; return; }
   el.style.display = 'block';
-  lista.innerHTML = refsLocal.map(r => `<span class="ref-tag">📎 ${r.name}</span>`).join('');
+  document.getElementById('refs-ativas-lista').innerHTML = refs.map(function(r){return '<span class="ref-tag">📎 '+r.name+'</span>';}).join('');
 }
 
-const LS_PROC = 'gp_processos';
-const LS_STATUS = 'gp_status';
-let filtroAtual = 'todos';
-
-function loadXLSX(input) {
-  const f = input.files[0]; if (!f) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const wb = XLSX.read(e.target.result, { type: 'array' });
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
-    // Mapear cabeçalhos reais da planilha
-  const headers = Object.keys(data[0] || {});
-  processos = data.map(r => ({
-      pasta:    getCol(r, ['pasta']),
-      processo: getCol(r, ['processo']),
-      cliente:  getCol(r, ['cliente principal','cliente']) || 'Notre Dame Intermédica Saúde S/A',
-      parte:    getCol(r, ['contrario principal','contrário principal','contrario','contrário','parte']),
-      descricao:getCol(r, ['descrição','descricao','description']),
-      prazo:    getCol(r, ['prazo fatal','prazo']),
-      tipo:     getCol(r, ['tipo - subtipo','tipo subtipo','tipo']),
-      responsavel: getCol(r, ['responsável','responsavel']),
-      // Colunas de tratativa (J-O)
-      _tratativa:   getCol(r, ['tratativa']),
-      _transferido: getCol(r, ['transferido para','transferido']),
-      _data:        getCol(r, ['data']),
-      _justificativa: getCol(r, ['justificativa']),
-      _conclusao:   getCol(r, ['conclusão','conclusao']),
-      _raw: r
-    }));
-    try { localStorage.setItem(LS_PROC, JSON.stringify(processos)); } catch(e) {}
-    document.getElementById('card-upload-xlsx').style.display = 'none';
-    iniciarTabelaProc();
+function carregarAnd(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var ext = file.name.split('.').pop().toLowerCase();
+  document.getElementById('and-nome').textContent = file.name;
+  var stEl = document.getElementById('and-status');
+  stEl.className = 'status s-info';
+  stEl.textContent = 'Extraindo texto...';
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var ab = e.target.result;
+    var txt = '';
+    try {
+      if (ext === 'txt') {
+        txt = new TextDecoder('UTF-8').decode(ab);
+      } else if (ext === 'docx') {
+        JSZip.loadAsync(ab).then(function(zip) {
+          return zip.file('word/document.xml').async('string');
+        }).then(function(xml) {
+          var tags = xml.match(/<w:t[^>]*>([^<]*)<\/w:t>/g) || [];
+          var t = tags.map(function(t){return t.replace(/<w:t[^>]*>/,'').replace(/<\/w:t>/,'')}).join(' ').replace(/\s+/g,' ').trim();
+          if (t.length > 20) {
+            document.getElementById('f-andamento').value = t;
+            stEl.className = 'status s-ok';
+            stEl.textContent = 'Texto extraído (' + t.length + ' caracteres).';
+            document.getElementById('btn-limpar-and').style.display = 'inline-flex';
+          } else {
+            stEl.className = 'status s-warn';
+            stEl.textContent = 'Não foi possível extrair texto. Cole manualmente.';
+          }
+        }).catch(function(err){stEl.className='status s-err';stEl.textContent='Erro: '+err.message;});
+        return;
+      } else if (ext === 'pdf') {
+        txt = extrairPDF(ab);
+      }
+      if (txt && txt.trim().length > 20) {
+        document.getElementById('f-andamento').value = txt.trim();
+        stEl.className = 'status s-ok';
+        stEl.textContent = 'Texto extraído (' + txt.trim().length + ' caracteres).';
+        document.getElementById('btn-limpar-and').style.display = 'inline-flex';
+      } else {
+        stEl.className = 'status s-warn';
+        stEl.textContent = 'PDF pode ser imagem — cole o texto manualmente.';
+      }
+    } catch(err) {
+      stEl.className = 'status s-err';
+      stEl.textContent = 'Erro: ' + err.message;
+    }
   };
-  reader.readAsArrayBuffer(f);
+  reader.readAsArrayBuffer(file);
+  input.value = '';
 }
+
+function extrairPDF(ab) {
+  var bytes = new Uint8Array(ab);
+  var str = '';
+  var lim = Math.min(bytes.length, 400000);
+  for (var i = 0; i < lim; i++) str += String.fromCharCode(bytes[i]);
+  var blocos = [];
+  for (var i = 0; i < str.length - 3; i++) {
+    if (str[i] === '(') {
+      var txt = '', j = i + 1;
+      while (j < str.length && str[j] !== ')') {
+        if (str[j] === '\\') j++;
+        else txt += str[j];
+        j++;
+      }
+      var after = str.slice(j+1, j+15).replace(/\s/g,'');
+      if (after.indexOf('Tj') === 0 || after.indexOf('TJ') === 0) {
+        var limpo = '';
+        for (var k = 0; k < txt.length; k++) {
+          var c = txt.charCodeAt(k);
+          if (c >= 32 && c <= 126) limpo += txt[k];
+          else if (c >= 192) limpo += txt[k];
+          else limpo += ' ';
+        }
+        limpo = limpo.trim();
+        if (limpo.length > 1) blocos.push(limpo);
+      }
+      i = j;
+    }
+  }
+  return blocos.join(' ').replace(/\s+/g,' ').trim();
+}
+
+function limparAnd() {
+  document.getElementById('f-andamento').value = '';
+  document.getElementById('and-nome').textContent = '';
+  document.getElementById('and-status').textContent = '';
+  document.getElementById('and-status').className = '';
+  document.getElementById('btn-limpar-and').style.display = 'none';
+}
+
+function getStatus() { try { return JSON.parse(localStorage.getItem(LS_S)||'{}'); } catch(e) { return {}; } }
+function setStatusItem(k,v) { var s=getStatus(); if(v) s[k]=v; else delete s[k]; try{localStorage.setItem(LS_S,JSON.stringify(s));}catch(e){} }
 
 function getCol(r, terms) {
-  for (const t of terms) {
-    const k = Object.keys(r).find(k => k.toLowerCase().includes(t));
-    if (k) return String(r[k]).trim();
+  for (var i=0; i<terms.length; i++) {
+    var keys = Object.keys(r);
+    for (var j=0; j<keys.length; j++) {
+      if (keys[j].toLowerCase().trim().indexOf(terms[i]) !== -1) return String(r[keys[j]]).trim();
+    }
   }
   return '';
 }
 
-function getStatus() {
-  try { return JSON.parse(localStorage.getItem(LS_STATUS) || '{}'); } catch(e) { return {}; }
-}
-
-function setStatus(pasta, val) {
-  const s = getStatus();
-  if (val) s[pasta] = true; else delete s[pasta];
-  try { localStorage.setItem(LS_STATUS, JSON.stringify(s)); } catch(e) {}
-}
-
-function iniciarTabelaProc() {
-  // Importar tratativas já existentes na planilha para o localStorage
-  const s = getStatus();
-  processos.forEach(p => {
-    const key = p.pasta || p.processo;
-    if (p._tratativa && !s[key]) {
-      // Converter data serial do Excel para ISO se necessário
-      let dataISO = '';
-      if (p._data) {
-        const num = parseFloat(p._data);
-        if (!isNaN(num) && num > 40000) {
-          const d = new Date((num - 25569) * 86400 * 1000);
-          dataISO = d.toISOString().slice(0,10);
-        } else if (String(p._data).includes('/')) {
-          const parts = String(p._data).split('/');
-          if (parts.length === 3) dataISO = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
-        } else {
-          dataISO = String(p._data);
-        }
-      }
-      s[key] = {
-        responsavel: p.responsavel || '',
-        tratativa: p._tratativa || '',
-        transferido: p._transferido || '',
-        data: dataISO,
-        justificativa: p._justificativa || '',
-        conclusao: p._conclusao || ''
+function loadXLSX(input) {
+  var f = input.files[0]; if (!f) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var wb = XLSX.read(e.target.result, {type:'array'});
+    var ws = wb.Sheets[wb.SheetNames[0]];
+    var data = XLSX.utils.sheet_to_json(ws, {defval:''});
+    processos = data.map(function(r) {
+      return {
+        pasta:        getCol(r,['pasta']),
+        processo:     getCol(r,['processo']),
+        cliente:      getCol(r,['cliente principal','cliente']) || 'Notre Dame Intermédica Saúde S/A',
+        parte:        getCol(r,['contrario principal','contrário principal','contrario','parte']),
+        descricao:    getCol(r,['descrição','descricao']),
+        prazo:        getCol(r,['prazo fatal','prazo']),
+        tipo:         getCol(r,['tipo - subtipo','tipo subtipo','tipo']),
+        responsavel:  getCol(r,['responsável','responsavel']),
+        _trat:        getCol(r,['tratativa']),
+        _transf:      getCol(r,['transferido para','transferido']),
+        _data:        getCol(r,['data']),
+        _just:        getCol(r,['justificativa']),
+        _concl:       getCol(r,['conclusão','conclusao']),
+        _raw:         r
       };
+    });
+    try { localStorage.setItem(LS_P, JSON.stringify(processos)); } catch(e) {}
+    document.getElementById('card-xlsx').style.display = 'none';
+    iniciarTabela();
+  };
+  reader.readAsArrayBuffer(f);
+  input.value = '';
+}
+
+function iniciarTabela() {
+  var s = getStatus();
+  processos.forEach(function(p) {
+    var key = p.pasta || p.processo;
+    if (p._trat && !s[key]) {
+      var dataISO = '';
+      if (p._data) {
+        var num = parseFloat(p._data);
+        if (!isNaN(num) && num > 40000) {
+          var d = new Date((num - 25569) * 86400 * 1000);
+          dataISO = d.toISOString().slice(0,10);
+        } else { dataISO = String(p._data); }
+      }
+      s[key] = {resp:p.responsavel||'',trat:p._trat,transf:p._transf||'',data:dataISO,just:p._just||'',concl:p._concl||''};
     }
   });
-  try { localStorage.setItem(LS_STATUS, JSON.stringify(s)); } catch(e) {}
+  try { localStorage.setItem(LS_S, JSON.stringify(s)); } catch(e) {}
   document.getElementById('proc-header').style.display = 'block';
   document.getElementById('table-wrap').style.display = 'block';
+  document.getElementById('nn-processos').classList.add('ok');
   renderTable();
 }
 
+function fmtPrazo(v) {
+  if (!v) return '';
+  var num = parseFloat(v);
+  if (!isNaN(num) && num > 40000) return new Date((num-25569)*86400*1000).toLocaleDateString('pt-BR');
+  return v;
+}
+
+var CORES = {CUMPRIDO:'s-cumprido',CANCELADO:'s-cancelado',REAGENDADO:'s-reagendado',TRANSFERIDO:'s-transferido','AG. RETORNO':'s-agretorno',PENDENTE:'s-pendente'};
+var TRATADO_STATUS = ['CUMPRIDO','CANCELADO','TRANSFERIDO'];
+
 function filtrar(tipo) {
   filtroAtual = tipo;
-  ['todos','pendentes','tratados'].forEach(t => {
-    document.getElementById('f-' + t).classList.toggle('active', t === tipo);
-  });
+  ['todos','pendentes','tratados'].forEach(function(t){ document.getElementById('f-'+t).classList.toggle('active', t===tipo); });
   renderTable();
 }
 
 function renderTable() {
-  const status = getStatus();
-  const busca = (document.getElementById('proc-busca')?.value || '').toLowerCase();
-  const tbody = document.getElementById('proc-tbody');
+  var s = getStatus();
+  var busca = (document.getElementById('proc-busca')||{value:''}).value.toLowerCase();
+  var resp = (document.getElementById('proc-resp')||{value:''}).value.toLowerCase();
+  var tbody = document.getElementById('proc-tbody');
   tbody.innerHTML = '';
-  let visiveis = 0;
-
-  processos.forEach((p, i) => {
-    const tratado = !!status[p.pasta || p.processo];
-
-    if (filtroAtual === 'pendentes' && tratado) return;
-    if (filtroAtual === 'tratados' && !tratado) return;
-    if (busca && !`${p.pasta} ${p.processo} ${p.parte} ${p.descricao} ${p.responsavel}`.toLowerCase().includes(busca)) return;
-    const filtroResp = (document.getElementById('proc-resp')?.value || '').toLowerCase();
-    if (filtroResp) {
-      const resp = (p.responsavel || '').toLowerCase();
-      if (filtroResp === 'may') { if (!resp.includes('may')) return; }
-      else { if (!resp.includes(filtroResp)) return; }
+  var vis = 0;
+  processos.forEach(function(p, i) {
+    var key = p.pasta || p.processo;
+    var t = s[key] || {};
+    var trat = t.trat || '';
+    var isTrat = TRATADO_STATUS.indexOf(trat) !== -1;
+    if (filtroAtual === 'pendentes' && isTrat) return;
+    if (filtroAtual === 'tratados' && !isTrat) return;
+    if (busca) {
+      var hay = (p.pasta+' '+p.processo+' '+p.parte+' '+p.descricao+' '+p.responsavel).toLowerCase();
+      if (hay.indexOf(busca) === -1) return;
     }
-
-    visiveis++;
-    const tr = document.createElement('tr');
-    if (tratado) tr.classList.add('tratado');
-
-    const s = getStatus();
-    const key = p.pasta || p.processo;
-    const tratativa = (s[key] && s[key].tratativa) || '';
-    const classeStatus = {
-      'CUMPRIDO': 'st-cumprido', 'CANCELADO': 'st-cancelado',
-      'REAGENDADO': 'st-reagendado', 'TRANSFERIDO': 'st-transferido',
-      'AG. RETORNO': 'st-ag-retorno', 'PENDENTE': 'st-pendente'
-    }[tratativa] || '';
-    if (classeStatus) tr.classList.add(classeStatus);
-    if (tratativa === 'CUMPRIDO') tr.classList.add('tratado');
-
-    const conclusao = calcularConclusao(s[key] || {});
-    const badgeLabel = tratativa || 'Pendente';
-    const badgeClass = tratativa ? 'badge-' + tratativa.toLowerCase().replace('.','').replace(' ','-') : 'badge-pendente';
-
-    // Formatar prazo
-    let prazoStr = '';
-    if (p.prazo) {
-      const num = parseFloat(p.prazo);
-      if (!isNaN(num) && num > 40000) {
-        prazoStr = new Date((num - 25569) * 86400 * 1000).toLocaleDateString('pt-BR');
-      } else { prazoStr = p.prazo; }
+    if (resp) {
+      var r = (p.responsavel||'').toLowerCase();
+      if (resp === 'may') { if (r.indexOf('may') === -1) return; }
+      else { if (r.indexOf(resp) === -1) return; }
     }
-    const tipoStr = (p.tipo || '').replace('Prazos Cíveis - ','').replace('Prazo Interno - ','');
-
-    tr.innerHTML = `
-      <td>${p.pasta}</td>
-      <td style="font-family:monospace;font-size:10px;">${p.processo}</td>
-      <td style="font-size:11px; white-space:nowrap;">${prazoStr}</td>
-      <td style="font-size:11px;">${tipoStr}</td>
-      <td style="font-size:12px;">${p.parte}</td>
-      <td style="font-size:12px;">${p.descricao}</td>
-      <td style="font-size:11px;">${p.responsavel||''}</td>
-      <td style="text-align:center; white-space:nowrap;">
-        <span class="badge" style="margin-bottom:3px;">${badgeLabel}</span><br>
-        ${conclusao ? `<span style="font-size:10px; color:var(--text3);">${conclusao.slice(0,28)}${conclusao.length>28?'…':''}</span><br>` : ''}
-        <button class="btn btn-secondary btn-sm" style="margin-top:3px;" onclick="event.stopPropagation();abrirTP(${i})">
-          Tratativa
-        </button>
-      </td>`;
-
-    tr.onclick = () => selProc(i, tr);
+    vis++;
+    var tr = document.createElement('tr');
+    if (CORES[trat]) tr.classList.add(CORES[trat]);
+    var prazoStr = fmtPrazo(p.prazo);
+    var tipoStr = (p.tipo||'').replace('Prazos Cíveis - ','').replace('Prazo Interno - ','').slice(0,30);
+    var concl = t.concl || '';
+    tr.innerHTML =
+      '<td>'+p.pasta+'</td>'+
+      '<td style="font-family:monospace;font-size:10px">'+p.processo+'</td>'+
+      '<td style="font-size:11px;white-space:nowrap">'+prazoStr+'</td>'+
+      '<td style="font-size:11px">'+tipoStr+'</td>'+
+      '<td style="font-size:12px">'+(p.parte||'')+'</td>'+
+      '<td style="font-size:12px">'+(p.descricao||'')+'</td>'+
+      '<td style="font-size:11px">'+(p.responsavel||'')+'</td>'+
+      '<td style="text-align:center;white-space:nowrap">'+
+        '<span class="badge">'+(trat||'—')+'</span>'+
+        (concl?'<br><span style="font-size:10px;color:var(--text3)">'+concl.slice(0,28)+(concl.length>28?'…':'')+'</span>':'')+
+        '<br><button class="btn btn-secondary btn-sm" style="margin-top:3px" onclick="event.stopPropagation();abrirTP('+i+')">Tratativa</button>'+
+      '</td>';
+    tr.onclick = function(){selProc(i,tr);};
     tbody.appendChild(tr);
   });
-
-  const pendentes = processos.filter(p => !status[p.pasta || p.processo]).length;
-  const tratados = processos.length - pendentes;
-  document.getElementById('proc-count').textContent =
-    `${processos.length} processos · ${pendentes} pendentes · ${tratados} tratados · exibindo ${visiveis}`;
+  var totTrat = Object.values(getStatus()).filter(function(t){return t && TRATADO_STATUS.indexOf(t.trat)!==-1;}).length;
+  document.getElementById('proc-count').textContent = processos.length+' processos · '+(processos.length-totTrat)+' pendentes · '+totTrat+' tratados · exibindo '+vis;
 }
 
-function toggleTratado(key, idx) {
-  const s = getStatus();
-  const atual = !!s[key];
-  setStatus(key, !atual);
-  renderTable();
+function selProc(i, tr) {
+  document.querySelectorAll('#proc-tbody tr').forEach(function(r){r.classList.remove('sel')});
+  tr.classList.add('sel');
+  var p = processos[i];
+  document.getElementById('f-pasta').value = p.pasta;
+  document.getElementById('f-proc').value = p.processo;
+  document.getElementById('f-cliente').value = p.cliente;
+  document.getElementById('f-parte').value = p.parte;
+  document.getElementById('f-descricao').value = p.descricao;
+  checkBtn();
+  go('gerar');
 }
 
-// ── CÁLCULO CONCLUSÃO (coluna O) ─────────────────────────────
-function calcularConclusao(t) {
-  const fmt = d => d ? new Date(d).toLocaleDateString('pt-BR') : '';
-  const suf = n => n ? ' - ' + n : '';
-  switch(t.tratativa) {
-    case 'CUMPRIDO':    return 'cumprido' + suf(t.justificativa);
-    case 'CANCELADO':   return 'cancelado' + suf(t.justificativa);
-    case 'REAGENDADO':  return 'reagendado em ' + fmt(t.data) + suf(t.justificativa);
-    case 'TRANSFERIDO': return 'transferido para ' + (t.transferido||'') + (t.data ? ' em ' + fmt(t.data) : '') + suf(t.justificativa);
-    case 'AG. RETORNO': return 'ag. retorno em ' + fmt(t.data) + suf(t.justificativa);
-    case 'PENDENTE':    return 'pendente' + suf(t.justificativa);
-    default:            return '';
+function trocarPlanilha() {
+  if (!confirm('Remover planilha e status salvos?')) return;
+  localStorage.removeItem(LS_P); localStorage.removeItem(LS_S);
+  processos = [];
+  document.getElementById('card-xlsx').style.display = 'block';
+  document.getElementById('proc-header').style.display = 'none';
+  document.getElementById('table-wrap').style.display = 'none';
+}
+
+function exportXLSX() {
+  if (!processos.length) { alert('Nenhuma planilha carregada.'); return; }
+  var s = getStatus();
+  var rows = processos.map(function(p) {
+    var key = p.pasta || p.processo;
+    var t = s[key] || {};
+    var raw = Object.assign({}, p._raw||{});
+    function setRaw(termos, val) {
+      var keys = Object.keys(raw);
+      for (var i=0;i<termos.length;i++) {
+        for (var j=0;j<keys.length;j++) {
+          if (keys[j].toLowerCase().indexOf(termos[i]) !== -1) { raw[keys[j]] = val; return; }
+        }
+      }
+    }
+    setRaw(['responsável','responsavel'], t.resp||'');
+    setRaw(['tratativa'], t.trat||'');
+    setRaw(['transferido para','transferido'], t.transf||'');
+    setRaw(['data'], t.data||'');
+    setRaw(['justificativa'], t.just||'');
+    setRaw(['conclusão','conclusao'], t.concl||'');
+    return raw;
+  });
+  var ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = Array(20).fill({wch:20});
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Processos');
+  XLSX.writeFile(wb, 'processos_'+new Date().toISOString().slice(0,10)+'.xlsx');
+}
+
+function calcConclusao(t) {
+  var fmt = function(d){return d ? new Date(d+'T12:00:00').toLocaleDateString('pt-BR') : '';};
+  var suf = function(n){return n ? ' - '+n : '';};
+  switch(t.trat) {
+    case 'CUMPRIDO':    return 'cumprido'+suf(t.just);
+    case 'CANCELADO':   return 'cancelado'+suf(t.just);
+    case 'REAGENDADO':  return 'reagendado em '+fmt(t.data)+suf(t.just);
+    case 'TRANSFERIDO': return 'transferido para '+(t.transf||'')+(t.data?' em '+fmt(t.data):'')+suf(t.just);
+    case 'AG. RETORNO': return 'ag. retorno em '+fmt(t.data)+suf(t.just);
+    case 'PENDENTE':    return 'pendente'+suf(t.just);
+    default: return '';
   }
 }
 
-// ── VALIDAÇÃO ────────────────────────────────────────────────
-function validarTratativa(t) {
-  const erros = [];
-  if (!t.tratativa) return erros;
-  if (t.tratativa === 'CANCELADO' && !t.justificativa) erros.push('Justificativa obrigatória para CANCELADO.');
-  if (t.tratativa === 'REAGENDADO' && !t.data) erros.push('Data obrigatória para REAGENDADO.');
-  if (t.tratativa === 'REAGENDADO' && t.data && !t.justificativa) erros.push('Justificativa obrigatória para REAGENDADO.');
-  if (t.tratativa === 'TRANSFERIDO' && !t.transferido) erros.push('Responsável obrigatório para TRANSFERIDO.');
-  if (t.tratativa === 'TRANSFERIDO' && t.transferido && !t.justificativa) erros.push('Justificativa obrigatória para TRANSFERIDO.');
-  if (t.tratativa === 'AG. RETORNO' && !t.data) erros.push('Data obrigatória para AG. RETORNO.');
-  if (t.tratativa === 'AG. RETORNO' && t.data && !t.justificativa) erros.push('Justificativa obrigatória para AG. RETORNO.');
-  if (t.tratativa === 'PENDENTE' && !t.justificativa) erros.push('Justificativa obrigatória para PENDENTE.');
-  return erros;
+function validarTP(t) {
+  var e = [];
+  if (!t.trat) return e;
+  if (t.trat==='CANCELADO' && !t.just) e.push('Justificativa obrigatória para CANCELADO.');
+  if (t.trat==='REAGENDADO' && !t.data) e.push('Data obrigatória para REAGENDADO.');
+  if (t.trat==='REAGENDADO' && t.data && !t.just) e.push('Justificativa obrigatória para REAGENDADO.');
+  if (t.trat==='TRANSFERIDO' && !t.transf) e.push('Responsável obrigatório para TRANSFERIDO.');
+  if (t.trat==='TRANSFERIDO' && t.transf && !t.just) e.push('Justificativa obrigatória para TRANSFERIDO.');
+  if (t.trat==='AG. RETORNO' && !t.data) e.push('Data obrigatória para AG. RETORNO.');
+  if (t.trat==='AG. RETORNO' && t.data && !t.just) e.push('Justificativa obrigatória para AG. RETORNO.');
+  if (t.trat==='PENDENTE' && !t.just) e.push('Justificativa obrigatória para PENDENTE.');
+  return e;
 }
-
-// ── PAINEL DE TRATATIVA ───────────────────────────────────────
-let tpIdx = -1;
 
 function abrirTP(i) {
   tpIdx = i;
-  const p = processos[i];
-  const key = p.pasta || p.processo;
-  const s = getStatus();
-  const t = s[key] || {};
-
-  document.getElementById('tp-titulo').textContent = 'Tratativa — Pasta ' + (p.pasta || p.processo);
-  document.getElementById('tp-info').innerHTML =
-    `<b>Processo:</b> ${p.processo}<br><b>Parte:</b> ${p.parte || '—'}<br><b>Descrição:</b> ${p.descricao || '—'}`;
-
-  document.getElementById('tp-responsavel').value = t.responsavel || '';
-  document.getElementById('tp-tratativa').value = t.tratativa || '';
-  document.getElementById('tp-transferido').value = t.transferido || '';
-  document.getElementById('tp-data').value = t.data || '';
-  document.getElementById('tp-justificativa').value = t.justificativa || '';
-
-  onTratativaChange();
+  var p = processos[i];
+  var key = p.pasta || p.processo;
+  var t = getStatus()[key] || {};
+  document.getElementById('tp-titulo').textContent = 'Tratativa — Pasta '+(p.pasta||p.processo);
+  document.getElementById('tp-info').innerHTML = '<b>Processo:</b> '+p.processo+'<br><b>Parte:</b> '+(p.parte||'—')+'<br><b>Descrição:</b> '+(p.descricao||'—');
+  document.getElementById('tp-resp').value = t.resp||'';
+  document.getElementById('tp-trat').value = t.trat||'';
+  document.getElementById('tp-transf').value = t.transf||'';
+  document.getElementById('tp-data').value = t.data||'';
+  document.getElementById('tp-just').value = t.just||'';
+  onTratChange();
   document.getElementById('tp').classList.add('open');
   document.getElementById('tp-overlay').style.display = 'block';
 }
@@ -749,621 +761,170 @@ function fecharTP() {
   tpIdx = -1;
 }
 
-function onTratativaChange() {
-  const tv = document.getElementById('tp-tratativa').value;
-  const showTransferido = tv === 'TRANSFERIDO';
-  const showData = ['REAGENDADO','TRANSFERIDO','AG. RETORNO'].includes(tv);
-  const showJust = ['CANCELADO','REAGENDADO','TRANSFERIDO','AG. RETORNO','PENDENTE'].includes(tv);
-
-  document.getElementById('tp-field-transferido').classList.toggle('field-hidden', !showTransferido);
-  document.getElementById('tp-field-data').classList.toggle('field-hidden', !showData);
-  document.getElementById('tp-field-justificativa').classList.toggle('field-hidden', !showJust);
-
-  // Atualizar preview conclusão
-  const t = coletarCamposTP();
-  document.getElementById('tp-conclusao').textContent = calcularConclusao(t) || '—';
-
-  // Alertas em tempo real
-  const erros = validarTratativa(t);
-  const al = document.getElementById('tp-alertas');
-  al.innerHTML = erros.map(e => `<div class="status status-error" style="margin-bottom:4px;">${e}</div>`).join('');
+function onTratChange() {
+  var tv = document.getElementById('tp-trat').value;
+  document.getElementById('tp-f-transf').classList.toggle('fhidden', tv!=='TRANSFERIDO');
+  document.getElementById('tp-f-data').classList.toggle('fhidden', ['REAGENDADO','TRANSFERIDO','AG. RETORNO'].indexOf(tv)===-1);
+  document.getElementById('tp-f-just').classList.toggle('fhidden', ['CANCELADO','REAGENDADO','TRANSFERIDO','AG. RETORNO','PENDENTE'].indexOf(tv)===-1);
+  updConclusao();
 }
 
-function coletarCamposTP() {
+function coletarTP() {
   return {
-    responsavel: document.getElementById('tp-responsavel').value.trim(),
-    tratativa: document.getElementById('tp-tratativa').value,
-    transferido: document.getElementById('tp-transferido').value,
-    data: document.getElementById('tp-data').value,
-    justificativa: document.getElementById('tp-justificativa').value.trim(),
+    resp:  document.getElementById('tp-resp').value.trim(),
+    trat:  document.getElementById('tp-trat').value,
+    transf:document.getElementById('tp-transf').value,
+    data:  document.getElementById('tp-data').value,
+    just:  document.getElementById('tp-just').value.trim()
   };
 }
 
-function salvarTratativa() {
+function updConclusao() {
+  var t = coletarTP();
+  document.getElementById('tp-conclusao').textContent = calcConclusao(t)||'—';
+  var erros = validarTP(t);
+  document.getElementById('tp-alertas').innerHTML = erros.map(function(e){return '<div class="status s-err" style="margin-bottom:4px">'+e+'</div>';}).join('');
+}
+
+function salvarTP() {
   if (tpIdx < 0) return;
-  const t = coletarCamposTP();
-  const erros = validarTratativa(t);
-  if (erros.length > 0) {
-    document.getElementById('tp-alertas').innerHTML =
-      erros.map(e => `<div class="status status-error" style="margin-bottom:4px;">${e}</div>`).join('');
-    return;
-  }
-  const p = processos[tpIdx];
-  const key = p.pasta || p.processo;
-  t.conclusao = calcularConclusao(t);
-  const s = getStatus();
-  s[key] = t;
-  try { localStorage.setItem(LS_STATUS, JSON.stringify(s)); } catch(e) {}
+  var t = coletarTP();
+  if (validarTP(t).length > 0) { updConclusao(); return; }
+  var p = processos[tpIdx];
+  var key = p.pasta || p.processo;
+  t.concl = calcConclusao(t);
+  setStatusItem(key, t);
   fecharTP();
   renderTable();
 }
 
-// ── EXPORTAR XLSX ATUALIZADO ──────────────────────────────────
-function exportarXLSX() {
-  if (processos.length === 0) { alert('Nenhuma planilha carregada.'); return; }
-  const s = getStatus();
-
-  // Reconstruir dados com colunas J-O atualizadas
-  const rows = processos.map(p => {
-    const key = p.pasta || p.processo;
-    const t = s[key] || {};
-    const raw = { ...(p._raw || {}) };
-    // Mapear colunas pela letra (J=9, K=10, L=11, M=12, N=13, O=14 — 0-indexed)
-    // Usar os nomes de cabeçalho existentes ou padrão
-    const colJ = encontrarColuna(raw, ['responsável','responsavel','j']) || 'Responsável';
-    const colK = encontrarColuna(raw, ['tratativa','k']) || 'Tratativa';
-    const colL = encontrarColuna(raw, ['transferido','l']) || 'Transferido para';
-    const colM = encontrarColuna(raw, ['data','m']) || 'Data';
-    const colN = encontrarColuna(raw, ['justificativa','n']) || 'Justificativa';
-    const colO = encontrarColuna(raw, ['conclusão','conclusao','o']) || 'Conclusão';
-    raw[colJ] = t.responsavel || raw[colJ] || '';
-    raw[colK] = t.tratativa || raw[colK] || '';
-    raw[colL] = t.transferido || raw[colL] || '';
-    raw[colM] = t.data || raw[colM] || '';
-    raw[colN] = t.justificativa || raw[colN] || '';
-    raw[colO] = t.conclusao || raw[colO] || '';
-    return raw;
-  });
-
-  const ws = XLSX.utils.json_to_sheet(rows);
-
-  // Aplicar larguras
-  ws['!cols'] = Array(20).fill({ wch: 18 });
-
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Processos');
-  XLSX.writeFile(wb, 'processos_atualizado_' + new Date().toISOString().slice(0,10) + '.xlsx');
-}
-
-function encontrarColuna(row, termos) {
-  for (const t of termos) {
-    const k = Object.keys(row).find(k => k.toLowerCase().replace(/[^a-z]/g,'').includes(t.replace(/[^a-z]/g,'')));
-    if (k) return k;
-  }
-  return null;
-}
-
-function confirmarLimparPlanilha() {
-  if (confirm('Isso removerá a planilha salva e os status de processos. Confirma?')) {
-    localStorage.removeItem(LS_PROC);
-    localStorage.removeItem(LS_STATUS);
-    processos = [];
-    document.getElementById('card-upload-xlsx').style.display = 'block';
-    document.getElementById('proc-header').style.display = 'none';
-    document.getElementById('table-wrap').style.display = 'none';
-  }
-}
-
-function selProc(i, tr) {
-  document.querySelectorAll('#proc-tbody tr').forEach(r => r.classList.remove('sel'));
-  tr.classList.add('sel');
-  const p = processos[i];
-  document.getElementById('f-pasta').value = p.pasta;
-  document.getElementById('f-proc').value = p.processo;
-  document.getElementById('f-cliente').value = p.cliente;
-  document.getElementById('f-parte').value = p.parte;
-  document.getElementById('f-descricao').value = p.descricao;
-  checkBtn();
-  go('gerar');
-}
-
 async function gerarMinuta() {
-  const key = getKey();
-  const modelo = document.getElementById('modelo-sel').value;
+  var key = getKey();
+  var modelo = document.getElementById('modelo-sel').value;
   if (!key) { alert('Informe a chave de API para o modelo selecionado.'); return; }
-  const andamento = document.getElementById('f-andamento').value.trim();
-  if (!andamento) { alert('Cole o andamento do tribunal.'); return; }
-  const pasta = document.getElementById('f-pasta').value.trim();
-  const proc = document.getElementById('f-proc').value.trim();
-  const cliente = document.getElementById('f-cliente').value.trim();
-  const parte = document.getElementById('f-parte').value.trim();
-  const descricao = document.getElementById('f-descricao').value.trim();
-  const tipo = document.getElementById('f-tipo').value;
-  const instrucoes = document.getElementById('f-instrucoes').value.trim();
-  const sistema = document.getElementById('f-sistema').value;
-
-  // Montar bloco de referências com texto extraído
-  const refBlock = refsLocal.length > 0
+  var andamento = document.getElementById('f-andamento').value.trim();
+  if (!andamento) { alert('Cole ou carregue o andamento do tribunal.'); return; }
+  var pasta = document.getElementById('f-pasta').value.trim();
+  var proc = document.getElementById('f-proc').value.trim();
+  var cliente = document.getElementById('f-cliente').value.trim();
+  var parte = document.getElementById('f-parte').value.trim();
+  var descricao = document.getElementById('f-descricao').value.trim();
+  var tipo = document.getElementById('f-tipo').value;
+  var instrucoes = document.getElementById('f-instrucoes').value.trim();
+  var sistema = document.getElementById('f-sistema').value;
+  var refBlock = refs.length > 0
     ? '\n\nPEÇAS DE REFERÊNCIA — use como modelo de estilo, estrutura e linguagem:\n' +
-      refsLocal.map(r => `\n--- ${r.name} ---\n${r.conteudo}`).join('\n')
+      refs.map(function(r){return '\n--- '+r.name+' ---\n'+r.txt}).join('\n')
     : '';
-
-  const btn = document.getElementById('btn-gerar');
+  var btn = document.getElementById('btn-gerar');
   btn.disabled = true; btn.textContent = 'Gerando...';
   go('resultado');
   document.getElementById('res-empty').style.display = 'none';
   document.getElementById('res-content').style.display = 'block';
   document.getElementById('res-text').textContent = '';
-
-  const nomeModelo = modelo === 'gpt4o' ? 'GPT-4o' : modelo === 'claude-sonnet' ? 'Claude Sonnet' : 'Claude Opus';
-  setResStatus('info', `Aguarde — gerando via ${nomeModelo}...`);
-
-  const systemPrompt = `Você é um advogado especialista em saúde suplementar na defesa de operadoras de planos de saúde. Elabora peças em português jurídico técnico, fundamentado em Lei 9.656/98, CDC, Código Civil, Constituição da República e Resoluções Normativas da ANS.
-
-Regras obrigatórias:
-- Artigos de lei sempre por extenso ("artigo", nunca "art.")
-- Incisos sempre com a palavra "inciso"
-- Parágrafos: símbolo "§", exceto "parágrafo único"
-- Nunca usar "a presente demanda" ou "presente" ao se referir à peça
-- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)
-- Constituição: sempre "Constituição da República"
-- Nunca usar "sistema SISBAJUD"
-- Evitar "sentença de primeiro grau"
-- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"
-- Títulos em CAIXA ALTA e negrito
-- Pedidos no padrão: a), b), c)
-- Iniciar pedidos com "Ante ao exposto, requer-se:"
-- Referências bibliográficas ao final, nunca no corpo do texto`;
-
-  const userPrompt = `Processo: ${proc}\nSistema: ${sistema}\nPasta: ${pasta}\nCliente: ${cliente}\nParte contrária: ${parte || 'não informado'}\nDemanda: ${descricao || 'não informado'}\n\nAndamento:\n${andamento}\n\nTipo de peça: ${tipo === 'auto' ? 'identificar automaticamente pelo andamento' : tipo}\n${instrucoes ? '\nInstruções específicas:\n' + instrucoes : ''}${refBlock}\n\nElabore a peça completa pronta para protocolo.`;
-
+  var nomeModelo = modelo==='gpt4o'?'GPT-4o':modelo==='claude-sonnet'?'Claude Sonnet':'Claude Opus';
+  setRS('info','Aguarde — gerando via '+nomeModelo+'...');
+  var sys = 'Você é um advogado especialista em saúde suplementar na defesa de operadoras de planos de saúde. Elabora peças em português jurídico técnico, fundamentado em Lei 9.656/98, CDC, Código Civil, Constituição da República e Resoluções Normativas da ANS.\n\nRegras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto';
+  var usr = 'Processo: '+proc+'\nSistema: '+sistema+'\nPasta: '+pasta+'\nCliente: '+cliente+'\nParte contrária: '+(parte||'não informado')+'\nDemanda: '+(descricao||'não informado')+'\n\nAndamento:\n'+andamento+'\n\nTipo de peça: '+(tipo==='auto'?'identificar automaticamente pelo andamento':tipo)+(instrucoes?'\n\nInstruções específicas:\n'+instrucoes:'')+refBlock+'\n\nElabore a peça completa pronta para protocolo.';
   try {
-    let full = '';
-    const outputEl = document.getElementById('res-text');
-
+    var full = '';
+    var outEl = document.getElementById('res-text');
     if (modelo === 'gpt4o') {
-      // ── OpenAI GPT-4o ──
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
-          temperature: 0.3, max_tokens: 4000, stream: true
-        })
-      });
-      if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Erro OpenAI'); }
-      const reader = res.body.getReader(), dec = new TextDecoder();
-      setResStatus('info', 'Recebendo resposta do GPT-4o...');
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        for (const line of dec.decode(value).split('\n')) {
-          if (line.startsWith('data: ') && line !== 'data: [DONE]') {
-            try {
-              const delta = JSON.parse(line.slice(6)).choices?.[0]?.delta?.content || '';
-              full += delta; outputEl.textContent = full; outputEl.scrollTop = 9999;
-            } catch(e) {}
-          }
-        }
-      }
-
+      var res = await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.3,max_tokens:4000,stream:true})});
+      if (!res.ok) { var er=await res.json(); throw new Error(er.error?er.error.message:'Erro OpenAI'); }
+      var reader=res.body.getReader(),dec=new TextDecoder();
+      setRS('info','Recebendo resposta do GPT-4o...');
+      while(true){var _r=await reader.read();if(_r.done)break;_r.value&&dec.decode(_r.value).split('\n').forEach(function(line){if(line.startsWith('data: ')&&line!=='data: [DONE]'){try{var d=JSON.parse(line.slice(6)).choices[0].delta.content;if(d){full+=d;outEl.textContent=full;outEl.scrollTop=99999;}}catch(e){}};});}
     } else {
-      // ── Anthropic Claude ──
-      const claudeModel = modelo === 'claude-sonnet' ? 'claude-sonnet-4-5' : 'claude-opus-4-5';
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': key,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-        body: JSON.stringify({
-          model: claudeModel,
-          max_tokens: 4000,
-          system: systemPrompt,
-          messages: [{ role: 'user', content: userPrompt }],
-          stream: true
-        })
-      });
-      if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'Erro Anthropic'); }
-      const reader = res.body.getReader(), dec = new TextDecoder();
-      setResStatus('info', `Recebendo resposta do ${nomeModelo}...`);
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        for (const line of dec.decode(value).split('\n')) {
-          if (line.startsWith('data: ')) {
-            try {
-              const evt = JSON.parse(line.slice(6));
-              if (evt.type === 'content_block_delta' && evt.delta?.text) {
-                full += evt.delta.text; outputEl.textContent = full; outputEl.scrollTop = 9999;
-              }
-            } catch(e) {}
-          }
-        }
-      }
+      var cm=modelo==='claude-sonnet'?'claude-sonnet-4-5':'claude-opus-4-5';
+      var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:cm,max_tokens:4000,system:sys,messages:[{role:'user',content:usr}],stream:true})});
+      if (!res.ok){var er=await res.json();throw new Error(er.error?er.error.message:'Erro Anthropic');}
+      var reader=res.body.getReader(),dec=new TextDecoder();
+      setRS('info','Recebendo resposta do '+nomeModelo+'...');
+      while(true){var _r=await reader.read();if(_r.done)break;_r.value&&dec.decode(_r.value).split('\n').forEach(function(line){if(line.startsWith('data: ')){try{var evt=JSON.parse(line.slice(6));if(evt.type==='content_block_delta'&&evt.delta&&evt.delta.text){full+=evt.delta.text;outEl.textContent=full;outEl.scrollTop=99999;}}catch(e){}};});}
     }
-
     lastMinuta = full;
-    const nomePeca = tipo === 'auto' ? inferir(andamento) : tipo;
-    lastNome = (pasta ? pasta + ' - ' : '') + nomePeca;
-    document.getElementById('res-nome').textContent = 'Arquivo: ' + lastNome + '.docx  ·  Modelo: ' + nomeModelo;
-    setResStatus('success', 'Minuta gerada com sucesso. Revise antes de protocolar.');
-  } catch(e) { setResStatus('error', 'Erro: ' + e.message); }
-
-  btn.disabled = false; btn.textContent = 'Gerar minuta';
+    var nomePeca = tipo==='auto' ? inferirNome(andamento) : tipo;
+    lastNome = (pasta?pasta+' - ':'')+nomePeca;
+    document.getElementById('res-nome').textContent = 'Arquivo: '+lastNome+'.docx  ·  Modelo: '+nomeModelo;
+    setRS('ok','Minuta gerada com sucesso. Revise antes de protocolar.');
+  } catch(e) { setRS('err','Erro: '+e.message); }
+  btn.disabled=false; btn.textContent='Gerar minuta';
 }
 
-// ── CARREGAR ARQUIVO DE ANDAMENTO ────────────────────────────
-async function carregarAndamento(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const nome = file.name;
-  const statusEl = document.getElementById('andamento-status');
-  const nomeEl = document.getElementById('andamento-file-nome');
-  const btnLimpar = document.getElementById('btn-limpar-andamento');
-
-  nomeEl.textContent = nome;
-  statusEl.className = 'status status-info';
-  statusEl.textContent = 'Extraindo texto...';
-  statusEl.style.display = 'block';
-
-  try {
-    let texto = '';
-    const ext = nome.split('.').pop().toLowerCase();
-
-    if (ext === 'txt') {
-      texto = await lerComoTexto(file);
-
-    } else if (ext === 'docx') {
-      texto = await extrairTextoDocxAndamento(file);
-
-    } else if (ext === 'pdf') {
-      texto = await extrairTextoPDF(file);
-    }
-
-    if (texto && texto.trim()) {
-      document.getElementById('f-andamento').value = texto.trim();
-      statusEl.className = 'status status-success';
-      statusEl.textContent = `Texto extraído de "${nome}" (${texto.trim().length} caracteres).`;
-      btnLimpar.style.display = 'inline-flex';
-    } else {
-      statusEl.className = 'status status-warn';
-      statusEl.textContent = 'Não foi possível extrair texto automaticamente. Cole o texto manualmente.';
-    }
-  } catch(e) {
-    statusEl.className = 'status status-error';
-    statusEl.textContent = 'Erro ao ler arquivo: ' + e.message;
-  }
-  input.value = '';
-}
-
-function lerComoTexto(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = e => res(e.target.result);
-    r.onerror = () => rej(new Error('Erro ao ler arquivo'));
-    r.readAsText(file, 'UTF-8');
-  });
-}
-
-async function extrairTextoDocxAndamento(file) {
-  return new Promise((res, rej) => {
-    const reader = new FileReader();
-    reader.onload = async e => {
-      try {
-        const ab = e.target.result;
-        const bytes = new Uint8Array(ab);
-        // Verificar magic bytes ZIP
-        if (bytes[0] !== 0x50 || bytes[1] !== 0x4B) {
-          rej(new Error('Arquivo não é um DOCX válido')); return;
-        }
-        const zip = await JSZip.loadAsync(ab);
-        const docXml = await zip.file('word/document.xml').async('string');
-        // Extrair texto dos elementos <w:t>
-        const matches = docXml.match(/<w:t[^>]*>([^<]*)<\/w:t>/g) || [];
-        const texto = matches
-          .map(m => m.replace(/<w:t[^>]*>/,'').replace(/<\/w:t>/,''))
-          .join(' ')
-          .replace(/\s+/g, ' ')
-          .trim();
-        res(texto);
-      } catch(err) { rej(err); }
-    };
-    reader.onerror = () => rej(new Error('Erro ao ler DOCX'));
-    reader.readAsArrayBuffer(file);
-  });
-}
-
-async function extrairTextoPDF(file) {
-  return new Promise((res, rej) => {
-    const reader = new FileReader();
-    reader.onload = async e => {
-      try {
-        const ab = e.target.result;
-        // Extrair texto bruto do PDF — buscar strings entre parênteses em streams
-        const uint8 = new Uint8Array(ab);
-        const str = new TextDecoder('latin1').decode(uint8);
-
-        // Método 1: extrair texto de operadores Tj e TJ
-        const textos = [];
-        const regTj = /\(([^)\\]*(?:\\.[^)\\]*)*)\)\s*Tj/g;
-        const regTJ = /\[([^\]]+)\]\s*TJ/g;
-        let m;
-
-        while ((m = regTj.exec(str)) !== null) {
-          const t = m[1].replace(/\\n/g,'
-').replace(/\\r/g,'').replace(/\\/g,'');
-          if (t.trim()) textos.push(t);
-        }
-
-        while ((m = regTJ.exec(str)) !== null) {
-          const partes = m[1].match(/\(([^)]*)\)/g) || [];
-          const t = partes.map(p => p.slice(1,-1)).join('');
-          if (t.trim()) textos.push(t);
-        }
-
-        let resultado = textos.join(' ').replace(/\s+/g, ' ').trim();
-
-        if (resultado.length < 50) {
-          // Método 2: extrair texto de BT/ET streams
-          const btEt = str.match(/BT([\s\S]*?)ET/g) || [];
-          const t2 = btEt.map(bloco => {
-            const tj = bloco.match(/\(([^)]*)\)/g) || [];
-            return tj.map(p => p.slice(1,-1)).join(' ');
-          }).join('
-').trim();
-          if (t2.length > resultado.length) resultado = t2;
-        }
-
-        if (resultado.length < 20) {
-          rej(new Error('PDF pode ser imagem ou protegido — cole o texto manualmente'));
-        } else {
-          res(resultado);
-        }
-      } catch(err) { rej(err); }
-    };
-    reader.onerror = () => rej(new Error('Erro ao ler PDF'));
-    reader.readAsArrayBuffer(file);
-  });
-}
-
-function limparAndamento() {
-  document.getElementById('f-andamento').value = '';
-  document.getElementById('andamento-file-nome').textContent = '';
-  document.getElementById('andamento-status').style.display = 'none';
-  document.getElementById('btn-limpar-andamento').style.display = 'none';
-}
-
-function inferir(t) {
+function inferirNome(t) {
   t = t.toLowerCase();
-  if (t.includes('impugn')) return 'impugnação ao cumprimento';
-  if (t.includes('agravo')) return 'agravo de instrumento';
-  if (t.includes('apelação') || t.includes('recurso')) return 'recurso';
-  if (t.includes('contest')) return 'contestação';
-  if (t.includes('despacho') || t.includes('ordinatório')) return 'manifestação a despacho';
-  if (t.includes('decisão') || t.includes('decisao')) return 'manifestação a decisão';
+  if (t.indexOf('impugn')!==-1) return 'impugnação ao cumprimento';
+  if (t.indexOf('agravo')!==-1) return 'agravo de instrumento';
+  if (t.indexOf('apelação')!==-1||t.indexOf('recurso')!==-1) return 'recurso';
+  if (t.indexOf('contest')!==-1) return 'contestação';
+  if (t.indexOf('despacho')!==-1||t.indexOf('ordinatório')!==-1) return 'manifestação a despacho';
+  if (t.indexOf('decisão')!==-1||t.indexOf('decisao')!==-1) return 'manifestação a decisão';
   return 'petição';
 }
 
-function setResStatus(type, msg) {
-  const el = document.getElementById('res-status');
-  el.className = 'status status-' + type;
+function setRS(type, msg) {
+  var el = document.getElementById('res-status');
+  el.className = 'status s-'+type;
   el.textContent = msg;
 }
 
-function baixarDocx() {
+async function baixarDocx() {
   if (!lastMinuta) return;
   try {
-    const linhas = lastMinuta.split('\n');
-
-    // Gerar XML do Word (OOXML) nativo — sem dependência de biblioteca
-    const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-
-    const paragrafos = linhas.map(l => {
-      const txt = esc(l.replace(/\*\*/g,'').trim());
-      if (!txt) return '<w:p><w:pPr><w:spacing w:after="80"/></w:pPr></w:p>';
-      const isTitulo = txt.length > 3 && txt.length < 100 &&
-        /^[A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ][A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ\s\d\-–—\.,:;()]+$/.test(txt);
-      const bold = isTitulo ? '<w:b/>' : '';
-      return `<w:p>
-        <w:pPr>
-          <w:jc w:val="both"/>
-          <w:spacing w:after="160" w:line="360" w:lineRule="auto"/>
-        </w:pPr>
-        <w:r>
-          <w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/>${bold}</w:rPr>
-          <w:t xml:space="preserve">${txt}</w:t>
-        </w:r>
-      </w:p>`;
+    var esc=function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+    var pars = lastMinuta.split('\n').map(function(l){
+      var txt=esc(l.replace(/\*\*/g,'').trim());
+      if(!txt) return '<w:p><w:pPr><w:spacing w:after="100"/></w:pPr></w:p>';
+      var isTit=/^[A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ][A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ\s\d\-\u2013\u2014\.,:;()]{3,}$/.test(txt)&&txt.length<100;
+      return '<w:p><w:pPr><w:jc w:val="both"/><w:spacing w:after="160" w:line="360" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/>'+(isTit?'<w:b/>':'')+'</w:rPr><w:t xml:space="preserve">'+txt+'</w:t></w:r></w:p>';
     }).join('\n');
-
-    const docXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:body>
-    ${paragrafos}
-    <w:sectPr>
-      <w:pgSz w:w="11906" w:h="16838"/>
-      <w:pgMar w:top="1701" w:right="1134" w:bottom="1701" w:left="1701"/>
-    </w:sectPr>
-  </w:body>
-</w:document>`;
-
-    const relsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
-</Relationships>`;
-
-    const wordRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-</Relationships>`;
-
-    const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
-  <Default Extension="xml" ContentType="application/xml"/>
-  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
-</Types>`;
-
-    // Montar ZIP usando JSZip (já incluído via XLSX que usa o mesmo motor)
-    // Fallback: usar Blob com tipo correto
-    gerarZipDocx({
-      '[Content_Types].xml': contentTypesXml,
-      '_rels/.rels': relsXml,
-      'word/document.xml': docXml,
-      'word/_rels/document.xml.rels': wordRelsXml
-    }, lastNome + '.docx');
-
-  } catch(e) {
-    setResStatus('error', 'Erro ao gerar .docx: ' + e.message);
-  }
+    var docXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'+pars+'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1701" w:right="1134" w:bottom="1701" w:left="1701"/></w:sectPr></w:body></w:document>';
+    var relsXml='<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';
+    var ctXml='<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>';
+    var wRels='<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>';
+    var zip=new JSZip();
+    zip.file('[Content_Types].xml',ctXml);
+    zip.file('_rels/.rels',relsXml);
+    zip.file('word/document.xml',docXml);
+    zip.file('word/_rels/document.xml.rels',wRels);
+    var blob=await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.style.display='none';a.href=url;a.download=lastNome+'.docx';
+    document.body.appendChild(a);a.click();
+    setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},1500);
+    setRS('ok','Download iniciado: '+lastNome+'.docx');
+  } catch(e){setRS('err','Erro ao gerar .docx: '+e.message);}
 }
 
-function gerarZipDocx(arquivos, nomeArquivo) {
-  // Usar a API nativa de compressão do browser via fflate (já disponível via XLSX)
-  // ou gerar usando escritura manual de ZIP
-  try {
-    // XLSX já carregou a lib; usar JSZip se disponível, senão usar método alternativo
-    if (typeof JSZip !== 'undefined') {
-      const zip = new JSZip();
-      for (const [path, content] of Object.entries(arquivos)) {
-        zip.file(path, content);
-      }
-      zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
-        .then(blob => triggerDownload(blob, nomeArquivo));
-    } else {
-      // Fallback: baixar como .txt se ZIP não estiver disponível
-      const txt = arquivos['word/document.xml'];
-      const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
-      triggerDownload(blob, nomeArquivo.replace('.docx','.txt'));
-      setResStatus('warn', 'Download em .txt — para .docx, adicione JSZip ao GitHub.');
-    }
-  } catch(e) {
-    setResStatus('error', 'Erro ZIP: ' + e.message);
-  }
-}
-
-function triggerDownload(blob, nome) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.style.display = 'none';
-  a.href = url;
-  a.download = nome;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1500);
-}
-
-function copiar() {
+function copiarTexto() {
   if (!lastMinuta) return;
-  navigator.clipboard.writeText(lastMinuta).then(() => setResStatus('success', 'Copiado para a área de transferência.'));
+  navigator.clipboard.writeText(lastMinuta).then(function(){setRS('ok','Copiado para a área de transferência.');});
 }
 
-function descartar() {
-  document.getElementById('res-content').style.display = 'none';
-  document.getElementById('res-empty').style.display = 'block';
-  lastMinuta = ''; lastNome = '';
+function descartarRes() {
+  document.getElementById('res-content').style.display='none';
+  document.getElementById('res-empty').style.display='block';
+  lastMinuta='';lastNome='';
 }
 
-function limpar() {
-  ['f-pasta','f-proc','f-parte','f-descricao','f-andamento','f-instrucoes'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('f-cliente').value = 'Amil Assistência Médica Internacional S.A.';
-  document.getElementById('f-tipo').value = 'auto';
+function limparForm() {
+  ['f-pasta','f-proc','f-parte','f-descricao','f-andamento','f-instrucoes'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('f-cliente').value='Notre Dame Intermédica Saúde S/A';
+  document.getElementById('f-tipo').value='auto';
+  limparAnd();
   checkBtn();
 }
 
-(function() {
-  // Restaurar chaves de API
-  const oai = sessionStorage.getItem('oai_key');
-  const ant = sessionStorage.getItem('ant_key');
-  if (oai) {
-    document.getElementById('api-key-openai').value = oai;
-    document.getElementById('status-openai').textContent = 'Chave OpenAI salva.';
-    document.getElementById('nn-config').classList.add('ok');
-  }
-  if (ant) {
-    document.getElementById('api-key-anthropic').value = ant;
-    document.getElementById('status-anthropic').textContent = 'Chave Anthropic salva.';
-    document.getElementById('nn-config').classList.add('ok');
-  }
-
-  // Restaurar planilha salva no localStorage
-  try {
-    const saved = localStorage.getItem(LS_PROC);
-    if (saved) {
-      processos = JSON.parse(saved);
-      if (processos.length > 0) {
-        document.getElementById('card-upload-xlsx').style.display = 'none';
-        iniciarTabelaProc();
-        document.getElementById('nn-processos').classList.add('ok');
-      }
-    }
-  } catch(e) {}
-
+(function init(){
+  var oai=sessionStorage.getItem('oai_key');
+  var ant=sessionStorage.getItem('ant_key');
+  if(oai){document.getElementById('api-key-openai').value=oai;document.getElementById('st-openai').textContent='Chave salva.';document.getElementById('nn-config').classList.add('ok');}
+  if(ant){document.getElementById('api-key-anthropic').value=ant;document.getElementById('st-anthropic').textContent='Chave salva.';document.getElementById('nn-config').classList.add('ok');}
+  try{var saved=localStorage.getItem(LS_P);if(saved){processos=JSON.parse(saved);if(processos.length>0){document.getElementById('card-xlsx').style.display='none';iniciarTabela();}}}catch(e){}
   checkBtn();
 })();
 </script>
-  <!-- PAINEL TRATATIVA -->
-  <div class="tratativa-panel" id="tp">
-    <div class="tp-header">
-      <h3 id="tp-titulo">Tratativa</h3>
-      <button class="tp-close" onclick="fecharTP()">×</button>
-    </div>
-    <div class="tp-body">
-      <div class="tp-proc-info" id="tp-info"></div>
-
-      <div class="field">
-        <label>Responsável (coluna J)</label>
-        <input type="text" id="tp-responsavel" placeholder="Nome do responsável" oninput="onTratativaChange()" />
-      </div>
-
-      <div class="field">
-        <label>Tratativa (coluna K)</label>
-        <select id="tp-tratativa" onchange="onTratativaChange()">
-          <option value="">— selecione —</option>
-          <option value="CUMPRIDO">CUMPRIDO</option>
-          <option value="CANCELADO">CANCELADO</option>
-          <option value="REAGENDADO">REAGENDADO</option>
-          <option value="TRANSFERIDO">TRANSFERIDO</option>
-          <option value="AG. RETORNO">AG. RETORNO</option>
-          <option value="PENDENTE">PENDENTE</option>
-        </select>
-      </div>
-
-      <div class="field" id="tp-field-transferido">
-        <label>Transferido para (coluna L)</label>
-        <select id="tp-transferido" onchange="onTratativaChange()">
-          <option value="">— selecione —</option>
-          <option value="CARMO">CARMO</option>
-          <option value="MAYARA">MAYARA</option>
-        </select>
-      </div>
-
-      <div class="field" id="tp-field-data">
-        <label>Data (coluna M)</label>
-        <input type="date" id="tp-data" onchange="onTratativaChange()" />
-      </div>
-
-      <div class="field" id="tp-field-justificativa">
-        <label>Justificativa (coluna N)</label>
-        <textarea id="tp-justificativa" style="min-height:70px;" placeholder="Justificativa..." oninput="onTratativaChange()"></textarea>
-      </div>
-
-      <div class="field" style="margin-top:12px;">
-        <label>Conclusão (coluna O — gerada automaticamente)</label>
-        <div id="tp-conclusao" style="font-size:12px; padding:8px; background:var(--surface2); border-radius:var(--radius-sm); border:1px solid var(--border); color:var(--text2); min-height:32px;"></div>
-      </div>
-
-      <div id="tp-alertas" style="margin-top:10px;"></div>
-    </div>
-    <div class="tp-footer">
-      <button class="btn btn-primary" style="flex:1;" onclick="salvarTratativa()">Salvar tratativa</button>
-      <button class="btn btn-secondary" onclick="fecharTP()">Cancelar</button>
-    </div>
-  </div>
-  <div id="tp-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.3); z-index:199;" onclick="fecharTP()"></div>
-
 </body>
 </html>
