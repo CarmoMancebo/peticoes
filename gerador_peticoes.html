@@ -364,16 +364,27 @@ async function conectar() {
     await msalApp.initialize();
 
     setOdStatus('info', 'Abrindo janela de autenticação Microsoft...');
+
+    // Solicitar login já com o escopo de arquivos — evita segundo popup
     const result = await msalApp.loginPopup({
-      scopes: OD_SCOPES,
+      scopes: ['openid', 'profile', 'files.read'],
       prompt: 'select_account'
     });
 
-    // Obter token de acesso para o Graph
-    const tokenResult = await msalApp.acquireTokenSilent({
-      scopes: OD_SCOPES,
-      account: result.account
-    });
+    // Tentar obter token silenciosamente primeiro
+    let tokenResult;
+    try {
+      tokenResult = await msalApp.acquireTokenSilent({
+        scopes: ['files.read'],
+        account: result.account
+      });
+    } catch(silentErr) {
+      // Se falhar (consentimento necessário), abre popup
+      tokenResult = await msalApp.acquireTokenPopup({
+        scopes: ['files.read'],
+        account: result.account
+      });
+    }
     odToken = tokenResult.accessToken;
     onConnected();
   } catch(e) {
