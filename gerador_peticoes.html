@@ -298,10 +298,19 @@
 
       <div class="card">
         <div class="card-title">Andamento do tribunal</div>
-        <div class="field">
-          <label>Cole o texto do andamento / decisão / despacho (e-SAJ ou e-Proc)</label>
-          <textarea id="f-andamento" style="min-height:120px;" placeholder="Cole aqui o texto exato conforme consta no tribunal..."></textarea>
+        <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('andamento-file').click()">
+            📎 Carregar arquivo (PDF, DOCX, TXT)
+          </button>
+          <span id="andamento-file-nome" style="font-size:11px; color:var(--text3); align-self:center;"></span>
+          <button class="btn btn-secondary btn-sm" id="btn-limpar-andamento" style="display:none;" onclick="limparAndamento()">× Limpar</button>
         </div>
+        <input type="file" id="andamento-file" accept=".pdf,.docx,.txt" style="display:none" onchange="carregarAndamento(this)" />
+        <div class="field">
+          <label>Texto do andamento / decisão / despacho / sentença / acórdão</label>
+          <textarea id="f-andamento" style="min-height:140px;" placeholder="Cole o texto diretamente ou carregue um arquivo acima (PDF, DOCX ou TXT)..."></textarea>
+        </div>
+        <div id="andamento-status" style="display:none;"></div>
       </div>
 
       <div class="card">
@@ -985,6 +994,147 @@ Regras obrigatórias:
   } catch(e) { setResStatus('error', 'Erro: ' + e.message); }
 
   btn.disabled = false; btn.textContent = 'Gerar minuta';
+}
+
+// ── CARREGAR ARQUIVO DE ANDAMENTO ────────────────────────────
+async function carregarAndamento(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const nome = file.name;
+  const statusEl = document.getElementById('andamento-status');
+  const nomeEl = document.getElementById('andamento-file-nome');
+  const btnLimpar = document.getElementById('btn-limpar-andamento');
+
+  nomeEl.textContent = nome;
+  statusEl.className = 'status status-info';
+  statusEl.textContent = 'Extraindo texto...';
+  statusEl.style.display = 'block';
+
+  try {
+    let texto = '';
+    const ext = nome.split('.').pop().toLowerCase();
+
+    if (ext === 'txt') {
+      texto = await lerComoTexto(file);
+
+    } else if (ext === 'docx') {
+      texto = await extrairTextoDocxAndamento(file);
+
+    } else if (ext === 'pdf') {
+      texto = await extrairTextoPDF(file);
+    }
+
+    if (texto && texto.trim()) {
+      document.getElementById('f-andamento').value = texto.trim();
+      statusEl.className = 'status status-success';
+      statusEl.textContent = `Texto extraído de "${nome}" (${texto.trim().length} caracteres).`;
+      btnLimpar.style.display = 'inline-flex';
+    } else {
+      statusEl.className = 'status status-warn';
+      statusEl.textContent = 'Não foi possível extrair texto automaticamente. Cole o texto manualmente.';
+    }
+  } catch(e) {
+    statusEl.className = 'status status-error';
+    statusEl.textContent = 'Erro ao ler arquivo: ' + e.message;
+  }
+  input.value = '';
+}
+
+function lerComoTexto(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.onerror = () => rej(new Error('Erro ao ler arquivo'));
+    r.readAsText(file, 'UTF-8');
+  });
+}
+
+async function extrairTextoDocxAndamento(file) {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = async e => {
+      try {
+        const ab = e.target.result;
+        const bytes = new Uint8Array(ab);
+        // Verificar magic bytes ZIP
+        if (bytes[0] !== 0x50 || bytes[1] !== 0x4B) {
+          rej(new Error('Arquivo não é um DOCX válido')); return;
+        }
+        const zip = await JSZip.loadAsync(ab);
+        const docXml = await zip.file('word/document.xml').async('string');
+        // Extrair texto dos elementos <w:t>
+        const matches = docXml.match(/<w:t[^>]*>([^<]*)<\/w:t>/g) || [];
+        const texto = matches
+          .map(m => m.replace(/<w:t[^>]*>/,'').replace(/<\/w:t>/,''))
+          .join(' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        res(texto);
+      } catch(err) { rej(err); }
+    };
+    reader.onerror = () => rej(new Error('Erro ao ler DOCX'));
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+async function extrairTextoPDF(file) {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = async e => {
+      try {
+        const ab = e.target.result;
+        // Extrair texto bruto do PDF — buscar strings entre parênteses em streams
+        const uint8 = new Uint8Array(ab);
+        const str = new TextDecoder('latin1').decode(uint8);
+
+        // Método 1: extrair texto de operadores Tj e TJ
+        const textos = [];
+        const regTj = /\(([^)\\]*(?:\\.[^)\\]*)*)\)\s*Tj/g;
+        const regTJ = /\[([^\]]+)\]\s*TJ/g;
+        let m;
+
+        while ((m = regTj.exec(str)) !== null) {
+          const t = m[1].replace(/\\n/g,'
+').replace(/\\r/g,'').replace(/\\/g,'');
+          if (t.trim()) textos.push(t);
+        }
+
+        while ((m = regTJ.exec(str)) !== null) {
+          const partes = m[1].match(/\(([^)]*)\)/g) || [];
+          const t = partes.map(p => p.slice(1,-1)).join('');
+          if (t.trim()) textos.push(t);
+        }
+
+        let resultado = textos.join(' ').replace(/\s+/g, ' ').trim();
+
+        if (resultado.length < 50) {
+          // Método 2: extrair texto de BT/ET streams
+          const btEt = str.match(/BT([\s\S]*?)ET/g) || [];
+          const t2 = btEt.map(bloco => {
+            const tj = bloco.match(/\(([^)]*)\)/g) || [];
+            return tj.map(p => p.slice(1,-1)).join(' ');
+          }).join('
+').trim();
+          if (t2.length > resultado.length) resultado = t2;
+        }
+
+        if (resultado.length < 20) {
+          rej(new Error('PDF pode ser imagem ou protegido — cole o texto manualmente'));
+        } else {
+          res(resultado);
+        }
+      } catch(err) { rej(err); }
+    };
+    reader.onerror = () => rej(new Error('Erro ao ler PDF'));
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function limparAndamento() {
+  document.getElementById('f-andamento').value = '';
+  document.getElementById('andamento-file-nome').textContent = '';
+  document.getElementById('andamento-status').style.display = 'none';
+  document.getElementById('btn-limpar-andamento').style.display = 'none';
 }
 
 function inferir(t) {
