@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Gerador de Petições — Carmo Mancebo</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -479,43 +480,42 @@ function loadAndamento(inp) {
         setAndamento(txt, f.name);
       }).catch(function(e){setSt('and-st','err','Erro ao ler DOCX: '+e.message);});
     } else if (ext === 'pdf') {
-      var txt = extrairPDF(ab);
-      setAndamento(txt, f.name);
+      extrairPDF(ab).then(function(txt) {
+        setAndamento(txt, f.name);
+      }).catch(function(e) {
+        setSt('and-st','err','Erro ao extrair PDF: ' + e.message);
+      });
+      return; // retorno antecipado — resultado vem pelo .then
     }
   };
   rd.readAsArrayBuffer(f);
   inp.value='';
 }
 
-function extrairPDF(ab) {
-  var bytes = new Uint8Array(ab);
-  var str = '';
-  var lim = Math.min(bytes.length, 400000);
-  for (var i=0; i<lim; i++) str += String.fromCharCode(bytes[i]);
-  var blocos = [];
-  var i = 0;
-  while (i < str.length - 1) {
-    if (str[i] === '(') {
-      var txt = ''; i++;
-      while (i < str.length && str[i] !== ')') {
-        if (str[i] === '\\') i++;
-        else txt += str[i];
-        i++;
+async function extrairPDF(ab) {
+  // Configurar worker do PDF.js
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    try {
+      var loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(ab) });
+      var pdf = await loadingTask.promise;
+      var textos = [];
+      for (var i = 1; i <= pdf.numPages; i++) {
+        var page = await pdf.getPage(i);
+        var content = await page.getTextContent();
+        var pageText = content.items.map(function(item) {
+          return item.str;
+        }).join(' ');
+        textos.push(pageText);
       }
-      var depois = str.slice(i+1, i+15).replace(/\s/g,'');
-      if (depois.indexOf('Tj')===0 || depois.indexOf('TJ')===0) {
-        var limpo = '';
-        for (var j=0; j<txt.length; j++) {
-          var c = txt.charCodeAt(j);
-          if (c >= 32 && c <= 126) limpo += txt[j];
-          else if (c > 126) limpo += txt[j];
-        }
-        if (limpo.trim().length > 1) blocos.push(limpo.trim());
-      }
+      return textos.join('\n').replace(/\s+/g, ' ').trim();
+    } catch(e) {
+      throw new Error('PDF.js: ' + e.message);
     }
-    i++;
+  } else {
+    throw new Error('Biblioteca PDF.js não carregada');
   }
-  return blocos.join(' ').replace(/\s+/g,' ').trim();
 }
 
 function setAndamento(txt, nome) {
