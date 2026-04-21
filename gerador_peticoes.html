@@ -109,7 +109,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-div"></div>
   <span class="tb-title">Gerador de Petições</span>
-  <span class="tb-meta" id="tb-versao">versão 1.26</span>
+  <span class="tb-meta" id="tb-versao">versão 1.27</span>
 </div>
 
 <div class="layout">
@@ -252,6 +252,29 @@ tbody tr.st-p td{background:#b3e5fc}
         <input type="file" id="inp-ref" accept=".docx,.txt" multiple style="display:none" onchange="loadRefs(this)" />
         <div class="rlist" id="rlist"></div>
         <div class="tip" id="rtotal"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Backup e importação</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Exporte toda a configuração (planilha, tratativas, timbrado, peças de referência, observações) para um arquivo JSON, ou restaure a partir de um backup anterior.</p>
+        <div class="btn-row">
+          <button class="btn btn-s btn-sm" onclick="exportarBackup()">📤 Exportar backup (.json)</button>
+          <button class="btn btn-s btn-sm" onclick="document.getElementById('inp-backup').click()">📥 Importar backup</button>
+          <input type="file" id="inp-backup" accept=".json" style="display:none" onchange="importarBackup(this)" />
+        </div>
+        <div id="backup-st" style="margin-top:8px"></div>
+      </div>
+
+      <div class="card" style="background:var(--blue-bg);border-color:var(--blue-mid)">
+        <div class="card-title" style="color:var(--blue)">⌨ Atalhos de teclado</div>
+        <div style="font-size:12px;color:var(--text)">
+          <div style="margin-bottom:4px"><kbd style="background:#fff;padding:2px 6px;border-radius:3px;border:1px solid var(--border2);font-family:monospace">Ctrl + G</kbd> — Gerar petição</div>
+          <div style="margin-bottom:4px"><kbd style="background:#fff;padding:2px 6px;border-radius:3px;border:1px solid var(--border2);font-family:monospace">Ctrl + D</kbd> — Baixar .docx</div>
+          <div style="margin-bottom:4px"><kbd style="background:#fff;padding:2px 6px;border-radius:3px;border:1px solid var(--border2);font-family:monospace">Ctrl + E</kbd> — Editar texto da petição</div>
+          <div style="margin-bottom:4px"><kbd style="background:#fff;padding:2px 6px;border-radius:3px;border:1px solid var(--border2);font-family:monospace">Ctrl + R</kbd> — Regenerar petição</div>
+          <div style="margin-bottom:4px"><kbd style="background:#fff;padding:2px 6px;border-radius:3px;border:1px solid var(--border2);font-family:monospace">Ctrl + 1/2/3/4</kbd> — Navegar entre abas</div>
+          <div><kbd style="background:#fff;padding:2px 6px;border-radius:3px;border:1px solid var(--border2);font-family:monospace">Esc</kbd> — Fechar painel de tratativa</div>
+        </div>
       </div>
 
       <div class="btn-row">
@@ -485,11 +508,22 @@ tbody tr.st-p td{background:#b3e5fc}
       <div id="res-content" style="display:none">
         <div id="res-st"></div>
         <div id="res-nome" class="tip" style="margin-bottom:8px"></div>
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+          <button class="btn btn-s btn-sm" id="btn-toggle-edit" onclick="toggleEditMode()" title="Alternar entre visualização e edição">✏ Editar texto</button>
+          <span class="tip" id="res-edit-status"></span>
+          <span style="margin-left:auto" class="tip" id="res-char-count"></span>
+        </div>
         <div class="out" id="res-txt"></div>
+        <textarea id="res-edit" style="display:none;width:100%;min-height:400px;padding:14px;font-family:Georgia,serif;font-size:14px;line-height:1.7;border:1px solid var(--border2);border-radius:var(--rsm);background:#fffef8;"></textarea>
         <div class="btn-row">
-          <button class="btn btn-p" onclick="baixarDocx()">Baixar .docx</button>
-          <button class="btn btn-s" onclick="copiar()">Copiar texto</button>
-          <button class="btn btn-d" onclick="descartar()">Descartar</button>
+          <button class="btn btn-p" onclick="baixarDocx()">📥 Baixar .docx</button>
+          <button class="btn btn-s" onclick="baixarPdf()">📄 Baixar PDF</button>
+          <button class="btn btn-s" onclick="copiar()">📋 Copiar texto</button>
+          <span style="width:1px;background:var(--border2);margin:0 4px"></span>
+          <button class="btn btn-s" onclick="regenerarMinuta()" title="Gerar nova versão da mesma peça (Ctrl+R)">🔄 Regenerar</button>
+          <button class="btn btn-s" onclick="continuarMinuta()" title="Continuar petição truncada a partir do fim">➕ Continuar</button>
+          <span style="width:1px;background:var(--border2);margin:0 4px"></span>
+          <button class="btn btn-d" onclick="descartar()">🗑 Descartar</button>
         </div>
       </div>
     </div>
@@ -538,6 +572,10 @@ tbody tr.st-p td{background:#b3e5fc}
       <label>Conclusão (col. O — automática)</label>
       <div id="tp-conc" style="font-size:12px;padding:8px;background:var(--surface2);border-radius:var(--rsm);border:1px solid var(--border);color:var(--text2);min-height:32px">—</div>
     </div>
+    <div class="field">
+      <label>📝 Observações internas da pasta (privadas)</label>
+      <textarea id="tp-obs" style="min-height:80px;font-size:12px;" placeholder="Notas internas sobre este processo (só você vê, salvo no navegador)..."></textarea>
+    </div>
     <div id="tp-erros"></div>
   </div>
   <div class="tp-foot">
@@ -549,6 +587,8 @@ tbody tr.st-p td{background:#b3e5fc}
 
 <script>
 var procs = [], refs = [], minuta = '', nomeArq = '', tpIdx = -1, filtro = 'todos';
+var ultimoSysPrompt = '', ultimoUsrPrompt = '', ultimoModelo = '', ultimoKey = ''; // para regenerar/continuar
+var modoEdit = false;
 
 // Helper global de escape XML
 function esc(s) {
@@ -1081,6 +1121,7 @@ function abrirTP(i) {
   document.getElementById('tp-transf').value=t.transf||'';
   document.getElementById('tp-data').value=t.data||'';
   document.getElementById('tp-just').value=t.just||'';
+  document.getElementById('tp-obs').value=t.obs||'';
   onTrat();
   document.getElementById('tp').classList.add('open');
   document.getElementById('tpov').style.display='block';
@@ -1106,7 +1147,8 @@ function coletarTP() {
     trat:  document.getElementById('tp-trat').value,
     transf:document.getElementById('tp-transf').value,
     data:  document.getElementById('tp-data').value,
-    just:  document.getElementById('tp-just').value.trim()
+    just:  document.getElementById('tp-just').value.trim(),
+    obs:   document.getElementById('tp-obs').value.trim()
   };
 }
 
@@ -1257,8 +1299,13 @@ async function gerarMinuta() {
   var nomeModelo=modelo==='gpt4o'?'GPT-4o':modelo==='claude-sonnet'?'Claude Sonnet':'Claude Opus';
   setSt2('res-st','info','Aguarde — gerando via '+nomeModelo+'...');
   var enriquecimento = getEnriquecimento();
-  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- SEMPRE que mencionar um artigo de lei, súmula, resolução normativa ou dispositivo legal específico, TRANSCREVA o texto do dispositivo na íntegra (ou o trecho relevante) entre aspas duplas, imediatamente após a referência. Exemplo: "...nos termos do artigo 525 do Código de Processo Civil: 'Transcorrido o prazo previsto no artigo 523 sem o pagamento voluntário, inicia-se o prazo de 15 (quinze) dias para que o executado, independentemente de penhora ou nova intimação, apresente, nos próprios autos, sua impugnação.'"\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para títulos, não utilizar "**texto**" ou "*texto*" para negrito/itálico, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- O PEDIDO FINAL SEMPRE DEVE INCLUIR, em letra "a)" ou como penúltima alínea, o requerimento padrão de intimações: "que todas as publicações, intimações e notificações sejam realizadas exclusivamente em nome do(a) advogado(a) [NOME_ADVOGADO_INTIMACOES], sob pena de nulidade". O sistema substituirá [NOME_ADVOGADO_INTIMACOES] automaticamente pelo advogado selecionado.\n- Termine o corpo principal da peça com os pedidos finais (Ante ao exposto, requer-se: a), b), c)).\n\n'+getInstrucaoEstrutura(tipo==='auto'?inferir((inst||'')+' '+andamento):tipo)+'\n\n'+getInstrucaoDensidade();
+  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- SEMPRE que mencionar um artigo de lei, súmula, resolução normativa ou dispositivo legal específico, TRANSCREVA o texto do dispositivo na íntegra (ou o trecho relevante) entre aspas duplas, imediatamente após a referência. Exemplo: Ao citar o artigo 525 do CPC, transcrever em seguida: “Transcorrido o prazo previsto no artigo 523 sem o pagamento voluntário, inicia-se o prazo de 15 dias para apresentar impugnação.”\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para títulos, não utilizar "**texto**" ou "*texto*" para negrito/itálico, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- O PEDIDO FINAL SEMPRE DEVE INCLUIR, em letra "a)" ou como penúltima alínea, o requerimento padrão de intimações: "que todas as publicações, intimações e notificações sejam realizadas exclusivamente em nome do(a) advogado(a) [NOME_ADVOGADO_INTIMACOES], sob pena de nulidade". O sistema substituirá [NOME_ADVOGADO_INTIMACOES] automaticamente pelo advogado selecionado.\n- Termine o corpo principal da peça com os pedidos finais (Ante ao exposto, requer-se: a), b), c)).\n\n'+getInstrucaoEstrutura(tipo==='auto'?inferir((inst||'')+' '+andamento):tipo)+'\n\n'+getInstrucaoDensidade();
   var usr='Processo: '+proc+'\nSistema: '+sis+'\nPasta: '+pasta+'\nCliente: '+cliente+'\nParte contrária: '+(parte||'não informado')+'\nDemanda: '+(desc||'não informado')+'\n\nAndamento:\n'+andamento+'\n\nTipo de peça: '+(tipo==='auto'?'identificar automaticamente pelo andamento':tipo)+(inst?'\n\nInstruções específicas:\n'+inst:'')+refBlock+'\n\nElabore a peça completa pronta para protocolo.';
+  // Salvar contexto para regenerar/continuar
+  ultimoSysPrompt = sys;
+  ultimoUsrPrompt = usr;
+  ultimoModelo = modelo;
+  ultimoKey = key;
   try {
     var full='';
     var out=document.getElementById('res-txt');
@@ -1277,6 +1324,7 @@ async function gerarMinuta() {
       while(true){var rv=await rd.read();if(rv.done)break;dc.decode(rv.value).split('\n').forEach(function(ln){if(ln.startsWith('data: ')){try{var ev=JSON.parse(ln.slice(6));if(ev.type==='content_block_delta'&&ev.delta&&ev.delta.text){full+=ev.delta.text;out.textContent=full;out.scrollTop=99999;}}catch(e){}}});}
     }
     minuta=full;
+    atualizarContagem();
     var nomePeca=tipo==='auto'?inferir((inst||'')+' '+andamento):tipo;
     nomeArq=(pasta?pasta+' - ':'')+nomePeca;
     document.getElementById('res-nome').textContent='Arquivo: '+nomeArq+'.docx  ·  Modelo: '+nomeModelo;
@@ -1826,9 +1874,301 @@ function triggerDownload(blob, nome) {
   setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},1500);
 }
 
+// ── PREVIEW EDITÁVEL ──────────────────────────────────────────
+function toggleEditMode() {
+  var outDiv = document.getElementById('res-txt');
+  var editTa = document.getElementById('res-edit');
+  var btn = document.getElementById('btn-toggle-edit');
+  var status = document.getElementById('res-edit-status');
+
+  if (!modoEdit) {
+    // Entrar em modo edição
+    editTa.value = minuta;
+    outDiv.style.display = 'none';
+    editTa.style.display = 'block';
+    editTa.focus();
+    btn.innerHTML = '✓ Aplicar edição';
+    status.textContent = 'Modo edição ativo — as alterações serão usadas no download';
+    status.style.color = 'var(--amber)';
+    modoEdit = true;
+    atualizarContagem();
+    editTa.oninput = atualizarContagem;
+  } else {
+    // Sair do modo edição e aplicar alterações
+    minuta = editTa.value;
+    outDiv.textContent = minuta;
+    outDiv.style.display = 'block';
+    editTa.style.display = 'none';
+    btn.innerHTML = '✏ Editar texto';
+    status.textContent = 'Alterações aplicadas';
+    status.style.color = 'var(--green)';
+    setTimeout(function(){ status.textContent = ''; }, 2500);
+    modoEdit = false;
+    atualizarContagem();
+  }
+}
+
+function atualizarContagem() {
+  var texto = modoEdit ? document.getElementById('res-edit').value : minuta;
+  var chars = texto.length;
+  var palavras = texto.split(/\s+/).filter(function(w){return w.length>0;}).length;
+  document.getElementById('res-char-count').textContent = chars + ' caracteres · ' + palavras + ' palavras';
+}
+
+// ── REGENERAR / CONTINUAR ─────────────────────────────────────
+async function regenerarMinuta() {
+  if (!ultimoSysPrompt || !ultimoUsrPrompt) { alert('Nenhuma petição gerada nesta sessão para regenerar.'); return; }
+  if (!confirm('Gerar nova versão da mesma peça? O texto atual será descartado.')) return;
+  minuta = '';
+  document.getElementById('res-txt').textContent = '';
+  await executarGeracao(ultimoSysPrompt, ultimoUsrPrompt, false);
+}
+
+async function continuarMinuta() {
+  if (!minuta || !minuta.trim()) { alert('Nenhuma minuta em andamento para continuar.'); return; }
+  if (!ultimoSysPrompt) { alert('Dados de contexto indisponíveis. Gere uma nova petição primeiro.'); return; }
+  // Montar prompt de continuação
+  var ultimos = minuta.slice(-2000); // últimos 2000 chars para contexto
+  var continuacaoPrompt = ultimoUsrPrompt + '\n\n[TEXTO PARCIAL JÁ GERADO — continue EXATAMENTE de onde parou, sem repetir nada, mantendo o mesmo estilo e formatação]:\n\n' + ultimos + '\n\n[CONTINUE A PARTIR DAQUI]';
+  await executarGeracao(ultimoSysPrompt, continuacaoPrompt, true);
+}
+
+async function executarGeracao(sys, usr, isContinuacao) {
+  var key = ultimoKey || getKey();
+  var modelo = ultimoModelo || document.getElementById('sel-modelo').value;
+  var nomeModelo = modelo==='gpt4o'?'GPT-4o':modelo==='claude-sonnet'?'Claude Sonnet':'Claude Opus';
+  setSt2('res-st','info','Aguarde — '+(isContinuacao?'continuando':'regerando')+' via '+nomeModelo+'...');
+  var out = document.getElementById('res-txt');
+  var full = isContinuacao ? minuta : '';
+  out.textContent = full;
+
+  try {
+    if (modelo === 'gpt4o') {
+      var res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+        body: JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.3,max_tokens:24000,stream:true})
+      });
+      if (!res.ok) { var er=await res.json(); throw new Error(er.error?er.error.message:'Erro OpenAI'); }
+      var rd = res.body.getReader(), dc = new TextDecoder();
+      while(true) {
+        var rv = await rd.read(); if (rv.done) break;
+        dc.decode(rv.value).split('\n').forEach(function(ln){
+          if (ln.startsWith('data: ') && ln !== 'data: [DONE]') {
+            try { var d = JSON.parse(ln.slice(6)).choices[0].delta.content;
+              if (d) { full += d; out.textContent = full; out.scrollTop = 99999; }
+            } catch(e) {}
+          }
+        });
+      }
+    } else {
+      var cm = modelo==='claude-sonnet'?'claude-sonnet-4-5':'claude-opus-4-5';
+      var res = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body: JSON.stringify({model:cm,max_tokens:24000,system:sys,messages:[{role:'user',content:usr}],stream:true})
+      });
+      if (!res.ok) { var er=await res.json(); throw new Error(er.error?er.error.message:'Erro Anthropic'); }
+      var rd = res.body.getReader(), dc = new TextDecoder();
+      while(true) {
+        var rv = await rd.read(); if (rv.done) break;
+        dc.decode(rv.value).split('\n').forEach(function(ln){
+          if (ln.startsWith('data: ')) {
+            try { var ev = JSON.parse(ln.slice(6));
+              if (ev.type === 'content_block_delta' && ev.delta && ev.delta.text) {
+                full += ev.delta.text; out.textContent = full; out.scrollTop = 99999;
+              }
+            } catch(e) {}
+          }
+        });
+      }
+    }
+    minuta = full;
+    atualizarContagem();
+    setSt2('res-st','ok',(isContinuacao?'Continuação concluída':'Nova versão gerada') + '. Revise antes de protocolar.');
+  } catch(e) {
+    setSt2('res-st','err','Erro: '+e.message);
+  }
+}
+
+// ── DOWNLOAD PDF ──────────────────────────────────────────────
+async function baixarPdf() {
+  if (!minuta) return;
+  setSt2('res-st','info','Gerando PDF...');
+  try {
+    // Abordagem: usar impressão do navegador com print-to-pdf
+    var w = window.open('', '_blank');
+    if (!w) { setSt2('res-st','err','Popup bloqueado — permita popups para gerar PDF'); return; }
+    var fmt = getFormatacao();
+    var fontePx = Math.round(parseInt(fmt.sz)/2 * 1.33); // half-points → px aproximado
+    var linhaHeight = parseInt(fmt.linhas)/240;
+    var textoEsc = esc(minuta).replace(/\n/g,'<br>');
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+esc(nomeArq)+'</title>'+
+      '<style>@page{size:A4;margin:2.5cm 2.5cm 2.5cm 2.5cm;}'+
+      'body{font-family:"'+fmt.fonte+'",Arial,sans-serif;font-size:'+fontePx+'px;line-height:'+linhaHeight+';text-align:justify;color:#000;}'+
+      'p{margin:0 0 '+(parseInt(fmt.depois)/20)+'pt 0;text-indent:'+(parseInt(fmt.recuo||0)/567)+'cm;}'+
+      '.titulo{font-weight:bold;text-align:left;text-indent:0;margin-top:16pt;margin-bottom:8pt;}'+
+      '.centro{text-align:center;text-indent:0;margin-top:24pt;}'+
+      '.print-info{padding:2cm;text-align:center;font-family:sans-serif;}'+
+      '@media print{.no-print{display:none;}}'+
+      '</style></head><body>';
+    // Processar linhas
+    var linhas = minuta.split('\n');
+    var contTitulo = 0;
+    linhas.forEach(function(l){
+      var t = l.trim();
+      if (!t) { html += '<p>&nbsp;</p>'; return; }
+      var isTit = /^[A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ][A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ\s\d\-\u2013\u2014\.,:;()]{3,}$/.test(t) && t.length < 120;
+      if (isTit) {
+        var tLimpo = t.replace(/^\s*(\d+|[IVXLCM]+)\s*[-–—\.\)]\s*/, '');
+        if (fmt.numerarTitulos) { contTitulo++; tLimpo = contTitulo + ' - ' + tLimpo; }
+        html += '<p class="titulo">'+esc(tLimpo)+'</p>';
+      } else {
+        html += '<p>'+esc(t)+'</p>';
+      }
+    });
+    html += '<div class="no-print" style="position:fixed;top:10px;right:10px;background:#185FA5;color:#fff;padding:10px 16px;border-radius:6px;font-family:sans-serif;font-size:13px;">'+
+      '💡 Use Ctrl+P e salve como PDF. '+
+      '<button onclick="window.print()" style="margin-left:8px;padding:4px 10px;background:#fff;color:#185FA5;border:0;border-radius:4px;cursor:pointer;">Imprimir agora</button>'+
+      '</div></body></html>';
+    w.document.write(html);
+    w.document.close();
+    setSt2('res-st','ok','Janela aberta — use Ctrl+P e "Salvar como PDF"');
+  } catch(e) {
+    setSt2('res-st','err','Erro ao gerar PDF: '+e.message);
+  }
+}
+
 function copiar(){if(!minuta)return;navigator.clipboard.writeText(minuta).then(function(){setSt2('res-st','ok','Copiado para a área de transferência.');});}
 function descartar(){document.getElementById('res-content').style.display='none';document.getElementById('res-empty').style.display='block';minuta='';nomeArq='';}
 function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('f-cliente').value='Notre Dame Intermédica Saúde S/A';document.getElementById('f-tipo').value='auto';clearAndamento();checkBtn();}
+
+// ── BACKUP E IMPORTAÇÃO ──────────────────────────────────────
+function exportarBackup() {
+  try {
+    var payload = {
+      version: '1.27',
+      timestamp: new Date().toISOString(),
+      processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
+      status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
+      refs: refs.map(function(r){ return {name: r.name, txt: r.txt}; }),
+      timbrado: timbrado ? { nome: timbrado.nome } : null, // timbrado é pesado, avisar
+      config: {
+        modelo: document.getElementById('sel-modelo').value,
+        advogado: document.getElementById('f-advogado').value,
+        cidade: document.getElementById('f-cidade').value,
+        densidade: document.getElementById('f-densidade').value,
+        area: document.getElementById('f-area').value,
+        subarea: document.getElementById('f-subarea').value,
+        fmt: getFormatacao()
+      }
+    };
+    var json = JSON.stringify(payload, null, 2);
+    var blob = new Blob([json], {type: 'application/json'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'backup_gerador_peticoes_' + new Date().toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+    var st = document.getElementById('backup-st');
+    st.className = 'st st-ok';
+    st.textContent = 'Backup exportado. Obs: timbrado precisa ser reimportado manualmente (não incluído no JSON por ser pesado).';
+  } catch(e) {
+    var st = document.getElementById('backup-st');
+    st.className = 'st st-err';
+    st.textContent = 'Erro ao exportar: ' + e.message;
+  }
+}
+
+function importarBackup(inp) {
+  var f = inp.files[0];
+  if (!f) return;
+  if (!confirm('Importar este backup vai substituir TODOS os dados atuais (planilha, tratativas, configurações). Tem certeza?')) {
+    inp.value = '';
+    return;
+  }
+  var rd = new FileReader();
+  rd.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (data.processos) localStorage.setItem('gp_p', JSON.stringify(data.processos));
+      if (data.status) localStorage.setItem('gp_s', JSON.stringify(data.status));
+      if (data.refs) refs = data.refs;
+      // Aplicar config
+      if (data.config) {
+        if (data.config.modelo) document.getElementById('sel-modelo').value = data.config.modelo;
+        if (data.config.advogado) document.getElementById('f-advogado').value = data.config.advogado;
+        if (data.config.cidade) document.getElementById('f-cidade').value = data.config.cidade;
+        if (data.config.densidade) document.getElementById('f-densidade').value = data.config.densidade;
+        if (data.config.area) { document.getElementById('f-area').value = data.config.area; atualizarSubareas(); }
+        if (data.config.subarea) document.getElementById('f-subarea').value = data.config.subarea;
+        var fmt = data.config.fmt;
+        if (fmt) {
+          if (fmt.fonte) document.getElementById('fmt-fonte').value = fmt.fonte;
+          if (fmt.sz) document.getElementById('fmt-tamanho').value = String(fmt.sz/2);
+          if (fmt.linhas) document.getElementById('fmt-entrelinhas').value = fmt.linhas;
+          if (fmt.alinhamento) document.getElementById('fmt-alinhamento').value = fmt.alinhamento;
+          if (fmt.formatoData) document.getElementById('fmt-data').value = fmt.formatoData;
+          if (fmt.recuo !== undefined) document.getElementById('fmt-recuo').value = String(fmt.recuo);
+        }
+      }
+      var st = document.getElementById('backup-st');
+      st.className = 'st st-ok';
+      st.textContent = 'Backup importado com sucesso. Recarregando em 2s...';
+      setTimeout(function(){ location.reload(); }, 2000);
+    } catch(err) {
+      var st = document.getElementById('backup-st');
+      st.className = 'st st-err';
+      st.textContent = 'Erro ao importar: ' + err.message;
+    }
+  };
+  rd.readAsText(f);
+  inp.value = '';
+}
+
+// ── ATALHOS DE TECLADO ────────────────────────────────────────
+function handlerAtalhos(e) {
+  // Não interferir em campos de texto
+  var tag = (e.target.tagName || '').toLowerCase();
+  var isInput = tag === 'input' || tag === 'textarea' || tag === 'select';
+
+  // Ctrl/Cmd + tecla
+  if (e.ctrlKey || e.metaKey) {
+    // Ctrl+G — gerar
+    if (e.key === 'g' || e.key === 'G') {
+      e.preventDefault();
+      var btn = document.getElementById('btn-ger');
+      if (btn && !btn.disabled) btn.click();
+      return;
+    }
+    // Ctrl+D — baixar docx
+    if (e.key === 'd' || e.key === 'D') {
+      if (minuta) { e.preventDefault(); baixarDocx(); return; }
+    }
+    // Ctrl+E — editar
+    if (e.key === 'e' || e.key === 'E') {
+      if (minuta) { e.preventDefault(); toggleEditMode(); return; }
+    }
+    // Ctrl+R — regenerar (só se houver minuta)
+    if (e.key === 'r' || e.key === 'R') {
+      if (minuta && ultimoSysPrompt) { e.preventDefault(); regenerarMinuta(); return; }
+    }
+    // Ctrl+1/2/3/4 — navegação
+    if (['1','2','3','4'].indexOf(e.key) >= 0) {
+      e.preventDefault();
+      var map = {'1':'cfg','2':'proc','3':'ger','4':'res'};
+      go(map[e.key]);
+      return;
+    }
+  }
+  // Esc — fechar painel de tratativa
+  if (e.key === 'Escape') {
+    var tp = document.getElementById('tp');
+    if (tp && tp.classList.contains('open')) { fecharTP(); return; }
+  }
+}
+document.addEventListener('keydown', handlerAtalhos);
 
 // INIT
 (function(){
