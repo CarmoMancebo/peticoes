@@ -9,6 +9,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* Campo obrigatório */
+.field-required label::after { content: " *"; color: var(--red); font-weight: 700; }
+.field-required input, .field-required select { border-color: #FAC775; }
+.field-required input:focus, .field-required select:focus { border-color: var(--blue-mid); }
+
 :root{
   --bg:#f5f4f0;--surface:#fff;--surface2:#f1efe9;
   --border:rgba(0,0,0,.10);--border2:rgba(0,0,0,.18);
@@ -104,7 +109,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-div"></div>
   <span class="tb-title">Gerador de Petições</span>
-  
+  <span class="tb-meta" id="tb-versao">versão 1.26</span>
 </div>
 
 <div class="layout">
@@ -204,6 +209,34 @@ tbody tr.st-p td{background:#b3e5fc}
               <option value="left">Esquerda</option>
               <option value="right">Direita</option>
               <option value="center">Centro</option>
+            </select>
+          </div>
+        </div>
+        <div class="row3">
+          <div class="field">
+            <label>Formato de data</label>
+            <select id="fmt-data">
+              <option value="extenso" selected>21 de abril de 2026</option>
+              <option value="numerica">21/04/2026</option>
+              <option value="abreviada">21.4.2026</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Recuo da primeira linha <span style="color:var(--red)">*</span></label>
+            <select id="fmt-recuo" required>
+              <option value="" selected disabled>— selecione —</option>
+              <option value="0">Sem recuo (0 cm)</option>
+              <option value="709">1,25 cm (padrão Word)</option>
+              <option value="850">1,5 cm</option>
+              <option value="1134">2,0 cm</option>
+              <option value="1417">2,5 cm</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Numeração de títulos</label>
+            <select id="fmt-num-titulos">
+              <option value="sim" selected>Numerados (1 - TÍTULO)</option>
+              <option value="nao">Sem numeração</option>
             </select>
           </div>
         </div>
@@ -338,7 +371,7 @@ tbody tr.st-p td{background:#b3e5fc}
         <div class="card-title">Dados do processo</div>
         <div class="row3">
           <div class="field"><label>Pasta</label><input type="text" id="f-pasta" /></div>
-          <div class="field"><label>Número do processo</label><input type="text" id="f-proc" oninput="checkBtn()" /></div>
+          <div class="field field-required"><label>Número do processo</label><input type="text" id="f-proc" oninput="checkBtn()" /></div>
           <div class="field"><label>Sistema</label>
             <select id="f-sistema">
               <option>e-SAJ (TJSP)</option><option>e-Proc (TJSP)</option><option>PJe</option><option>Outro</option>
@@ -346,8 +379,8 @@ tbody tr.st-p td{background:#b3e5fc}
           </div>
         </div>
         <div class="row2">
-          <div class="field"><label>Cliente (executada / ré)</label><input type="text" id="f-cliente" value="Notre Dame Intermédica Saúde S/A" /></div>
-          <div class="field"><label>Parte contrária</label><input type="text" id="f-parte" /></div>
+          <div class="field field-required"><label>Cliente (executada / ré)</label><input type="text" id="f-cliente" value="Notre Dame Intermédica Saúde S/A" /></div>
+          <div class="field field-required"><label>Parte contrária</label><input type="text" id="f-parte" /></div>
         </div>
         <div class="field"><label>Descrição da demanda</label><input type="text" id="f-desc" /></div>
       </div>
@@ -1198,10 +1231,14 @@ function base64ToArrayBuffer(b64) {
 }
 
 async function gerarMinuta() {
+  var erroFmt = validarFormatacao();
+  if (erroFmt) { alert(erroFmt); go('cfg'); return; }
   var key=getKey(), modelo=document.getElementById('sel-modelo').value;
   if (!key){alert('Informe a chave de API.');return;}
   var andamento=document.getElementById('f-and').value.trim();
   if (!andamento){alert('Cole ou carregue o andamento do tribunal.');return;}
+  var procVal=document.getElementById('f-proc').value.trim();
+  if (!procVal){alert('Informe o número do processo (campo obrigatório).');return;}
   var pasta=document.getElementById('f-pasta').value.trim();
   var proc=document.getElementById('f-proc').value.trim();
   var cliente=document.getElementById('f-cliente').value.trim();
@@ -1220,20 +1257,20 @@ async function gerarMinuta() {
   var nomeModelo=modelo==='gpt4o'?'GPT-4o':modelo==='claude-sonnet'?'Claude Sonnet':'Claude Opus';
   setSt2('res-st','info','Aguarde — gerando via '+nomeModelo+'...');
   var enriquecimento = getEnriquecimento();
-  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para títulos, não utilizar "**texto**" ou "*texto*" para negrito/itálico, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- O PEDIDO FINAL SEMPRE DEVE INCLUIR, em letra "a)" ou como penúltima alínea, o requerimento padrão de intimações: "que todas as publicações, intimações e notificações sejam realizadas exclusivamente em nome do(a) advogado(a) [NOME_ADVOGADO_INTIMACOES], sob pena de nulidade". O sistema substituirá [NOME_ADVOGADO_INTIMACOES] automaticamente pelo advogado selecionado.\n- Termine o corpo principal da peça com os pedidos finais (Ante ao exposto, requer-se: a), b), c)).\n\n'+getInstrucaoEstrutura(tipo==='auto'?inferir((inst||'')+' '+andamento):tipo)+'\n\n'+getInstrucaoDensidade();
+  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- SEMPRE que mencionar um artigo de lei, súmula, resolução normativa ou dispositivo legal específico, TRANSCREVA o texto do dispositivo na íntegra (ou o trecho relevante) entre aspas duplas, imediatamente após a referência. Exemplo: "...nos termos do artigo 525 do Código de Processo Civil: 'Transcorrido o prazo previsto no artigo 523 sem o pagamento voluntário, inicia-se o prazo de 15 (quinze) dias para que o executado, independentemente de penhora ou nova intimação, apresente, nos próprios autos, sua impugnação.'"\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para títulos, não utilizar "**texto**" ou "*texto*" para negrito/itálico, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- O PEDIDO FINAL SEMPRE DEVE INCLUIR, em letra "a)" ou como penúltima alínea, o requerimento padrão de intimações: "que todas as publicações, intimações e notificações sejam realizadas exclusivamente em nome do(a) advogado(a) [NOME_ADVOGADO_INTIMACOES], sob pena de nulidade". O sistema substituirá [NOME_ADVOGADO_INTIMACOES] automaticamente pelo advogado selecionado.\n- Termine o corpo principal da peça com os pedidos finais (Ante ao exposto, requer-se: a), b), c)).\n\n'+getInstrucaoEstrutura(tipo==='auto'?inferir((inst||'')+' '+andamento):tipo)+'\n\n'+getInstrucaoDensidade();
   var usr='Processo: '+proc+'\nSistema: '+sis+'\nPasta: '+pasta+'\nCliente: '+cliente+'\nParte contrária: '+(parte||'não informado')+'\nDemanda: '+(desc||'não informado')+'\n\nAndamento:\n'+andamento+'\n\nTipo de peça: '+(tipo==='auto'?'identificar automaticamente pelo andamento':tipo)+(inst?'\n\nInstruções específicas:\n'+inst:'')+refBlock+'\n\nElabore a peça completa pronta para protocolo.';
   try {
     var full='';
     var out=document.getElementById('res-txt');
     if (modelo==='gpt4o') {
-      var res=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.3,max_tokens:12000,stream:true})});
+      var res=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.3,max_tokens:24000,stream:true})});
       if (!res.ok){var er=await res.json();throw new Error(er.error?er.error.message:'Erro OpenAI');}
       var rd=res.body.getReader(),dc=new TextDecoder();
       setSt2('res-st','info','Recebendo resposta do GPT-4o...');
       while(true){var rv=await rd.read();if(rv.done)break;dc.decode(rv.value).split('\n').forEach(function(ln){if(ln.startsWith('data: ')&&ln!=='data: [DONE]'){try{var d=JSON.parse(ln.slice(6)).choices[0].delta.content;if(d){full+=d;out.textContent=full;out.scrollTop=99999;}}catch(e){}}});}
     } else {
       var cm=modelo==='claude-sonnet'?'claude-sonnet-4-5':'claude-opus-4-5';
-      var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:cm,max_tokens:12000,system:sys,messages:[{role:'user',content:usr}],stream:true})});
+      var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:cm,max_tokens:24000,system:sys,messages:[{role:'user',content:usr}],stream:true})});
       if (!res.ok){var er=await res.json();throw new Error(er.error?er.error.message:'Erro Anthropic');}
       var rd=res.body.getReader(),dc=new TextDecoder();
       setSt2('res-st','info','Recebendo resposta do '+nomeModelo+'...');
@@ -1304,14 +1341,29 @@ function getFormatacao() {
   var depois = document.getElementById('fmt-depois');
   var linhas = document.getElementById('fmt-entrelinhas');
   var alinh = document.getElementById('fmt-alinhamento');
+  var data = document.getElementById('fmt-data');
+  var recuo = document.getElementById('fmt-recuo');
+  var numTit = document.getElementById('fmt-num-titulos');
   return {
     fonte:       fonte ? fonte.value : 'Arial',
-    sz:          tamanho ? (parseInt(tamanho.value)*2) : 22,   // Word usa half-points
-    antes:       antes ? (parseInt(antes.value)*20) : 0,       // Word usa 1/20 pt
+    sz:          tamanho ? (parseInt(tamanho.value)*2) : 22,
+    antes:       antes ? (parseInt(antes.value)*20) : 0,
     depois:      depois ? (parseInt(depois.value)*20) : 120,
     linhas:      linhas ? linhas.value : '360',
-    alinhamento: alinh ? alinh.value : 'both'
+    alinhamento: alinh ? alinh.value : 'both',
+    formatoData: data ? data.value : 'extenso',
+    recuo:       recuo ? recuo.value : '',
+    numerarTitulos: numTit ? (numTit.value === 'sim') : true
   };
+}
+
+// Valida se campos obrigatórios de formatação foram preenchidos
+function validarFormatacao() {
+  var recuo = document.getElementById('fmt-recuo');
+  if (!recuo || !recuo.value) {
+    return 'Selecione o recuo da primeira linha no card Formatação do documento (aba Configuração).';
+  }
+  return '';
 }
 
 // Gerar XML de parágrafos usando a formatação configurada
@@ -1319,12 +1371,34 @@ function gerarParagrafos(texto) {
   var fmt = getFormatacao();
   var clean = function(s){return s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'');};
   var linhas = clean(limparMarkdown(texto)).split('\n');
+
+  // Contador de títulos para numeração sequencial
+  var contadorTitulos = 0;
+
   return linhas.map(function(l){
     var txt = esc(l.trim());
     if (!txt) return '<w:p><w:pPr><w:spacing w:after="100"/></w:pPr></w:p>';
-    var isTit = /^[A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ][A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ\s\d\-\u2013\u2014\.,:;()]{3,}$/.test(txt) && txt.length < 100;
-    return '<w:p><w:pPr><w:jc w:val="'+fmt.alinhamento+'"/><w:spacing w:before="'+fmt.antes+'" w:after="'+fmt.depois+'" w:line="'+fmt.linhas+'" w:lineRule="auto"/></w:pPr>'+
-      '<w:r><w:rPr><w:rFonts w:ascii="'+fmt.fonte+'" w:hAnsi="'+fmt.fonte+'" w:cs="'+fmt.fonte+'"/><w:sz w:val="'+fmt.sz+'"/><w:szCs w:val="'+fmt.sz+'"/>'+(isTit?'<w:b/>':'')+'</w:rPr>'+
+
+    // Detecta título em CAIXA ALTA
+    var isTit = /^[A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ][A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ\s\d\-\u2013\u2014\.,:;()]{3,}$/.test(txt) && txt.length < 120;
+
+    // Para títulos: numerar se configurado e remover recuo
+    if (isTit) {
+      // Remove numeração já existente no texto (ex: "1 -", "I -", "II -") para evitar dupla
+      var txtLimpo = txt.replace(/^\s*(\d+|[IVXLCM]+)\s*[-–—\.\)]\s*/, '');
+      if (fmt.numerarTitulos) {
+        contadorTitulos++;
+        txtLimpo = contadorTitulos + ' - ' + txtLimpo;
+      }
+      return '<w:p><w:pPr><w:jc w:val="'+fmt.alinhamento+'"/><w:spacing w:before="'+fmt.antes+'" w:after="'+fmt.depois+'" w:line="'+fmt.linhas+'" w:lineRule="auto"/></w:pPr>'+
+        '<w:r><w:rPr><w:rFonts w:ascii="'+fmt.fonte+'" w:hAnsi="'+fmt.fonte+'" w:cs="'+fmt.fonte+'"/><w:sz w:val="'+fmt.sz+'"/><w:szCs w:val="'+fmt.sz+'"/><w:b/></w:rPr>'+
+        '<w:t xml:space="preserve">'+txtLimpo+'</w:t></w:r></w:p>';
+    }
+
+    // Parágrafos normais: com recuo configurado
+    var recuoAttr = (fmt.recuo && fmt.recuo !== '0') ? '<w:ind w:firstLine="'+fmt.recuo+'"/>' : '';
+    return '<w:p><w:pPr><w:jc w:val="'+fmt.alinhamento+'"/><w:spacing w:before="'+fmt.antes+'" w:after="'+fmt.depois+'" w:line="'+fmt.linhas+'" w:lineRule="auto"/>'+recuoAttr+'</w:pPr>'+
+      '<w:r><w:rPr><w:rFonts w:ascii="'+fmt.fonte+'" w:hAnsi="'+fmt.fonte+'" w:cs="'+fmt.fonte+'"/><w:sz w:val="'+fmt.sz+'"/><w:szCs w:val="'+fmt.sz+'"/></w:rPr>'+
       '<w:t xml:space="preserve">'+txt+'</w:t></w:r></w:p>';
   }).join('');
 }
@@ -1476,41 +1550,45 @@ function gerarBlocoAssinatura() {
   var adv = document.getElementById('f-advogado').value;
   if (adv === 'nenhum') return '';
   var cidade = (document.getElementById('f-cidade').value || 'São Paulo/SP').trim();
-  var nome = '', oab = '';
-  if (adv === 'carmo') {
-    nome = 'Carmo Martins Mancebo Segundo';
-    oab = 'OAB/SP 274.575';
-  } else {
-    // 'auto' — usar Carmo como padrão por enquanto (no futuro pode vir de outra fonte)
-    nome = 'Carmo Martins Mancebo Segundo';
-    oab = 'OAB/SP 274.575';
-  }
+  var nome = 'Carmo Martins Mancebo Segundo';
+  var oab = 'OAB/SP 274.575';
   var fmt = getFormatacao();
   var fr = '<w:rFonts w:ascii="'+fmt.fonte+'" w:hAnsi="'+fmt.fonte+'" w:cs="'+fmt.fonte+'"/>';
   var sz = '<w:sz w:val="'+fmt.sz+'"/><w:szCs w:val="'+fmt.sz+'"/>';
-  
-  // Parágrafo 1: cidade + data (com campo TIME automático do Word)
-  // Estrutura: <São Paulo/SP, ><fldChar begin><instrText TIME...><fldChar separate><texto inicial><fldChar end><.>
+
+  // Determina formato de data conforme configuração
+  // extenso: "21 de abril de 2026" → TIME \@ "d' de 'MMMM' de 'yyyy"
+  // numerica: "21/04/2026" → DATE \@ "dd/MM/yyyy"
+  // abreviada: "21.4.2026" → DATE \@ "d.M.yyyy"
+  var formatoField;
+  if (fmt.formatoData === 'numerica') {
+    formatoField = ' DATE \\@ "dd/MM/yyyy" ';
+  } else if (fmt.formatoData === 'abreviada') {
+    formatoField = ' DATE \\@ "d.M.yyyy" ';
+  } else {
+    formatoField = ' TIME \\@ "d\' de \'MMMM\' de \'yyyy" ';
+  }
+
+  // Parágrafo 1: cidade + data (campo dinâmico do Word)
   var p1 = '<w:p><w:pPr><w:spacing w:before="480" w:after="240" w:line="360" w:lineRule="auto"/><w:jc w:val="center"/></w:pPr>'+
     '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:t xml:space="preserve">'+esc(cidade)+', </w:t></w:r>'+
     '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:fldChar w:fldCharType="begin"/></w:r>'+
-    '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:instrText xml:space="preserve"> TIME \\@ "d\' de \'MMMM\' de \'yyyy" </w:instrText></w:r>'+
+    '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:instrText xml:space="preserve">'+formatoField+'</w:instrText></w:r>'+
     '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:fldChar w:fldCharType="separate"/></w:r>'+
     '<w:r><w:rPr>'+fr+'<w:noProof/>'+sz+'</w:rPr><w:t>data automática</w:t></w:r>'+
     '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:fldChar w:fldCharType="end"/></w:r>'+
     '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:t>.</w:t></w:r></w:p>';
-  
-  // Parágrafo vazio para espaçamento
+
   var pVazio = '<w:p><w:pPr><w:spacing w:line="360" w:lineRule="auto"/></w:pPr></w:p><w:p><w:pPr><w:spacing w:line="360" w:lineRule="auto"/></w:pPr></w:p>';
-  
-  // Nome do advogado
+
+  // Nome do advogado — SEM negrito (conforme solicitado)
   var pNome = '<w:p><w:pPr><w:spacing w:line="360" w:lineRule="auto"/><w:jc w:val="center"/></w:pPr>'+
-    '<w:r><w:rPr>'+fr+'<w:b/>'+sz+'</w:rPr><w:t>'+esc(nome)+'</w:t></w:r></w:p>';
-  
+    '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:t>'+esc(nome)+'</w:t></w:r></w:p>';
+
   // OAB
   var pOAB = '<w:p><w:pPr><w:spacing w:line="360" w:lineRule="auto"/><w:jc w:val="center"/></w:pPr>'+
     '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:t>'+esc(oab)+'</w:t></w:r></w:p>';
-  
+
   return p1 + pVazio + pNome + pOAB;
 }
 
