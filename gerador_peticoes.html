@@ -300,6 +300,23 @@ tbody tr.st-p td{background:#b3e5fc}
 
       <div class="card">
         <div class="card-title">Configurações da peça</div>
+        <div class="row2">
+          <div class="field">
+            <label>Área do direito</label>
+            <select id="f-area" onchange="atualizarSubareas()">
+              <option value="civel">Cível</option>
+              <option value="trabalhista">Trabalhista</option>
+              <option value="criminal">Criminal</option>
+              <option value="tributario">Tributário</option>
+              <option value="administrativo">Administrativo</option>
+              <option value="empresarial">Empresarial</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Subárea / Especialização</label>
+            <select id="f-subarea"></select>
+          </div>
+        </div>
         <div class="field">
           <label>Tipo de peça</label>
           <select id="f-tipo">
@@ -311,6 +328,10 @@ tbody tr.st-p td{background:#b3e5fc}
             <option value="agravo de instrumento">Agravo de instrumento</option>
             <option value="contestação">Contestação</option>
             <option value="apelação">Apelação</option>
+            <option value="recurso especial">Recurso especial (STJ)</option>
+            <option value="recurso extraordinário">Recurso extraordinário (STF)</option>
+            <option value="contrarrazões de apelação">Contrarrazões de apelação</option>
+            <option value="contrarrazões de recurso especial">Contrarrazões de recurso especial</option>
             <option value="petição simples">Petição simples / informativa</option>
           </select>
         </div>
@@ -406,6 +427,130 @@ tbody tr.st-p td{background:#b3e5fc}
 var procs = [], refs = [], minuta = '', nomeArq = '', tpIdx = -1, filtro = 'todos';
 var timbrado = null; // {headers, footers, images, sectPr, styles}
 var LSP = 'gp_p', LSS = 'gp_s';
+
+// ── ENRIQUECIMENTO POR ÁREA DO DIREITO ────────────────────────
+var SUBAREAS = {
+  civel: [
+    {v:'saude_suplementar', l:'Saúde suplementar (operadoras de planos de saúde)'},
+    {v:'consumidor', l:'Consumidor'},
+    {v:'familia', l:'Família e sucessões'},
+    {v:'contratos', l:'Contratos'},
+    {v:'responsabilidade', l:'Responsabilidade civil'},
+    {v:'imobiliario', l:'Imobiliário'},
+    {v:'bancario', l:'Bancário'},
+    {v:'securitario', l:'Securitário'},
+    {v:'geral', l:'Geral / Não especificada'}
+  ],
+  trabalhista: [
+    {v:'individual', l:'Direito individual do trabalho'},
+    {v:'coletivo', l:'Direito coletivo do trabalho'},
+    {v:'previdenciario', l:'Previdenciário trabalhista'},
+    {v:'geral', l:'Geral'}
+  ],
+  criminal: [
+    {v:'comum', l:'Crimes comuns (CP)'},
+    {v:'economico', l:'Crimes econômicos / lavagem'},
+    {v:'transito', l:'Crimes de trânsito'},
+    {v:'geral', l:'Geral'}
+  ],
+  tributario: [
+    {v:'federal', l:'Tributos federais'},
+    {v:'estadual', l:'Tributos estaduais (ICMS, IPVA)'},
+    {v:'municipal', l:'Tributos municipais (ISS, IPTU)'},
+    {v:'geral', l:'Geral'}
+  ],
+  administrativo: [
+    {v:'licitacoes', l:'Licitações e contratos administrativos'},
+    {v:'servidor', l:'Servidor público'},
+    {v:'regulatorio', l:'Regulatório'},
+    {v:'geral', l:'Geral'}
+  ],
+  empresarial: [
+    {v:'societario', l:'Societário'},
+    {v:'recuperacao', l:'Recuperação judicial e falência'},
+    {v:'titulos', l:'Títulos de crédito'},
+    {v:'concorrencial', l:'Concorrencial'},
+    {v:'geral', l:'Geral'}
+  ]
+};
+
+// Enriquecimentos do system prompt — fundamentação técnica por subárea
+var ENRIQUECIMENTOS = {
+  'civel:saude_suplementar': 'CONTEXTO ESPECIALIZADO — DEFESA DE OPERADORAS DE PLANOS DE SAÚDE:\n- Marco regulatório: Lei 9.656/98 (Lei dos Planos de Saúde), CDC (Lei 8.078/90), Código Civil, Constituição da República.\n- Resoluções Normativas da ANS aplicáveis: RN 465/2021 (rol de procedimentos), RN 566/2022 (cobertura assistencial), RN 259/2011 (prazos máximos de atendimento), RN 412/2016 (cancelamento por inadimplência).\n- Lei 14.454/2022: alterou o artigo 10 da Lei 9.656/98 e estabeleceu critérios para cobertura de procedimentos fora do rol da ANS — exigindo eficácia comprovada cientificamente, recomendação CONITEC ou tratamento equivalente coberto.\n- ADI 7265 (STF): discute a constitucionalidade da Lei 14.454/2022, especialmente quanto ao caráter exemplificativo do rol da ANS — abordar quando pertinente.\n- Súmula 608 do STJ: contratos coletivos empresariais não se submetem ao CDC, salvo quando o consumidor for hipossuficiente.\n- Teses recorrentes em defesa: (i) taxatividade mitigada do rol da ANS conforme EREsp 1.886.929/SP do STJ; (ii) inexistência de cobertura contratual; (iii) ausência de prescrição médica fundamentada; (iv) inexistência de evidência científica do tratamento; (v) limites da cobertura conforme contrato e regulação.\n- Em ações sobre terapias multidisciplinares (ABA, fonoaudiologia, terapia ocupacional): questionar quantidade de horas prescritas, pertinência terapêutica, profissionais habilitados conforme RN ANS, e requerer prestação de contas das horas efetivamente realizadas.\n- Em ações sobre home care: distinguir entre internação domiciliar (coberta) e cuidador/atendimento domiciliar simples (não coberto).\n- Em ações sobre OPME (Órteses, Próteses e Materiais Especiais): aplicar Resolução Normativa específica e verificar se há indicação médica fundamentada com 3 marcas/modelos.\n- Sempre incluir tópico sobre cumprimento integral das obrigações contratuais e regulamentares pela operadora.',
+  
+  'civel:consumidor': 'CONTEXTO ESPECIALIZADO — DIREITO DO CONSUMIDOR:\n- Marco normativo: CDC (Lei 8.078/90), Código Civil, Constituição da República.\n- Verificar aplicação: distinguir relação de consumo de relação puramente civil/empresarial.\n- Súmula 297 STJ: aplicação do CDC às instituições financeiras.\n- Súmula 543 STJ: rescisão por culpa do fornecedor — devolução integral imediata.\n- Inversão do ônus da prova (artigo 6º, inciso VIII do CDC): requer hipossuficiência e verossimilhança.\n- Responsabilidade objetiva (artigos 12 e 14 do CDC) — cabe excludente: caso fortuito externo, culpa exclusiva do consumidor ou de terceiro.\n- Dano moral: STJ exige prova do dano in re ipsa apenas em situações específicas (inscrição indevida, falha grave de serviço).\n- Revisão contratual: artigos 6º, inciso V e 51 do CDC — vedar cláusulas abusivas; teoria da onerosidade excessiva.',
+  
+  'civel:familia': 'CONTEXTO ESPECIALIZADO — FAMÍLIA E SUCESSÕES:\n- Marco normativo: Código Civil (Livro IV — Direito de Família e Livro V — Direito das Sucessões), ECA (Lei 8.069/90), Estatuto do Idoso (Lei 10.741/03), Constituição da República.\n- Pensão alimentícia: binômio necessidade-possibilidade (artigo 1.694 do Código Civil); súmula 358 STJ (maioridade não extingue automaticamente); súmula 621 STJ (revisão por superveniência).\n- Guarda compartilhada como regra (artigo 1.584, § 2º do Código Civil), salvo prejuízo ao melhor interesse da criança.\n- Divórcio: EC 66/2010 — desnecessidade de prazo prévio; partilha pode ser posterior.\n- Inventário: artigos 610 a 673 do CPC — distinguir judicial (litigioso, incapazes) de extrajudicial.\n- Regime de bens: comunhão parcial (regra), comunhão universal, separação total, participação final nos aquestos.',
+  
+  'civel:contratos': 'CONTEXTO ESPECIALIZADO — DIREITO CONTRATUAL:\n- Marco normativo: Código Civil (artigos 421 a 480 e específicos da modalidade), CDC quando aplicável.\n- Princípios: autonomia da vontade (artigo 421), boa-fé objetiva (artigo 422), função social (artigo 421), pacta sunt servanda mitigado.\n- Teoria da imprevisão (artigo 478 do Código Civil) e onerosidade excessiva: requisitos cumulativos — fato extraordinário, imprevisível e que torne a prestação excessivamente onerosa para uma parte com extrema vantagem para outra.\n- Inadimplemento: mora (artigo 394) e inadimplemento absoluto (artigo 389); perdas e danos (artigo 402).\n- Cláusula penal: limites do artigo 412 (não pode exceder o valor da obrigação principal).\n- Resolução por inexecução (artigo 475): direito potestativo da parte inocente.',
+  
+  'civel:responsabilidade': 'CONTEXTO ESPECIALIZADO — RESPONSABILIDADE CIVIL:\n- Marco normativo: Código Civil (artigos 186, 187, 927 e seguintes), CDC quando aplicável, Constituição da República (artigo 37, § 6º para responsabilidade do Estado).\n- Pressupostos: conduta, dano, nexo causal e culpa (na responsabilidade subjetiva) — artigos 186 e 927 do Código Civil.\n- Responsabilidade objetiva: hipóteses do artigo 927, parágrafo único (atividade de risco) e leis específicas (CDC, CTB, ambiental).\n- Excludentes: caso fortuito/força maior, culpa exclusiva da vítima, fato de terceiro, legítima defesa, exercício regular de direito.\n- Dano moral: prova in re ipsa apenas em hipóteses específicas — STJ exige demonstração concreta do abalo na maioria dos casos.\n- Súmula 387 STJ: cumulação de danos materiais, morais e estéticos é possível.\n- Quantum: critérios da reparação integral (artigo 944) e proporcionalidade — evitar enriquecimento sem causa.',
+  
+  'civel:imobiliario': 'CONTEXTO ESPECIALIZADO — DIREITO IMOBILIÁRIO:\n- Marco normativo: Código Civil (Livro III — Direito das Coisas), Lei do Inquilinato (Lei 8.245/91), Lei de Registros Públicos (Lei 6.015/73), Lei do Condomínio (Lei 4.591/64), Lei do Distrato Imobiliário (Lei 13.786/18).\n- Compromisso de compra e venda: registro confere direito real à aquisição (artigo 1.225, inciso VII do Código Civil); Súmula 239 STJ.\n- Distrato: Lei 13.786/18 estabelece percentuais de retenção pela construtora (até 25% ou 50% se patrimônio de afetação).\n- Locação: distinguir residencial e não residencial; revisional (artigo 19), renovatória (artigo 51), despejo (artigo 59).\n- Condomínio: artigo 1.331 e seguintes do Código Civil; multa por descumprimento da convenção até 5x a contribuição mensal (artigo 1.336, § 1º).\n- Usucapião: requisitos por modalidade (extraordinária, ordinária, especial urbana, especial rural, familiar).',
+  
+  'civel:bancario': 'CONTEXTO ESPECIALIZADO — DIREITO BANCÁRIO:\n- Marco normativo: CDC (Súmula 297 STJ), Código Civil, Lei 4.595/64 (SFN), regulações do CMN e BACEN.\n- Súmula 596 STF: limitação de juros do Decreto 22.626/33 não se aplica a instituições financeiras.\n- Súmula 530 STJ: nas operações bancárias, não há limitação geral de juros — admite revisão por abusividade (taxa muito acima da média de mercado).\n- Capitalização de juros: permitida em contratos pós MP 2.170-36/2001, desde que pactuada de forma clara (Tema 247 do STJ).\n- Tarifas bancárias: legitimidade conforme regulamentação do BACEN; abusividade depende de demonstração específica.\n- Cédulas de crédito: títulos executivos — Lei 10.931/04 (cédula de crédito bancário).',
+  
+  'civel:securitario': 'CONTEXTO ESPECIALIZADO — DIREITO SECURITÁRIO:\n- Marco normativo: Código Civil (artigos 757 a 802), CDC quando consumidor final, Decreto-Lei 73/66, Resoluções CNSP e Circulares SUSEP.\n- Princípios: máxima boa-fé objetiva (artigo 765 do Código Civil), mutualismo, indenização limitada ao prejuízo.\n- Recusa de cobertura: deve ser expressa e fundamentada — Súmula 632 STJ (boa-fé na contratação).\n- Agravamento do risco: artigo 768 do Código Civil — perda do direito à indenização se intencional.\n- Prescrição: 1 ano em regra (artigo 206, § 1º, inciso II do Código Civil); termo inicial é a recusa formal da seguradora (Súmula 229 STJ).\n- Seguro DPVAT: Lei 6.194/74; STF declarou constitucional o pagamento por tabela (RE 631.240).\n- Distinguir seguro de pessoa (vida, acidentes) e seguro de dano (patrimoniais).',
+  
+  'civel:geral': 'CONTEXTO ESPECIALIZADO — DIREITO CIVIL GERAL:\n- Marco normativo: Código Civil (Lei 10.406/02), Código de Processo Civil (Lei 13.105/15), Constituição da República.\n- Aplicar princípios gerais: boa-fé objetiva, função social do contrato e da propriedade, vedação ao enriquecimento sem causa, dignidade da pessoa humana.\n- Verificar prescrição (artigos 205 e 206 do Código Civil) e decadência aplicáveis ao caso.',
+  
+  'trabalhista:individual': 'CONTEXTO ESPECIALIZADO — DIREITO INDIVIDUAL DO TRABALHO:\n- Marco normativo: CLT (Decreto-Lei 5.452/43), Constituição da República (artigos 7º a 11), Reforma Trabalhista (Lei 13.467/17), Súmulas e OJs do TST.\n- Vínculo empregatício: requisitos do artigo 3º da CLT (pessoalidade, não eventualidade, onerosidade, subordinação).\n- Verbas rescisórias: distinguir modalidades de rescisão e respectivas verbas devidas.\n- Horas extras: limite constitucional de 8h diárias e 44h semanais; adicional mínimo de 50%.\n- Reforma Trabalhista: prevalência do negociado sobre o legislado em hipóteses do artigo 611-A; honorários sucumbenciais (artigo 791-A).',
+  
+  'trabalhista:coletivo': 'CONTEXTO ESPECIALIZADO — DIREITO COLETIVO DO TRABALHO:\n- Marco normativo: CLT, Constituição da República (artigos 8º a 11), convenções e acordos coletivos.\n- ACT e CCT: distinguir; vigência e ultratividade (Tema 1.046 do STF).\n- Greve: Lei 7.783/89 — requisitos e abusividade.\n- Substituição processual sindical: artigo 8º, inciso III da Constituição da República.',
+  
+  'trabalhista:previdenciario': 'CONTEXTO ESPECIALIZADO — PREVIDENCIÁRIO TRABALHISTA:\n- Marco normativo: Lei 8.213/91 (benefícios), Lei 8.212/91 (custeio), CLT, EC 103/19 (Reforma da Previdência).\n- Auxílios e aposentadorias: requisitos específicos por benefício.\n- Benefícios acidentários: NTEP, CAT e estabilidade provisória de 12 meses (artigo 118 da Lei 8.213/91).',
+  
+  'trabalhista:geral': 'CONTEXTO ESPECIALIZADO — TRABALHISTA GERAL:\n- Marco normativo: CLT, Constituição da República, Reforma Trabalhista (Lei 13.467/17).\n- Princípios: proteção, primazia da realidade, irrenunciabilidade, continuidade.',
+  
+  'criminal:comum': 'CONTEXTO ESPECIALIZADO — DIREITO PENAL E PROCESSUAL PENAL:\n- Marco normativo: Código Penal (Decreto-Lei 2.848/40), Código de Processo Penal (Decreto-Lei 3.689/41), Lei de Execução Penal (Lei 7.210/84), Constituição da República.\n- Princípios constitucionais: legalidade, presunção de inocência, contraditório, ampla defesa, devido processo legal, vedação à reformatio in pejus.\n- Tipicidade, ilicitude e culpabilidade — análise tripartite do conceito analítico de crime.\n- Causas excludentes: legítima defesa, estado de necessidade, exercício regular de direito, estrito cumprimento do dever legal.\n- Pacote Anticrime (Lei 13.964/19): juiz das garantias, acordo de não persecução penal (artigo 28-A do CPP).',
+  
+  'criminal:economico': 'CONTEXTO ESPECIALIZADO — CRIMES ECONÔMICOS:\n- Marco normativo: Lei 7.492/86 (crimes contra o sistema financeiro), Lei 8.137/90 (crimes contra a ordem tributária), Lei 9.613/98 (lavagem de dinheiro), Lei 12.846/13 (Lei Anticorrupção).\n- Princípio da insignificância: STF admite em hipóteses específicas (HC 84.412/SP).\n- Acordo de leniência e colaboração premiada: Lei 12.850/13.',
+  
+  'criminal:transito': 'CONTEXTO ESPECIALIZADO — CRIMES DE TRÂNSITO:\n- Marco normativo: Código de Trânsito Brasileiro (Lei 9.503/97), especialmente artigos 302 a 312.\n- Embriaguez ao volante: artigo 306 do CTB (Lei 12.760/12 dispensa prova pericial).\n- Homicídio culposo na direção: artigo 302 — penas qualificadas se sob efeito de álcool ou em transporte de passageiros.',
+  
+  'criminal:geral': 'CONTEXTO ESPECIALIZADO — CRIMINAL GERAL:\n- Marco normativo: Código Penal, Código de Processo Penal, Lei de Execução Penal, Constituição da República.\n- Garantias constitucionais devem nortear toda a manifestação.',
+  
+  'tributario:federal': 'CONTEXTO ESPECIALIZADO — TRIBUTOS FEDERAIS:\n- Marco normativo: CTN (Lei 5.172/66), Constituição da República (artigos 145 a 162), legislações específicas (IR, IPI, PIS, COFINS, CSLL, contribuições previdenciárias).\n- Princípios: legalidade estrita, anterioridade, irretroatividade, capacidade contributiva, não confisco.\n- Decadência (artigo 173 do CTN) e prescrição (artigo 174): prazos de 5 anos.\n- Repetição de indébito: artigo 165 do CTN — restituição de tributo pago indevidamente.',
+  
+  'tributario:estadual': 'CONTEXTO ESPECIALIZADO — TRIBUTOS ESTADUAIS:\n- Marco normativo: CTN, Constituição da República, Lei Complementar 87/96 (ICMS), legislações estaduais.\n- ICMS: princípio da não cumulatividade (artigo 155, § 2º, inciso I da Constituição da República); substituição tributária; guerra fiscal.\n- IPVA: competência estadual; STF reconhece progressividade (RE 1.083.150/SP).',
+  
+  'tributario:municipal': 'CONTEXTO ESPECIALIZADO — TRIBUTOS MUNICIPAIS:\n- Marco normativo: CTN, Constituição da República, Lei Complementar 116/03 (ISS), legislações municipais.\n- ISS: lista de serviços anexa à LC 116/03 — taxatividade vertical com interpretação extensiva horizontal.\n- IPTU: progressividade fiscal (artigo 156, § 1º da Constituição da República, EC 29/00).',
+  
+  'tributario:geral': 'CONTEXTO ESPECIALIZADO — TRIBUTÁRIO GERAL:\n- Marco normativo: CTN, Constituição da República.\n- Princípios constitucionais tributários devem nortear toda a manifestação.',
+  
+  'administrativo:licitacoes': 'CONTEXTO ESPECIALIZADO — LICITAÇÕES E CONTRATOS ADMINISTRATIVOS:\n- Marco normativo: Lei 14.133/21 (Nova Lei de Licitações), Lei 8.666/93 (transição), Lei 10.520/02 (pregão), Constituição da República (artigo 37, inciso XXI).\n- Modalidades: pregão, concorrência, concurso, leilão, diálogo competitivo.\n- Princípios: legalidade, impessoalidade, moralidade, publicidade, eficiência, vinculação ao instrumento convocatório, julgamento objetivo.\n- Reequilíbrio econômico-financeiro: artigo 124 da Lei 14.133/21.',
+  
+  'administrativo:servidor': 'CONTEXTO ESPECIALIZADO — SERVIDOR PÚBLICO:\n- Marco normativo: Lei 8.112/90 (estatuto federal), Constituição da República (artigos 37 a 41), legislações estaduais e municipais.\n- Estabilidade: artigo 41 da Constituição da República — 3 anos de efetivo exercício após nomeação por concurso.\n- Processo administrativo disciplinar: contraditório, ampla defesa e devido processo legal.\n- Acumulação de cargos: regra geral é vedação (artigo 37, inciso XVI da Constituição da República), exceções taxativas.',
+  
+  'administrativo:regulatorio': 'CONTEXTO ESPECIALIZADO — REGULATÓRIO:\n- Marco normativo: leis das agências reguladoras específicas (ANATEL, ANEEL, ANS, ANP, ANTT, etc.), Lei 13.848/19 (Lei Geral das Agências), Constituição da República.\n- Poder normativo das agências: regulamentação técnica especializada — limites do princípio da legalidade.\n- Sanções regulatórias: contraditório e ampla defesa em processo administrativo sancionador.',
+  
+  'administrativo:geral': 'CONTEXTO ESPECIALIZADO — ADMINISTRATIVO GERAL:\n- Marco normativo: Lei 9.784/99 (processo administrativo federal), Constituição da República (artigos 37 a 41).\n- Princípios da Administração Pública: legalidade, impessoalidade, moralidade, publicidade, eficiência, supremacia do interesse público.',
+  
+  'empresarial:societario': 'CONTEXTO ESPECIALIZADO — DIREITO SOCIETÁRIO:\n- Marco normativo: Código Civil (artigos 966 a 1.195), Lei das S/A (Lei 6.404/76), Lei das Sociedades de Propósito Específico, Lei da Liberdade Econômica (Lei 13.874/19).\n- Tipos societários: sociedade simples, limitada, sociedade anônima (fechada e aberta), EIRELI (extinta pela Lei 14.382/22).\n- Desconsideração da personalidade jurídica: artigo 50 do Código Civil (teoria maior); artigo 28 do CDC (teoria menor para relações de consumo).\n- Acordo de acionistas/quotistas: artigo 118 da Lei 6.404/76; artigo 1.072 do Código Civil.',
+  
+  'empresarial:recuperacao': 'CONTEXTO ESPECIALIZADO — RECUPERAÇÃO JUDICIAL E FALÊNCIA:\n- Marco normativo: Lei 11.101/05 (com alterações da Lei 14.112/20), Código Civil.\n- Recuperação judicial: artigos 47 a 72 — preservação da empresa, função social.\n- Stay period: 180 dias prorrogáveis (artigo 6º, § 4º) — suspensão das ações e execuções.\n- Plano de recuperação: aprovação na assembleia geral de credores; cram down (artigo 58, § 1º).\n- Falência: artigos 75 a 160 — liquidação dos ativos para pagamento dos credores na ordem do artigo 83.',
+  
+  'empresarial:titulos': 'CONTEXTO ESPECIALIZADO — TÍTULOS DE CRÉDITO:\n- Marco normativo: Código Civil (artigos 887 a 926), Lei do Cheque (Lei 7.357/85), Lei Uniforme de Genebra (Decreto 57.663/66 — letra de câmbio e nota promissória), Lei de Duplicatas (Lei 5.474/68).\n- Princípios: cartularidade, literalidade, autonomia, abstração.\n- Endosso e aval: distinções e efeitos.\n- Prescrição: prazos específicos por tipo de título.',
+  
+  'empresarial:concorrencial': 'CONTEXTO ESPECIALIZADO — DIREITO CONCORRENCIAL:\n- Marco normativo: Lei 12.529/11 (SBDC e CADE), Constituição da República (artigo 170, inciso IV).\n- Infrações à ordem econômica: cartel, abuso de posição dominante, condutas anticompetitivas.\n- Atos de concentração: notificação obrigatória ao CADE quando atingidos os patamares legais.\n- Acordo de leniência e TCC.',
+  
+  'empresarial:geral': 'CONTEXTO ESPECIALIZADO — EMPRESARIAL GERAL:\n- Marco normativo: Código Civil (Livro II — Direito de Empresa), legislações específicas.\n- Princípios: livre iniciativa, função social da empresa, preservação da atividade empresarial.'
+};
+
+function atualizarSubareas() {
+  var area = document.getElementById('f-area').value;
+  var subs = SUBAREAS[area] || [];
+  var sel = document.getElementById('f-subarea');
+  sel.innerHTML = subs.map(function(s){
+    return '<option value="'+s.v+'">'+s.l+'</option>';
+  }).join('');
+}
+
+function getEnriquecimento() {
+  var area = document.getElementById('f-area').value;
+  var sub = document.getElementById('f-subarea').value;
+  return ENRIQUECIMENTOS[area+':'+sub] || '';
+}
 
 function go(id) {
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
@@ -974,7 +1119,8 @@ async function gerarMinuta() {
   document.getElementById('res-txt').textContent='';
   var nomeModelo=modelo==='gpt4o'?'GPT-4o':modelo==='claude-sonnet'?'Claude Sonnet':'Claude Opus';
   setSt2('res-st','info','Aguarde — gerando via '+nomeModelo+'...');
-  var sys='Você é um advogado especialista em saúde suplementar na defesa de operadoras de planos de saúde. Elabora peças em português jurídico técnico, fundamentado em Lei 9.656/98, CDC, Código Civil, Constituição da República e Resoluções Normativas da ANS.\n\nRegras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto';
+  var enriquecimento = getEnriquecimento();
+  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto';
   var usr='Processo: '+proc+'\nSistema: '+sis+'\nPasta: '+pasta+'\nCliente: '+cliente+'\nParte contrária: '+(parte||'não informado')+'\nDemanda: '+(desc||'não informado')+'\n\nAndamento:\n'+andamento+'\n\nTipo de peça: '+(tipo==='auto'?'identificar automaticamente pelo andamento':tipo)+(inst?'\n\nInstruções específicas:\n'+inst:'')+refBlock+'\n\nElabore a peça completa pronta para protocolo.';
   try {
     var full='';
@@ -994,7 +1140,7 @@ async function gerarMinuta() {
       while(true){var rv=await rd.read();if(rv.done)break;dc.decode(rv.value).split('\n').forEach(function(ln){if(ln.startsWith('data: ')){try{var ev=JSON.parse(ln.slice(6));if(ev.type==='content_block_delta'&&ev.delta&&ev.delta.text){full+=ev.delta.text;out.textContent=full;out.scrollTop=99999;}}catch(e){}}});}
     }
     minuta=full;
-    var nomePeca=tipo==='auto'?inferir(andamento):tipo;
+    var nomePeca=tipo==='auto'?inferir((inst||'')+' '+andamento):tipo;
     nomeArq=(pasta?pasta+' - ':'')+nomePeca;
     document.getElementById('res-nome').textContent='Arquivo: '+nomeArq+'.docx  ·  Modelo: '+nomeModelo;
     setSt2('res-st','ok','Minuta gerada com sucesso. Revise antes de protocolar.');
@@ -1004,12 +1150,18 @@ async function gerarMinuta() {
 
 function inferir(t) {
   t=t.toLowerCase();
+  // Ordem importa — verificar termos mais específicos primeiro
+  if(t.indexOf('recurso especial')>=0||t.indexOf('resp')>=0) return 'recurso especial';
+  if(t.indexOf('recurso extraordinário')>=0||t.indexOf('extraordinario')>=0) return 'recurso extraordinário';
+  if(t.indexOf('contrarrazões')>=0||t.indexOf('contrarrazoes')>=0) return 'contrarrazões';
   if(t.indexOf('impugn')>=0) return 'impugnação ao cumprimento';
   if(t.indexOf('agravo')>=0) return 'agravo de instrumento';
-  if(t.indexOf('apelação')>=0||t.indexOf('recurso')>=0) return 'recurso';
+  if(t.indexOf('apelação')>=0||t.indexOf('apelacao')>=0) return 'apelação';
   if(t.indexOf('contest')>=0) return 'contestação';
-  if(t.indexOf('despacho')>=0||t.indexOf('ordinatório')>=0) return 'manifestação a despacho';
+  if(t.indexOf('despacho')>=0||t.indexOf('ordinatório')>=0||t.indexOf('ordinatorio')>=0) return 'manifestação a despacho';
   if(t.indexOf('decisão')>=0||t.indexOf('decisao')>=0) return 'manifestação a decisão';
+  if(t.indexOf('sentença')>=0||t.indexOf('sentenca')>=0) return 'manifestação a sentença';
+  if(t.indexOf('acórdão')>=0||t.indexOf('acordao')>=0) return 'manifestação a acórdão';
   return 'petição';
 }
 
@@ -1090,23 +1242,52 @@ async function baixarDocxSimples() {
   if (!minuta) return;
   try {
     var esc=function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
-    var linhas=minuta.split('\n');
+    // Sanitizar caracteres de controle inválidos para XML 1.0
+    var clean=function(s){return s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'');};
+    var linhas=clean(minuta).split('\n');
     var pars=linhas.map(function(l){
       var txt=esc(l.replace(/\*\*/g,'').trim());
       if (!txt) return '<w:p><w:pPr><w:spacing w:after="100"/></w:pPr></w:p>';
       var isTit=/^[A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ][A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ\s\d\-\u2013\u2014\.,:;()]{3,}$/.test(txt)&&txt.length<100;
       return '<w:p><w:pPr><w:jc w:val="both"/><w:spacing w:after="160" w:line="360" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/>'+(isTit?'<w:b/>':'')+'</w:rPr><w:t xml:space="preserve">'+txt+'</w:t></w:r></w:p>';
     }).join('');
-    var docXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'+pars+'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1701" w:right="1134" w:bottom="1701" w:left="1701"/></w:sectPr></w:body></w:document>';
-    var relsXml='<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';
-    var ctXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>';
-    var docRels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>';
-    var zip=new JSZip();
-    zip.file('[Content_Types].xml',ctXml);
-    zip.file('_rels/.rels',relsXml);
-    zip.file('word/document.xml',docXml);
-    zip.file('word/_rels/document.xml.rels',wRels);
-    var blob=await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+
+    var docXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+      '<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 wp14"><w:body>'+pars+
+      '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1701" w:right="1134" w:bottom="1701" w:left="1701" w:header="708" w:footer="708" w:gutter="0"/><w:cols w:space="708"/><w:docGrid w:linePitch="360"/></w:sectPr></w:body></w:document>';
+
+    var ctXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+      '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>';
+
+    var relsXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/></Relationships>';
+
+    var docRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/></Relationships>';
+
+    var stylesXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+      '<w:styles xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/><w:lang w:val="pt-BR" w:eastAsia="pt-BR" w:bidi="ar-SA"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="160" w:line="360" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style></w:styles>';
+
+    var settingsXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+      '<w:settings xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:zoom w:percent="100"/><w:defaultTabStop w:val="708"/><w:characterSpacingControl w:val="doNotCompress"/><w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat></w:settings>';
+
+    var coreXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+      '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>'+esc(nomeArq)+'</dc:title><dc:creator>Carmo Mancebo</dc:creator></cp:coreProperties>';
+
+    var appXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+      '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>Gerador de Peticoes</Application></Properties>';
+
+    var zip = new JSZip();
+    zip.file('[Content_Types].xml', ctXml);
+    zip.file('_rels/.rels', relsXml);
+    zip.file('word/document.xml', docXml);
+    zip.file('word/_rels/document.xml.rels', docRels);
+    zip.file('word/styles.xml', stylesXml);
+    zip.file('word/settings.xml', settingsXml);
+    zip.file('docProps/core.xml', coreXml);
+    zip.file('docProps/app.xml', appXml);
+
+    var blob = await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
     triggerDownload(blob, nomeArq+'.docx');
     setSt2('res-st','ok','Download iniciado: '+nomeArq+'.docx');
   } catch(e){setSt2('res-st','err','Erro ao gerar .docx: '+e.message);}
@@ -1133,6 +1314,9 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
     var saved=localStorage.getItem(LSP);
     if(saved){procs=JSON.parse(saved);if(procs.length>0){document.getElementById('card-xlsx').style.display='none';iniciarTabela();}}
   }catch(e){}
+  // Inicializar subáreas (Cível como default)
+  if (document.getElementById('f-area')) atualizarSubareas();
+
   checkBtn();
 })();
 </script>
