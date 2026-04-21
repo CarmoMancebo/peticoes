@@ -277,6 +277,7 @@ tbody tr.st-p td{background:#b3e5fc}
             <select id="fmt-fonte">
               <option value="Arial" selected>Arial</option>
               <option value="Calibri">Calibri</option>
+              <option value="Montserrat Light">Montserrat Light</option>
               <option value="Times New Roman">Times New Roman</option>
               <option value="Cambria">Cambria</option>
               <option value="Georgia">Georgia</option>
@@ -643,6 +644,12 @@ tbody tr.st-p td{background:#b3e5fc}
 
 <script>
 var procs = [], refs = [], minuta = '', nomeArq = '', tpIdx = -1, filtro = 'todos';
+
+// Helper global de escape XML
+function esc(s) {
+  if (s === undefined || s === null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 var timbrado = null; // {headers, footers, images, sectPr, styles}
 var LSP = 'gp_p', LSS = 'gp_s';
 
@@ -1438,7 +1445,6 @@ function getFormatacao() {
 // Gerar XML de parágrafos usando a formatação configurada
 function gerarParagrafos(texto) {
   var fmt = getFormatacao();
-  var esc = function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
   var clean = function(s){return s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'');};
   var linhas = clean(limparMarkdown(texto)).split('\n');
   return linhas.map(function(l){
@@ -1525,7 +1531,6 @@ function gerarBlocoAssinatura() {
     nome = 'Carmo Martins Mancebo Segundo';
     oab = 'OAB/SP 274.575';
   }
-  var esc = function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
   var fmt = getFormatacao();
   var fr = '<w:rFonts w:ascii="'+fmt.fonte+'" w:hAnsi="'+fmt.fonte+'" w:cs="'+fmt.fonte+'"/>';
   var sz = '<w:sz w:val="'+fmt.sz+'"/><w:szCs w:val="'+fmt.sz+'"/>';
