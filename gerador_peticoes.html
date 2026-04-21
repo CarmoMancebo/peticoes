@@ -141,6 +141,202 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
 
       <div class="card">
+        <div class="card-title">Formatação do texto</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Aplicada ao corpo do texto gerado. Cabeçalho, rodapé e bloco de assinatura usam a formatação do timbrado.</p>
+        <div class="row2">
+          <div class="field">
+            <label>Fonte</label>
+            <select id="fmt-fonte">
+              <option value="Arial">Arial</option>
+              <option value="Calibri">Calibri</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Cambria">Cambria</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Verdana">Verdana</option>
+              <option value="Helvetica">Helvetica</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Tamanho da fonte</label>
+            <select id="fmt-tamanho">
+              <option value="10">10</option>
+              <option value="11" selected>11</option>
+              <option value="12">12</option>
+              <option value="13">13</option>
+              <option value="14">14</option>
+            </select>
+          </div>
+        </div>
+        <div class="row3">
+          <div class="field">
+            <label>Espaçamento antes (pt)</label>
+            <select id="fmt-antes">
+              <option value="0" selected>0</option>
+              <option value="3">3</option>
+              <option value="6">6</option>
+              <option value="8">8</option>
+              <option value="12">12</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Espaçamento depois (pt)</label>
+            <select id="fmt-depois">
+              <option value="0">0</option>
+              <option value="3">3</option>
+              <option value="6">6</option>
+              <option value="8" selected>8</option>
+              <option value="12">12</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Entre linhas</label>
+            <select id="fmt-linhas">
+              <option value="240">Simples (1,0)</option>
+              <option value="276">1,15</option>
+              <option value="360" selected>1,5 linhas</option>
+              <option value="480">Duplo (2,0)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Formatação do documento</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Configure a formatação padrão aplicada a todas as petições geradas.</p>
+        <div class="row3">
+          <div class="field">
+            <label>Fonte</label>
+            <select id="fmt-fonte">
+              <option value="Arial">Arial</option>
+              <option value="Calibri">Calibri</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Cambria">Cambria</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Verdana">Verdana</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Tamanho (pt)</label>
+            <select id="fmt-tamanho">
+              <option value="10">10</option>
+              <option value="11" selected>11</option>
+              <option value="12">12</option>
+              <option value="13">13</option>
+              <option value="14">14</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Espaçamento entre linhas</label>
+            <select id="fmt-entrelinhas">
+              <option value="240">1,0</option>
+              <option value="300">1,25</option>
+              <option value="360" selected>1,5</option>
+              <option value="480">2,0</option>
+            </select>
+          </div>
+        </div>
+        <div class="row3">
+          <div class="field">
+            <label>Espaçamento antes (pt)</label>
+            <select id="fmt-antes">
+              <option value="0" selected>0</option>
+              <option value="3">3</option>
+              <option value="6">6</option>
+              <option value="8">8</option>
+              <option value="12">12</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Espaçamento depois (pt)</label>
+            <select id="fmt-depois">
+              <option value="0">0</option>
+              <option value="3">3</option>
+              <option value="6" selected>6</option>
+              <option value="8">8</option>
+              <option value="12">12</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Alinhamento</label>
+            <select id="fmt-alinhamento">
+              <option value="both" selected>Justificado</option>
+              <option value="left">Esquerda</option>
+              <option value="right">Direita</option>
+              <option value="center">Centro</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Formatação do documento</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Configure a formatação padrão aplicada a todas as petições geradas.</p>
+        <div class="row3">
+          <div class="field">
+            <label>Fonte</label>
+            <select id="fmt-fonte">
+              <option value="Arial" selected>Arial</option>
+              <option value="Calibri">Calibri</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Cambria">Cambria</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Verdana">Verdana</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Tamanho (pt)</label>
+            <select id="fmt-tamanho">
+              <option value="10">10</option>
+              <option value="11" selected>11</option>
+              <option value="12">12</option>
+              <option value="13">13</option>
+              <option value="14">14</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Espaçamento entre linhas</label>
+            <select id="fmt-entrelinhas">
+              <option value="240">1,0</option>
+              <option value="300">1,25</option>
+              <option value="360" selected>1,5</option>
+              <option value="480">2,0</option>
+            </select>
+          </div>
+        </div>
+        <div class="row3">
+          <div class="field">
+            <label>Espaçamento antes (pt)</label>
+            <select id="fmt-antes">
+              <option value="0" selected>0</option>
+              <option value="3">3</option>
+              <option value="6">6</option>
+              <option value="8">8</option>
+              <option value="12">12</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Espaçamento depois (pt)</label>
+            <select id="fmt-depois">
+              <option value="0">0</option>
+              <option value="3">3</option>
+              <option value="6" selected>6</option>
+              <option value="8">8</option>
+              <option value="12">12</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Alinhamento</label>
+            <select id="fmt-alinhamento">
+              <option value="both" selected>Justificado</option>
+              <option value="left">Esquerda</option>
+              <option value="right">Direita</option>
+              <option value="center">Centro</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
         <div class="card-title">Peças de referência</div>
         <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Selecione peças elaboradas como modelo. O texto é extraído e usado no prompt.</p>
         <div class="fzone" onclick="document.getElementById('inp-ref').click()">
@@ -348,6 +544,14 @@ tbody tr.st-p td{background:#b3e5fc}
             <label>Cidade da assinatura</label>
             <input type="text" id="f-cidade" value="São Paulo/SP" />
           </div>
+        </div>
+        <div class="field">
+          <label>Densidade do texto</label>
+          <select id="f-densidade">
+            <option value="objetiva">Objetiva — redação clara, direta, focada no essencial</option>
+            <option value="densa" selected>Densa — detalhada, com fundamentação minuciosa (padrão)</option>
+            <option value="extensa">Extensa — máximo detalhamento, com revisão antes da entrega</option>
+          </select>
         </div>
         <div class="field">
           <label>Instruções adicionais / teses específicas (opcional)</label>
@@ -1137,7 +1341,7 @@ async function gerarMinuta() {
   var nomeModelo=modelo==='gpt4o'?'GPT-4o':modelo==='claude-sonnet'?'Claude Sonnet':'Claude Opus';
   setSt2('res-st','info','Aguarde — gerando via '+nomeModelo+'...');
   var enriquecimento = getEnriquecimento();
-  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco de assinatura será adicionado automaticamente pelo sistema. Termine a peça apenas com os pedidos finais (Ante ao exposto, requer-se: ...).';
+  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para títulos, não utilizar "**texto**" ou "*texto*" para negrito/itálico, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- Termine o corpo principal da peça com os pedidos finais (Ante ao exposto, requer-se: a), b), c)).\n\n'+getInstrucaoDensidade();
   var usr='Processo: '+proc+'\nSistema: '+sis+'\nPasta: '+pasta+'\nCliente: '+cliente+'\nParte contrária: '+(parte||'não informado')+'\nDemanda: '+(desc||'não informado')+'\n\nAndamento:\n'+andamento+'\n\nTipo de peça: '+(tipo==='auto'?'identificar automaticamente pelo andamento':tipo)+(inst?'\n\nInstruções específicas:\n'+inst:'')+refBlock+'\n\nElabore a peça completa pronta para protocolo.';
   try {
     var full='';
@@ -1186,6 +1390,127 @@ function setSt(id,tipo,msg){var e=document.getElementById(id);e.className='st st
 function setSt2(id,tipo,msg){var e=document.getElementById(id);e.className='st st-'+tipo;e.textContent=msg;}
 
 // DOWNLOAD DOCX
+// Limpar símbolos Markdown que a IA costuma inserir (> * # ** ### etc.)
+function limparMarkdown(texto) {
+  if (!texto) return '';
+  var linhas = texto.split('\n');
+  var saida = [];
+  for (var i = 0; i < linhas.length; i++) {
+    var l = linhas[i];
+    // Remover marcadores no início da linha: > (citação), # ## ### (headers), - * + (listas)
+    l = l.replace(/^\s*>+\s*/g, '');           // > citação (blockquote)
+    l = l.replace(/^\s*#{1,6}\s+/g, '');       // # ## ### headers
+    l = l.replace(/^\s*[\-\*\+]\s+/g, '');  // - * + listas
+    // Remover formatação inline: **bold**, __bold__, *italic*, _italic_, `code`
+    l = l.replace(/\*\*([^*]+)\*\*/g, '$1'); // **bold**
+    l = l.replace(/__([^_]+)__/g, '$1');         // __bold__
+    l = l.replace(/(?<!\w)\*([^*\n]+)\*(?!\w)/g, '$1'); // *italic*
+    l = l.replace(/(?<!\w)_([^_\n]+)_(?!\w)/g, '$1');     // _italic_
+    l = l.replace(/`([^`]+)`/g, '$1');           // `code`
+    // Remover links markdown [texto](url) → texto
+    l = l.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+    // Remover --- --- de separadores horizontais
+    l = l.replace(/^\s*-{3,}\s*$/g, '');
+    l = l.replace(/^\s*={3,}\s*$/g, '');
+    saida.push(l);
+  }
+  return saida.join('\n');
+}
+
+// Obter configuração de formatação do usuário
+function getFormatacao() {
+  var fonte = document.getElementById('fmt-fonte');
+  var tamanho = document.getElementById('fmt-tamanho');
+  var antes = document.getElementById('fmt-antes');
+  var depois = document.getElementById('fmt-depois');
+  var linhas = document.getElementById('fmt-entrelinhas');
+  var alinh = document.getElementById('fmt-alinhamento');
+  return {
+    fonte:       fonte ? fonte.value : 'Arial',
+    sz:          tamanho ? (parseInt(tamanho.value)*2) : 22,   // Word usa half-points
+    antes:       antes ? (parseInt(antes.value)*20) : 0,       // Word usa 1/20 pt
+    depois:      depois ? (parseInt(depois.value)*20) : 120,
+    linhas:      linhas ? linhas.value : '360',
+    alinhamento: alinh ? alinh.value : 'both'
+  };
+}
+
+// Gerar XML de parágrafos usando a formatação configurada
+function gerarParagrafos(texto) {
+  var fmt = getFormatacao();
+  var esc = function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+  var clean = function(s){return s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'');};
+  var linhas = clean(limparMarkdown(texto)).split('\n');
+  return linhas.map(function(l){
+    var txt = esc(l.trim());
+    if (!txt) return '<w:p><w:pPr><w:spacing w:after="100"/></w:pPr></w:p>';
+    var isTit = /^[A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ][A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ\s\d\-\u2013\u2014\.,:;()]{3,}$/.test(txt) && txt.length < 100;
+    return '<w:p><w:pPr><w:jc w:val="'+fmt.alinhamento+'"/><w:spacing w:before="'+fmt.antes+'" w:after="'+fmt.depois+'" w:line="'+fmt.linhas+'" w:lineRule="auto"/></w:pPr>'+
+      '<w:r><w:rPr><w:rFonts w:ascii="'+fmt.fonte+'" w:hAnsi="'+fmt.fonte+'" w:cs="'+fmt.fonte+'"/><w:sz w:val="'+fmt.sz+'"/><w:szCs w:val="'+fmt.sz+'"/>'+(isTit?'<w:b/>':'')+'</w:rPr>'+
+      '<w:t xml:space="preserve">'+txt+'</w:t></w:r></w:p>';
+  }).join('');
+}
+
+// Separa a minuta em (corpo, referencias) com base no marcador [INICIO_REFERENCIAS]
+function separarCorpoReferencias(texto) {
+  if (!texto) return { corpo: '', referencias: '' };
+  var partes = texto.split(/\[INICIO_REFERENCIAS\]/i);
+  return {
+    corpo: partes[0] || '',
+    referencias: partes.length > 1 ? partes.slice(1).join('\n') : ''
+  };
+}
+
+// Gera bloco XML das referências (título + parágrafos), formatado conforme fmt
+function gerarBlocoReferencias(texto) {
+  if (!texto || !texto.trim()) return '';
+  var fmt = getFormatacao();
+  var tit = '<w:p><w:pPr><w:spacing w:before="480" w:after="240" w:line="'+fmt.linhas+'" w:lineRule="auto"/><w:jc w:val="'+fmt.alinhamento+'"/></w:pPr>'+
+    '<w:r><w:rPr><w:b/><w:rFonts w:ascii="'+fmt.fonte+'" w:hAnsi="'+fmt.fonte+'" w:cs="'+fmt.fonte+'"/><w:sz w:val="'+fmt.sz+'"/><w:szCs w:val="'+fmt.sz+'"/></w:rPr><w:t>REFERÊNCIAS</w:t></w:r></w:p>';
+  return tit + gerarParagrafos(texto);
+}
+
+
+// Remove marcadores markdown que a IA pode ter gerado
+function sanitizarMarkdown(texto) {
+  var linhas = texto.split('\n');
+  var out = [];
+  for (var i=0; i<linhas.length; i++) {
+    var l = linhas[i];
+    // Remover linhas que são apenas separadores markdown: ---, ___, ***
+    if (/^[-_*]{3,}\s*$/.test(l.trim())) continue;
+    // Remover marcadores de citação no início: > *texto* → texto (mantém conteúdo)
+    l = l.replace(/^\s*>\s*/, '');
+    // Remover headers markdown: # ## ### → texto
+    l = l.replace(/^\s*#{1,6}\s+/, '');
+    // Remover asteriscos de negrito/itálico: **texto** e *texto* → texto
+    l = l.replace(/\*{1,3}([^\*]+)\*{1,3}/g, '$1');
+    // Remover underscore de itálico: _texto_ → texto
+    l = l.replace(/_{1,3}([^_]+)_{1,3}/g, '$1');
+    // Remover bullets markdown: - item ou * item → item
+    l = l.replace(/^\s*[-*]\s+/, '');
+    // Remover backticks de código: `texto` → texto
+    l = l.replace(/`([^`]+)`/g, '$1');
+    out.push(l);
+  }
+  return out.join('\n');
+}
+
+
+// ── SANITIZAÇÃO DE MARKDOWN ───────────────────────────────────
+
+// ── DENSIDADE DO TEXTO ────────────────────────────────────────
+function getInstrucaoDensidade() {
+  var d = document.getElementById('f-densidade').value;
+  if (d === 'objetiva') {
+    return 'DENSIDADE DO TEXTO: OBJETIVA. Produza uma peça clara, concisa e direta, focada nos pontos essenciais. Evite prolixidade, repetições e fundamentação excessiva. Privilegie argumentação técnica precisa sem rodeios. A extensão deve ser proporcional à complexidade do caso, sem alongamentos desnecessários.';
+  } else if (d === 'extensa') {
+    return 'DENSIDADE DO TEXTO: EXTENSA. Produza uma peça com máximo detalhamento, abordando todos os aspectos pertinentes, fundamentação minuciosa, jurisprudência específica com ementas e trechos relevantes, análise pormenorizada dos fatos e do direito aplicável. ANTES DE ENTREGAR A PEÇA FINAL, revise o conteúdo produzido verificando: (i) coerência argumentativa entre todas as seções; (ii) completude da fundamentação normativa; (iii) adequação dos precedentes citados; (iv) ausência de contradições ou lacunas; (v) observância estrita das regras de estilo e formatação. Só entregue a peça após revisão completa.';
+  } else {
+    return 'DENSIDADE DO TEXTO: DENSA. Produza uma peça com fundamentação detalhada, abordando os principais pontos controvertidos com profundidade técnica adequada. Inclua jurisprudência pertinente, análise da legislação aplicável e argumentação estruturada. Mantenha equilíbrio entre completude e objetividade — sem prolixidade desnecessária, mas sem omissões relevantes.';
+  }
+}
+
 // Gerar bloco de assinatura com data automática (campo TIME do Word)
 function gerarBlocoAssinatura() {
   var adv = document.getElementById('f-advogado').value;
@@ -1201,28 +1526,31 @@ function gerarBlocoAssinatura() {
     oab = 'OAB/SP 274.575';
   }
   var esc = function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+  var fmt = getFormatacao();
+  var fr = '<w:rFonts w:ascii="'+fmt.fonte+'" w:hAnsi="'+fmt.fonte+'" w:cs="'+fmt.fonte+'"/>';
+  var sz = '<w:sz w:val="'+fmt.sz+'"/><w:szCs w:val="'+fmt.sz+'"/>';
   
   // Parágrafo 1: cidade + data (com campo TIME automático do Word)
   // Estrutura: <São Paulo/SP, ><fldChar begin><instrText TIME...><fldChar separate><texto inicial><fldChar end><.>
   var p1 = '<w:p><w:pPr><w:spacing w:before="480" w:after="240" w:line="360" w:lineRule="auto"/><w:ind w:firstLine="709"/><w:jc w:val="both"/></w:pPr>'+
-    '<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t xml:space="preserve">'+esc(cidade)+', </w:t></w:r>'+
-    '<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:fldChar w:fldCharType="begin"/></w:r>'+
-    '<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:instrText xml:space="preserve"> TIME \\@ "d\' de \'MMMM\' de \'yyyy" </w:instrText></w:r>'+
-    '<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:fldChar w:fldCharType="separate"/></w:r>'+
-    '<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:noProof/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t>data automática</w:t></w:r>'+
-    '<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:fldChar w:fldCharType="end"/></w:r>'+
-    '<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t>.</w:t></w:r></w:p>';
+    '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:t xml:space="preserve">'+esc(cidade)+', </w:t></w:r>'+
+    '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:fldChar w:fldCharType="begin"/></w:r>'+
+    '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:instrText xml:space="preserve"> TIME \\@ "d\' de \'MMMM\' de \'yyyy" </w:instrText></w:r>'+
+    '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:fldChar w:fldCharType="separate"/></w:r>'+
+    '<w:r><w:rPr>'+fr+'<w:noProof/>'+sz+'</w:rPr><w:t>data automática</w:t></w:r>'+
+    '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:fldChar w:fldCharType="end"/></w:r>'+
+    '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:t>.</w:t></w:r></w:p>';
   
   // Parágrafo vazio para espaçamento
   var pVazio = '<w:p><w:pPr><w:spacing w:line="360" w:lineRule="auto"/></w:pPr></w:p><w:p><w:pPr><w:spacing w:line="360" w:lineRule="auto"/></w:pPr></w:p>';
   
   // Nome do advogado
   var pNome = '<w:p><w:pPr><w:spacing w:line="360" w:lineRule="auto"/><w:jc w:val="center"/></w:pPr>'+
-    '<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:b/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t>'+esc(nome)+'</w:t></w:r></w:p>';
+    '<w:r><w:rPr>'+fr+'<w:b/>'+sz+'</w:rPr><w:t>'+esc(nome)+'</w:t></w:r></w:p>';
   
   // OAB
   var pOAB = '<w:p><w:pPr><w:spacing w:line="360" w:lineRule="auto"/><w:jc w:val="center"/></w:pPr>'+
-    '<w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t>'+esc(oab)+'</w:t></w:r></w:p>';
+    '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:t>'+esc(oab)+'</w:t></w:r></w:p>';
   
   return p1 + pVazio + pNome + pOAB;
 }
@@ -1239,15 +1567,9 @@ async function baixarDocx() {
 }
 
 async function baixarDocxComTimbrado() {
-  var esc=function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
-  var clean=function(s){return s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'');};
-  var linhas=clean(minuta).split('\n');
-  var pars=linhas.map(function(l){
-    var txt=esc(l.replace(/\*\*/g,'').trim());
-    if (!txt) return '<w:p><w:pPr><w:spacing w:after="100"/></w:pPr></w:p>';
-    var isTit=/^[A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ][A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ\s\d\-\u2013\u2014\.,:;()]{3,}$/.test(txt)&&txt.length<100;
-    return '<w:p><w:pPr><w:jc w:val="both"/><w:spacing w:after="160" w:line="360" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/>'+(isTit?'<w:b/>':'')+'</w:rPr><w:t xml:space="preserve">'+txt+'</w:t></w:r></w:p>';
-  }).join('');
+  var sep = separarCorpoReferencias(minuta);
+  var pars = gerarParagrafos(sep.corpo);
+  var blocoRef = gerarBlocoReferencias(sep.referencias);
 
   // Verificar quais headers/footers realmente existem (não vazios)
   var hasH1 = timbrado.h1 && timbrado.h1.length > 100;
@@ -1274,7 +1596,7 @@ async function baixarDocxComTimbrado() {
   var sectPr = '<w:sectPr>'+secRefs+'<w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1985" w:right="1133" w:bottom="1418" w:left="1701" w:header="708" w:footer="708" w:gutter="0"/><w:cols w:space="708"/>'+titlePg+'<w:docGrid w:linePitch="360"/></w:sectPr>';
 
   var docXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
-    '<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" mc:Ignorable="w14 wp14"><w:body>'+pars+gerarBlocoAssinatura()+sectPr+'</w:body></w:document>';
+    '<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" mc:Ignorable="w14 wp14"><w:body>'+pars+gerarBlocoAssinatura()+blocoRef+sectPr+'</w:body></w:document>';
 
   // Construir docRels apenas com referências válidas
   var docRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
@@ -1391,19 +1713,12 @@ async function baixarDocxComTimbrado() {
 async function baixarDocxSimples() {
   if (!minuta) return;
   try {
-    var esc=function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
-    // Sanitizar caracteres de controle inválidos para XML 1.0
-    var clean=function(s){return s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'');};
-    var linhas=clean(minuta).split('\n');
-    var pars=linhas.map(function(l){
-      var txt=esc(l.replace(/\*\*/g,'').trim());
-      if (!txt) return '<w:p><w:pPr><w:spacing w:after="100"/></w:pPr></w:p>';
-      var isTit=/^[A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ][A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ\s\d\-\u2013\u2014\.,:;()]{3,}$/.test(txt)&&txt.length<100;
-      return '<w:p><w:pPr><w:jc w:val="both"/><w:spacing w:after="160" w:line="360" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/>'+(isTit?'<w:b/>':'')+'</w:rPr><w:t xml:space="preserve">'+txt+'</w:t></w:r></w:p>';
-    }).join('');
+    var sep = separarCorpoReferencias(minuta);
+    var pars = gerarParagrafos(sep.corpo);
+    var blocoRef = gerarBlocoReferencias(sep.referencias);
 
     var docXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
-      '<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 wp14"><w:body>'+pars+gerarBlocoAssinatura()+
+      '<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 wp14"><w:body>'+pars+gerarBlocoAssinatura()+blocoRef+
       '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1701" w:right="1134" w:bottom="1701" w:left="1701" w:header="708" w:footer="708" w:gutter="0"/><w:cols w:space="708"/><w:docGrid w:linePitch="360"/></w:sectPr></w:body></w:document>';
 
     var ctXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
