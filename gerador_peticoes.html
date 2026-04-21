@@ -1201,15 +1201,21 @@ async function baixarDocxComTimbrado() {
   var hasFt1 = timbrado.ft1 && timbrado.ft1.length > 100;
   var hasFt2 = timbrado.ft2 && timbrado.ft2.length > 100;
 
-  // Construir referências de header/footer apenas para os que existem
+  // Mapeamento correto:
+  // header1/footer1 = PRIMEIRA página (type="first")
+  // header2/footer2 = páginas SEGUINTES (type="default")
+  // header3/footer3 = páginas pares (type="even")
   var secRefs = '';
-  if (hasH1) secRefs += '<w:headerReference w:type="even" r:id="rHdr1"/>';
   if (hasH2) secRefs += '<w:headerReference w:type="default" r:id="rHdr2"/>';
-  if (hasFt1) secRefs += '<w:footerReference w:type="default" r:id="rFtr1"/>';
-  if (hasH3) secRefs += '<w:headerReference w:type="first" r:id="rHdr3"/>';
-  if (hasFt2) secRefs += '<w:footerReference w:type="first" r:id="rFtr2"/>';
+  if (hasFt2) secRefs += '<w:footerReference w:type="default" r:id="rFtr2"/>';
+  if (hasH1) secRefs += '<w:headerReference w:type="first" r:id="rHdr1"/>';
+  if (hasFt1) secRefs += '<w:footerReference w:type="first" r:id="rFtr1"/>';
+  if (hasH3) secRefs += '<w:headerReference w:type="even" r:id="rHdr3"/>';
 
-  var titlePg = (hasH3 || hasFt2) ? '<w:titlePg/>' : '';
+  // titlePg só é necessário quando há header/footer ESPECÍFICO para primeira página
+  // Se só houver header2/footer2, eles devem ser usados em TODAS as páginas (sem titlePg)
+  var temFirstPg = (hasH1 || hasFt1) && (hasH2 || hasFt2);
+  var titlePg = temFirstPg ? '<w:titlePg/>' : '';
   var sectPr = '<w:sectPr>'+secRefs+'<w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1985" w:right="1133" w:bottom="1418" w:left="1701" w:header="708" w:footer="708" w:gutter="0"/><w:cols w:space="708"/>'+titlePg+'<w:docGrid w:linePitch="360"/></w:sectPr>';
 
   var docXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
