@@ -1015,10 +1015,12 @@ async function loadTimbrado(inp) {
     var ft1 = await zipFile(zip,'word/footer1.xml');
     var ft2 = await zipFile(zip,'word/footer2.xml');
 
-    // Extrair relacionamentos dos headers
+    // Extrair relacionamentos dos headers e footers
     var h1rels = await zipFile(zip,'word/_rels/header1.xml.rels');
     var h2rels = await zipFile(zip,'word/_rels/header2.xml.rels');
     var h3rels = await zipFile(zip,'word/_rels/header3.xml.rels');
+    var ft1rels = await zipFile(zip,'word/_rels/footer1.xml.rels');
+    var ft2rels = await zipFile(zip,'word/_rels/footer2.xml.rels');
     var docRels = await zipFile(zip,'word/_rels/document.xml.rels');
 
     // Extrair imagens como base64
@@ -1044,6 +1046,7 @@ async function loadTimbrado(inp) {
       h1: h1, h2: h2, h3: h3,
       ft1: ft1, ft2: ft2,
       h1rels: h1rels, h2rels: h2rels, h3rels: h3rels,
+      ft1rels: ft1rels, ft2rels: ft2rels,
       docRels: docRels,
       imgs: imgs,
       sectPr: sectPr,
@@ -1182,7 +1185,8 @@ async function baixarDocx() {
 
 async function baixarDocxComTimbrado() {
   var esc=function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
-  var linhas=minuta.split('\n');
+  var clean=function(s){return s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'');};
+  var linhas=clean(minuta).split('\n');
   var pars=linhas.map(function(l){
     var txt=esc(l.replace(/\*\*/g,'').trim());
     if (!txt) return '<w:p><w:pPr><w:spacing w:after="100"/></w:pPr></w:p>';
@@ -1190,47 +1194,132 @@ async function baixarDocxComTimbrado() {
     return '<w:p><w:pPr><w:jc w:val="both"/><w:spacing w:after="160" w:line="360" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/>'+(isTit?'<w:b/>':'')+'</w:rPr><w:t xml:space="preserve">'+txt+'</w:t></w:r></w:p>';
   }).join('');
 
-  // Extrair sectPr do timbrado e adicionar referências de header/footer
-  var sectPr = timbrado.sectPr;
-  if (!sectPr) {
-    sectPr = '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1985" w:right="1133" w:bottom="1418" w:left="1701" w:header="4" w:footer="118" w:gutter="0"/><w:titlePg/></w:sectPr>';
-  }
-  // Injetar referências de header/footer no sectPr
-  sectPr = sectPr.replace('<w:sectPr', '<w:sectPr')
-    .replace(/<w:headerReference[^\/]*\/>/g,'')
-    .replace(/<w:footerReference[^\/]*\/>/g,'');
-  var secRefs = '<w:headerReference w:type="even" r:id="rHdr1"/><w:headerReference w:type="default" r:id="rHdr2"/><w:footerReference w:type="default" r:id="rFtr1"/><w:headerReference w:type="first" r:id="rHdr3"/><w:footerReference w:type="first" r:id="rFtr2"/>';
-  sectPr = sectPr.replace('<w:pgSz', secRefs+'<w:pgSz');
+  // Verificar quais headers/footers realmente existem (não vazios)
+  var hasH1 = timbrado.h1 && timbrado.h1.length > 100;
+  var hasH2 = timbrado.h2 && timbrado.h2.length > 100;
+  var hasH3 = timbrado.h3 && timbrado.h3.length > 100;
+  var hasFt1 = timbrado.ft1 && timbrado.ft1.length > 100;
+  var hasFt2 = timbrado.ft2 && timbrado.ft2.length > 100;
 
-  var docXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"><w:body>'+pars+sectPr+'</w:body></w:document>';
+  // Construir referências de header/footer apenas para os que existem
+  var secRefs = '';
+  if (hasH1) secRefs += '<w:headerReference w:type="even" r:id="rHdr1"/>';
+  if (hasH2) secRefs += '<w:headerReference w:type="default" r:id="rHdr2"/>';
+  if (hasFt1) secRefs += '<w:footerReference w:type="default" r:id="rFtr1"/>';
+  if (hasH3) secRefs += '<w:headerReference w:type="first" r:id="rHdr3"/>';
+  if (hasFt2) secRefs += '<w:footerReference w:type="first" r:id="rFtr2"/>';
 
-  // Montar relacionamentos do documento com headers e footers
-  var docRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rHdr1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/><Relationship Id="rHdr2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header2.xml"/><Relationship Id="rHdr3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header3.xml"/><Relationship Id="rFtr1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/><Relationship Id="rFtr2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer2.xml"/><Relationship Id="rStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>';
+  var titlePg = (hasH3 || hasFt2) ? '<w:titlePg/>' : '';
+  var sectPr = '<w:sectPr>'+secRefs+'<w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1985" w:right="1133" w:bottom="1418" w:left="1701" w:header="708" w:footer="708" w:gutter="0"/><w:cols w:space="708"/>'+titlePg+'<w:docGrid w:linePitch="360"/></w:sectPr>';
 
-  var relsXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';
-  var ctXml='<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Default Extension="jpeg" ContentType="image/jpeg"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/header2.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/header3.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/><Override PartName="/word/footer2.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/></Types>';
+  var docXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+    '<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" mc:Ignorable="w14 wp14"><w:body>'+pars+sectPr+'</w:body></w:document>';
+
+  // Construir docRels apenas com referências válidas
+  var docRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+    '<Relationship Id="rStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'+
+    '<Relationship Id="rSettings" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/>'+
+    (hasH1 ? '<Relationship Id="rHdr1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/>' : '')+
+    (hasH2 ? '<Relationship Id="rHdr2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header2.xml"/>' : '')+
+    (hasH3 ? '<Relationship Id="rHdr3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header3.xml"/>' : '')+
+    (hasFt1 ? '<Relationship Id="rFtr1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>' : '')+
+    (hasFt2 ? '<Relationship Id="rFtr2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer2.xml"/>' : '')+
+    '</Relationships>';
+
+  // Construir Content_Types apenas com partes válidas
+  var ctParts = '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'+
+    '<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'+
+    '<Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>'+
+    '<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>'+
+    '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>'+
+    (hasH1 ? '<Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>' : '')+
+    (hasH2 ? '<Override PartName="/word/header2.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>' : '')+
+    (hasH3 ? '<Override PartName="/word/header3.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>' : '')+
+    (hasFt1 ? '<Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>' : '')+
+    (hasFt2 ? '<Override PartName="/word/footer2.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>' : '');
+
+  var ctXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+
+    '<Default Extension="xml" ContentType="application/xml"/>'+
+    '<Default Extension="png" ContentType="image/png"/>'+
+    '<Default Extension="jpeg" ContentType="image/jpeg"/>'+
+    '<Default Extension="jpg" ContentType="image/jpeg"/>'+
+    '<Default Extension="gif" ContentType="image/gif"/>'+
+    ctParts+
+    '</Types>';
+
+  var relsXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'+
+    '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>'+
+    '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>'+
+    '</Relationships>';
+
+  var stylesXml = (timbrado.styles && timbrado.styles.length > 100) ? timbrado.styles :
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+    '<w:styles xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/><w:lang w:val="pt-BR" w:eastAsia="pt-BR" w:bidi="ar-SA"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="160" w:line="360" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style></w:styles>';
+
+  var settingsXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+    '<w:settings xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:zoom w:percent="100"/><w:defaultTabStop w:val="708"/><w:characterSpacingControl w:val="doNotCompress"/><w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat></w:settings>';
+
+  var coreXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+    '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>'+esc(nomeArq)+'</dc:title><dc:creator>Carmo Mancebo</dc:creator></cp:coreProperties>';
+
+  var appXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+    '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>Gerador de Peticoes</Application></Properties>';
 
   var zip = new JSZip();
   zip.file('[Content_Types].xml', ctXml);
   zip.file('_rels/.rels', relsXml);
   zip.file('word/document.xml', docXml);
   zip.file('word/_rels/document.xml.rels', docRels);
-  zip.file('word/header1.xml', timbrado.h1);
-  zip.file('word/header2.xml', timbrado.h2);
-  zip.file('word/header3.xml', timbrado.h3);
-  zip.file('word/footer1.xml', timbrado.ft1);
-  zip.file('word/footer2.xml', timbrado.ft2);
-  zip.file('word/_rels/header1.xml.rels', timbrado.h1rels);
-  zip.file('word/_rels/header2.xml.rels', timbrado.h2rels);
-  zip.file('word/_rels/header3.xml.rels', timbrado.h3rels);
-  if (timbrado.styles) zip.file('word/styles.xml', timbrado.styles);
+  zip.file('word/styles.xml', stylesXml);
+  zip.file('word/settings.xml', settingsXml);
+  zip.file('docProps/core.xml', coreXml);
+  zip.file('docProps/app.xml', appXml);
+
+  // Adicionar SOMENTE os headers/footers que existem e não estão vazios
+  if (hasH1) {
+    zip.file('word/header1.xml', timbrado.h1);
+    if (timbrado.h1rels && timbrado.h1rels.length > 50) {
+      zip.file('word/_rels/header1.xml.rels', timbrado.h1rels);
+    }
+  }
+  if (hasH2) {
+    zip.file('word/header2.xml', timbrado.h2);
+    if (timbrado.h2rels && timbrado.h2rels.length > 50) {
+      zip.file('word/_rels/header2.xml.rels', timbrado.h2rels);
+    }
+  }
+  if (hasH3) {
+    zip.file('word/header3.xml', timbrado.h3);
+    if (timbrado.h3rels && timbrado.h3rels.length > 50) {
+      zip.file('word/_rels/header3.xml.rels', timbrado.h3rels);
+    }
+  }
+  if (hasFt1) {
+    zip.file('word/footer1.xml', timbrado.ft1);
+    if (timbrado.ft1rels && timbrado.ft1rels.length > 50) {
+      zip.file('word/_rels/footer1.xml.rels', timbrado.ft1rels);
+    }
+  }
+  if (hasFt2) {
+    zip.file('word/footer2.xml', timbrado.ft2);
+    if (timbrado.ft2rels && timbrado.ft2rels.length > 50) {
+      zip.file('word/_rels/footer2.xml.rels', timbrado.ft2rels);
+    }
+  }
 
   // Adicionar imagens
-  var imgNomes = Object.keys(timbrado.imgs);
+  var imgNomes = Object.keys(timbrado.imgs || {});
   for (var i=0; i<imgNomes.length; i++) {
     var nome = imgNomes[i];
-    var ab = base64ToArrayBuffer(timbrado.imgs[nome]);
-    zip.file('word/media/'+nome, ab);
+    if (timbrado.imgs[nome]) {
+      var ab = base64ToArrayBuffer(timbrado.imgs[nome]);
+      zip.file('word/media/'+nome, ab);
+    }
   }
 
   var blob = await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
