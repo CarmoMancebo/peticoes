@@ -104,7 +104,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-div"></div>
   <span class="tb-title">Gerador de Petições</span>
-  <span class="tb-meta">Saúde Suplementar · Defesa de Operadoras</span>
+  
 </div>
 
 <div class="layout">
@@ -137,134 +137,6 @@ tbody tr.st-p td{background:#b3e5fc}
         <div id="timbrado-info" style="display:none;margin-top:8px;padding:8px;background:var(--green-bg);border-radius:var(--rsm);font-size:12px;color:var(--green);">
           ✓ <span id="timbrado-nome"></span> — cabeçalho e rodapé carregados.
           <button class="btn btn-s btn-sm" style="margin-left:8px;" onclick="limparTimbrado()">Remover</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Formatação do texto</div>
-        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Aplicada ao corpo do texto gerado. Cabeçalho, rodapé e bloco de assinatura usam a formatação do timbrado.</p>
-        <div class="row2">
-          <div class="field">
-            <label>Fonte</label>
-            <select id="fmt-fonte">
-              <option value="Arial">Arial</option>
-              <option value="Calibri">Calibri</option>
-              <option value="Times New Roman">Times New Roman</option>
-              <option value="Cambria">Cambria</option>
-              <option value="Georgia">Georgia</option>
-              <option value="Verdana">Verdana</option>
-              <option value="Helvetica">Helvetica</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Tamanho da fonte</label>
-            <select id="fmt-tamanho">
-              <option value="10">10</option>
-              <option value="11" selected>11</option>
-              <option value="12">12</option>
-              <option value="13">13</option>
-              <option value="14">14</option>
-            </select>
-          </div>
-        </div>
-        <div class="row3">
-          <div class="field">
-            <label>Espaçamento antes (pt)</label>
-            <select id="fmt-antes">
-              <option value="0" selected>0</option>
-              <option value="3">3</option>
-              <option value="6">6</option>
-              <option value="8">8</option>
-              <option value="12">12</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Espaçamento depois (pt)</label>
-            <select id="fmt-depois">
-              <option value="0">0</option>
-              <option value="3">3</option>
-              <option value="6">6</option>
-              <option value="8" selected>8</option>
-              <option value="12">12</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Entre linhas</label>
-            <select id="fmt-linhas">
-              <option value="240">Simples (1,0)</option>
-              <option value="276">1,15</option>
-              <option value="360" selected>1,5 linhas</option>
-              <option value="480">Duplo (2,0)</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Formatação do documento</div>
-        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Configure a formatação padrão aplicada a todas as petições geradas.</p>
-        <div class="row3">
-          <div class="field">
-            <label>Fonte</label>
-            <select id="fmt-fonte">
-              <option value="Arial">Arial</option>
-              <option value="Calibri">Calibri</option>
-              <option value="Times New Roman">Times New Roman</option>
-              <option value="Cambria">Cambria</option>
-              <option value="Georgia">Georgia</option>
-              <option value="Verdana">Verdana</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Tamanho (pt)</label>
-            <select id="fmt-tamanho">
-              <option value="10">10</option>
-              <option value="11" selected>11</option>
-              <option value="12">12</option>
-              <option value="13">13</option>
-              <option value="14">14</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Espaçamento entre linhas</label>
-            <select id="fmt-entrelinhas">
-              <option value="240">1,0</option>
-              <option value="300">1,25</option>
-              <option value="360" selected>1,5</option>
-              <option value="480">2,0</option>
-            </select>
-          </div>
-        </div>
-        <div class="row3">
-          <div class="field">
-            <label>Espaçamento antes (pt)</label>
-            <select id="fmt-antes">
-              <option value="0" selected>0</option>
-              <option value="3">3</option>
-              <option value="6">6</option>
-              <option value="8">8</option>
-              <option value="12">12</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Espaçamento depois (pt)</label>
-            <select id="fmt-depois">
-              <option value="0">0</option>
-              <option value="3">3</option>
-              <option value="6" selected>6</option>
-              <option value="8">8</option>
-              <option value="12">12</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Alinhamento</label>
-            <select id="fmt-alinhamento">
-              <option value="both" selected>Justificado</option>
-              <option value="left">Esquerda</option>
-              <option value="right">Direita</option>
-              <option value="center">Centro</option>
-            </select>
-          </div>
         </div>
       </div>
 
@@ -1348,7 +1220,7 @@ async function gerarMinuta() {
   var nomeModelo=modelo==='gpt4o'?'GPT-4o':modelo==='claude-sonnet'?'Claude Sonnet':'Claude Opus';
   setSt2('res-st','info','Aguarde — gerando via '+nomeModelo+'...');
   var enriquecimento = getEnriquecimento();
-  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para títulos, não utilizar "**texto**" ou "*texto*" para negrito/itálico, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- Termine o corpo principal da peça com os pedidos finais (Ante ao exposto, requer-se: a), b), c)).\n\n'+getInstrucaoDensidade();
+  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para títulos, não utilizar "**texto**" ou "*texto*" para negrito/itálico, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- O PEDIDO FINAL SEMPRE DEVE INCLUIR, em letra "a)" ou como penúltima alínea, o requerimento padrão de intimações: "que todas as publicações, intimações e notificações sejam realizadas exclusivamente em nome do(a) advogado(a) [NOME_ADVOGADO_INTIMACOES], sob pena de nulidade". O sistema substituirá [NOME_ADVOGADO_INTIMACOES] automaticamente pelo advogado selecionado.\n- Termine o corpo principal da peça com os pedidos finais (Ante ao exposto, requer-se: a), b), c)).\n\n'+getInstrucaoEstrutura(tipo==='auto'?inferir((inst||'')+' '+andamento):tipo)+'\n\n'+getInstrucaoDensidade();
   var usr='Processo: '+proc+'\nSistema: '+sis+'\nPasta: '+pasta+'\nCliente: '+cliente+'\nParte contrária: '+(parte||'não informado')+'\nDemanda: '+(desc||'não informado')+'\n\nAndamento:\n'+andamento+'\n\nTipo de peça: '+(tipo==='auto'?'identificar automaticamente pelo andamento':tipo)+(inst?'\n\nInstruções específicas:\n'+inst:'')+refBlock+'\n\nElabore a peça completa pronta para protocolo.';
   try {
     var full='';
@@ -1505,6 +1377,88 @@ function sanitizarMarkdown(texto) {
 
 // ── SANITIZAÇÃO DE MARKDOWN ───────────────────────────────────
 
+// ── ESTRUTURAS OBRIGATÓRIAS POR TIPO DE PEÇA ──────────────────
+var ESTRUTURAS = {
+  'recurso especial': {
+    topicos: ['DO CABIMENTO', 'DA TEMPESTIVIDADE', 'DO PREQUESTIONAMENTO', 'DA EMENTA E/OU RESUMO DA DECISÃO RECORRIDA', 'DAS RAZÕES DE REFORMA (fundamentação por alínea do artigo 105, inciso III da Constituição da República)', 'DA DIVERGÊNCIA JURISPRUDENCIAL (quando aplicável)', 'DOS PEDIDOS'],
+    intro: false
+  },
+  'recurso extraordinário': {
+    topicos: ['DO CABIMENTO', 'DA TEMPESTIVIDADE', 'DO PREQUESTIONAMENTO', 'DA REPERCUSSÃO GERAL', 'DA EMENTA E/OU RESUMO DA DECISÃO RECORRIDA', 'DAS RAZÕES DE REFORMA (violação à Constituição da República)', 'DOS PEDIDOS'],
+    intro: false
+  },
+  'agravo de instrumento': {
+    topicos: ['DO CABIMENTO', 'DA TEMPESTIVIDADE', 'DA EMENTA E/OU RESUMO DA DECISÃO AGRAVADA', 'DOS FATOS', 'DO DIREITO', 'DA NECESSIDADE DE CONCESSÃO DE EFEITO SUSPENSIVO (quando aplicável)', 'DOS PEDIDOS'],
+    intro: false
+  },
+  'apelação': {
+    topicos: ['DO CABIMENTO', 'DA TEMPESTIVIDADE', 'DA EMENTA E/OU RESUMO DA SENTENÇA', 'DOS FATOS', 'DO DIREITO (razões de reforma)', 'DOS PEDIDOS'],
+    intro: false
+  },
+  'contestação': {
+    topicos: ['DA TEMPESTIVIDADE', 'DAS PRELIMINARES (quando aplicável)', 'DOS FATOS', 'DO DIREITO', 'DA IMPUGNAÇÃO ESPECÍFICA AOS PEDIDOS', 'DOS PEDIDOS'],
+    intro: false
+  },
+  'impugnação ao cumprimento de sentença': {
+    topicos: ['DA TEMPESTIVIDADE', 'DO RESUMO DA DECISÃO/SENTENÇA EXEQUENDA', 'DAS MATÉRIAS DE DEFESA (artigo 525, § 1º do CPC)', 'DO EXCESSO DE EXECUÇÃO (quando aplicável)', 'DOS PEDIDOS'],
+    intro: false
+  },
+  'impugnação ao cumprimento provisório': {
+    topicos: ['DA TEMPESTIVIDADE', 'DO RESUMO DA DECISÃO EXEQUENDA', 'DAS MATÉRIAS DE DEFESA (artigo 525, § 1º do CPC)', 'DA CAUÇÃO E SEUS EFEITOS (artigo 520 do CPC)', 'DOS PEDIDOS'],
+    intro: false
+  },
+  'contrarrazões de apelação': {
+    topicos: ['DA TEMPESTIVIDADE', 'DA REFUTAÇÃO DOS FUNDAMENTOS DA APELAÇÃO', 'DA MANUTENÇÃO DA SENTENÇA', 'DOS PEDIDOS'],
+    intro: false
+  },
+  'contrarrazões de recurso especial': {
+    topicos: ['DA TEMPESTIVIDADE', 'DA INADMISSIBILIDADE DO RECURSO ESPECIAL (quando aplicável)', 'DO MÉRITO (refutação dos fundamentos)', 'DOS PEDIDOS'],
+    intro: false
+  },
+  'manifestação a despacho': {
+    topicos: ['DA INTRODUÇÃO (resumo do ato ordinatório/despacho que se cumpre)', 'DA MANIFESTAÇÃO', 'DOS PEDIDOS'],
+    intro: true
+  },
+  'manifestação a decisão interlocutória': {
+    topicos: ['DA INTRODUÇÃO (resumo da decisão)', 'DA MANIFESTAÇÃO', 'DOS PEDIDOS'],
+    intro: true
+  },
+  'manifestação a decisão': {
+    topicos: ['DA INTRODUÇÃO (resumo da decisão)', 'DA MANIFESTAÇÃO', 'DOS PEDIDOS'],
+    intro: true
+  },
+  'manifestação a sentença': {
+    topicos: ['DA INTRODUÇÃO (resumo da sentença)', 'DA MANIFESTAÇÃO', 'DOS PEDIDOS'],
+    intro: true
+  },
+  'manifestação a acórdão': {
+    topicos: ['DA INTRODUÇÃO (resumo do acórdão)', 'DA MANIFESTAÇÃO', 'DOS PEDIDOS'],
+    intro: true
+  },
+  'petição simples': {
+    topicos: ['DA INTRODUÇÃO (breve contextualização)', 'DO PEDIDO'],
+    intro: true
+  },
+  'petição': {
+    topicos: ['DA INTRODUÇÃO (breve contextualização)', 'DO PEDIDO'],
+    intro: true
+  }
+};
+
+function getInstrucaoEstrutura(tipoPeca) {
+  var tipo = String(tipoPeca||'').toLowerCase();
+  var est = ESTRUTURAS[tipo];
+  // Fallback: procurar chave parcial
+  if (!est) {
+    for (var k in ESTRUTURAS) {
+      if (tipo.indexOf(k) >= 0 || k.indexOf(tipo) >= 0) { est = ESTRUTURAS[k]; break; }
+    }
+  }
+  if (!est) return '';
+  var intro = est.intro ? 'Inicie a peça com um parágrafo de introdução (sem título de tópico) contendo breve resumo do caso e/ou do ato/decisão/despacho que se está cumprindo ou manifestando, com indicação do ID/fls./evento do documento de referência quando disponível no andamento fornecido. Não use o rótulo "DA INTRODUÇÃO" como título — apenas escreva o parágrafo diretamente após o endereçamento.\n\n' : '';
+  return 'ESTRUTURA OBRIGATÓRIA DA PEÇA ('+tipoPeca.toUpperCase()+'): '+intro+'Organize o conteúdo nos seguintes tópicos, nesta ordem, em CAIXA ALTA e negrito: ' + est.topicos.map(function(t){return '\n  - ' + t;}).join('') + '\n\nCada tópico deve ser desenvolvido com a profundidade adequada à densidade solicitada. Não omita nenhum tópico obrigatório, ainda que seja para indicar que não se aplica ao caso concreto.';
+}
+
 // ── DENSIDADE DO TEXTO ────────────────────────────────────────
 function getInstrucaoDensidade() {
   var d = document.getElementById('f-densidade').value;
@@ -1537,7 +1491,7 @@ function gerarBlocoAssinatura() {
   
   // Parágrafo 1: cidade + data (com campo TIME automático do Word)
   // Estrutura: <São Paulo/SP, ><fldChar begin><instrText TIME...><fldChar separate><texto inicial><fldChar end><.>
-  var p1 = '<w:p><w:pPr><w:spacing w:before="480" w:after="240" w:line="360" w:lineRule="auto"/><w:ind w:firstLine="709"/><w:jc w:val="both"/></w:pPr>'+
+  var p1 = '<w:p><w:pPr><w:spacing w:before="480" w:after="240" w:line="360" w:lineRule="auto"/><w:jc w:val="center"/></w:pPr>'+
     '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:t xml:space="preserve">'+esc(cidade)+', </w:t></w:r>'+
     '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:fldChar w:fldCharType="begin"/></w:r>'+
     '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:instrText xml:space="preserve"> TIME \\@ "d\' de \'MMMM\' de \'yyyy" </w:instrText></w:r>'+
@@ -1560,8 +1514,31 @@ function gerarBlocoAssinatura() {
   return p1 + pVazio + pNome + pOAB;
 }
 
+function getNomeAdvogadoIntimacoes() {
+  var adv = document.getElementById('f-advogado').value;
+  if (adv === 'carmo') return 'Carmo Martins Mancebo Segundo (OAB/SP 274.575)';
+  // 'auto' — padrão atual é Carmo; quando houver mais advogados, a lógica pode mudar
+  if (adv === 'auto') return 'Carmo Martins Mancebo Segundo (OAB/SP 274.575)';
+  return '';  // 'nenhum' — deixar o placeholder ou string vazia
+}
+
+function aplicarSubstituicoes(texto) {
+  if (!texto) return '';
+  var nomeAdv = getNomeAdvogadoIntimacoes();
+  var t = texto;
+  if (nomeAdv) {
+    t = t.replace(/\[NOME_ADVOGADO_INTIMACOES\]/g, nomeAdv);
+  } else {
+    // Se "nenhum" foi escolhido, remover o placeholder sem substituir
+    t = t.replace(/\[NOME_ADVOGADO_INTIMACOES\]/g, '[advogado responsável]');
+  }
+  return t;
+}
+
 async function baixarDocx() {
   if (!minuta) return;
+  // Aplicar substituições uma única vez na minuta antes de gerar
+  minuta = aplicarSubstituicoes(minuta);
   try {
     if (timbrado) {
       await baixarDocxComTimbrado();
