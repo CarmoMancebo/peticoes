@@ -123,7 +123,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="tb-oab">OAB/SP 274.575</div>
   </div>
   <div class="tb-right">
-    <span class="tb-meta" id="tb-versao">versão 1.29</span>
+    <span class="tb-meta" id="tb-versao">versão 1.30</span>
   </div>
 </div>
 
@@ -411,7 +411,17 @@ tbody tr.st-p td{background:#b3e5fc}
         <div class="card-title">Dados do processo</div>
         <div class="row3">
           <div class="field"><label>Pasta</label><input type="text" id="f-pasta" /></div>
-          <div class="field field-required"><label>Número do processo</label><input type="text" id="f-proc" oninput="checkBtn()" /></div>
+          <div class="field field-required">
+            <label>Número do processo</label>
+            <div style="display:flex;gap:6px;align-items:stretch;">
+              <select id="f-proc-modo" style="max-width:180px;" onchange="toggleProcModo()">
+                <option value="manual" selected>Preencher manualmente</option>
+                <option value="auto">Automático (IA identifica)</option>
+              </select>
+              <input type="text" id="f-proc" oninput="onProcInput()" placeholder="Ex: 0001002-98.2025.8.26.0108" style="flex:1;" />
+            </div>
+            <div id="proc-tj-info" style="font-size:11px;color:var(--text3);margin-top:4px;min-height:14px"></div>
+          </div>
           <div class="field"><label>Sistema</label>
             <select id="f-sistema">
               <option>e-SAJ (TJSP)</option><option>e-Proc (TJSP)</option><option>PJe</option><option>Outro</option>
@@ -446,6 +456,60 @@ tbody tr.st-p td{background:#b3e5fc}
         <div class="field">
           <label>Texto do andamento / decisão / despacho / sentença / acórdão</label>
           <textarea id="f-and" style="min-height:140px" placeholder="Cole o texto ou carregue um arquivo acima..."></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📁 Contexto adicional (opcional)</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Carregue cópias de peças complementares para enriquecer o contexto. A IA usará estes documentos para embasar a fundamentação sem misturar indevidamente com o andamento principal.</p>
+
+        <!-- Processo principal -->
+        <div class="field" style="margin-bottom:12px">
+          <label style="display:flex;align-items:center;justify-content:space-between">
+            <span>📄 Cópia do processo principal <span style="color:var(--text3);font-weight:normal;font-size:11px">— histórico, petições anteriores, andamento processual geral</span></span>
+          </label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-s btn-sm" onclick="document.getElementById('inp-ctx-principal').click()">📎 Carregar (PDF, DOCX, TXT)</button>
+            <span id="ctx-principal-nome" style="font-size:11px;color:var(--text3)"></span>
+            <button class="btn btn-s btn-sm fhide" id="btn-ctx-principal-clear" onclick="clearCtx('principal')">× Limpar</button>
+          </div>
+          <input type="file" id="inp-ctx-principal" accept=".pdf,.docx,.txt" style="display:none" onchange="loadCtx(this, 'principal')" />
+          <div id="ctx-principal-st"></div>
+          <div id="ctx-principal-size" style="font-size:10px;color:var(--text3);margin-top:4px"></div>
+        </div>
+
+        <!-- Incidentes / Recursos -->
+        <div class="field" style="margin-bottom:12px">
+          <label style="display:flex;align-items:center;justify-content:space-between">
+            <span>⚖ Incidente / Recurso em julgamento <span style="color:var(--text3);font-weight:normal;font-size:11px">— decisão/acórdão que se impugna, recurso em si, peça sob análise</span></span>
+          </label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-s btn-sm" onclick="document.getElementById('inp-ctx-incidente').click()">📎 Carregar (PDF, DOCX, TXT)</button>
+            <span id="ctx-incidente-nome" style="font-size:11px;color:var(--text3)"></span>
+            <button class="btn btn-s btn-sm fhide" id="btn-ctx-incidente-clear" onclick="clearCtx('incidente')">× Limpar</button>
+          </div>
+          <input type="file" id="inp-ctx-incidente" accept=".pdf,.docx,.txt" style="display:none" onchange="loadCtx(this, 'incidente')" />
+          <div id="ctx-incidente-st"></div>
+          <div id="ctx-incidente-size" style="font-size:10px;color:var(--text3);margin-top:4px"></div>
+        </div>
+
+        <!-- Evidências / Provas -->
+        <div class="field">
+          <label style="display:flex;align-items:center;justify-content:space-between">
+            <span>🔍 Evidências / Provas <span style="color:var(--text3);font-weight:normal;font-size:11px">— laudos, contratos, documentos probatórios</span></span>
+          </label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="btn btn-s btn-sm" onclick="document.getElementById('inp-ctx-provas').click()">📎 Carregar (PDF, DOCX, TXT)</button>
+            <span id="ctx-provas-nome" style="font-size:11px;color:var(--text3)"></span>
+            <button class="btn btn-s btn-sm fhide" id="btn-ctx-provas-clear" onclick="clearCtx('provas')">× Limpar</button>
+          </div>
+          <input type="file" id="inp-ctx-provas" accept=".pdf,.docx,.txt" style="display:none" onchange="loadCtx(this, 'provas')" />
+          <div id="ctx-provas-st"></div>
+          <div id="ctx-provas-size" style="font-size:10px;color:var(--text3);margin-top:4px"></div>
+        </div>
+
+        <div style="margin-top:12px;padding:8px 10px;background:#FFF9EB;border:1px solid #FAC775;border-radius:6px;font-size:11px;color:#7A5A16">
+          💡 <strong>Dica:</strong> PDFs muito grandes (acima de 5 MB) podem exceder o limite de contexto da IA. Considere comprimir no <a href="https://www.ilovepdf.com/pt/comprimir_pdf" target="_blank" style="color:#0C6ECF">iLovePDF</a> ou similar antes de carregar. Isso também acelera a extração de texto.
         </div>
       </div>
 
@@ -489,11 +553,18 @@ tbody tr.st-p td{background:#b3e5fc}
         <div class="row2">
           <div class="field">
             <label>Advogado responsável</label>
-            <select id="f-advogado">
+            <select id="f-advogado" onchange="toggleAdvogadoMode()">
               <option value="auto">Automático (identificar pela petição/processo)</option>
               <option value="carmo">Carmo Martins Mancebo Segundo — OAB/SP 274.575</option>
+              <option value="manual">Preencher manualmente (outro advogado)</option>
               <option value="nenhum">Não incluir bloco de assinatura</option>
             </select>
+            <div id="adv-manual-box" style="display:none;margin-top:8px;padding:8px;background:var(--surface2);border-radius:var(--rsm);border:1px solid var(--border)">
+              <div style="display:grid;grid-template-columns:1fr 160px;gap:8px;">
+                <div><label style="font-size:11px;color:var(--text2)">Nome completo</label><input type="text" id="f-adv-nome" placeholder="Nome do advogado(a)" /></div>
+                <div><label style="font-size:11px;color:var(--text2)">OAB</label><input type="text" id="f-adv-oab" placeholder="OAB/SP 000.000" /></div>
+              </div>
+            </div>
           </div>
           <div class="field">
             <label>Cidade da assinatura</label>
@@ -756,6 +827,29 @@ function go(id) {
   document.getElementById('nav-'+id).classList.add('active');
 }
 
+function toggleProcModo() {
+  var m = document.getElementById('f-proc-modo').value;
+  var inp = document.getElementById('f-proc');
+  if (m === 'auto') {
+    inp.value = '';
+    inp.placeholder = '(será identificado pela IA no andamento)';
+    inp.disabled = true;
+    inp.style.background = 'var(--surface2)';
+  } else {
+    inp.placeholder = 'Ex: 0001002-98.2025.8.26.0108';
+    inp.disabled = false;
+    inp.style.background = '';
+    inp.focus();
+  }
+  checkBtn();
+}
+
+function toggleAdvogadoMode() {
+  var m = document.getElementById('f-advogado').value;
+  var box = document.getElementById('adv-manual-box');
+  if (box) box.style.display = (m === 'manual') ? 'block' : 'none';
+}
+
 function toggleParteModo() {
   var m = document.getElementById('f-parte-modo').value;
   var inp = document.getElementById('f-parte');
@@ -793,6 +887,24 @@ function getKey() {
   return m.startsWith('claude')
     ? (sessionStorage.getItem('ant') || document.getElementById('key-anthropic').value.trim())
     : (sessionStorage.getItem('oai') || document.getElementById('key-openai').value.trim());
+}
+
+function onProcInput() {
+  var num = document.getElementById('f-proc').value.trim();
+  var info = document.getElementById('proc-tj-info');
+  if (num && num.replace(/[^0-9]/g,'').length >= 20) {
+    var tj = extrairTribunal(num);
+    if (tj && tj !== 'Desconhecido') {
+      info.innerHTML = '🏛 Tribunal identificado automaticamente: <strong>' + tj + '</strong>';
+      info.style.color = 'var(--green)';
+    } else {
+      info.innerHTML = '⚠ Tribunal não reconhecido pelo padrão CNJ — verifique o número';
+      info.style.color = 'var(--amber)';
+    }
+  } else {
+    info.textContent = '';
+  }
+  checkBtn();
 }
 
 function checkBtn() {
@@ -839,6 +951,73 @@ function renderRefs() {
 }
 
 // ANDAMENTO
+// Contextos adicionais: {principal: {nome, texto}, incidente: {...}, provas: {...}}
+var ctxDocs = { principal: null, incidente: null, provas: null };
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1024/1024).toFixed(1) + ' MB';
+}
+
+function loadCtx(inp, tipo) {
+  var f = inp.files[0]; if (!f) return;
+  document.getElementById('ctx-'+tipo+'-nome').textContent = f.name;
+  document.getElementById('ctx-'+tipo+'-size').textContent = 'Tamanho do arquivo: ' + formatSize(f.size);
+  if (f.size > 5*1024*1024) {
+    setSt('ctx-'+tipo+'-st','warn','⚠ Arquivo grande ('+formatSize(f.size)+') — pode exceder limite da IA. Considere comprimir.');
+  } else {
+    setSt('ctx-'+tipo+'-st','info','Extraindo texto de "'+f.name+'"...');
+  }
+  var rd = new FileReader();
+  rd.onload = function(e) {
+    var ab = e.target.result;
+    var ext = f.name.split('.').pop().toLowerCase();
+    var handler = function(txt) {
+      ctxDocs[tipo] = { nome: f.name, texto: txt, tamanho: f.size };
+      setSt('ctx-'+tipo+'-st','ok','Carregado: '+txt.length.toLocaleString('pt-BR')+' caracteres extraídos (~'+Math.round(txt.length/4).toLocaleString('pt-BR')+' tokens)');
+      document.getElementById('btn-ctx-'+tipo+'-clear').style.display='inline-flex';
+    };
+    if (ext === 'txt') {
+      handler(new TextDecoder('UTF-8').decode(ab));
+    } else if (ext === 'docx') {
+      JSZip.loadAsync(ab).then(function(zip){
+        return zip.file('word/document.xml').async('string');
+      }).then(function(xml){
+        var tags = xml.match(/<w:t[^>]*>([^<]*)<\/w:t>/g)||[];
+        var txt = tags.map(function(t){return t.replace(/<w:t[^>]*>/,'').replace(/<\/w:t>/,'')}).join(' ').replace(/\s+/g,' ').trim();
+        handler(txt);
+      }).catch(function(e){setSt('ctx-'+tipo+'-st','err','Erro ao ler DOCX: '+e.message);});
+    } else if (ext === 'pdf') {
+      extrairPDF(ab).then(handler).catch(function(e){setSt('ctx-'+tipo+'-st','err','Erro ao extrair PDF: '+e.message);});
+    }
+  };
+  rd.readAsArrayBuffer(f);
+  inp.value = '';
+}
+
+function clearCtx(tipo) {
+  ctxDocs[tipo] = null;
+  document.getElementById('ctx-'+tipo+'-nome').textContent = '';
+  document.getElementById('ctx-'+tipo+'-size').textContent = '';
+  document.getElementById('ctx-'+tipo+'-st').innerHTML = '';
+  document.getElementById('btn-ctx-'+tipo+'-clear').style.display='none';
+}
+
+function montarContextoAdicional() {
+  var partes = [];
+  if (ctxDocs.principal) {
+    partes.push('=== CÓPIA DO PROCESSO PRINCIPAL (contexto geral) ===\n' + ctxDocs.principal.texto.substring(0, 30000));
+  }
+  if (ctxDocs.incidente) {
+    partes.push('=== INCIDENTE / RECURSO EM JULGAMENTO (matéria sob análise) ===\n' + ctxDocs.incidente.texto.substring(0, 30000));
+  }
+  if (ctxDocs.provas) {
+    partes.push('=== EVIDÊNCIAS / PROVAS (lastro probatório) ===\n' + ctxDocs.provas.texto.substring(0, 20000));
+  }
+  return partes.length ? ('\n\n' + partes.join('\n\n')) : '';
+}
+
 function loadAndamento(inp) {
   var f = inp.files[0]; if (!f) return;
   document.getElementById('and-nome').textContent = f.name;
@@ -1344,8 +1523,13 @@ async function gerarMinuta() {
   var nomeModelo=modelo==='gpt4o'?'GPT-4o':modelo==='claude-sonnet'?'Claude Sonnet':'Claude Opus';
   setSt2('res-st','info','Aguarde — gerando via '+nomeModelo+'...');
   var enriquecimento = getEnriquecimento();
-  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- SEMPRE que mencionar um artigo de lei, súmula, resolução normativa ou dispositivo legal específico, TRANSCREVA o texto do dispositivo na íntegra (ou o trecho relevante) entre aspas duplas, imediatamente após a referência. Exemplo: Ao citar o artigo 525 do CPC, transcrever em seguida: “Transcorrido o prazo previsto no artigo 523 sem o pagamento voluntário, inicia-se o prazo de 15 dias para apresentar impugnação.”\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para títulos, não utilizar "**texto**" ou "*texto*" para negrito/itálico, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- O PEDIDO FINAL SEMPRE DEVE INCLUIR, em letra "a)" ou como penúltima alínea, o requerimento padrão de intimações: "que todas as publicações, intimações e notificações sejam realizadas exclusivamente em nome do(a) advogado(a) [NOME_ADVOGADO_INTIMACOES], sob pena de nulidade". O sistema substituirá [NOME_ADVOGADO_INTIMACOES] automaticamente pelo advogado selecionado.\n- HIERARQUIA DE TÍTULOS: (i) TÍTULOS PRINCIPAIS em CAIXA ALTA e negrito, em linha isolada — serão numerados automaticamente (ex: DO CABIMENTO, DA TEMPESTIVIDADE, DOS PEDIDOS); (ii) SUBTÓPICOS em CAIXA ALTA e negrito, também em linha isolada, mas PRECEDIDOS DO MARCADOR [SUB] no início da linha — estes NÃO serão numerados (ex: [SUB]DA VIOLAÇÃO AO ARTIGO 5º DA RN 566/2022, [SUB]DA ALÍNEA A DO ARTIGO 105 DA CONSTITUIÇÃO). Use subtópicos para dividir argumentos dentro de um tópico principal.\n- NÃO CONSIDERAR como títulos: endereçamento (EXCELENTÍSSIMO...), nome do recurso/peça (RECURSO ESPECIAL, RAZÕES DO RECURSO, CONTESTAÇÃO), identificação das partes (Recorrente:, Autor:, Réu:), número do processo, origem. Esses devem aparecer como parágrafos normais no cabeçalho da peça, não como tópicos numerados.\n- ITÁLICO: expressões em latim ou outros idiomas estrangeiros DEVEM ser envolvidas pelo marcador [IT]termo[/IT] para serem formatadas em itálico. Exemplos: [IT]data venia[/IT], [IT]ex officio[/IT], [IT]sub judice[/IT], [IT]in casu[/IT], [IT]a quo[/IT], [IT]ad quem[/IT], [IT]habeas corpus[/IT], [IT]pacta sunt servanda[/IT], [IT]bis in idem[/IT], [IT]res judicata[/IT], [IT]mutatis mutandis[/IT].\n- JURISPRUDÊNCIA: NUNCA invente decisões, julgados, números de processo, ementas ou relatores. Cite APENAS: (a) súmulas consolidadas de tribunais superiores (STF, STJ, TST) quando efetivamente existirem; (b) teses firmadas em repetitivos/repercussão geral identificáveis por tema; (c) dispositivos legais, resoluções normativas e enunciados. SE for citar um precedente específico, use formulação genérica indicando que cabe ao advogado conferir (ex: "conforme precedente do STJ sobre o tema da taxatividade mitigada do rol da ANS" em vez de inventar "REsp 1.886.929/SP"). DAR PREFERÊNCIA a jurisprudência recente (até 1 ano); se não houver tese consolidada recente, ampliar margem semestralmente até encontrar algo consolidado. SEMPRE incluir aviso ao final da peça, antes das referências, no formato: "OBSERVAÇÃO AO ADVOGADO: a jurisprudência citada nesta minuta deve ser conferida pelo signatário antes do protocolo, especialmente números de processo, datas e ementas, uma vez que foi gerada por IA."\n- Termine o corpo principal da peça com os pedidos finais (Ante ao exposto, requer-se: a), b), c)).\n\n'+getInstrucaoEstrutura(tipo==='auto'?inferir((inst||'')+' '+andamento):tipo)+'\n\n'+getInstrucaoDensidade();
-  var usr='Processo: '+proc+'\nSistema: '+sis+'\nPasta: '+pasta+'\nCliente: '+cliente+'\nParte contrária: '+(parte||'não informado')+'\nDemanda: '+(desc||'não informado')+'\n\nAndamento:\n'+andamento+'\n\nTipo de peça: '+(tipo==='auto'?'identificar automaticamente pelo andamento':tipo)+(inst?'\n\nInstruções específicas:\n'+inst:'')+refBlock+'\n\nElabore a peça completa pronta para protocolo.';
+  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- SEMPRE que mencionar um artigo de lei, súmula, resolução normativa ou dispositivo legal específico, TRANSCREVA o texto do dispositivo na íntegra (ou o trecho relevante) entre aspas duplas, imediatamente após a referência. Exemplo: Ao citar o artigo 525 do CPC, transcrever em seguida: “Transcorrido o prazo previsto no artigo 523 sem o pagamento voluntário, inicia-se o prazo de 15 dias para apresentar impugnação.”\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para títulos, não utilizar "**texto**" ou "*texto*" para negrito/itálico, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- O PEDIDO FINAL SEMPRE DEVE INCLUIR, em letra "a)" ou como penúltima alínea, o requerimento padrão de intimações: "que todas as publicações, intimações e notificações sejam realizadas exclusivamente em nome do(a) advogado(a) [NOME_ADVOGADO_INTIMACOES], sob pena de nulidade". O sistema substituirá [NOME_ADVOGADO_INTIMACOES] automaticamente pelo advogado selecionado.\n- CONTEXTOS DIFERENCIADOS: o usuário pode fornecer três tipos de documentos anexos marcados como "=== CÓPIA DO PROCESSO PRINCIPAL ===" (contexto geral do processo, histórico, petições anteriores), "=== INCIDENTE / RECURSO EM JULGAMENTO ===" (decisão/acórdão que se impugna, matéria sob análise) e "=== EVIDÊNCIAS / PROVAS ===" (laudos, contratos, documentos probatórios). Use cada um para sua finalidade adequada: contextualize a partir do processo principal, foque a fundamentação na matéria do incidente/recurso, cite e invoque as evidências onde pertinente. NÃO misture indevidamente os três contextos — diferencie argumentos gerais de argumentos específicos da matéria sob análise.\n- HIERARQUIA DE TÍTULOS: (i) TÍTULOS PRINCIPAIS em CAIXA ALTA e negrito, em linha isolada — serão numerados automaticamente (ex: DO CABIMENTO, DA TEMPESTIVIDADE, DOS PEDIDOS); (ii) SUBTÓPICOS em CAIXA ALTA e negrito, também em linha isolada, mas PRECEDIDOS DO MARCADOR [SUB] no início da linha — estes NÃO serão numerados (ex: [SUB]DA VIOLAÇÃO AO ARTIGO 5º DA RN 566/2022, [SUB]DA ALÍNEA A DO ARTIGO 105 DA CONSTITUIÇÃO). Use subtópicos para dividir argumentos dentro de um tópico principal.\n- NÃO CONSIDERAR como títulos: endereçamento (EXCELENTÍSSIMO...), nome do recurso/peça (RECURSO ESPECIAL, RAZÕES DO RECURSO, CONTESTAÇÃO), identificação das partes (Recorrente:, Autor:, Réu:), número do processo, origem. Esses devem aparecer como parágrafos normais no cabeçalho da peça, não como tópicos numerados.\n- ITÁLICO: expressões em latim ou outros idiomas estrangeiros DEVEM ser envolvidas pelo marcador [IT]termo[/IT] para serem formatadas em itálico. Exemplos: [IT]data venia[/IT], [IT]ex officio[/IT], [IT]sub judice[/IT], [IT]in casu[/IT], [IT]a quo[/IT], [IT]ad quem[/IT], [IT]habeas corpus[/IT], [IT]pacta sunt servanda[/IT], [IT]bis in idem[/IT], [IT]res judicata[/IT], [IT]mutatis mutandis[/IT].\n- JURISPRUDÊNCIA: NUNCA invente decisões, julgados, números de processo, ementas ou relatores. Cite APENAS: (a) súmulas consolidadas de tribunais superiores (STF, STJ, TST) quando efetivamente existirem; (b) teses firmadas em repetitivos/repercussão geral identificáveis por tema; (c) dispositivos legais, resoluções normativas e enunciados. SE for citar um precedente específico, use formulação genérica indicando que cabe ao advogado conferir (ex: "conforme precedente do STJ sobre o tema da taxatividade mitigada do rol da ANS" em vez de inventar "REsp 1.886.929/SP"). DAR PREFERÊNCIA a jurisprudência recente (até 1 ano); se não houver tese consolidada recente, ampliar margem semestralmente até encontrar algo consolidado. SEMPRE incluir aviso ao final da peça, antes das referências, no formato: "OBSERVAÇÃO AO ADVOGADO: a jurisprudência citada nesta minuta deve ser conferida pelo signatário antes do protocolo, especialmente números de processo, datas e ementas, uma vez que foi gerada por IA."\n- Termine o corpo principal da peça com os pedidos finais (Ante ao exposto, requer-se: a), b), c)).\n\n'+getInstrucaoEstrutura(tipo==='auto'?inferir((inst||'')+' '+andamento):tipo)+'\n\n'+getInstrucaoDensidade();
+  var ctxExtra = montarContextoAdicional();
+  var procModo = document.getElementById('f-proc-modo') ? document.getElementById('f-proc-modo').value : 'manual';
+  var procInfo = procModo === 'auto' ? 'IDENTIFICAR AUTOMATICAMENTE no andamento' : (proc || 'não informado');
+  var parteModo = document.getElementById('f-parte-modo') ? document.getElementById('f-parte-modo').value : 'manual';
+  var parteInfo = parteModo === 'auto' ? 'IDENTIFICAR AUTOMATICAMENTE no andamento' : (parte || 'não informado');
+  var usr='Processo: '+procInfo+'\nSistema: '+sis+'\nPasta: '+pasta+'\nCliente: '+cliente+'\nParte contrária: '+parteInfo+'\nDemanda (Tarefa): '+(desc||'não informado')+'\n\nAndamento/Decisão principal:\n'+andamento+ctxExtra+'\n\nTipo de peça: '+(tipo==='auto'?'identificar automaticamente pelo andamento':tipo)+(inst?'\n\nInstruções específicas:\n'+inst:'')+refBlock+'\n\nElabore a peça completa pronta para protocolo.';
   // Salvar contexto para regenerar/continuar
   ultimoSysPrompt = sys;
   ultimoUsrPrompt = usr;
@@ -1355,14 +1539,14 @@ async function gerarMinuta() {
     var full='';
     var out=document.getElementById('res-txt');
     if (modelo==='gpt4o') {
-      var res=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.3,max_tokens:24000,stream:true})});
+      var res=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.3,max_tokens:30000,stream:true})});
       if (!res.ok){var er=await res.json();throw new Error(er.error?er.error.message:'Erro OpenAI');}
       var rd=res.body.getReader(),dc=new TextDecoder();
       setSt2('res-st','info','Recebendo resposta do GPT-4o...');
       while(true){var rv=await rd.read();if(rv.done)break;dc.decode(rv.value).split('\n').forEach(function(ln){if(ln.startsWith('data: ')&&ln!=='data: [DONE]'){try{var d=JSON.parse(ln.slice(6)).choices[0].delta.content;if(d){full+=d;out.textContent=full;out.scrollTop=99999;}}catch(e){}}});}
     } else {
       var cm=modelo==='claude-sonnet'?'claude-sonnet-4-5':'claude-opus-4-5';
-      var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:cm,max_tokens:24000,system:sys,messages:[{role:'user',content:usr}],stream:true})});
+      var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:cm,max_tokens:30000,system:sys,messages:[{role:'user',content:usr}],stream:true})});
       if (!res.ok){var er=await res.json();throw new Error(er.error?er.error.message:'Erro Anthropic');}
       var rd=res.body.getReader(),dc=new TextDecoder();
       setSt2('res-st','info','Recebendo resposta do '+nomeModelo+'...');
@@ -1479,6 +1663,13 @@ var NAO_TITULOS = [
   /^AGRAVO/i,
   /^MANIFESTA[ÇC][ÃA]O/i,
   /^PETI[ÇC][ÃA]O/i,
+  /^PETI[ÇC][ÃA]O\s+SIMPLES/i,
+  /^PETI[ÇC][ÃA]O\s+INFORMATIVA/i,
+  /^PETI[ÇC][ÃA]O\s+INICIAL/i,
+  /^PETI[ÇC][ÃA]O\s+INTERCORRENTE/i,
+  /^MINUTA/i,
+  /^MEM[ÓO]RIAIS/i,
+  /^PETI[ÇC][ÃA]O\s+AVULSA/i,
   /^RECORRENTE:/i,
   /^RECORRIDO:/i,
   /^REQUERENTE:/i,
@@ -1737,6 +1928,12 @@ function gerarBlocoAssinatura() {
   var cidade = (document.getElementById('f-cidade').value || 'São Paulo/SP').trim();
   var nome = 'Carmo Martins Mancebo Segundo';
   var oab = 'OAB/SP 274.575';
+  if (adv === 'manual') {
+    var n = (document.getElementById('f-adv-nome').value || '').trim();
+    var o = (document.getElementById('f-adv-oab').value || '').trim();
+    if (n) nome = n;
+    if (o) oab = o;
+  }
   var fmt = getFormatacao();
   var fr = '<w:rFonts w:ascii="'+fmt.fonte+'" w:hAnsi="'+fmt.fonte+'" w:cs="'+fmt.fonte+'"/>';
   var sz = '<w:sz w:val="'+fmt.sz+'"/><w:szCs w:val="'+fmt.sz+'"/>';
@@ -1779,10 +1976,15 @@ function gerarBlocoAssinatura() {
 
 function getNomeAdvogadoIntimacoes() {
   var adv = document.getElementById('f-advogado').value;
-  if (adv === 'carmo') return 'Carmo Martins Mancebo Segundo (OAB/SP 274.575)';
-  // 'auto' — padrão atual é Carmo; quando houver mais advogados, a lógica pode mudar
-  if (adv === 'auto') return 'Carmo Martins Mancebo Segundo (OAB/SP 274.575)';
-  return '';  // 'nenhum' — deixar o placeholder ou string vazia
+  if (adv === 'carmo' || adv === 'auto') return 'Carmo Martins Mancebo Segundo (OAB/SP 274.575)';
+  if (adv === 'manual') {
+    var nome = (document.getElementById('f-adv-nome').value || '').trim();
+    var oab = (document.getElementById('f-adv-oab').value || '').trim();
+    if (nome && oab) return nome + ' (' + oab + ')';
+    if (nome) return nome;
+    return '';
+  }
+  return '';
 }
 
 function aplicarSubstituicoes(texto) {
@@ -2086,7 +2288,7 @@ async function executarGeracao(sys, usr, isContinuacao) {
       var res = await fetch('https://api.openai.com/v1/chat/completions', {
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-        body: JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.3,max_tokens:24000,stream:true})
+        body: JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.3,max_tokens:30000,stream:true})
       });
       if (!res.ok) { var er=await res.json(); throw new Error(er.error?er.error.message:'Erro OpenAI'); }
       var rd = res.body.getReader(), dc = new TextDecoder();
@@ -2105,7 +2307,7 @@ async function executarGeracao(sys, usr, isContinuacao) {
       var res = await fetch('https://api.anthropic.com/v1/messages', {
         method:'POST',
         headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-        body: JSON.stringify({model:cm,max_tokens:24000,system:sys,messages:[{role:'user',content:usr}],stream:true})
+        body: JSON.stringify({model:cm,max_tokens:30000,system:sys,messages:[{role:'user',content:usr}],stream:true})
       });
       if (!res.ok) { var er=await res.json(); throw new Error(er.error?er.error.message:'Erro Anthropic'); }
       var rd = res.body.getReader(), dc = new TextDecoder();
@@ -2186,7 +2388,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.29',
+      version: '1.30',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
