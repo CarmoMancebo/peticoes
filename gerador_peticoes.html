@@ -25,12 +25,23 @@
   --radius:10px;--rsm:6px;
 }
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;gap:1rem;height:64px;position:sticky;top:0;z-index:100}
-.tb-name{font-size:13px;font-weight:700;color:var(--text);letter-spacing:.02em}
-.tb-sub{font-size:11px;color:var(--text3)}
-.tb-div{width:1px;height:28px;background:var(--border2)}
-.tb-title{font-size:15px;font-weight:500;color:var(--blue)}
-.tb-meta{font-size:12px;color:var(--text3);margin-left:auto}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;display:grid;grid-template-columns:240px 1fr 240px;align-items:center;height:72px;position:sticky;top:0;z-index:100}
+.tb-left{display:flex;align-items:center;justify-content:flex-start}
+.tb-center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.tb-right{display:flex;align-items:center;justify-content:flex-end}
+/* Footer com QR code */
+.app-footer{position:fixed;bottom:12px;left:12px;z-index:90}
+.footer-contact{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 10px 6px 6px;text-decoration:none;color:inherit;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:all .15s ease}
+.footer-contact:hover{box-shadow:0 3px 12px rgba(0,0,0,.1);border-color:var(--blue-mid)}
+.footer-qr{width:44px;height:44px;border-radius:4px;display:block}
+.footer-phone-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;line-height:1}
+.footer-phone-num{font-size:13px;color:var(--text);font-weight:500;margin-top:2px;font-variant-numeric:tabular-nums}
+@media (max-width: 900px){.app-footer{display:none}}
+.tb-name{font-size:15px;font-weight:500;color:var(--text);letter-spacing:.02em;line-height:1.2}
+.tb-oab{font-size:11px;color:var(--text3);margin-top:2px;letter-spacing:.05em}
+
+.tb-title{font-size:15px;font-weight:600;color:var(--blue)}
+.tb-meta{font-size:12px;color:var(--text3)}
 .layout{display:flex;min-height:calc(100vh - 64px)}
 .sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:1.5rem 0;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto}
 .nav-item{display:flex;align-items:center;gap:10px;padding:9px 1.5rem;cursor:pointer;font-size:13px;color:var(--text2);border-left:2px solid transparent;transition:all .12s}
@@ -103,13 +114,16 @@ tbody tr.st-p td{background:#b3e5fc}
 <body>
 
 <div class="topbar">
-  <div>
-    <div class="tb-name">CARMO MANCEBO</div>
-    <div class="tb-sub">Advogado</div>
+  <div class="tb-left">
+    <span class="tb-title">Gerador de Petições</span>
   </div>
-  <div class="tb-div"></div>
-  <span class="tb-title">Gerador de Petições</span>
-  <span class="tb-meta" id="tb-versao">versão 1.27</span>
+  <div class="tb-center">
+    <div class="tb-name">Carmo Mancebo | Advogado</div>
+    <div class="tb-oab">OAB/SP 274.575</div>
+  </div>
+  <div class="tb-right">
+    <span class="tb-meta" id="tb-versao">versão 1.28</span>
+  </div>
 </div>
 
 <div class="layout">
@@ -214,9 +228,10 @@ tbody tr.st-p td{background:#b3e5fc}
         </div>
         <div class="row3">
           <div class="field">
-            <label>Formato de data</label>
-            <select id="fmt-data">
-              <option value="extenso" selected>21 de abril de 2026</option>
+            <label>Formato de data <span style="color:var(--red)">*</span></label>
+            <select id="fmt-data" required>
+              <option value="" selected disabled>— selecione —</option>
+              <option value="extenso">21 de abril de 2026</option>
               <option value="numerica">21/04/2026</option>
               <option value="abreviada">21.4.2026</option>
             </select>
@@ -230,6 +245,7 @@ tbody tr.st-p td{background:#b3e5fc}
               <option value="850">1,5 cm</option>
               <option value="1134">2,0 cm</option>
               <option value="1417">2,5 cm</option>
+              <option value="3118">5,5 cm</option>
             </select>
           </div>
           <div class="field">
@@ -366,7 +382,7 @@ tbody tr.st-p td{background:#b3e5fc}
           <div class="field">
             <label>Modelo</label>
             <select id="sel-modelo" onchange="toggleApi()">
-              <option value="gpt4o">GPT-4o (OpenAI) — peças simples e manifestações</option>
+              <option value="gpt4o" selected>GPT-4o (OpenAI) — peças simples e manifestações</option>
               <option value="claude-sonnet">Claude Sonnet (Anthropic) — peças complexas</option>
               <option value="claude-opus">Claude Opus (Anthropic) — máxima qualidade</option>
             </select>
@@ -403,9 +419,18 @@ tbody tr.st-p td{background:#b3e5fc}
         </div>
         <div class="row2">
           <div class="field field-required"><label>Cliente (executada / ré)</label><input type="text" id="f-cliente" value="Notre Dame Intermédica Saúde S/A" /></div>
-          <div class="field field-required"><label>Parte contrária</label><input type="text" id="f-parte" /></div>
+          <div class="field field-required">
+            <label>Parte contrária</label>
+            <div style="display:flex;gap:6px;align-items:stretch;">
+              <select id="f-parte-modo" style="max-width:180px;" onchange="toggleParteModo()">
+                <option value="auto" selected>Automático (IA identifica)</option>
+                <option value="manual">Preencher manualmente</option>
+              </select>
+              <input type="text" id="f-parte" placeholder="(será identificado pela IA)" disabled style="flex:1;background:var(--surface2);" />
+            </div>
+          </div>
         </div>
-        <div class="field"><label>Descrição da demanda</label><input type="text" id="f-desc" /></div>
+        <div class="field"><label>Descrição da demanda (Tarefa)</label><input type="text" id="f-desc" /></div>
       </div>
 
       <div class="card">
@@ -475,10 +500,11 @@ tbody tr.st-p td{background:#b3e5fc}
           </div>
         </div>
         <div class="field">
-          <label>Densidade do texto</label>
-          <select id="f-densidade">
+          <label>Densidade do texto <span style="color:var(--red)">*</span></label>
+          <select id="f-densidade" required>
+            <option value="" selected disabled>— selecione —</option>
             <option value="objetiva">Objetiva — redação clara, direta, focada no essencial</option>
-            <option value="densa" selected>Densa — detalhada, com fundamentação minuciosa (padrão)</option>
+            <option value="densa">Densa — detalhada, com fundamentação minuciosa</option>
             <option value="extensa">Extensa — máximo detalhamento, com revisão antes da entrega</option>
           </select>
         </div>
@@ -727,6 +753,22 @@ function go(id) {
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active')});
   document.getElementById('panel-'+id).classList.add('active');
   document.getElementById('nav-'+id).classList.add('active');
+}
+
+function toggleParteModo() {
+  var m = document.getElementById('f-parte-modo').value;
+  var inp = document.getElementById('f-parte');
+  if (m === 'auto') {
+    inp.disabled = true;
+    inp.value = '';
+    inp.placeholder = '(será identificado pela IA)';
+    inp.style.background = 'var(--surface2)';
+  } else {
+    inp.disabled = false;
+    inp.placeholder = 'Digite o nome da parte contrária';
+    inp.style.background = '';
+    inp.focus();
+  }
 }
 
 function toggleApi() {
@@ -1275,6 +1317,8 @@ function base64ToArrayBuffer(b64) {
 async function gerarMinuta() {
   var erroFmt = validarFormatacao();
   if (erroFmt) { alert(erroFmt); go('cfg'); return; }
+  var densidade = document.getElementById('f-densidade');
+  if (!densidade || !densidade.value) { alert('Selecione a densidade do texto no card Configurações da peça.'); return; }
   var key=getKey(), modelo=document.getElementById('sel-modelo').value;
   if (!key){alert('Informe a chave de API.');return;}
   var andamento=document.getElementById('f-and').value.trim();
@@ -1299,7 +1343,7 @@ async function gerarMinuta() {
   var nomeModelo=modelo==='gpt4o'?'GPT-4o':modelo==='claude-sonnet'?'Claude Sonnet':'Claude Opus';
   setSt2('res-st','info','Aguarde — gerando via '+nomeModelo+'...');
   var enriquecimento = getEnriquecimento();
-  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- SEMPRE que mencionar um artigo de lei, súmula, resolução normativa ou dispositivo legal específico, TRANSCREVA o texto do dispositivo na íntegra (ou o trecho relevante) entre aspas duplas, imediatamente após a referência. Exemplo: Ao citar o artigo 525 do CPC, transcrever em seguida: “Transcorrido o prazo previsto no artigo 523 sem o pagamento voluntário, inicia-se o prazo de 15 dias para apresentar impugnação.”\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para títulos, não utilizar "**texto**" ou "*texto*" para negrito/itálico, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- O PEDIDO FINAL SEMPRE DEVE INCLUIR, em letra "a)" ou como penúltima alínea, o requerimento padrão de intimações: "que todas as publicações, intimações e notificações sejam realizadas exclusivamente em nome do(a) advogado(a) [NOME_ADVOGADO_INTIMACOES], sob pena de nulidade". O sistema substituirá [NOME_ADVOGADO_INTIMACOES] automaticamente pelo advogado selecionado.\n- Termine o corpo principal da peça com os pedidos finais (Ante ao exposto, requer-se: a), b), c)).\n\n'+getInstrucaoEstrutura(tipo==='auto'?inferir((inst||'')+' '+andamento):tipo)+'\n\n'+getInstrucaoDensidade();
+  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- SEMPRE que mencionar um artigo de lei, súmula, resolução normativa ou dispositivo legal específico, TRANSCREVA o texto do dispositivo na íntegra (ou o trecho relevante) entre aspas duplas, imediatamente após a referência. Exemplo: Ao citar o artigo 525 do CPC, transcrever em seguida: “Transcorrido o prazo previsto no artigo 523 sem o pagamento voluntário, inicia-se o prazo de 15 dias para apresentar impugnação.”\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para títulos, não utilizar "**texto**" ou "*texto*" para negrito/itálico, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- O PEDIDO FINAL SEMPRE DEVE INCLUIR, em letra "a)" ou como penúltima alínea, o requerimento padrão de intimações: "que todas as publicações, intimações e notificações sejam realizadas exclusivamente em nome do(a) advogado(a) [NOME_ADVOGADO_INTIMACOES], sob pena de nulidade". O sistema substituirá [NOME_ADVOGADO_INTIMACOES] automaticamente pelo advogado selecionado.\n- HIERARQUIA DE TÍTULOS: (i) TÍTULOS PRINCIPAIS em CAIXA ALTA e negrito, em linha isolada — serão numerados automaticamente (ex: DO CABIMENTO, DA TEMPESTIVIDADE, DOS PEDIDOS); (ii) SUBTÓPICOS em CAIXA ALTA e negrito, também em linha isolada, mas PRECEDIDOS DO MARCADOR [SUB] no início da linha — estes NÃO serão numerados (ex: [SUB]DA VIOLAÇÃO AO ARTIGO 5º DA RN 566/2022, [SUB]DA ALÍNEA A DO ARTIGO 105 DA CONSTITUIÇÃO). Use subtópicos para dividir argumentos dentro de um tópico principal.\n- NÃO CONSIDERAR como títulos: endereçamento (EXCELENTÍSSIMO...), nome do recurso/peça (RECURSO ESPECIAL, RAZÕES DO RECURSO, CONTESTAÇÃO), identificação das partes (Recorrente:, Autor:, Réu:), número do processo, origem. Esses devem aparecer como parágrafos normais no cabeçalho da peça, não como tópicos numerados.\n- ITÁLICO: expressões em latim ou outros idiomas estrangeiros DEVEM ser envolvidas pelo marcador [IT]termo[/IT] para serem formatadas em itálico. Exemplos: [IT]data venia[/IT], [IT]ex officio[/IT], [IT]sub judice[/IT], [IT]in casu[/IT], [IT]a quo[/IT], [IT]ad quem[/IT], [IT]habeas corpus[/IT], [IT]pacta sunt servanda[/IT], [IT]bis in idem[/IT], [IT]res judicata[/IT], [IT]mutatis mutandis[/IT].\n- JURISPRUDÊNCIA: NUNCA invente decisões, julgados, números de processo, ementas ou relatores. Cite APENAS: (a) súmulas consolidadas de tribunais superiores (STF, STJ, TST) quando efetivamente existirem; (b) teses firmadas em repetitivos/repercussão geral identificáveis por tema; (c) dispositivos legais, resoluções normativas e enunciados. SE for citar um precedente específico, use formulação genérica indicando que cabe ao advogado conferir (ex: "conforme precedente do STJ sobre o tema da taxatividade mitigada do rol da ANS" em vez de inventar "REsp 1.886.929/SP"). DAR PREFERÊNCIA a jurisprudência recente (até 1 ano); se não houver tese consolidada recente, ampliar margem semestralmente até encontrar algo consolidado. SEMPRE incluir aviso ao final da peça, antes das referências, no formato: "OBSERVAÇÃO AO ADVOGADO: a jurisprudência citada nesta minuta deve ser conferida pelo signatário antes do protocolo, especialmente números de processo, datas e ementas, uma vez que foi gerada por IA."\n- Termine o corpo principal da peça com os pedidos finais (Ante ao exposto, requer-se: a), b), c)).\n\n'+getInstrucaoEstrutura(tipo==='auto'?inferir((inst||'')+' '+andamento):tipo)+'\n\n'+getInstrucaoDensidade();
   var usr='Processo: '+proc+'\nSistema: '+sis+'\nPasta: '+pasta+'\nCliente: '+cliente+'\nParte contrária: '+(parte||'não informado')+'\nDemanda: '+(desc||'não informado')+'\n\nAndamento:\n'+andamento+'\n\nTipo de peça: '+(tipo==='auto'?'identificar automaticamente pelo andamento':tipo)+(inst?'\n\nInstruções específicas:\n'+inst:'')+refBlock+'\n\nElabore a peça completa pronta para protocolo.';
   // Salvar contexto para regenerar/continuar
   ultimoSysPrompt = sys;
@@ -1411,43 +1455,133 @@ function validarFormatacao() {
   if (!recuo || !recuo.value) {
     return 'Selecione o recuo da primeira linha no card Formatação do documento (aba Configuração).';
   }
+  var fmtData = document.getElementById('fmt-data');
+  if (!fmtData || !fmtData.value) {
+    return 'Selecione o formato de data no card Formatação do documento (aba Configuração).';
+  }
   return '';
 }
 
 // Gerar XML de parágrafos usando a formatação configurada
+// Padrões que NUNCA devem ser considerados títulos (endereçamento, nome do recurso, razões, partes)
+var NAO_TITULOS = [
+  /^EXCELENT[ÍI]SSIMO/i,
+  /^EGR[ÉE]GIO/i,
+  /^MERIT[ÍI]SSIMO/i,
+  /^ILUSTR[ÍI]SSIMO/i,
+  /^RECURSO\s+(ESPECIAL|EXTRAORDIN[ÁA]RIO|ORDIN[ÁA]RIO|DE\s+REVISTA|DE\s+APELA[ÇC][ÃA]O|ESPECIAL\s+N[ºo°])/i,
+  /^RAZ[ÕO]ES\s+(DO|DE|DA)\s+RECURSO/i,
+  /^RAZ[ÕO]ES\s+RECURSAIS/i,
+  /^CONTRARRAZ[ÕO]ES/i,
+  /^CONTESTA[ÇC][ÃA]O/i,
+  /^APELA[ÇC][ÃA]O/i,
+  /^AGRAVO/i,
+  /^MANIFESTA[ÇC][ÃA]O/i,
+  /^PETI[ÇC][ÃA]O/i,
+  /^RECORRENTE:/i,
+  /^RECORRIDO:/i,
+  /^REQUERENTE:/i,
+  /^REQUERIDO:/i,
+  /^AGRAVANTE:/i,
+  /^AGRAVADO:/i,
+  /^APELANTE:/i,
+  /^APELADO:/i,
+  /^EXEQUENTE:/i,
+  /^EXECUTAD[AO]:/i,
+  /^IMPUGNANTE:/i,
+  /^IMPUGNAD[AO]:/i,
+  /^AUTOR:/i,
+  /^R[ÉE]U:/i,
+  /^PROCESSO\s+N[ºo°]/i,
+  /^AUTOS\s+N[ºo°]/i,
+  /^ORIGEM:/i,
+  /^REFER[ÊE]NCIA:/i,
+  /^ASSUNTO:/i,
+  /^\d+[ªa]\s+(VARA|C[ÂA]MARA|TURMA|SE[ÇC][ÃA]O)/i
+];
+
+function ehNaoTitulo(txt) {
+  for (var i=0; i<NAO_TITULOS.length; i++) {
+    if (NAO_TITULOS[i].test(txt)) return true;
+  }
+  return false;
+}
+
+// Aplica itálico em termos em latim ou entre marcadores [IT]...[/IT]
+// Retorna array de runs (trechos) alternando texto normal e texto em itálico
+function segmentarItalico(txt) {
+  // Marcador explícito: [IT]texto[/IT]
+  // Também termos em latim comuns (opcional — a IA usa marcadores explícitos)
+  var segs = [];
+  var re = /\[IT\](.+?)\[\/IT\]/g;
+  var lastIdx = 0, m;
+  while ((m = re.exec(txt)) !== null) {
+    if (m.index > lastIdx) segs.push({t: txt.substring(lastIdx, m.index), it: false});
+    segs.push({t: m[1], it: true});
+    lastIdx = m.index + m[0].length;
+  }
+  if (lastIdx < txt.length) segs.push({t: txt.substring(lastIdx), it: false});
+  if (segs.length === 0) segs.push({t: txt, it: false});
+  return segs;
+}
+
+function gerarRunsFromTexto(txt, fmt, isBold) {
+  // txt já foi escapado
+  var segs = segmentarItalico(txt);
+  return segs.map(function(s){
+    var rPr = '<w:rFonts w:ascii="'+fmt.fonte+'" w:hAnsi="'+fmt.fonte+'" w:cs="'+fmt.fonte+'"/><w:sz w:val="'+fmt.sz+'"/><w:szCs w:val="'+fmt.sz+'"/>';
+    if (isBold) rPr += '<w:b/>';
+    if (s.it) rPr += '<w:i/><w:iCs/>';
+    return '<w:r><w:rPr>'+rPr+'</w:rPr><w:t xml:space="preserve">'+s.t+'</w:t></w:r>';
+  }).join('');
+}
+
 function gerarParagrafos(texto) {
   var fmt = getFormatacao();
   var clean = function(s){return s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'');};
   var linhas = clean(limparMarkdown(texto)).split('\n');
 
-  // Contador de títulos para numeração sequencial
+  // Contador de títulos para numeração sequencial (só os principais)
   var contadorTitulos = 0;
 
   return linhas.map(function(l){
-    var txt = esc(l.trim());
-    if (!txt) return '<w:p><w:pPr><w:spacing w:after="100"/></w:pPr></w:p>';
+    var raw = l.trim();
+    if (!raw) return '<w:p><w:pPr><w:spacing w:after="100"/></w:pPr></w:p>';
+
+    // Detectar subtópico: começa com [SUB]
+    var isSubtopico = /^\[SUB\]/.test(raw);
+    if (isSubtopico) raw = raw.replace(/^\[SUB\]\s*/, '');
+
+    var txt = esc(raw);
 
     // Detecta título em CAIXA ALTA
-    var isTit = /^[A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ][A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ\s\d\-\u2013\u2014\.,:;()]{3,}$/.test(txt) && txt.length < 120;
+    var isTit = /^[A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ][A-ZÁÉÍÓÚÃÕÇÀÂÊÎÔÛ\s\d\-\u2013\u2014\.,:;()]{3,}$/.test(raw) && raw.length < 120;
 
-    // Para títulos: numerar se configurado e remover recuo
+    // Excluir falsos títulos (endereçamentos, nome do recurso, partes, etc.)
+    if (isTit && ehNaoTitulo(raw)) isTit = false;
+
+    // SUBTÓPICO: caixa alta, negrito, SEM numeração, alinhamento à esquerda
+    if (isSubtopico) {
+      var txtSub = txt.toUpperCase();
+      return '<w:p><w:pPr><w:jc w:val="left"/><w:spacing w:before="'+fmt.antes+'" w:after="'+fmt.depois+'" w:line="'+fmt.linhas+'" w:lineRule="auto"/></w:pPr>'+
+        gerarRunsFromTexto(txtSub, fmt, true) + '</w:p>';
+    }
+
+    // TÍTULO principal: numerar se configurado, caixa alta, negrito, centralizado
     if (isTit) {
-      // Remove numeração já existente no texto (ex: "1 -", "I -", "II -") para evitar dupla
       var txtLimpo = txt.replace(/^\s*(\d+|[IVXLCM]+)\s*[-–—\.\)]\s*/, '');
       if (fmt.numerarTitulos) {
         contadorTitulos++;
         txtLimpo = contadorTitulos + ' - ' + txtLimpo;
       }
       return '<w:p><w:pPr><w:jc w:val="'+fmt.alinhamento+'"/><w:spacing w:before="'+fmt.antes+'" w:after="'+fmt.depois+'" w:line="'+fmt.linhas+'" w:lineRule="auto"/></w:pPr>'+
-        '<w:r><w:rPr><w:rFonts w:ascii="'+fmt.fonte+'" w:hAnsi="'+fmt.fonte+'" w:cs="'+fmt.fonte+'"/><w:sz w:val="'+fmt.sz+'"/><w:szCs w:val="'+fmt.sz+'"/><w:b/></w:rPr>'+
-        '<w:t xml:space="preserve">'+txtLimpo+'</w:t></w:r></w:p>';
+        gerarRunsFromTexto(txtLimpo, fmt, true) + '</w:p>';
     }
 
-    // Parágrafos normais: com recuo configurado
+    // Parágrafo normal: com recuo + segmentação de itálico
     var recuoAttr = (fmt.recuo && fmt.recuo !== '0') ? '<w:ind w:firstLine="'+fmt.recuo+'"/>' : '';
     return '<w:p><w:pPr><w:jc w:val="'+fmt.alinhamento+'"/><w:spacing w:before="'+fmt.antes+'" w:after="'+fmt.depois+'" w:line="'+fmt.linhas+'" w:lineRule="auto"/>'+recuoAttr+'</w:pPr>'+
-      '<w:r><w:rPr><w:rFonts w:ascii="'+fmt.fonte+'" w:hAnsi="'+fmt.fonte+'" w:cs="'+fmt.fonte+'"/><w:sz w:val="'+fmt.sz+'"/><w:szCs w:val="'+fmt.sz+'"/></w:rPr>'+
-      '<w:t xml:space="preserve">'+txt+'</w:t></w:r></w:p>';
+      gerarRunsFromTexto(txt, fmt, false) + '</w:p>';
   }).join('');
 }
 
@@ -1663,6 +1797,8 @@ function aplicarSubstituicoes(texto) {
 
 async function baixarDocx() {
   if (!minuta) return;
+  var erroFmt = validarFormatacao();
+  if (erroFmt) { alert(erroFmt); go('cfg'); return; }
   // Aplicar substituições uma única vez na minuta antes de gerar
   minuta = aplicarSubstituicoes(minuta);
   try {
@@ -2047,7 +2183,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.27',
+      version: '1.28',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
@@ -2185,5 +2321,15 @@ document.addEventListener('keydown', handlerAtalhos);
   checkBtn();
 })();
 </script>
+<div class="app-footer">
+  <a href="https://wa.me/5511941261425" target="_blank" rel="noopener" class="footer-contact" title="Abrir WhatsApp">
+    <img src="data:image/jpeg;base64,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" class="footer-qr" alt="QR WhatsApp" />
+    <div class="footer-phone">
+      <div class="footer-phone-label">WhatsApp</div>
+      <div class="footer-phone-num">(11) 94126-1425</div>
+    </div>
+  </a>
+</div>
+
 </body>
 </html>
