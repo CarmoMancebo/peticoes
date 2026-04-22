@@ -30,12 +30,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .tb-center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 .tb-right{display:flex;align-items:center;justify-content:flex-end}
 /* Footer com QR code */
-.app-footer{position:fixed;bottom:12px;left:12px;z-index:90}
-.footer-contact{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 10px 6px 6px;text-decoration:none;color:inherit;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:all .15s ease}
-.footer-contact:hover{box-shadow:0 3px 12px rgba(0,0,0,.1);border-color:var(--blue-mid)}
-.footer-qr{width:44px;height:44px;border-radius:4px;display:block}
-.footer-phone-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;line-height:1}
-.footer-phone-num{font-size:13px;color:var(--text);font-weight:500;margin-top:2px;font-variant-numeric:tabular-nums}
+.app-footer{position:fixed;bottom:16px;left:16px;z-index:90}
+.footer-contact{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:10px;text-decoration:none;color:inherit;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:all .15s ease;width:112px}
+.footer-contact:hover{box-shadow:0 4px 14px rgba(0,0,0,.12);border-color:var(--blue-mid);transform:translateY(-1px)}
+.footer-qr{width:92px;height:92px;border-radius:4px;display:block}
+.footer-phone{text-align:center;margin-top:2px}
+.footer-phone-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;line-height:1}
+.footer-phone-num{font-size:12px;color:var(--text);font-weight:600;margin-top:3px;font-variant-numeric:tabular-nums;letter-spacing:.02em}
 @media (max-width: 900px){.app-footer{display:none}}
 .tb-name{font-size:15px;font-weight:500;color:var(--text);letter-spacing:.02em;line-height:1.2}
 .tb-oab{font-size:11px;color:var(--text3);margin-top:2px;letter-spacing:.05em}
@@ -122,7 +123,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="tb-oab">OAB/SP 274.575</div>
   </div>
   <div class="tb-right">
-    <span class="tb-meta" id="tb-versao">versão 1.28</span>
+    <span class="tb-meta" id="tb-versao">versão 1.29</span>
   </div>
 </div>
 
@@ -1561,8 +1562,10 @@ function gerarParagrafos(texto) {
     if (isTit && ehNaoTitulo(raw)) isTit = false;
 
     // SUBTÓPICO: caixa alta, negrito, SEM numeração, alinhamento à esquerda
+    // IMPORTANTE: uppercase DEVE ser feito antes do esc() para evitar &QUOT; em vez de &quot;
     if (isSubtopico) {
-      var txtSub = txt.toUpperCase();
+      var txtSubRaw = raw.toUpperCase();
+      var txtSub = esc(txtSubRaw);
       return '<w:p><w:pPr><w:jc w:val="left"/><w:spacing w:before="'+fmt.antes+'" w:after="'+fmt.depois+'" w:line="'+fmt.linhas+'" w:lineRule="auto"/></w:pPr>'+
         gerarRunsFromTexto(txtSub, fmt, true) + '</w:p>';
     }
@@ -2183,7 +2186,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.28',
+      version: '1.29',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
