@@ -134,7 +134,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-ver">OAB/SP 274.575 · versão 1.31</div>
+    <div class="login-ver">OAB/SP 274.575 · versão 1.32</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -159,7 +159,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.31</span>
+    <span class="tb-meta" id="tb-versao">versão 1.32</span>
   </div>
 </div>
 
@@ -671,6 +671,7 @@ tbody tr.st-p td{background:#b3e5fc}
         <div id="res-uso"></div>
         <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
           <button class="btn btn-s btn-sm" id="btn-toggle-edit" onclick="toggleEditMode()" title="Alternar entre visualização e edição">✏ Editar texto</button>
+          <button class="btn btn-s btn-sm" id="btn-usar-base" onclick="usarComoBase()" title="Usar este texto como contexto para elaborar uma nova petição (útil quando se gera um resumo e depois se quer a peça)">📎 Usar como base para nova petição</button>
           <span class="tip" id="res-edit-status"></span>
           <span style="margin-left:auto" class="tip" id="res-char-count"></span>
         </div>
@@ -1756,18 +1757,69 @@ function registrarUso(modelo, tokensIn, tokensOut, tipoPeca) {
 }
 
 function exibirUsoNaUI(tokensIn, tokensOut, modelo, tipoPeca) {
-  var custo = registrarUso(modelo, tokensIn, tokensOut, tipoPeca);
+  var custoAtual = registrarUso(modelo, tokensIn, tokensOut, tipoPeca);
   var totTokens = tokensIn + tokensOut;
-  var html = '<div style="margin-top:8px;padding:8px 12px;background:var(--blue-bg);border:1px solid var(--blue-mid);border-radius:6px;font-size:12px;color:var(--text)">'+
-    '<strong>📊 Uso desta geração:</strong> '+
-    tokensIn.toLocaleString('pt-BR')+' tokens entrada + '+
-    tokensOut.toLocaleString('pt-BR')+' tokens saída = <strong>'+totTokens.toLocaleString('pt-BR')+' tokens</strong>'+
-    ' · Modelo: '+custo.nome+
-    ' · Custo estimado: <strong>US$ '+custo.usd.toFixed(4)+'</strong>'+
-    ' (~R$ '+custo.brl.toFixed(3)+')'+
+
+  // Calcular custo em TODOS os modelos (comparativo)
+  var comparativo = [];
+  ['gpt4o','claude-sonnet','claude-opus'].forEach(function(m){
+    var c = calcularCusto(m, tokensIn, tokensOut);
+    var marcadorAtual = (m === modelo) ? ' <strong style="color:var(--blue)">← usado</strong>' : '';
+    comparativo.push(
+      '<tr>'+
+      '<td style="padding:3px 10px 3px 0;color:var(--text)">'+c.nome+marcadorAtual+'</td>'+
+      '<td style="padding:3px 10px;text-align:right;font-variant-numeric:tabular-nums">US$ '+c.usd.toFixed(4)+'</td>'+
+      '<td style="padding:3px 0;text-align:right;font-variant-numeric:tabular-nums;color:var(--text2)">R$ '+c.brl.toFixed(3)+'</td>'+
+      '</tr>'
+    );
+  });
+
+  var html = '<div style="margin-top:8px;padding:10px 12px;background:var(--blue-bg);border:1px solid var(--blue-mid);border-radius:6px;font-size:12px;color:var(--text)">'+
+    '<div style="margin-bottom:6px"><strong>📊 Uso desta geração</strong> ('+custoAtual.nome+')</div>'+
+    '<div style="margin-bottom:8px">'+
+      '<span style="color:var(--text2)">Tokens: </span>'+
+      tokensIn.toLocaleString('pt-BR')+' entrada · '+
+      tokensOut.toLocaleString('pt-BR')+' saída · '+
+      '<strong>'+totTokens.toLocaleString('pt-BR')+' total</strong>'+
+    '</div>'+
+    '<div style="font-size:11px;color:var(--text2);margin-bottom:4px">💰 Custo estimado (para estes tokens, nos 3 modelos):</div>'+
+    '<table style="font-size:11px;border-collapse:collapse;width:auto">'+
+      comparativo.join('')+
+    '</table>'+
+    '<div style="font-size:10px;color:var(--text3);margin-top:6px">Cotação USD/BRL: '+COTACAO_USD_BRL.toFixed(2)+' · '+
+    '<a href="#" onclick="ajustarCotacao();return false;" style="color:var(--blue);text-decoration:none">ajustar</a></div>'+
     '</div>';
   var container = document.getElementById('res-uso');
   if (container) container.innerHTML = html;
+}
+
+function ajustarCotacao() {
+  var nova = prompt('Informe a cotação atual USD/BRL:', COTACAO_USD_BRL.toFixed(2));
+  if (nova) {
+    var n = parseFloat(String(nova).replace(',','.'));
+    if (!isNaN(n) && n > 0) {
+      COTACAO_USD_BRL = n;
+      try { localStorage.setItem('gp_cotacao', String(n)); } catch(e){}
+      alert('Cotação atualizada para ' + n.toFixed(2));
+    }
+  }
+}
+
+function usarComoBase() {
+  if (!minuta || !minuta.trim()) { alert('Não há texto para usar como base.'); return; }
+  if (!confirm('O texto atual será inserido como contexto adicional na aba Gerar petição, substituindo qualquer conteúdo já carregado em "Cópia do processo principal". Continuar?')) return;
+  // Popular o ctxDocs.principal com o texto atual (minuta)
+  ctxDocs.principal = { nome: '(resumo do caso gerado nesta sessão)', texto: minuta, tamanho: minuta.length };
+  var nomeEl = document.getElementById('ctx-principal-nome');
+  if (nomeEl) nomeEl.textContent = '(resumo do caso gerado nesta sessão)';
+  var sizeEl = document.getElementById('ctx-principal-size');
+  if (sizeEl) sizeEl.textContent = 'Texto carregado como contexto: ' + minuta.length.toLocaleString('pt-BR') + ' caracteres (~' + Math.round(minuta.length/4).toLocaleString('pt-BR') + ' tokens)';
+  setSt('ctx-principal-st', 'ok', '✓ Resumo carregado como contexto do processo principal. Agora configure a peça na aba Gerar e clique em Gerar minuta.');
+  var btnClear = document.getElementById('btn-ctx-principal-clear');
+  if (btnClear) btnClear.style.display = 'inline-flex';
+  // Ir para aba Gerar
+  go('ger');
+  alert('Resumo carregado como contexto. Configure o tipo de peça e clique em "Gerar minuta".');
 }
 
 async function gerarResumoCaso() {
@@ -2194,12 +2246,12 @@ function sanitizarMarkdown(texto) {
 var ESTRUTURAS = {
   'recurso especial': {
     topicos: [
-      'DO CABIMENTO',
+      'DA SÍNTESE DO NECESSÁRIO (resumo objetivo dos fatos, da decisão recorrida e da controvérsia central — deve ocupar cerca de 10 a 15 linhas e contextualizar o julgador)',
       'DA TEMPESTIVIDADE',
+      'DO CABIMENTO',
       'DO PREQUESTIONAMENTO',
       'DA SUPERAÇÃO DOS ÓBICES DE ADMISSIBILIDADE (Súmula 7/STJ — reexame de prova; Súmula 5/STJ — interpretação de cláusula contratual; Súmula 211/STJ — prequestionamento; Súmula 182/STJ — impugnação específica; Súmula 83/STJ — divergência superada)',
-      'DA EMENTA E/OU RESUMO DA DECISÃO RECORRIDA',
-      'DAS RAZÕES DE REFORMA (fundamentação por alínea do artigo 105, inciso III da Constituição da República)',
+      'DAS RAZÕES PARA REFORMA DO ACÓRDÃO (fundamentação por alínea do artigo 105, inciso III, da Constituição da República — use SUBTÓPICOS em [SUB] para cada matéria/dispositivo violado, sem numeração hierárquica)',
       'DA DIVERGÊNCIA JURISPRUDENCIAL (quando aplicável)',
       'DOS PEDIDOS'
     ],
@@ -2207,13 +2259,13 @@ var ESTRUTURAS = {
   },
   'recurso extraordinário': {
     topicos: [
-      'DO CABIMENTO',
+      'DA SÍNTESE DO NECESSÁRIO (resumo objetivo dos fatos, da decisão recorrida e da controvérsia central — contextualização prévia do julgador)',
       'DA TEMPESTIVIDADE',
+      'DO CABIMENTO',
       'DO PREQUESTIONAMENTO',
       'DA REPERCUSSÃO GERAL',
       'DA SUPERAÇÃO DOS ÓBICES DE ADMISSIBILIDADE (Súmulas 279/STF — reexame de prova; 280/STF — interpretação de norma local; 282 e 356/STF — prequestionamento; 636/STF — ofensa reflexa)',
-      'DA EMENTA E/OU RESUMO DA DECISÃO RECORRIDA',
-      'DAS RAZÕES DE REFORMA (violação à Constituição da República)',
+      'DAS RAZÕES PARA REFORMA DO ACÓRDÃO (violação à Constituição da República — use SUBTÓPICOS em [SUB] para cada matéria/dispositivo violado)',
       'DOS PEDIDOS'
     ],
     intro: false
@@ -2396,6 +2448,30 @@ async function baixarDocx() {
   } catch(e) { setSt2('res-st','err','Erro ao gerar .docx: '+e.message); }
 }
 
+// Injeta defaults de formatação (fonte, tamanho, entrelinhas) no styles.xml,
+// sobrescrevendo os defaults do timbrado para respeitar a configuração do usuário.
+function injetarDefaultsFormatacao(stylesXmlOriginal) {
+  var fmt = getFormatacao();
+  var novoDocDefaults = '<w:docDefaults>'+
+    '<w:rPrDefault><w:rPr>'+
+      '<w:rFonts w:ascii="'+fmt.fonte+'" w:eastAsia="'+fmt.fonte+'" w:hAnsi="'+fmt.fonte+'" w:cs="'+fmt.fonte+'"/>'+
+      '<w:sz w:val="'+fmt.sz+'"/>'+
+      '<w:szCs w:val="'+fmt.sz+'"/>'+
+      '<w:lang w:val="pt-BR" w:eastAsia="pt-BR" w:bidi="ar-SA"/>'+
+    '</w:rPr></w:rPrDefault>'+
+    '<w:pPrDefault><w:pPr>'+
+      '<w:spacing w:before="'+fmt.antes+'" w:after="'+fmt.depois+'" w:line="'+fmt.linhas+'" w:lineRule="auto"/>'+
+      '<w:jc w:val="'+fmt.alinhamento+'"/>'+
+    '</w:pPr></w:pPrDefault>'+
+  '</w:docDefaults>';
+  // Substituir o <w:docDefaults>...</w:docDefaults> existente
+  if (stylesXmlOriginal.indexOf('<w:docDefaults>') >= 0) {
+    return stylesXmlOriginal.replace(/<w:docDefaults>[\s\S]*?<\/w:docDefaults>/, novoDocDefaults);
+  }
+  // Se não houver, injetar após <w:styles ...>
+  return stylesXmlOriginal.replace(/<w:styles([^>]*)>/, '<w:styles$1>'+novoDocDefaults);
+}
+
 async function baixarDocxComTimbrado() {
   var sep = separarCorpoReferencias(minuta);
   var pars = gerarParagrafos(sep.corpo);
@@ -2470,7 +2546,7 @@ async function baixarDocxComTimbrado() {
     '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>'+
     '</Relationships>';
 
-  var stylesXml = (timbrado.styles && timbrado.styles.length > 100) ? timbrado.styles :
+  var stylesXml = (timbrado.styles && timbrado.styles.length > 100) ? injetarDefaultsFormatacao(timbrado.styles) :
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
     '<w:styles xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="24"/><w:szCs w:val="24"/><w:lang w:val="pt-BR" w:eastAsia="pt-BR" w:bidi="ar-SA"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="160" w:line="360" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style></w:styles>';
 
@@ -2769,7 +2845,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.31',
+      version: '1.32',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
@@ -2895,6 +2971,8 @@ document.addEventListener('keydown', handlerAtalhos);
 // INIT
 (function(){
   verificarLogin();
+  // Carregar cotação USD→BRL salva
+  try { var cot = localStorage.getItem('gp_cotacao'); if (cot) COTACAO_USD_BRL = parseFloat(cot); } catch(e){}
   var oai=sessionStorage.getItem('oai'), ant=sessionStorage.getItem('ant');
   if(oai){document.getElementById('key-openai').value=oai;document.getElementById('st-openai').textContent='Chave salva.';document.getElementById('nn-cfg').classList.add('ok');}
   if(ant){document.getElementById('key-anthropic').value=ant;document.getElementById('st-anthropic').textContent='Chave salva.';document.getElementById('nn-cfg').classList.add('ok');}
