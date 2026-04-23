@@ -134,7 +134,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-ver">OAB/SP 274.575 · versão 1.32</div>
+    <div class="login-ver">OAB/SP 274.575 · versão 1.33</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -159,7 +159,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.32</span>
+    <span class="tb-meta" id="tb-versao">versão 1.33</span>
   </div>
 </div>
 
@@ -372,7 +372,7 @@ tbody tr.st-p td{background:#b3e5fc}
           </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <input type="text" id="busca" placeholder="Buscar por pasta, processo, parte ou descrição..." oninput="renderTabela()" style="font-size:12px;flex:1;min-width:180px" />
+          <input type="text" id="busca" placeholder="Buscar (digite 3+ caracteres): pasta, processo, parte, descrição..." oninput="renderTabela()" style="font-size:12px;flex:1;min-width:180px" />
           <select id="filtro-resp" onchange="renderTabela()" style="font-size:12px;width:160px">
             <option value="">Todos os responsáveis</option>
             <option value="CARMO">CARMO</option>
@@ -412,7 +412,7 @@ tbody tr.st-p td{background:#b3e5fc}
             <option value="STJ">STJ</option>
             <option value="STF">STF</option>
           </select>
-          <input type="text" id="busca-neg" placeholder="Excluir (filtro negativo)..." oninput="renderTabela()" style="font-size:12px;flex:1;min-width:140px;border-color:#FAC775" title="Oculta linhas que contenham esse texto" />
+          <input type="text" id="busca-neg" placeholder="Excluir (digite 3+ caracteres)..." oninput="renderTabela()" style="font-size:12px;flex:1;min-width:140px;border-color:#FAC775" title="Oculta linhas que contenham esse texto" />
         </div>
       </div>
 
@@ -609,6 +609,14 @@ tbody tr.st-p td{background:#b3e5fc}
             <option value="contrarrazões de apelação">Contrarrazões de apelação</option>
             <option value="contrarrazões de recurso especial">Contrarrazões de recurso especial</option>
             <option value="petição simples">Petição simples / informativa</option>
+            <option value="petição de quesitos">Petição de quesitos (perícia)</option>
+            <option value="especificação de provas">Especificação de provas</option>
+            <option value="manifestação sobre laudo pericial">Manifestação sobre laudo pericial</option>
+            <option value="embargos de declaração">Embargos de declaração</option>
+            <option value="réplica à contestação">Réplica à contestação</option>
+            <option value="impugnação a cálculos">Petição de cálculos / impugnação a cálculos</option>
+            <option value="exceção de pré-executividade">Exceção de pré-executividade</option>
+            <option value="agravo interno">Agravo interno</option>
           </select>
         </div>
         <div class="row2">
@@ -751,6 +759,8 @@ tbody tr.st-p td{background:#b3e5fc}
 var procs = [], refs = [], minuta = '', nomeArq = '', tpIdx = -1, filtro = 'todos';
 var ultimoSysPrompt = '', ultimoUsrPrompt = '', ultimoModelo = '', ultimoKey = ''; // para regenerar/continuar
 var modoEdit = false;
+// Rastreio de operações da sessão (para somar custos: resumo + petição + regenerar etc.)
+var sessaoOps = [];
 
 // Helper global de escape XML
 function esc(s) {
@@ -1045,15 +1055,43 @@ function getKey() {
 
 // URLs de consulta dos tribunais — abrem o site com o número pré-preenchido
 var TRIBUNAL_URLS = {
-  'TJSP': 'https://esaj.tjsp.jus.br/cpopg/search.do?conversationId=&dadosConsulta.localPesquisa.cdLocal=-1&cbPesquisa=NUMPROC&dadosConsulta.tipoNuProcesso=UNIFICADO&numeroDigitoAnoUnificado={ANO_UNIF}&foroNumeroUnificado={FORO}&dadosConsulta.valorConsultaNuUnificado={NUM_COMPLETO}',
-  'TJMG': 'https://www4.tjmg.jus.br/juridico/sf/proc_resultado2.jsp?comrCodigo=0&numero=1&listaProcessos={NUM_LIMPO}',
-  'TJRJ': 'https://www4.tjrj.jus.br/consultaProcessoWebV2/consultaMov.do?numProcesso={NUM_LIMPO}&acessoIP=internet',
-  'TJRS': 'https://www.tjrs.jus.br/site_php/consulta/consulta_processo.php?num_processo={NUM_LIMPO}',
-  'TJSC': 'https://esaj.tjsc.jus.br/cpopg/search.do?cbPesquisa=NUMPROC&dadosConsulta.valorConsulta={NUM_COMPLETO}',
-  'TJPR': 'https://projudi.tjpr.jus.br/projudi/publico/ConsultaPublica.jsp?numeroProcesso={NUM_LIMPO}',
-  'TJDF': 'https://pje-consulta-publica.tjdft.jus.br/consulta-publica/ConsultaPublica/listView.seam?nup={NUM_COMPLETO}',
+  'STF': 'https://portal.stf.jus.br/processos/listarProcessos.asp?classe=&numeroProcesso={NUM_LIMPO}',
   'STJ': 'https://processo.stj.jus.br/processo/pesquisa/?tipoPesquisa=tipoPesquisaGenerica&termo={NUM_LIMPO}',
-  'STF': 'https://portal.stf.jus.br/processos/listarProcessos.asp?classe=&numeroProcesso={NUM_LIMPO}'
+  'TST': 'https://consultaprocessual.tst.jus.br/consultaProcessual/consultaTstNumUnica.do?numeroTst={NUM_LIMPO}',
+  'TSE': 'https://consultaunificadapje.tse.jus.br/#/public/pesquisarProcesso?NumeroProcesso={NUM_COMPLETO}',
+  'TRF1': 'https://pje1g.trf1.jus.br/consultapublica/ConsultaPublica/listView.seam?processo={NUM_COMPLETO}',
+  'TRF2': 'https://pje.trf2.jus.br/consulta/ConsultaPublica/listView.seam?nup={NUM_COMPLETO}',
+  'TRF3': 'https://web.trf3.jus.br/consultas/Internet/ConsultaProcessual/Processo?NumeroProcesso={NUM_LIMPO}',
+  'TRF4': 'https://eproc.trf4.jus.br/eproc2trf4/externo_controlador.php?acao=processo_consulta_publica&selForma=NU&txtValor={NUM_LIMPO}',
+  'TRF5': 'https://pje.trf5.jus.br/pje/ConsultaPublica/listView.seam?nup={NUM_COMPLETO}',
+  'TRF6': 'https://pje2g.trf6.jus.br/consultapublica/ConsultaPublica/listView.seam?nup={NUM_COMPLETO}',
+  'TJAC': 'https://esaj.tjac.jus.br/cpopg/search.do?cbPesquisa=NUMPROC&dadosConsulta.valorConsulta={NUM_COMPLETO}',
+  'TJAL': 'https://www2.tjal.jus.br/cpopg/search.do?cbPesquisa=NUMPROC&dadosConsulta.valorConsulta={NUM_COMPLETO}',
+  'TJAP': 'https://tucujuris.tjap.jus.br/portal/consulta/consultaprocessual?numeroProcesso={NUM_COMPLETO}',
+  'TJAM': 'https://consultasaj.tjam.jus.br/cpopg/search.do?cbPesquisa=NUMPROC&dadosConsulta.valorConsulta={NUM_COMPLETO}',
+  'TJBA': 'https://pje.tjba.jus.br/pje-web/ConsultaPublica/listView.seam?nup={NUM_COMPLETO}',
+  'TJCE': 'https://pje.tjce.jus.br/pje1grau/ConsultaPublica/listView.seam?nup={NUM_COMPLETO}',
+  'TJDF': 'https://pje-consulta-publica.tjdft.jus.br/consulta-publica/ConsultaPublica/listView.seam?nup={NUM_COMPLETO}',
+  'TJES': 'https://sistemas.tjes.jus.br/cpopg/search.do?cbPesquisa=NUMPROC&dadosConsulta.valorConsulta={NUM_COMPLETO}',
+  'TJGO': 'https://projudi.tjgo.jus.br/ConsultaPublicaProcesso?PaginaAtual=2&numeroProcesso={NUM_LIMPO}',
+  'TJMA': 'https://pje.tjma.jus.br/pje/ConsultaPublica/listView.seam?nup={NUM_COMPLETO}',
+  'TJMT': 'https://pje.tjmt.jus.br/pje/ConsultaPublica/listView.seam?nup={NUM_COMPLETO}',
+  'TJMS': 'https://esaj.tjms.jus.br/cpopg5/search.do?cbPesquisa=NUMPROC&dadosConsulta.valorConsulta={NUM_COMPLETO}',
+  'TJMG': 'https://www4.tjmg.jus.br/juridico/sf/proc_resultado2.jsp?listaProcessos={NUM_LIMPO}',
+  'TJPA': 'https://pje.tjpa.jus.br/pje-2g/ConsultaPublica/listView.seam?nup={NUM_COMPLETO}',
+  'TJPB': 'https://pje.tjpb.jus.br/pje/ConsultaPublica/listView.seam?nup={NUM_COMPLETO}',
+  'TJPR': 'https://projudi.tjpr.jus.br/projudi/publico/ConsultaPublica.jsp?numeroProcesso={NUM_LIMPO}',
+  'TJPE': 'https://www.tjpe.jus.br/consultaprocessoapp/paginas/buscaProcessos.xhtml?numProcesso={NUM_COMPLETO}',
+  'TJPI': 'https://pjepg.tjpi.jus.br/consultapublica/ConsultaPublica/listView.seam?nup={NUM_COMPLETO}',
+  'TJRJ': 'https://www4.tjrj.jus.br/consultaProcessoWebV2/consultaMov.do?numProcesso={NUM_LIMPO}&acessoIP=internet',
+  'TJRN': 'https://pjeconsulta.tjrn.jus.br/consulta-publica/ConsultaPublica/listView.seam?nup={NUM_COMPLETO}',
+  'TJRS': 'https://www.tjrs.jus.br/buscas/jurisprudencia/exibe_processo.php?numero_processo={NUM_LIMPO}',
+  'TJRO': 'https://pjepg.tjro.jus.br/consultapublica/ConsultaPublica/listView.seam?nup={NUM_COMPLETO}',
+  'TJRR': 'https://pjepg.tjrr.jus.br/consultapublica/ConsultaPublica/listView.seam?nup={NUM_COMPLETO}',
+  'TJSC': 'https://esaj.tjsc.jus.br/cpopg/search.do?cbPesquisa=NUMPROC&dadosConsulta.valorConsulta={NUM_COMPLETO}',
+  'TJSP': 'https://esaj.tjsp.jus.br/cpopg/search.do?conversationId=&dadosConsulta.localPesquisa.cdLocal=-1&cbPesquisa=NUMPROC&dadosConsulta.tipoNuProcesso=UNIFICADO&numeroDigitoAnoUnificado={ANO_UNIF}&foroNumeroUnificado={FORO}&dadosConsulta.valorConsultaNuUnificado={NUM_COMPLETO}',
+  'TJSE': 'https://www.tjse.jus.br/portaljustica/consulta-processual?numero={NUM_COMPLETO}',
+  'TJTO': 'https://eproc1.tjto.jus.br/eprocV2_prod_1grau/externo_controlador.php?acao=processo_consulta_publica&txtValor={NUM_LIMPO}'
 };
 
 function abrirNoTribunal() {
@@ -1097,6 +1135,27 @@ function copiarProcesso() {
   });
 }
 
+// Detecta sistema (e-SAJ/e-Proc/PJe) com base no primeiro dígito e no tribunal
+function detectarSistemaPorNumero(num) {
+  var numLimpo = num.replace(/[^0-9]/g,'');
+  if (numLimpo.length < 20) return null;
+  var tj = extrairTribunal(num);
+  // TJSP: 4→e-Proc, 0 ou 2→e-SAJ
+  if (tj === 'TJSP') {
+    var primeiro = numLimpo[0];
+    if (primeiro === '4') return 'e-Proc (TJSP)';
+    if (primeiro === '0' || primeiro === '2') return 'e-SAJ (TJSP)';
+  }
+  // Fallback por tribunal (convenção comum)
+  var mapSistema = {
+    'TJSP':'e-SAJ (TJSP)',
+    'TJMG':'PJe','TJRJ':'PJe','TJRS':'PJe','TJPR':'PJe','TJSC':'e-SAJ',
+    'TJDF':'PJe','TJGO':'PJe','TJBA':'PJe','TJPE':'PJe','TJCE':'PJe',
+    'STJ':'e-STJ','STF':'PJe'
+  };
+  return mapSistema[tj] || 'Outro';
+}
+
 function onProcInput() {
   var num = document.getElementById('f-proc').value.trim();
   var info = document.getElementById('proc-tj-info');
@@ -1105,6 +1164,21 @@ function onProcInput() {
     if (tj && tj !== 'Desconhecido') {
       info.innerHTML = '🏛 Tribunal identificado automaticamente: <strong>' + tj + '</strong>';
       info.style.color = 'var(--green)';
+      // Ajustar sistema automaticamente
+      var sys = detectarSistemaPorNumero(num);
+      if (sys) {
+        var sel = document.getElementById('f-sistema');
+        if (sel) {
+          // Procurar opção com valor/texto correspondente
+          for (var i=0; i<sel.options.length; i++) {
+            if (sel.options[i].text === sys || sel.options[i].value === sys) {
+              sel.selectedIndex = i;
+              break;
+            }
+          }
+          info.innerHTML += ' · Sistema: <strong>' + sys + '</strong>';
+        }
+      }
     } else {
       info.innerHTML = '⚠ Tribunal não reconhecido pelo padrão CNJ — verifique o número';
       info.style.color = 'var(--amber)';
@@ -1339,15 +1413,49 @@ function loadXLSX(inp) {
 }
 
 // Mapeamento de tribunais pelo padrão CNJ
+// Códigos oficiais CNJ (Resolução 65/2008) — J.TT
+// J=1:STF 2:CNJ 3:STJ 4:TRFs 5:TRTs 6:TREs 7:STM 8:Justiça Estadual 9:TJM
 var TRIBUNAL_MAP = {
-  '8.26': 'TJSP', '8.13': 'TJMG', '8.09': 'TJBA', '8.04': 'TJCE',
-  '8.25': 'TJRS', '8.24': 'TJSC', '8.27': 'TJPR', '8.15': 'TJPE',
-  '8.07': 'TJDF', '8.28': 'TJGO', '8.01': 'TJAC', '8.02': 'TJAL',
-  '8.03': 'TJAP', '8.05': 'TJAM', '8.06': 'TJPA', '8.08': 'TJMT',
-  '8.10': 'TJMS', '8.11': 'TJPI', '8.12': 'TJRJ', '8.14': 'TJRN',
-  '8.16': 'TJRO', '8.17': 'TJRR', '8.18': 'TJTO', '8.19': 'TJSE',
-  '8.20': 'TJMM', '8.21': 'TJPB', '8.22': 'TJSP', '8.23': 'TJMA',
-  '8.29': 'TJSP', '8.30': 'TJSP'
+  // Tribunais superiores (J=1,3,7)
+  '1.00':'STF','2.00':'CNJ','3.00':'STJ','7.00':'STM',
+  // TRFs (J=4)
+  '4.01':'TRF1','4.02':'TRF2','4.03':'TRF3','4.04':'TRF4','4.05':'TRF5','4.06':'TRF6',
+  // Justiça Eleitoral (J=6): TSE e TREs
+  '6.00':'TSE',
+  '6.01':'TREAC','6.02':'TREAL','6.03':'TREAP','6.04':'TREAM','6.05':'TREBA',
+  '6.06':'TRECE','6.07':'TREDF','6.08':'TREES','6.09':'TREGO','6.10':'TREMA',
+  '6.11':'TREMT','6.12':'TREMS','6.13':'TREMG','6.14':'TREPA','6.15':'TREPB',
+  '6.16':'TREPR','6.17':'TREPE','6.18':'TREPI','6.19':'TRERJ','6.20':'TRERN',
+  '6.21':'TRERS','6.22':'TRERO','6.23':'TRERR','6.24':'TRESC','6.25':'TRESP',
+  '6.26':'TRESE','6.27':'TRETO',
+  // Justiça Estadual (J=8) — códigos oficiais CNJ em ordem alfabética da UF
+  '8.01':'TJAC', // Acre
+  '8.02':'TJAL', // Alagoas
+  '8.03':'TJAP', // Amapá
+  '8.04':'TJAM', // Amazonas
+  '8.05':'TJBA', // Bahia
+  '8.06':'TJCE', // Ceará
+  '8.07':'TJDF', // Distrito Federal
+  '8.08':'TJES', // Espírito Santo
+  '8.09':'TJGO', // Goiás
+  '8.10':'TJMA', // Maranhão
+  '8.11':'TJMT', // Mato Grosso
+  '8.12':'TJMS', // Mato Grosso do Sul
+  '8.13':'TJMG', // Minas Gerais
+  '8.14':'TJPA', // Pará
+  '8.15':'TJPB', // Paraíba
+  '8.16':'TJPR', // Paraná
+  '8.17':'TJPE', // Pernambuco
+  '8.18':'TJPI', // Piauí
+  '8.19':'TJRJ', // Rio de Janeiro
+  '8.20':'TJRN', // Rio Grande do Norte
+  '8.21':'TJRS', // Rio Grande do Sul
+  '8.22':'TJRO', // Rondônia
+  '8.23':'TJRR', // Roraima
+  '8.24':'TJSC', // Santa Catarina
+  '8.25':'TJSE', // Sergipe
+  '8.26':'TJSP', // São Paulo
+  '8.27':'TJTO'  // Tocantins
 };
 
 function extrairTribunal(numProc) {
@@ -1408,18 +1516,19 @@ function filtrar(f) {
 
 function renderTabela() {
   var s = getSt();
-  var busca = (document.getElementById('busca').value||'').toLowerCase();
+  var buscaRaw = (document.getElementById('busca').value||'').toLowerCase().trim();
+  var busca = buscaRaw.length >= 3 ? buscaRaw : '';
   var fResp = (document.getElementById('filtro-resp').value||'').toLowerCase();
   var tbody = document.getElementById('tbody');
   tbody.innerHTML='';
   var vis=0, tot=procs.length;
-  var totTrat = Object.keys(s).filter(function(k){var t=s[k];return t&&['CUMPRIDO','CANCELADO','TRANSFERIDO'].indexOf(t.trat)>=0;}).length;
+  var totTrat = Object.keys(s).filter(function(k){var t=s[k];return t&&['CUMPRIDO','CANCELADO','TRANSFERIDO','REAGENDADO'].indexOf(t.trat)>=0;}).length;
 
   procs.forEach(function(p,i) {
     var key = p.pasta||p.proc;
     var t = s[key]||{};
     var trat = t.trat||'';
-    var isTrat = ['CUMPRIDO','CANCELADO','TRANSFERIDO'].indexOf(trat)>=0;
+    var isTrat = ['CUMPRIDO','CANCELADO','TRANSFERIDO','REAGENDADO'].indexOf(trat)>=0;
     if (filtro==='pend' && isTrat) return;
     if (filtro==='trat' && !isTrat) return;
     if (busca) {
@@ -1441,7 +1550,8 @@ function renderTabela() {
       var tribProc = p.tribunal || extrairTribunal(p.proc || '');
       if (tribProc !== fTrib) return;
     }
-    var buscaNeg = (document.getElementById('busca-neg').value||'').toLowerCase().trim();
+    var buscaNegRaw = (document.getElementById('busca-neg').value||'').toLowerCase().trim();
+    var buscaNeg = buscaNegRaw.length >= 3 ? buscaNegRaw : '';
     if (buscaNeg) {
       var hayNeg = (p.pasta+' '+p.proc+' '+p.parte+' '+p.desc+' '+p.resp+' '+p.cliente+' '+(p.tipo||'')).toLowerCase();
       if (hayNeg.indexOf(buscaNeg) >= 0) return;
@@ -1760,7 +1870,16 @@ function exibirUsoNaUI(tokensIn, tokensOut, modelo, tipoPeca) {
   var custoAtual = registrarUso(modelo, tokensIn, tokensOut, tipoPeca);
   var totTokens = tokensIn + tokensOut;
 
-  // Calcular custo em TODOS os modelos (comparativo)
+  // Adicionar à sessão
+  sessaoOps.push({
+    tipo: tipoPeca || 'peça',
+    modelo: modelo,
+    tokensIn: tokensIn,
+    tokensOut: tokensOut,
+    data: new Date()
+  });
+
+  // Calcular custo em TODOS os modelos (comparativo para a op atual)
   var comparativo = [];
   ['gpt4o','claude-sonnet','claude-opus'].forEach(function(m){
     var c = calcularCusto(m, tokensIn, tokensOut);
@@ -1773,6 +1892,37 @@ function exibirUsoNaUI(tokensIn, tokensOut, modelo, tipoPeca) {
       '</tr>'
     );
   });
+
+  // Tabela das operações da sessão (se houver mais de uma)
+  var tabelaSessao = '';
+  if (sessaoOps.length >= 2) {
+    var totInSes = 0, totOutSes = 0, totUsdSes = 0, totBrlSes = 0;
+    var linhasSes = sessaoOps.map(function(op){
+      var cp = calcularCusto(op.modelo, op.tokensIn, op.tokensOut);
+      totInSes += op.tokensIn;
+      totOutSes += op.tokensOut;
+      totUsdSes += cp.usd;
+      totBrlSes += cp.brl;
+      var rotulo = op.tipo === 'resumo' ? '📝 Resumo' : (op.tipo && op.tipo !== 'auto' ? '⚖ ' + op.tipo.substring(0,30) : '⚖ Petição');
+      return '<tr>'+
+        '<td style="padding:2px 8px 2px 0;color:var(--text2);font-size:10px">'+rotulo+'</td>'+
+        '<td style="padding:2px 8px;text-align:right;font-size:10px;font-variant-numeric:tabular-nums;color:var(--text2)">'+(op.tokensIn+op.tokensOut).toLocaleString('pt-BR')+' tk</td>'+
+        '<td style="padding:2px 0;text-align:right;font-size:10px;font-variant-numeric:tabular-nums">US$ '+cp.usd.toFixed(4)+' · R$ '+cp.brl.toFixed(3)+'</td>'+
+      '</tr>';
+    });
+    tabelaSessao = '<div style="margin-top:10px;padding-top:8px;border-top:1px dashed var(--border2)">'+
+      '<div style="font-size:11px;color:var(--text2);margin-bottom:4px">🧾 <strong>Operações desta sessão ('+sessaoOps.length+'):</strong></div>'+
+      '<table style="font-size:10px;border-collapse:collapse;width:100%">'+
+      linhasSes.join('')+
+      '<tr style="border-top:1px solid var(--border2)">'+
+        '<td style="padding:4px 8px 2px 0;font-weight:600;font-size:11px">Total</td>'+
+        '<td style="padding:4px 8px 2px 0;text-align:right;font-size:11px;font-variant-numeric:tabular-nums;font-weight:600">'+(totInSes+totOutSes).toLocaleString('pt-BR')+' tk</td>'+
+        '<td style="padding:4px 0 2px 0;text-align:right;font-size:11px;font-variant-numeric:tabular-nums;font-weight:600;color:var(--blue)">US$ '+totUsdSes.toFixed(4)+' · R$ '+totBrlSes.toFixed(3)+'</td>'+
+      '</tr>'+
+      '</table>'+
+      '<div style="margin-top:4px"><a href="#" onclick="resetarSessao();return false;" style="font-size:10px;color:var(--text3);text-decoration:none">↺ zerar contador da sessão</a></div>'+
+    '</div>';
+  }
 
   var html = '<div style="margin-top:8px;padding:10px 12px;background:var(--blue-bg);border:1px solid var(--blue-mid);border-radius:6px;font-size:12px;color:var(--text)">'+
     '<div style="margin-bottom:6px"><strong>📊 Uso desta geração</strong> ('+custoAtual.nome+')</div>'+
@@ -1788,9 +1938,20 @@ function exibirUsoNaUI(tokensIn, tokensOut, modelo, tipoPeca) {
     '</table>'+
     '<div style="font-size:10px;color:var(--text3);margin-top:6px">Cotação USD/BRL: '+COTACAO_USD_BRL.toFixed(2)+' · '+
     '<a href="#" onclick="ajustarCotacao();return false;" style="color:var(--blue);text-decoration:none">ajustar</a></div>'+
+    tabelaSessao+
     '</div>';
   var container = document.getElementById('res-uso');
   if (container) container.innerHTML = html;
+}
+
+function resetarSessao() {
+  if (confirm('Zerar o contador de operações desta sessão? Os custos acumulados serão limpos (apenas na visualização — os dados continuam salvos no histórico).')) {
+    sessaoOps = [];
+    alert('Contador zerado. Novas gerações começarão um novo acúmulo.');
+    // Re-renderizar com a última op (se ainda houver tela)
+    var uso = document.getElementById('res-uso');
+    if (uso) uso.innerHTML = '';
+  }
 }
 
 function ajustarCotacao() {
@@ -1910,6 +2071,29 @@ async function gerarMinuta() {
   if (erroFmt) { alert(erroFmt); go('cfg'); return; }
   var densidade = document.getElementById('f-densidade');
   if (!densidade || !densidade.value) { alert('Selecione a densidade do texto no card Configurações da peça.'); return; }
+
+  // Alerta: se o contexto carregado for grande (>~50k chars), sugerir resumir antes
+  var tamContexto = 0;
+  if (ctxDocs.principal && ctxDocs.principal.texto) tamContexto += ctxDocs.principal.texto.length;
+  if (ctxDocs.incidente && ctxDocs.incidente.texto) tamContexto += ctxDocs.incidente.texto.length;
+  if (ctxDocs.provas && ctxDocs.provas.texto) tamContexto += ctxDocs.provas.texto.length;
+  // Se a própria minuta não veio de um resumo prévio (ctxDocs.principal.nome contém "resumo")
+  var jaUsouResumo = ctxDocs.principal && ctxDocs.principal.nome && ctxDocs.principal.nome.toLowerCase().indexOf('resumo') >= 0;
+  var tokensEstim = Math.round(tamContexto / 4);
+  if (tamContexto > 50000 && !jaUsouResumo) {
+    var msg = '⚠ RECOMENDAÇÃO DE ECONOMIA DE TOKENS\n\n' +
+      'O contexto carregado tem '+tamContexto.toLocaleString('pt-BR')+' caracteres (~'+tokensEstim.toLocaleString('pt-BR')+' tokens de entrada).\n\n' +
+      'RECOMENDO primeiro usar a ferramenta "📝 Resumir caso" (idealmente com GPT-4o, que tem entrada mais barata: US$ 2,50/M tokens vs US$ 3,00/M do Sonnet e US$ 15,00/M do Opus), e depois clicar em "📎 Usar como base" no resultado para elaborar a petição sobre o resumo.\n\n' +
+      'Economia estimada em 100 petições/dia: de US$ 60 para ~US$ 4 (Claude Sonnet).\n\n' +
+      'Continuar mesmo assim sem resumir?';
+    if (!confirm(msg)) {
+      // Oferecer atalho para o resumo
+      if (confirm('Deseja executar agora a ferramenta "Resumir caso"?')) {
+        gerarResumoCaso();
+      }
+      return;
+    }
+  }
   var key=getKey(), modelo=document.getElementById('sel-modelo').value;
   if (!key){alert('Informe a chave de API.');return;}
   var andamento=document.getElementById('f-and').value.trim();
@@ -1934,7 +2118,7 @@ async function gerarMinuta() {
   var nomeModelo=modelo==='gpt4o'?'GPT-4o':modelo==='claude-sonnet'?'Claude Sonnet':'Claude Opus';
   setSt2('res-st','info','Aguarde — gerando via '+nomeModelo+'...');
   var enriquecimento = getEnriquecimento();
-  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- SEMPRE que mencionar um artigo de lei, súmula, resolução normativa ou dispositivo legal específico, TRANSCREVA o texto do dispositivo na íntegra (ou o trecho relevante) entre aspas duplas, imediatamente após a referência. Exemplo: Ao citar o artigo 525 do CPC, transcrever em seguida: “Transcorrido o prazo previsto no artigo 523 sem o pagamento voluntário, inicia-se o prazo de 15 dias para apresentar impugnação.”\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para títulos, não utilizar "**texto**" ou "*texto*" para negrito/itálico, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- O PEDIDO FINAL SEMPRE DEVE INCLUIR, como ÚLTIMA alínea da lista de pedidos (sempre a última, após todas as demais alíneas substantivas), o requerimento padrão de intimações: "que todas as publicações, intimações e notificações sejam realizadas exclusivamente em nome do(a) advogado(a) [NOME_ADVOGADO_INTIMACOES], sob pena de nulidade". O sistema substituirá [NOME_ADVOGADO_INTIMACOES] automaticamente pelo advogado selecionado.\n- CONTEXTOS DIFERENCIADOS: o usuário pode fornecer três tipos de documentos anexos marcados como "=== CÓPIA DO PROCESSO PRINCIPAL ===" (contexto geral do processo, histórico, petições anteriores), "=== INCIDENTE / RECURSO EM JULGAMENTO ===" (decisão/acórdão que se impugna, matéria sob análise) e "=== EVIDÊNCIAS / PROVAS ===" (laudos, contratos, documentos probatórios). Use cada um para sua finalidade adequada: contextualize a partir do processo principal, foque a fundamentação na matéria do incidente/recurso, cite e invoque as evidências onde pertinente. NÃO misture indevidamente os três contextos — diferencie argumentos gerais de argumentos específicos da matéria sob análise.\n- HIERARQUIA DE TÍTULOS: (i) TÍTULOS PRINCIPAIS em CAIXA ALTA e negrito, em linha isolada — serão numerados automaticamente (ex: DO CABIMENTO, DA TEMPESTIVIDADE, DOS PEDIDOS); (ii) SUBTÓPICOS em CAIXA ALTA e negrito, também em linha isolada, mas PRECEDIDOS DO MARCADOR [SUB] no início da linha — estes NÃO serão numerados (ex: [SUB]DA VIOLAÇÃO AO ARTIGO 5º DA RN 566/2022, [SUB]DA ALÍNEA A DO ARTIGO 105 DA CONSTITUIÇÃO). Use subtópicos para dividir argumentos dentro de um tópico principal.\n- NÃO CONSIDERAR como títulos: endereçamento (EXCELENTÍSSIMO...), nome do recurso/peça (RECURSO ESPECIAL, RAZÕES DO RECURSO, CONTESTAÇÃO), identificação das partes (Recorrente:, Autor:, Réu:), número do processo, origem. Esses devem aparecer como parágrafos normais no cabeçalho da peça, não como tópicos numerados.\n- ITÁLICO: expressões em latim ou outros idiomas estrangeiros DEVEM ser envolvidas pelo marcador [IT]termo[/IT] para serem formatadas em itálico. Exemplos: [IT]data venia[/IT], [IT]ex officio[/IT], [IT]sub judice[/IT], [IT]in casu[/IT], [IT]a quo[/IT], [IT]ad quem[/IT], [IT]habeas corpus[/IT], [IT]pacta sunt servanda[/IT], [IT]bis in idem[/IT], [IT]res judicata[/IT], [IT]mutatis mutandis[/IT].\n- JURISPRUDÊNCIA: NUNCA invente decisões, julgados, números de processo, ementas ou relatores. Cite APENAS: (a) súmulas consolidadas de tribunais superiores (STF, STJ, TST) quando efetivamente existirem; (b) teses firmadas em repetitivos/repercussão geral identificáveis por tema; (c) dispositivos legais, resoluções normativas e enunciados. SE for citar um precedente específico, use formulação genérica indicando que cabe ao advogado conferir (ex: "conforme precedente do STJ sobre o tema da taxatividade mitigada do rol da ANS" em vez de inventar "REsp 1.886.929/SP"). DAR PREFERÊNCIA a jurisprudência recente (até 1 ano); se não houver tese consolidada recente, ampliar margem semestralmente até encontrar algo consolidado. SEMPRE incluir aviso ao final da peça, antes das referências, no formato: "OBSERVAÇÃO AO ADVOGADO: a jurisprudência citada nesta minuta deve ser conferida pelo signatário antes do protocolo, especialmente números de processo, datas e ementas, uma vez que foi gerada por IA."\n- Termine o corpo principal da peça com os pedidos finais (Ante ao exposto, requer-se: a), b), c)).\n\n'+getInstrucaoEstrutura(tipo==='auto'?inferir((inst||'')+' '+andamento):tipo)+'\n\n'+getInstrucaoDensidade();
+  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- PADRONIZAÇÃO DE REFERÊNCIAS LEGAIS (obrigatória, nos termos da Lei Complementar nº 95/1998 — Lei das Leis):\n  (i) artigos: grafar sempre por extenso "artigo" (jamais "art."), usando numeração ordinal até o 9º (artigo 1º, 2º, 9º) e CARDINAL a partir do décimo (artigo 10, artigo 525, artigo 1.003);\n  (ii) parágrafos: usar o sinal gráfico "§" com numeração ordinal até o 9º (§ 1º, § 5º) e cardinal a partir do décimo (§ 10); quando único, usar "parágrafo único" por extenso (jamais "§ único");\n  (iii) incisos: grafar sempre a palavra "inciso" seguida de algarismo romano maiúsculo (inciso I, inciso III, inciso XV);\n  (iv) alíneas: grafar "alínea" seguida de letra minúscula entre aspas (alínea "a", alínea "c");\n  (v) itens: grafar "item" seguido de algarismo arábico (item 1, item 3);\n  (vi) remissões combinadas devem seguir a hierarquia artigo → parágrafo → inciso → alínea → item, sempre na ordem (ex: "artigo 105, inciso III, alínea \u201Ca\u201D, da Constituição da República"; "artigo 525, § 1º, inciso III, do Código de Processo Civil");\n  (vii) a referência ao diploma legal deve vir SEMPRE após a hierarquia, precedida de "do/da" (ex: "do Código de Processo Civil", "da Lei nº 9.656/98", "da Constituição da República");\n  (viii) números de leis devem ser grafados com "nº" (abreviatura consagrada): "Lei nº 9.656/98", "Lei Complementar nº 95/1998", "Resolução Normativa nº 465/2021";\n  (ix) NUNCA usar variações como "art.", "§ único", "inc.", "al." — mantenha rigor absoluto.\n- SEMPRE que mencionar um artigo de lei, súmula, resolução normativa ou dispositivo legal específico, TRANSCREVA o texto do dispositivo na íntegra (ou o trecho relevante) entre aspas duplas, imediatamente após a referência. Exemplo: Ao citar o artigo 525 do CPC, transcrever em seguida: “Transcorrido o prazo previsto no artigo 523 sem o pagamento voluntário, inicia-se o prazo de 15 dias para apresentar impugnação.”\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para títulos, não utilizar "**texto**" ou "*texto*" para negrito/itálico, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- O PEDIDO FINAL SEMPRE DEVE INCLUIR, como ÚLTIMA alínea da lista de pedidos (sempre a última, após todas as demais alíneas substantivas), o requerimento padrão de intimações: "que todas as publicações, intimações e notificações sejam realizadas exclusivamente em nome do(a) advogado(a) [NOME_ADVOGADO_INTIMACOES], sob pena de nulidade". O sistema substituirá [NOME_ADVOGADO_INTIMACOES] automaticamente pelo advogado selecionado.\n- CONTEXTOS DIFERENCIADOS: o usuário pode fornecer três tipos de documentos anexos marcados como "=== CÓPIA DO PROCESSO PRINCIPAL ===" (contexto geral do processo, histórico, petições anteriores), "=== INCIDENTE / RECURSO EM JULGAMENTO ===" (decisão/acórdão que se impugna, matéria sob análise) e "=== EVIDÊNCIAS / PROVAS ===" (laudos, contratos, documentos probatórios). Use cada um para sua finalidade adequada: contextualize a partir do processo principal, foque a fundamentação na matéria do incidente/recurso, cite e invoque as evidências onde pertinente. NÃO misture indevidamente os três contextos — diferencie argumentos gerais de argumentos específicos da matéria sob análise.\n- QUESITOS (quando a peça for de quesitos ou incluir quesitos): cada quesito deve ser numerado com "1)", "2)", "3)", etc. (número seguido de parêntese), em linhas separadas, SEM caixa alta e SEM negrito. Os quesitos devem ser formulados como perguntas claras, objetivas e tecnicamente precisas. Nunca aplicar a regra de numeração de títulos principais aos quesitos.\n- HIERARQUIA DE TÍTULOS: (i) TÍTULOS PRINCIPAIS em CAIXA ALTA e negrito, em linha isolada — serão numerados automaticamente (ex: DO CABIMENTO, DA TEMPESTIVIDADE, DOS PEDIDOS); (ii) SUBTÓPICOS em CAIXA ALTA e negrito, também em linha isolada, mas PRECEDIDOS DO MARCADOR [SUB] no início da linha — estes NÃO serão numerados (ex: [SUB]DA VIOLAÇÃO AO ARTIGO 5º DA RN 566/2022, [SUB]DA ALÍNEA A DO ARTIGO 105 DA CONSTITUIÇÃO). Use subtópicos para dividir argumentos dentro de um tópico principal.\n- NÃO CONSIDERAR como títulos: endereçamento (EXCELENTÍSSIMO...), nome do recurso/peça (RECURSO ESPECIAL, RAZÕES DO RECURSO, CONTESTAÇÃO), identificação das partes (Recorrente:, Autor:, Réu:), número do processo, origem. Esses devem aparecer como parágrafos normais no cabeçalho da peça, não como tópicos numerados.\n- ITÁLICO: expressões em latim ou outros idiomas estrangeiros DEVEM ser envolvidas pelo marcador [IT]termo[/IT] para serem formatadas em itálico. Exemplos: [IT]data venia[/IT], [IT]ex officio[/IT], [IT]sub judice[/IT], [IT]in casu[/IT], [IT]a quo[/IT], [IT]ad quem[/IT], [IT]habeas corpus[/IT], [IT]pacta sunt servanda[/IT], [IT]bis in idem[/IT], [IT]res judicata[/IT], [IT]mutatis mutandis[/IT].\n- JURISPRUDÊNCIA: NUNCA invente decisões, julgados, números de processo, ementas ou relatores. Cite APENAS: (a) súmulas consolidadas de tribunais superiores (STF, STJ, TST) quando efetivamente existirem; (b) teses firmadas em repetitivos/repercussão geral identificáveis por tema; (c) dispositivos legais, resoluções normativas e enunciados. SE for citar um precedente específico, use formulação genérica indicando que cabe ao advogado conferir (ex: "conforme precedente do STJ sobre o tema da taxatividade mitigada do rol da ANS" em vez de inventar "REsp 1.886.929/SP"). DAR PREFERÊNCIA a jurisprudência recente (até 1 ano); se não houver tese consolidada recente, ampliar margem semestralmente até encontrar algo consolidado. SEMPRE incluir aviso ao final da peça, antes das referências, no formato: "OBSERVAÇÃO AO ADVOGADO: a jurisprudência citada nesta minuta deve ser conferida pelo signatário antes do protocolo, especialmente números de processo, datas e ementas, uma vez que foi gerada por IA."\n- Termine o corpo principal da peça com os pedidos finais (Ante ao exposto, requer-se: a), b), c)).\n\n'+getInstrucaoEstrutura(tipo==='auto'?inferir((inst||'')+' '+andamento):tipo)+'\n\n'+getInstrucaoDensidade();
   var ctxExtra = montarContextoAdicional();
   var procModo = document.getElementById('f-proc-modo') ? document.getElementById('f-proc-modo').value : 'manual';
   var procInfo = procModo === 'auto' ? 'IDENTIFICAR AUTOMATICAMENTE no andamento' : (proc || 'não informado');
@@ -2325,6 +2509,81 @@ var ESTRUTURAS = {
   'petição': {
     topicos: ['DA INTRODUÇÃO (breve contextualização)', 'DO PEDIDO'],
     intro: true
+  },
+  'petição de quesitos': {
+    topicos: [
+      'DA INTRODUÇÃO (breve contextualização da decisão que determinou a perícia e especialidade requerida)',
+      'DOS QUESITOS (formular os quesitos numerados sequencialmente no formato "1)", "2)", "3)", etc. — cada quesito deve começar em linha própria com a numeração seguida de parêntese; os quesitos devem ser claros, objetivos e tecnicamente precisos; não usar caixa alta nem negrito nos quesitos)',
+      'DOS PEDIDOS'
+    ],
+    intro: true
+  },
+  'especificação de provas': {
+    topicos: [
+      'DA INTRODUÇÃO (breve contextualização da fase processual e da intimação para especificação)',
+      'DAS PROVAS A SEREM PRODUZIDAS (enumerar cada modalidade probatória pretendida — documental, testemunhal, pericial, depoimento pessoal — justificando brevemente a pertinência de cada uma)',
+      'DOS PEDIDOS'
+    ],
+    intro: true
+  },
+  'manifestação sobre laudo pericial': {
+    topicos: [
+      'DA INTRODUÇÃO (contexto da perícia e identificação do laudo apresentado)',
+      'DA ANÁLISE DO LAUDO (pontos favoráveis e desfavoráveis, com referência expressa às conclusões do perito)',
+      'DAS IMPUGNAÇÕES ESPECÍFICAS (se houver — metodologia, premissas, conclusões; use SUBTÓPICOS [SUB] para cada ponto impugnado)',
+      'DOS PEDIDOS'
+    ],
+    intro: true
+  },
+  'embargos de declaração': {
+    topicos: [
+      'DA TEMPESTIVIDADE',
+      'DO CABIMENTO (artigo 1.022 do CPC — hipóteses de omissão, contradição, obscuridade ou erro material)',
+      'DOS VÍCIOS A SEREM SANADOS (use SUBTÓPICOS [SUB] para cada vício apontado, identificando claramente se é omissão, contradição, obscuridade ou erro material)',
+      'DOS PEDIDOS (com pedido expresso de efeitos infringentes se aplicável e prequestionamento quando houver intenção recursal)'
+    ],
+    intro: false
+  },
+  'réplica à contestação': {
+    topicos: [
+      'DA INTRODUÇÃO (breve contextualização)',
+      'DAS PRELIMINARES ARGUIDAS NA CONTESTAÇÃO (refutação ponto a ponto, use SUBTÓPICOS [SUB] se houver mais de uma)',
+      'DO MÉRITO DA CONTESTAÇÃO (refutação dos fundamentos defensivos; SUBTÓPICOS [SUB] conforme o caso)',
+      'DA IMPUGNAÇÃO DOS DOCUMENTOS E PROVAS',
+      'DOS PEDIDOS'
+    ],
+    intro: true
+  },
+  'impugnação a cálculos': {
+    topicos: [
+      'DA TEMPESTIVIDADE',
+      'DO RESUMO DOS CÁLCULOS APRESENTADOS',
+      'DOS ERROS E EXCESSOS APONTADOS (use SUBTÓPICOS [SUB] para cada item impugnado: índice, termo inicial, base de cálculo, inclusão de rubrica indevida, etc.)',
+      'DO VALOR CORRETO (demonstração do cálculo que se entende devido)',
+      'DOS PEDIDOS'
+    ],
+    intro: false
+  },
+  'exceção de pré-executividade': {
+    topicos: [
+      'DA ADMISSIBILIDADE DA EXCEÇÃO DE PRÉ-EXECUTIVIDADE (matéria de ordem pública e prova pré-constituída — Súmula 393/STJ)',
+      'DA SÍNTESE DO NECESSÁRIO',
+      'DAS MATÉRIAS ARGUIDAS (use SUBTÓPICOS [SUB] para cada matéria: ilegitimidade, prescrição, nulidade do título, excesso de execução, etc.)',
+      'DO PEDIDO DE SUSPENSÃO DOS ATOS CONSTRITIVOS (quando aplicável)',
+      'DOS PEDIDOS'
+    ],
+    intro: false
+  },
+  'agravo interno': {
+    topicos: [
+      'DA TEMPESTIVIDADE',
+      'DO CABIMENTO (artigo 1.021 do CPC)',
+      'DA SÍNTESE DA DECISÃO AGRAVADA',
+      'DAS RAZÕES PARA REFORMA (use SUBTÓPICOS [SUB] quando houver mais de um fundamento)',
+      'DO PEDIDO DE RECONSIDERAÇÃO E SUBMISSÃO AO COLEGIADO',
+      'DOS PEDIDOS'
+    ],
+    intro: false
   }
 };
 
@@ -2845,7 +3104,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.32',
+      version: '1.33',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
