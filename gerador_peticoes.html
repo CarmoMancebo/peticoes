@@ -45,13 +45,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .login-hint{font-size:11px;color:#A0AEC0;margin-top:16px;padding-top:16px;border-top:1px solid #E2E8F0;line-height:1.5}
 
 /* Footer com QR code */
-.app-footer{position:fixed;bottom:16px;left:16px;z-index:90}
-.footer-contact{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:10px;text-decoration:none;color:inherit;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:all .15s ease;width:112px}
+.app-footer{position:fixed;bottom:16px;left:54px;z-index:90}
+.footer-contact{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:8px;text-decoration:none;color:inherit;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:all .15s ease;width:112px;box-sizing:border-box}
 .footer-contact:hover{box-shadow:0 4px 14px rgba(0,0,0,.12);border-color:var(--blue-mid);transform:translateY(-1px)}
 .footer-qr{width:92px;height:92px;border-radius:4px;display:block}
-.footer-phone{text-align:center;margin-top:2px}
-.footer-phone-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;line-height:1}
-.footer-phone-num{font-size:12px;color:var(--text);font-weight:600;margin-top:3px;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.footer-phone{text-align:center;margin-top:1px;width:100%}
+.footer-phone-label{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;line-height:1}
+.footer-phone-num{font-size:10px;color:var(--text);font-weight:600;margin-top:2px;font-variant-numeric:tabular-nums;letter-spacing:.01em;white-space:nowrap}
 @media (max-width: 900px){.app-footer{display:none}}
 .tb-name{font-size:15px;font-weight:500;color:var(--text);letter-spacing:.02em;line-height:1.2}
 .tb-oab{font-size:11px;color:var(--text3);margin-top:2px;letter-spacing:.05em}
@@ -134,7 +134,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-ver">OAB/SP 274.575 · versão 1.33</div>
+    <div class="login-ver">OAB/SP 274.575 · versão 1.34</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -159,7 +159,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.33</span>
+    <span class="tb-meta" id="tb-versao">versão 1.34</span>
   </div>
 </div>
 
@@ -371,9 +371,9 @@ tbody tr.st-p td{background:#b3e5fc}
             <button class="btn btn-s btn-sm" onclick="trocarPlanilha()">Trocar planilha</button>
           </div>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <input type="text" id="busca" placeholder="Buscar (digite 3+ caracteres): pasta, processo, parte, descrição..." oninput="renderTabela()" style="font-size:12px;flex:1;min-width:180px" />
-          <select id="filtro-resp" onchange="renderTabela()" style="font-size:12px;width:160px">
+        <!-- Linha 1: seletores uniformes -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+          <select id="filtro-resp" onchange="renderTabela()" style="font-size:12px;width:100%">
             <option value="">Todos os responsáveis</option>
             <option value="CARMO">CARMO</option>
             <option value="MAY">MAY / MAYARA</option>
@@ -381,7 +381,7 @@ tbody tr.st-p td{background:#b3e5fc}
             <option value="GABI">GABI</option>
             <option value="CINTHIA">CINTHIA</option>
           </select>
-          <select id="filtro-trat" onchange="renderTabela()" style="font-size:12px;width:150px">
+          <select id="filtro-trat" onchange="renderTabela()" style="font-size:12px;width:100%">
             <option value="">Todas as tratativas</option>
             <option value="CUMPRIDO">Cumprido</option>
             <option value="CANCELADO">Cancelado</option>
@@ -391,7 +391,7 @@ tbody tr.st-p td{background:#b3e5fc}
             <option value="PENDENTE">Pendente</option>
             <option value="VAZIO">Sem tratativa</option>
           </select>
-          <select id="filtro-tribunal" onchange="renderTabela()" style="font-size:12px;width:140px">
+          <select id="filtro-tribunal" onchange="renderTabela()" style="font-size:12px;width:100%">
             <option value="">Todos os tribunais</option>
             <option value="TJSP">TJSP</option>
             <option value="TJMG">TJMG</option>
@@ -409,10 +409,30 @@ tbody tr.st-p td{background:#b3e5fc}
             <option value="TJPI">TJPI</option>
             <option value="TJRN">TJRN</option>
             <option value="TJRO">TJRO</option>
+            <option value="TJRR">TJRR</option>
+            <option value="TJAC">TJAC</option>
+            <option value="TJAL">TJAL</option>
+            <option value="TJAP">TJAP</option>
+            <option value="TJAM">TJAM</option>
+            <option value="TJES">TJES</option>
+            <option value="TJMA">TJMA</option>
+            <option value="TJPA">TJPA</option>
+            <option value="TJPB">TJPB</option>
+            <option value="TJSE">TJSE</option>
+            <option value="TJTO">TJTO</option>
             <option value="STJ">STJ</option>
             <option value="STF">STF</option>
+            <option value="TST">TST</option>
+            <option value="TSE">TSE</option>
           </select>
-          <input type="text" id="busca-neg" placeholder="Excluir (digite 3+ caracteres)..." oninput="renderTabela()" style="font-size:12px;flex:1;min-width:140px;border-color:#FAC775" title="Oculta linhas que contenham esse texto" />
+        </div>
+        <!-- Linha 2: filtro positivo -->
+        <div style="margin-bottom:8px">
+          <input type="text" id="busca" placeholder="🔎 Buscar (digite 3+ caracteres): pasta, processo, parte, descrição..." oninput="renderTabela()" style="font-size:12px;width:100%;box-sizing:border-box" />
+        </div>
+        <!-- Linha 3: filtro negativo (mesma largura) -->
+        <div>
+          <input type="text" id="busca-neg" placeholder="🚫 Excluir (digite 3+ caracteres): oculta linhas que contenham esse texto" oninput="renderTabela()" style="font-size:12px;width:100%;box-sizing:border-box;border-color:#FAC775" title="Oculta linhas que contenham esse texto" />
         </div>
       </div>
 
@@ -465,28 +485,37 @@ tbody tr.st-p td{background:#b3e5fc}
 
       <div class="card">
         <div class="card-title">Dados do processo</div>
-        <div class="row3">
+        <!-- Linha 1: Pasta + Número do processo (seletor auto/manual + input do número) -->
+        <div class="row2" style="grid-template-columns:1fr 2fr;gap:12px;">
           <div class="field"><label>Pasta</label><input type="text" id="f-pasta" /></div>
           <div class="field field-required">
             <label>Número do processo</label>
             <div style="display:flex;gap:6px;align-items:stretch;">
-              <select id="f-proc-modo" style="max-width:180px;" onchange="toggleProcModo()">
+              <select id="f-proc-modo" style="max-width:180px;flex-shrink:0;" onchange="toggleProcModo()">
                 <option value="manual" selected>Preencher manualmente</option>
                 <option value="auto">Automático (IA identifica)</option>
               </select>
               <input type="text" id="f-proc" oninput="onProcInput()" placeholder="Ex: 0001002-98.2025.8.26.0108" style="flex:1;" />
             </div>
             <div id="proc-tj-info" style="font-size:11px;color:var(--text3);margin-top:4px;min-height:14px"></div>
-            <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+          </div>
+        </div>
+
+        <!-- Linha 2: Sistema (mesmo lugar do seletor auto/manual) + Botões na direita (mesmo lugar do input número) -->
+        <div class="row2" style="grid-template-columns:1fr 2fr;gap:12px;align-items:flex-start;">
+          <div class="field">
+            <label>Sistema</label>
+            <select id="f-sistema">
+              <option>e-SAJ (TJSP)</option><option>e-Proc (TJSP)</option><option>PJe</option><option>Outro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label style="visibility:hidden">Ações</label>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
               <button class="btn btn-s btn-sm" onclick="abrirNoTribunal()" title="Abrir site do tribunal com o número do processo pré-preenchido">🔗 Abrir no tribunal</button>
               <button class="btn btn-s btn-sm" onclick="copiarProcesso()" title="Copiar número do processo">📋 Copiar número</button>
               <span id="proc-copy-st" style="font-size:11px;color:var(--green);align-self:center"></span>
             </div>
-          </div>
-          <div class="field"><label>Sistema</label>
-            <select id="f-sistema">
-              <option>e-SAJ (TJSP)</option><option>e-Proc (TJSP)</option><option>PJe</option><option>Outro</option>
-            </select>
           </div>
         </div>
         <div class="row2">
@@ -1522,13 +1551,13 @@ function renderTabela() {
   var tbody = document.getElementById('tbody');
   tbody.innerHTML='';
   var vis=0, tot=procs.length;
-  var totTrat = Object.keys(s).filter(function(k){var t=s[k];return t&&['CUMPRIDO','CANCELADO','TRANSFERIDO','REAGENDADO'].indexOf(t.trat)>=0;}).length;
+  var totTrat = Object.keys(s).filter(function(k){var t=s[k];return t&&['CUMPRIDO','CANCELADO','TRANSFERIDO','REAGENDADO','AG. RETORNO'].indexOf(t.trat)>=0;}).length;
 
   procs.forEach(function(p,i) {
     var key = p.pasta||p.proc;
     var t = s[key]||{};
     var trat = t.trat||'';
-    var isTrat = ['CUMPRIDO','CANCELADO','TRANSFERIDO','REAGENDADO'].indexOf(trat)>=0;
+    var isTrat = ['CUMPRIDO','CANCELADO','TRANSFERIDO','REAGENDADO','AG. RETORNO'].indexOf(trat)>=0;
     if (filtro==='pend' && isTrat) return;
     if (filtro==='trat' && !isTrat) return;
     if (busca) {
@@ -2060,7 +2089,7 @@ async function gerarResumoCaso() {
     if (usoTokensIn > 0 || usoTokensOut > 0) {
       exibirUsoNaUI(usoTokensIn, usoTokensOut, modelo, 'resumo');
     }
-    nomeArq = (pasta?pasta+' - ':'') + 'resumo do caso';
+    nomeArq = (pasta?pasta+' - ':'') + 'resumo do caso - GeradoPorIA';
     document.getElementById('res-nome').textContent = 'Arquivo: '+nomeArq+'.docx  ·  Modelo: '+nomeModelo+'  ·  (Resumo estruturado)';
     setSt2('res-st','ok','Resumo gerado com sucesso.');
   } catch(e) { setSt2('res-st','err','Erro ao gerar resumo: '+e.message); }
@@ -2071,6 +2100,18 @@ async function gerarMinuta() {
   if (erroFmt) { alert(erroFmt); go('cfg'); return; }
   var densidade = document.getElementById('f-densidade');
   if (!densidade || !densidade.value) { alert('Selecione a densidade do texto no card Configurações da peça.'); return; }
+
+  // Lembrete: sem peça de referência ativa
+  var refsAtivas = refs.filter(function(r){ return r.ativa; });
+  if (refsAtivas.length === 0) {
+    if (!confirm('⚠ LEMBRETE: Nenhuma peça de referência está ativa.\n\n' +
+                 'Peças de referência ajudam a IA a manter o estilo, estrutura e tom que você costuma usar em suas petições, melhorando significativamente a qualidade do resultado.\n\n' +
+                 'Recomendo carregar uma peça de referência (aba Configuração → card Peças de referência) antes de gerar.\n\n' +
+                 'Deseja continuar sem peça de referência?')) {
+      go('cfg');
+      return;
+    }
+  }
 
   // Alerta: se o contexto carregado for grande (>~50k chars), sugerir resumir antes
   var tamContexto = 0;
@@ -2118,7 +2159,7 @@ async function gerarMinuta() {
   var nomeModelo=modelo==='gpt4o'?'GPT-4o':modelo==='claude-sonnet'?'Claude Sonnet':'Claude Opus';
   setSt2('res-st','info','Aguarde — gerando via '+nomeModelo+'...');
   var enriquecimento = getEnriquecimento();
-  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- PADRONIZAÇÃO DE REFERÊNCIAS LEGAIS (obrigatória, nos termos da Lei Complementar nº 95/1998 — Lei das Leis):\n  (i) artigos: grafar sempre por extenso "artigo" (jamais "art."), usando numeração ordinal até o 9º (artigo 1º, 2º, 9º) e CARDINAL a partir do décimo (artigo 10, artigo 525, artigo 1.003);\n  (ii) parágrafos: usar o sinal gráfico "§" com numeração ordinal até o 9º (§ 1º, § 5º) e cardinal a partir do décimo (§ 10); quando único, usar "parágrafo único" por extenso (jamais "§ único");\n  (iii) incisos: grafar sempre a palavra "inciso" seguida de algarismo romano maiúsculo (inciso I, inciso III, inciso XV);\n  (iv) alíneas: grafar "alínea" seguida de letra minúscula entre aspas (alínea "a", alínea "c");\n  (v) itens: grafar "item" seguido de algarismo arábico (item 1, item 3);\n  (vi) remissões combinadas devem seguir a hierarquia artigo → parágrafo → inciso → alínea → item, sempre na ordem (ex: "artigo 105, inciso III, alínea \u201Ca\u201D, da Constituição da República"; "artigo 525, § 1º, inciso III, do Código de Processo Civil");\n  (vii) a referência ao diploma legal deve vir SEMPRE após a hierarquia, precedida de "do/da" (ex: "do Código de Processo Civil", "da Lei nº 9.656/98", "da Constituição da República");\n  (viii) números de leis devem ser grafados com "nº" (abreviatura consagrada): "Lei nº 9.656/98", "Lei Complementar nº 95/1998", "Resolução Normativa nº 465/2021";\n  (ix) NUNCA usar variações como "art.", "§ único", "inc.", "al." — mantenha rigor absoluto.\n- SEMPRE que mencionar um artigo de lei, súmula, resolução normativa ou dispositivo legal específico, TRANSCREVA o texto do dispositivo na íntegra (ou o trecho relevante) entre aspas duplas, imediatamente após a referência. Exemplo: Ao citar o artigo 525 do CPC, transcrever em seguida: “Transcorrido o prazo previsto no artigo 523 sem o pagamento voluntário, inicia-se o prazo de 15 dias para apresentar impugnação.”\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para títulos, não utilizar "**texto**" ou "*texto*" para negrito/itálico, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- O PEDIDO FINAL SEMPRE DEVE INCLUIR, como ÚLTIMA alínea da lista de pedidos (sempre a última, após todas as demais alíneas substantivas), o requerimento padrão de intimações: "que todas as publicações, intimações e notificações sejam realizadas exclusivamente em nome do(a) advogado(a) [NOME_ADVOGADO_INTIMACOES], sob pena de nulidade". O sistema substituirá [NOME_ADVOGADO_INTIMACOES] automaticamente pelo advogado selecionado.\n- CONTEXTOS DIFERENCIADOS: o usuário pode fornecer três tipos de documentos anexos marcados como "=== CÓPIA DO PROCESSO PRINCIPAL ===" (contexto geral do processo, histórico, petições anteriores), "=== INCIDENTE / RECURSO EM JULGAMENTO ===" (decisão/acórdão que se impugna, matéria sob análise) e "=== EVIDÊNCIAS / PROVAS ===" (laudos, contratos, documentos probatórios). Use cada um para sua finalidade adequada: contextualize a partir do processo principal, foque a fundamentação na matéria do incidente/recurso, cite e invoque as evidências onde pertinente. NÃO misture indevidamente os três contextos — diferencie argumentos gerais de argumentos específicos da matéria sob análise.\n- QUESITOS (quando a peça for de quesitos ou incluir quesitos): cada quesito deve ser numerado com "1)", "2)", "3)", etc. (número seguido de parêntese), em linhas separadas, SEM caixa alta e SEM negrito. Os quesitos devem ser formulados como perguntas claras, objetivas e tecnicamente precisas. Nunca aplicar a regra de numeração de títulos principais aos quesitos.\n- HIERARQUIA DE TÍTULOS: (i) TÍTULOS PRINCIPAIS em CAIXA ALTA e negrito, em linha isolada — serão numerados automaticamente (ex: DO CABIMENTO, DA TEMPESTIVIDADE, DOS PEDIDOS); (ii) SUBTÓPICOS em CAIXA ALTA e negrito, também em linha isolada, mas PRECEDIDOS DO MARCADOR [SUB] no início da linha — estes NÃO serão numerados (ex: [SUB]DA VIOLAÇÃO AO ARTIGO 5º DA RN 566/2022, [SUB]DA ALÍNEA A DO ARTIGO 105 DA CONSTITUIÇÃO). Use subtópicos para dividir argumentos dentro de um tópico principal.\n- NÃO CONSIDERAR como títulos: endereçamento (EXCELENTÍSSIMO...), nome do recurso/peça (RECURSO ESPECIAL, RAZÕES DO RECURSO, CONTESTAÇÃO), identificação das partes (Recorrente:, Autor:, Réu:), número do processo, origem. Esses devem aparecer como parágrafos normais no cabeçalho da peça, não como tópicos numerados.\n- ITÁLICO: expressões em latim ou outros idiomas estrangeiros DEVEM ser envolvidas pelo marcador [IT]termo[/IT] para serem formatadas em itálico. Exemplos: [IT]data venia[/IT], [IT]ex officio[/IT], [IT]sub judice[/IT], [IT]in casu[/IT], [IT]a quo[/IT], [IT]ad quem[/IT], [IT]habeas corpus[/IT], [IT]pacta sunt servanda[/IT], [IT]bis in idem[/IT], [IT]res judicata[/IT], [IT]mutatis mutandis[/IT].\n- JURISPRUDÊNCIA: NUNCA invente decisões, julgados, números de processo, ementas ou relatores. Cite APENAS: (a) súmulas consolidadas de tribunais superiores (STF, STJ, TST) quando efetivamente existirem; (b) teses firmadas em repetitivos/repercussão geral identificáveis por tema; (c) dispositivos legais, resoluções normativas e enunciados. SE for citar um precedente específico, use formulação genérica indicando que cabe ao advogado conferir (ex: "conforme precedente do STJ sobre o tema da taxatividade mitigada do rol da ANS" em vez de inventar "REsp 1.886.929/SP"). DAR PREFERÊNCIA a jurisprudência recente (até 1 ano); se não houver tese consolidada recente, ampliar margem semestralmente até encontrar algo consolidado. SEMPRE incluir aviso ao final da peça, antes das referências, no formato: "OBSERVAÇÃO AO ADVOGADO: a jurisprudência citada nesta minuta deve ser conferida pelo signatário antes do protocolo, especialmente números de processo, datas e ementas, uma vez que foi gerada por IA."\n- Termine o corpo principal da peça com os pedidos finais (Ante ao exposto, requer-se: a), b), c)).\n\n'+getInstrucaoEstrutura(tipo==='auto'?inferir((inst||'')+' '+andamento):tipo)+'\n\n'+getInstrucaoDensidade();
+  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- PADRONIZAÇÃO DE REFERÊNCIAS LEGAIS (obrigatória, nos termos da Lei Complementar nº 95/1998 — Lei das Leis):\n  (i) artigos: grafar sempre por extenso "artigo" (jamais "art."), usando numeração ordinal até o 9º (artigo 1º, 2º, 9º) e CARDINAL a partir do décimo (artigo 10, artigo 525, artigo 1.003);\n  (ii) parágrafos: usar o sinal gráfico "§" com numeração ordinal até o 9º (§ 1º, § 5º) e cardinal a partir do décimo (§ 10); quando único, usar "parágrafo único" por extenso (jamais "§ único");\n  (iii) incisos: grafar sempre a palavra "inciso" seguida de algarismo romano maiúsculo (inciso I, inciso III, inciso XV);\n  (iv) alíneas: grafar "alínea" seguida de letra minúscula entre aspas (alínea "a", alínea "c");\n  (v) itens: grafar "item" seguido de algarismo arábico (item 1, item 3);\n  (vi) remissões combinadas devem seguir a hierarquia artigo → parágrafo → inciso → alínea → item, sempre na ordem (ex: "artigo 105, inciso III, alínea \u201Ca\u201D, da Constituição da República"; "artigo 525, § 1º, inciso III, do Código de Processo Civil");\n  (vii) a referência ao diploma legal deve vir SEMPRE após a hierarquia, precedida de "do/da" (ex: "do Código de Processo Civil", "da Lei nº 9.656/98", "da Constituição da República");\n  (viii) números de leis devem ser grafados com "nº" (abreviatura consagrada): "Lei nº 9.656/98", "Lei Complementar nº 95/1998", "Resolução Normativa nº 465/2021";\n  (ix) NUNCA usar variações como "art.", "§ único", "inc.", "al." — mantenha rigor absoluto.\n- SEMPRE que mencionar um artigo de lei, súmula, resolução normativa ou dispositivo legal específico, TRANSCREVA o texto do dispositivo na íntegra (ou o trecho relevante) entre aspas duplas, imediatamente após a referência. Exemplo: Ao citar o artigo 525 do CPC, transcrever em seguida: “Transcorrido o prazo previsto no artigo 523 sem o pagamento voluntário, inicia-se o prazo de 15 dias para apresentar impugnação.”\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para títulos, não utilizar "**texto**" ou "*texto*" para negrito/itálico, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- O PEDIDO FINAL SEMPRE DEVE INCLUIR, como ÚLTIMA alínea da lista de pedidos (sempre a última, após todas as demais alíneas substantivas), o requerimento padrão de intimações: "que todas as publicações, intimações e notificações sejam realizadas exclusivamente em nome do(a) advogado(a) [NOME_ADVOGADO_INTIMACOES], sob pena de nulidade". O sistema substituirá [NOME_ADVOGADO_INTIMACOES] automaticamente pelo advogado selecionado.\n- ENDEREÇAMENTO CORRETO POR TIPO DE PEÇA (obrigatório):\n  • Petições simples, manifestações, contestação, réplica, impugnações, especificação de provas, quesitos, cumprimento provisório/definitivo, exceção de pré-executividade — endereçar ao juiz(a) da vara de origem (primeira instância): "MM. Juiz(a) de Direito da [X]ª Vara [Cível/Fazenda Pública/Família etc.] do Foro de [Comarca]" ou "Excelentíssimo Senhor Doutor Juiz de Direito da [X]ª Vara...";\n  • Apelação e embargos de declaração contra sentença — endereçar ao juiz(a) de primeira instância (quem proferiu a sentença) para juízo de retratação/admissibilidade, com observação "para juízo de retratação e posterior remessa ao E. Tribunal de Justiça"; as RAZÕES DO RECURSO seguem em folha/página separada com endereçamento ao Tribunal: "Egrégio Tribunal de Justiça do Estado de [UF]" ou "Colenda Câmara";\n  • Agravo de instrumento e agravo interno — endereçar diretamente ao Presidente/Desembargador Relator do Tribunal competente: "Excelentíssimo Senhor Desembargador Presidente do Egrégio Tribunal de Justiça do Estado de [UF]";\n  • Recurso especial — endereçar ao Presidente ou Vice-Presidente do Tribunal de origem (para juízo de admissibilidade): "Excelentíssimo Senhor Desembargador Presidente do Egrégio Tribunal de Justiça do Estado de [UF]" — as RAZÕES endereçadas ao STJ em folha separada;\n  • Recurso extraordinário — endereçar ao Presidente ou Vice-Presidente do Tribunal de origem, com as RAZÕES endereçadas ao STF em folha separada;\n  • Contrarrazões — endereçamento segue o destinatário do recurso impugnado.\n  IMPORTANTE: nos recursos que exigem endereçamento duplo (apelação, RESp, REXT), utilizar uma linha em branco após o endereçamento do tribunal de origem e o marcador "[QUEBRA_PAGINA]" em linha própria ANTES das RAZÕES DO RECURSO, para que o sistema insira quebra de página automática.\n- VARIEDADE LEXICAL (obrigatório): NÃO repetir excessivamente as mesmas expressões ao longo da peça. Em especial, evite usar mais de UMA vez na mesma peça expressões como "data maxima venia", "data venia", "com a devida vênia", "salvo melhor juízo", "ad argumentandum tantum", "ex positis". Se precisar de ênfase argumentativa em outros trechos, use sinônimos ou reformulações (ex: "respeitosamente", "com o devido respeito ao entendimento do juízo", "em que pese o entendimento contrário", "sem embargo da fundamentação do acórdão"). Antes de finalizar, faça uma revisão mental para identificar e eliminar repetições desnecessárias de termos, expressões ou estruturas de frase. Use sinônimos e variações sintáticas para manter fluidez e elegância.\n- DANO MORAL EM RECURSOS (obrigatório): SEMPRE que a peça for um recurso (apelação, recurso especial, recurso extraordinário, agravo de instrumento, agravo interno, embargos de declaração) contra decisão que condenou a parte recorrente ao pagamento de indenização por danos morais, OBRIGATORIAMENTE incluir DOIS tópicos ou subtópicos específicos dentro das razões de reforma: (i) "DA IMPROCEDÊNCIA DA CONDENAÇÃO POR DANOS MORAIS" — arguindo a inexistência de ato ilícito, de nexo causal ou de dano efetivo, a inaplicabilidade da responsabilização e as razões para afastar integralmente a condenação; (ii) "DO PEDIDO SUBSIDIÁRIO DE REDUÇÃO DO QUANTUM INDENIZATÓRIO" — pleito alternativo para que, caso mantida a condenação, o valor seja substancialmente reduzido com fundamento nos princípios da razoabilidade e proporcionalidade, no artigo 944 do Código Civil ("A indenização mede-se pela extensão do dano"), no artigo 945 do Código Civil (culpa concorrente), em precedentes do STJ sobre os parâmetros de fixação (extensão do dano, condições econômicas das partes, grau de culpa, caráter pedagógico sem enriquecimento sem causa), e na vedação ao enriquecimento sem causa (artigo 884 do Código Civil).\n- CONTEXTOS DIFERENCIADOS: o usuário pode fornecer três tipos de documentos anexos marcados como "=== CÓPIA DO PROCESSO PRINCIPAL ===" (contexto geral do processo, histórico, petições anteriores), "=== INCIDENTE / RECURSO EM JULGAMENTO ===" (decisão/acórdão que se impugna, matéria sob análise) e "=== EVIDÊNCIAS / PROVAS ===" (laudos, contratos, documentos probatórios). Use cada um para sua finalidade adequada: contextualize a partir do processo principal, foque a fundamentação na matéria do incidente/recurso, cite e invoque as evidências onde pertinente. NÃO misture indevidamente os três contextos — diferencie argumentos gerais de argumentos específicos da matéria sob análise.\n- QUESITOS (quando a peça for de quesitos ou incluir quesitos): cada quesito deve ser numerado com "1)", "2)", "3)", etc. (número seguido de parêntese), em linhas separadas, SEM caixa alta e SEM negrito. Os quesitos devem ser formulados como perguntas claras, objetivas e tecnicamente precisas. Nunca aplicar a regra de numeração de títulos principais aos quesitos.\n- HIERARQUIA DE TÍTULOS: (i) TÍTULOS PRINCIPAIS em CAIXA ALTA e negrito, em linha isolada — serão numerados automaticamente (ex: DO CABIMENTO, DA TEMPESTIVIDADE, DOS PEDIDOS); (ii) SUBTÓPICOS em CAIXA ALTA e negrito, também em linha isolada, mas PRECEDIDOS DO MARCADOR [SUB] no início da linha — estes NÃO serão numerados (ex: [SUB]DA VIOLAÇÃO AO ARTIGO 5º DA RN 566/2022, [SUB]DA ALÍNEA A DO ARTIGO 105 DA CONSTITUIÇÃO). Use subtópicos para dividir argumentos dentro de um tópico principal.\n- NÃO CONSIDERAR como títulos: endereçamento (EXCELENTÍSSIMO...), nome do recurso/peça (RECURSO ESPECIAL, RAZÕES DO RECURSO, CONTESTAÇÃO), identificação das partes (Recorrente:, Autor:, Réu:), número do processo, origem. Esses devem aparecer como parágrafos normais no cabeçalho da peça, não como tópicos numerados.\n- ITÁLICO: expressões em latim ou outros idiomas estrangeiros DEVEM ser envolvidas pelo marcador [IT]termo[/IT] para serem formatadas em itálico. Exemplos: [IT]data venia[/IT], [IT]ex officio[/IT], [IT]sub judice[/IT], [IT]in casu[/IT], [IT]a quo[/IT], [IT]ad quem[/IT], [IT]habeas corpus[/IT], [IT]pacta sunt servanda[/IT], [IT]bis in idem[/IT], [IT]res judicata[/IT], [IT]mutatis mutandis[/IT].\n- JURISPRUDÊNCIA: NUNCA invente decisões, julgados, números de processo, ementas ou relatores. Cite APENAS: (a) súmulas consolidadas de tribunais superiores (STF, STJ, TST) quando efetivamente existirem; (b) teses firmadas em repetitivos/repercussão geral identificáveis por tema; (c) dispositivos legais, resoluções normativas e enunciados. SE for citar um precedente específico, use formulação genérica indicando que cabe ao advogado conferir (ex: "conforme precedente do STJ sobre o tema da taxatividade mitigada do rol da ANS" em vez de inventar "REsp 1.886.929/SP"). DAR PREFERÊNCIA a jurisprudência recente (até 1 ano); se não houver tese consolidada recente, ampliar margem semestralmente até encontrar algo consolidado. SEMPRE incluir aviso ao final da peça, antes das referências, no formato: "OBSERVAÇÃO AO ADVOGADO: a jurisprudência citada nesta minuta deve ser conferida pelo signatário antes do protocolo, especialmente números de processo, datas e ementas, uma vez que foi gerada por IA."\n- Termine o corpo principal da peça com os pedidos finais (Ante ao exposto, requer-se: a), b), c)).\n\n'+getInstrucaoEstrutura(tipo==='auto'?inferir((inst||'')+' '+andamento):tipo)+'\n\n'+getInstrucaoDensidade();
   var ctxExtra = montarContextoAdicional();
   var procModo = document.getElementById('f-proc-modo') ? document.getElementById('f-proc-modo').value : 'manual';
   var procInfo = procModo === 'auto' ? 'IDENTIFICAR AUTOMATICAMENTE no andamento' : (proc || 'não informado');
@@ -2154,7 +2195,7 @@ async function gerarMinuta() {
       exibirUsoNaUI(usoTokensIn, usoTokensOut, modelo, tipo);
     }
     var nomePeca=tipo==='auto'?inferir((inst||'')+' '+andamento):tipo;
-    nomeArq=(pasta?pasta+' - ':'')+nomePeca;
+    nomeArq=(pasta?pasta+' - ':'')+nomePeca+' - GeradoPorIA';
     document.getElementById('res-nome').textContent='Arquivo: '+nomeArq+'.docx  ·  Modelo: '+nomeModelo;
     setSt2('res-st','ok','Minuta gerada com sucesso. Revise antes de protocolar.');
   } catch(e){setSt2('res-st','err','Erro: '+e.message);}
@@ -2338,6 +2379,10 @@ function gerarParagrafos(texto) {
   return linhas.map(function(l){
     var raw = l.trim();
     if (!raw) return '<w:p><w:pPr><w:spacing w:after="100"/></w:pPr></w:p>';
+    // Marcador explícito de quebra de página (usado em recursos com endereçamento duplo)
+    if (raw === '[QUEBRA_PAGINA]' || raw === '[QUEBRA-PAGINA]' || raw === '[PAGE_BREAK]') {
+      return '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
+    }
 
     // Detectar subtópico: começa com [SUB]
     var isSubtopico = /^\[SUB\]/.test(raw);
@@ -2630,28 +2675,28 @@ function gerarBlocoAssinatura() {
   var fr = '<w:rFonts w:ascii="'+fmt.fonte+'" w:hAnsi="'+fmt.fonte+'" w:cs="'+fmt.fonte+'"/>';
   var sz = '<w:sz w:val="'+fmt.sz+'"/><w:szCs w:val="'+fmt.sz+'"/>';
 
-  // Determina formato de data conforme configuração
-  // extenso: "21 de abril de 2026" → TIME \@ "d' de 'MMMM' de 'yyyy"
-  // numerica: "21/04/2026" → DATE \@ "dd/MM/yyyy"
-  // abreviada: "21.4.2026" → DATE \@ "d.M.yyyy"
-  var formatoField;
+  // Data ESTÁTICA formatada conforme configuração (gerada na hora do download).
+  // Evita o bug do campo dinâmico do Word que ignorava o formato escolhido e mostrava sempre extenso.
+  var hoje = new Date();
+  var dataFormatada;
+  var dia = hoje.getDate();
+  var mes = hoje.getMonth() + 1;
+  var ano = hoje.getFullYear();
+  var meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
   if (fmt.formatoData === 'numerica') {
-    formatoField = ' DATE \\@ "dd/MM/yyyy" ';
+    // 21/04/2026
+    dataFormatada = String(dia).padStart(2,'0') + '/' + String(mes).padStart(2,'0') + '/' + ano;
   } else if (fmt.formatoData === 'abreviada') {
-    formatoField = ' DATE \\@ "d.M.yyyy" ';
+    // 21.4.2026 (dia e mês sem zeros à esquerda)
+    dataFormatada = dia + '.' + mes + '.' + ano;
   } else {
-    formatoField = ' TIME \\@ "d\' de \'MMMM\' de \'yyyy" ';
+    // extenso (padrão): "21 de abril de 2026"
+    dataFormatada = dia + ' de ' + meses[hoje.getMonth()] + ' de ' + ano;
   }
 
-  // Parágrafo 1: cidade + data (campo dinâmico do Word)
+  // Parágrafo 1: cidade + data (texto estático, respeita o formato escolhido imediatamente)
   var p1 = '<w:p><w:pPr><w:spacing w:before="480" w:after="240" w:line="360" w:lineRule="auto"/><w:jc w:val="center"/></w:pPr>'+
-    '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:t xml:space="preserve">'+esc(cidade)+', </w:t></w:r>'+
-    '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:fldChar w:fldCharType="begin"/></w:r>'+
-    '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:instrText xml:space="preserve">'+formatoField+'</w:instrText></w:r>'+
-    '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:fldChar w:fldCharType="separate"/></w:r>'+
-    '<w:r><w:rPr>'+fr+'<w:noProof/>'+sz+'</w:rPr><w:t>data automática</w:t></w:r>'+
-    '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:fldChar w:fldCharType="end"/></w:r>'+
-    '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:t>.</w:t></w:r></w:p>';
+    '<w:r><w:rPr>'+fr+sz+'</w:rPr><w:t xml:space="preserve">'+esc(cidade)+', '+esc(dataFormatada)+'.</w:t></w:r></w:p>';
 
   var pVazio = '<w:p><w:pPr><w:spacing w:line="360" w:lineRule="auto"/></w:pPr></w:p><w:p><w:pPr><w:spacing w:line="360" w:lineRule="auto"/></w:pPr></w:p>';
 
@@ -3104,7 +3149,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.33',
+      version: '1.34',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
