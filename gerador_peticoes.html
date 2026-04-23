@@ -29,6 +29,21 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .tb-left{display:flex;align-items:center;justify-content:flex-start}
 .tb-center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 .tb-right{display:flex;align-items:center;justify-content:flex-end}
+/* Login overlay */
+.login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#0C2E5B 0%,#185FA5 50%,#2B86E6 100%);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{background:#fff;border-radius:16px;padding:40px 36px;box-shadow:0 10px 40px rgba(0,0,0,.2);max-width:400px;width:100%;text-align:center}
+.login-logo{font-size:28px;font-weight:700;color:#0C2E5B;margin-bottom:4px;letter-spacing:.02em}
+.login-sub{font-size:13px;color:#718096;margin-bottom:4px}
+.login-ver{font-size:11px;color:#A0AEC0;margin-bottom:28px}
+.login-field{text-align:left;margin-bottom:16px}
+.login-field label{display:block;font-size:12px;color:#4A5568;margin-bottom:6px;font-weight:500}
+.login-field input{width:100%;padding:12px 14px;font-size:14px;border:1px solid #CBD5E0;border-radius:8px;box-sizing:border-box;transition:border-color .15s}
+.login-field input:focus{outline:none;border-color:#185FA5;box-shadow:0 0 0 3px rgba(24,95,165,.15)}
+.login-btn{width:100%;padding:12px;background:#185FA5;color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s;margin-top:8px}
+.login-btn:hover{background:#0C2E5B}
+.login-err{color:#C53030;font-size:12px;margin-top:10px;min-height:16px}
+.login-hint{font-size:11px;color:#A0AEC0;margin-top:16px;padding-top:16px;border-top:1px solid #E2E8F0;line-height:1.5}
+
 /* Footer com QR code */
 .app-footer{position:fixed;bottom:16px;left:16px;z-index:90}
 .footer-contact{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:10px;text-decoration:none;color:inherit;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:all .15s ease;width:112px}
@@ -114,6 +129,26 @@ tbody tr.st-p td{background:#b3e5fc}
 </head>
 <body>
 
+<!-- Login overlay (proteção local cosmética) -->
+<div id="login-overlay" class="login-overlay" style="display:none">
+  <div class="login-card">
+    <div class="login-logo">Gerador de Petições</div>
+    <div class="login-sub">Carmo Mancebo | Advogado</div>
+    <div class="login-ver">OAB/SP 274.575 · versão 1.31</div>
+    <div class="login-field">
+      <label>Senha de acesso</label>
+      <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
+    </div>
+    <button class="login-btn" onclick="fazerLogin()">Entrar</button>
+    <div id="login-err" class="login-err"></div>
+    <div class="login-hint">
+      ⚠ <strong>Proteção local:</strong> esta senha impede acesso casual mas não é criptografia forte. Não coloque dados sensíveis confiando apenas nela.<br>
+      <a href="#" onclick="resetarSenha();return false;" style="color:#185FA5;text-decoration:none;margin-top:8px;display:inline-block">Esqueci minha senha</a>
+    </div>
+  </div>
+</div>
+
+
 <div class="topbar">
   <div class="tb-left">
     <span class="tb-title">Gerador de Petições</span>
@@ -123,7 +158,8 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="tb-oab">OAB/SP 274.575</div>
   </div>
   <div class="tb-right">
-    <span class="tb-meta" id="tb-versao">versão 1.30</span>
+    <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
+    <span class="tb-meta" id="tb-versao">versão 1.31</span>
   </div>
 </div>
 
@@ -272,6 +308,15 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
 
       <div class="card">
+        <div class="card-title">🔒 Segurança e acesso</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Defina uma senha de acesso para bloquear o uso da ferramenta. A proteção é local e cosmética — útil para impedir acesso casual quando o computador estiver desbloqueado. Não é criptografia forte.</p>
+        <div class="btn-row">
+          <button class="btn btn-s btn-sm" onclick="trocarSenha()">🔑 Cadastrar / alterar senha</button>
+          <button class="btn btn-s btn-sm" onclick="bloquearAcesso()">🔒 Bloquear agora</button>
+        </div>
+      </div>
+
+      <div class="card">
         <div class="card-title">Backup e importação</div>
         <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Exporte toda a configuração (planilha, tratativas, timbrado, peças de referência, observações) para um arquivo JSON, ou restaure a partir de um backup anterior.</p>
         <div class="btn-row">
@@ -336,6 +381,16 @@ tbody tr.st-p td{background:#b3e5fc}
             <option value="GABI">GABI</option>
             <option value="CINTHIA">CINTHIA</option>
           </select>
+          <select id="filtro-trat" onchange="renderTabela()" style="font-size:12px;width:150px">
+            <option value="">Todas as tratativas</option>
+            <option value="CUMPRIDO">Cumprido</option>
+            <option value="CANCELADO">Cancelado</option>
+            <option value="REAGENDADO">Reagendado</option>
+            <option value="TRANSFERIDO">Transferido</option>
+            <option value="AG. RETORNO">Ag. retorno</option>
+            <option value="PENDENTE">Pendente</option>
+            <option value="VAZIO">Sem tratativa</option>
+          </select>
           <select id="filtro-tribunal" onchange="renderTabela()" style="font-size:12px;width:140px">
             <option value="">Todos os tribunais</option>
             <option value="TJSP">TJSP</option>
@@ -357,6 +412,7 @@ tbody tr.st-p td{background:#b3e5fc}
             <option value="STJ">STJ</option>
             <option value="STF">STF</option>
           </select>
+          <input type="text" id="busca-neg" placeholder="Excluir (filtro negativo)..." oninput="renderTabela()" style="font-size:12px;flex:1;min-width:140px;border-color:#FAC775" title="Oculta linhas que contenham esse texto" />
         </div>
       </div>
 
@@ -421,6 +477,11 @@ tbody tr.st-p td{background:#b3e5fc}
               <input type="text" id="f-proc" oninput="onProcInput()" placeholder="Ex: 0001002-98.2025.8.26.0108" style="flex:1;" />
             </div>
             <div id="proc-tj-info" style="font-size:11px;color:var(--text3);margin-top:4px;min-height:14px"></div>
+            <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+              <button class="btn btn-s btn-sm" onclick="abrirNoTribunal()" title="Abrir site do tribunal com o número do processo pré-preenchido">🔗 Abrir no tribunal</button>
+              <button class="btn btn-s btn-sm" onclick="copiarProcesso()" title="Copiar número do processo">📋 Copiar número</button>
+              <span id="proc-copy-st" style="font-size:11px;color:var(--green);align-self:center"></span>
+            </div>
           </div>
           <div class="field"><label>Sistema</label>
             <select id="f-sistema">
@@ -592,6 +653,7 @@ tbody tr.st-p td{background:#b3e5fc}
 
       <div class="btn-row">
         <button class="btn btn-p" id="btn-ger" onclick="gerarMinuta()" disabled>Gerar minuta</button>
+        <button class="btn btn-s" onclick="gerarResumoCaso()" title="Gera um resumo estruturado do caso a partir do andamento e contextos carregados">📝 Resumir caso</button>
         <button class="btn btn-s" onclick="limparForm()">Limpar</button>
       </div>
     </div>
@@ -606,6 +668,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <div id="res-content" style="display:none">
         <div id="res-st"></div>
         <div id="res-nome" class="tip" style="margin-bottom:8px"></div>
+        <div id="res-uso"></div>
         <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
           <button class="btn btn-s btn-sm" id="btn-toggle-edit" onclick="toggleEditMode()" title="Alternar entre visualização e edição">✏ Editar texto</button>
           <span class="tip" id="res-edit-status"></span>
@@ -692,6 +755,96 @@ var modoEdit = false;
 function esc(s) {
   if (s === undefined || s === null) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── LOGIN LOCAL (proteção cosmética) ─────────────────────────
+var LOGIN_KEY = 'gp_pwd_hash_v1';
+var LOGIN_SESSION_KEY = 'gp_auth';
+
+function hashSenha(s) {
+  // Hash simples SHA-256 via SubtleCrypto (assíncrono)
+  var enc = new TextEncoder().encode(s + 'gp_salt_v1');
+  return crypto.subtle.digest('SHA-256', enc).then(function(buf){
+    return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+  });
+}
+
+async function fazerLogin() {
+  var pwd = document.getElementById('login-pwd').value;
+  var err = document.getElementById('login-err');
+  if (!pwd) { err.textContent = 'Informe a senha.'; return; }
+
+  var stored = localStorage.getItem(LOGIN_KEY);
+  var h = await hashSenha(pwd);
+
+  if (!stored) {
+    // Primeira vez — cadastrar senha
+    if (pwd.length < 4) { err.textContent = 'A senha deve ter pelo menos 4 caracteres.'; return; }
+    if (!confirm('Esta é a primeira vez que você acessa. Deseja cadastrar a senha "' + pwd.substring(0,2) + '..." como senha de acesso?')) return;
+    localStorage.setItem(LOGIN_KEY, h);
+    sessionStorage.setItem(LOGIN_SESSION_KEY, '1');
+    document.getElementById('login-overlay').style.display = 'none';
+    return;
+  }
+
+  if (h === stored) {
+    sessionStorage.setItem(LOGIN_SESSION_KEY, '1');
+    document.getElementById('login-overlay').style.display = 'none';
+    err.textContent = '';
+  } else {
+    err.textContent = 'Senha incorreta. Tente novamente.';
+    document.getElementById('login-pwd').value = '';
+    document.getElementById('login-pwd').focus();
+  }
+}
+
+function resetarSenha() {
+  if (!confirm('ATENÇÃO: resetar a senha vai apagar a senha cadastrada. Todos os demais dados (planilha, tratativas, configurações) serão preservados. Deseja continuar?')) return;
+  localStorage.removeItem(LOGIN_KEY);
+  sessionStorage.removeItem(LOGIN_SESSION_KEY);
+  alert('Senha removida. Você pode cadastrar uma nova agora.');
+  document.getElementById('login-err').textContent = 'Digite uma nova senha (mínimo 4 caracteres).';
+  document.getElementById('login-pwd').focus();
+}
+
+function verificarLogin() {
+  var stored = localStorage.getItem(LOGIN_KEY);
+  var auth = sessionStorage.getItem(LOGIN_SESSION_KEY);
+  // Se não há senha cadastrada E o usuário não quer cadastrar agora, deixa passar
+  // Se há senha cadastrada, precisa autenticar
+  if (stored && !auth) {
+    document.getElementById('login-overlay').style.display = 'flex';
+    setTimeout(function(){ document.getElementById('login-pwd').focus(); }, 100);
+  }
+}
+
+function bloquearAcesso() {
+  sessionStorage.removeItem(LOGIN_SESSION_KEY);
+  document.getElementById('login-overlay').style.display = 'flex';
+  document.getElementById('login-pwd').value = '';
+  setTimeout(function(){ document.getElementById('login-pwd').focus(); }, 100);
+}
+
+function trocarSenha() {
+  var atual = prompt('Digite a senha atual (deixe em branco para cadastrar sem senha anterior):');
+  hashSenha(atual || '').then(function(h){
+    var stored = localStorage.getItem(LOGIN_KEY);
+    if (stored && h !== stored) { alert('Senha atual incorreta.'); return; }
+    var nova = prompt('Digite a nova senha (mínimo 4 caracteres, ou deixe em branco para remover):');
+    if (nova === null) return;
+    if (nova === '') {
+      if (confirm('Remover senha? O acesso ficará desprotegido.')) {
+        localStorage.removeItem(LOGIN_KEY);
+        alert('Senha removida.');
+      }
+      return;
+    }
+    if (nova.length < 4) { alert('A senha deve ter pelo menos 4 caracteres.'); return; }
+    hashSenha(nova).then(function(hNovo){
+      localStorage.setItem(LOGIN_KEY, hNovo);
+      alert('Senha alterada com sucesso.');
+    });
+  });
 }
 var timbrado = null; // {headers, footers, images, sectPr, styles}
 var LSP = 'gp_p', LSS = 'gp_s';
@@ -887,6 +1040,60 @@ function getKey() {
   return m.startsWith('claude')
     ? (sessionStorage.getItem('ant') || document.getElementById('key-anthropic').value.trim())
     : (sessionStorage.getItem('oai') || document.getElementById('key-openai').value.trim());
+}
+
+// URLs de consulta dos tribunais — abrem o site com o número pré-preenchido
+var TRIBUNAL_URLS = {
+  'TJSP': 'https://esaj.tjsp.jus.br/cpopg/search.do?conversationId=&dadosConsulta.localPesquisa.cdLocal=-1&cbPesquisa=NUMPROC&dadosConsulta.tipoNuProcesso=UNIFICADO&numeroDigitoAnoUnificado={ANO_UNIF}&foroNumeroUnificado={FORO}&dadosConsulta.valorConsultaNuUnificado={NUM_COMPLETO}',
+  'TJMG': 'https://www4.tjmg.jus.br/juridico/sf/proc_resultado2.jsp?comrCodigo=0&numero=1&listaProcessos={NUM_LIMPO}',
+  'TJRJ': 'https://www4.tjrj.jus.br/consultaProcessoWebV2/consultaMov.do?numProcesso={NUM_LIMPO}&acessoIP=internet',
+  'TJRS': 'https://www.tjrs.jus.br/site_php/consulta/consulta_processo.php?num_processo={NUM_LIMPO}',
+  'TJSC': 'https://esaj.tjsc.jus.br/cpopg/search.do?cbPesquisa=NUMPROC&dadosConsulta.valorConsulta={NUM_COMPLETO}',
+  'TJPR': 'https://projudi.tjpr.jus.br/projudi/publico/ConsultaPublica.jsp?numeroProcesso={NUM_LIMPO}',
+  'TJDF': 'https://pje-consulta-publica.tjdft.jus.br/consulta-publica/ConsultaPublica/listView.seam?nup={NUM_COMPLETO}',
+  'STJ': 'https://processo.stj.jus.br/processo/pesquisa/?tipoPesquisa=tipoPesquisaGenerica&termo={NUM_LIMPO}',
+  'STF': 'https://portal.stf.jus.br/processos/listarProcessos.asp?classe=&numeroProcesso={NUM_LIMPO}'
+};
+
+function abrirNoTribunal() {
+  var num = document.getElementById('f-proc').value.trim();
+  if (!num || num.replace(/[^0-9]/g,'').length < 20) {
+    alert('Informe um número de processo completo (padrão CNJ) primeiro.');
+    return;
+  }
+  var tj = extrairTribunal(num);
+  if (!tj || tj === 'Desconhecido') {
+    alert('Tribunal não reconhecido pelo padrão CNJ. Verifique o número.');
+    return;
+  }
+  var url = TRIBUNAL_URLS[tj];
+  if (!url) {
+    // Fallback: pesquisa no Google
+    window.open('https://www.google.com/search?q=' + encodeURIComponent(num + ' ' + tj), '_blank');
+    return;
+  }
+  var numLimpo = num.replace(/[^0-9]/g,'');
+  // Extrair componentes do número CNJ: NNNNNNN-DD.AAAA.J.TT.OOOO
+  // Ex: 1234567-12.2025.8.26.0100 → ano=2025, foro=0100
+  var m = num.match(/(\d{7})-?(\d{2})\.?(\d{4})\.?(\d)\.?(\d{2})\.?(\d{4})/);
+  var anoUnif = m ? (m[1]+'-'+m[2]+'.'+m[3]) : '';
+  var foro = m ? m[6] : '';
+  var finalUrl = url
+    .replace('{NUM_COMPLETO}', encodeURIComponent(num))
+    .replace('{NUM_LIMPO}', numLimpo)
+    .replace('{ANO_UNIF}', encodeURIComponent(anoUnif))
+    .replace('{FORO}', foro);
+  window.open(finalUrl, '_blank');
+}
+
+function copiarProcesso() {
+  var num = document.getElementById('f-proc').value.trim();
+  if (!num) return;
+  navigator.clipboard.writeText(num).then(function(){
+    var st = document.getElementById('proc-copy-st');
+    st.textContent = '✓ copiado';
+    setTimeout(function(){ st.textContent = ''; }, 2000);
+  });
 }
 
 function onProcInput() {
@@ -1223,8 +1430,21 @@ function renderTabela() {
       if (fResp==='may') { if (r.indexOf('may')<0) return; }
       else { if (r.indexOf(fResp)<0) return; }
     }
+    var fTrat = (document.getElementById('filtro-trat').value||'').trim();
+    if (fTrat) {
+      if (fTrat === 'VAZIO') { if (trat) return; }
+      else { if (trat !== fTrat) return; }
+    }
     var fTrib = (document.getElementById('filtro-tribunal').value||'').trim();
-    if (fTrib && (p.tribunal||'') !== fTrib) return;
+    if (fTrib) {
+      var tribProc = p.tribunal || extrairTribunal(p.proc || '');
+      if (tribProc !== fTrib) return;
+    }
+    var buscaNeg = (document.getElementById('busca-neg').value||'').toLowerCase().trim();
+    if (buscaNeg) {
+      var hayNeg = (p.pasta+' '+p.proc+' '+p.parte+' '+p.desc+' '+p.resp+' '+p.cliente+' '+(p.tipo||'')).toLowerCase();
+      if (hayNeg.indexOf(buscaNeg) >= 0) return;
+    }
     vis++;
     var tr = document.createElement('tr');
     var cls = {CUMPRIDO:'st-c',CANCELADO:'st-x',REAGENDADO:'st-r',TRANSFERIDO:'st-t','AG. RETORNO':'st-a',PENDENTE:'st-p'}[trat];
@@ -1494,6 +1714,145 @@ function base64ToArrayBuffer(b64) {
   return bytes.buffer;
 }
 
+// Preços das APIs (USD por 1M tokens) — atualizar conforme necessário
+var PRECOS_API = {
+  'gpt4o':         { in: 2.50,  out: 10.00, nome: 'GPT-4o' },
+  'claude-sonnet': { in: 3.00,  out: 15.00, nome: 'Claude Sonnet' },
+  'claude-opus':   { in: 15.00, out: 75.00, nome: 'Claude Opus' }
+};
+// Cotação USD→BRL (aproximada, usuário pode ajustar)
+var COTACAO_USD_BRL = 5.90;
+
+function calcularCusto(modelo, tokensIn, tokensOut) {
+  var p = PRECOS_API[modelo];
+  if (!p) return { usd: 0, brl: 0 };
+  var custoUsd = (tokensIn * p.in + tokensOut * p.out) / 1000000;
+  return {
+    usd: custoUsd,
+    brl: custoUsd * COTACAO_USD_BRL,
+    tokensIn: tokensIn,
+    tokensOut: tokensOut,
+    nome: p.nome
+  };
+}
+
+function registrarUso(modelo, tokensIn, tokensOut, tipoPeca) {
+  var c = calcularCusto(modelo, tokensIn, tokensOut);
+  try {
+    var hist = JSON.parse(localStorage.getItem('gp_uso') || '[]');
+    hist.push({
+      data: new Date().toISOString(),
+      modelo: modelo,
+      tipoPeca: tipoPeca || '',
+      tokensIn: tokensIn,
+      tokensOut: tokensOut,
+      custoUsd: c.usd,
+      custoBrl: c.brl
+    });
+    if (hist.length > 200) hist = hist.slice(-200); // limitar a 200 últimas
+    localStorage.setItem('gp_uso', JSON.stringify(hist));
+  } catch(e) { console.warn('Erro ao registrar uso:', e); }
+  return c;
+}
+
+function exibirUsoNaUI(tokensIn, tokensOut, modelo, tipoPeca) {
+  var custo = registrarUso(modelo, tokensIn, tokensOut, tipoPeca);
+  var totTokens = tokensIn + tokensOut;
+  var html = '<div style="margin-top:8px;padding:8px 12px;background:var(--blue-bg);border:1px solid var(--blue-mid);border-radius:6px;font-size:12px;color:var(--text)">'+
+    '<strong>📊 Uso desta geração:</strong> '+
+    tokensIn.toLocaleString('pt-BR')+' tokens entrada + '+
+    tokensOut.toLocaleString('pt-BR')+' tokens saída = <strong>'+totTokens.toLocaleString('pt-BR')+' tokens</strong>'+
+    ' · Modelo: '+custo.nome+
+    ' · Custo estimado: <strong>US$ '+custo.usd.toFixed(4)+'</strong>'+
+    ' (~R$ '+custo.brl.toFixed(3)+')'+
+    '</div>';
+  var container = document.getElementById('res-uso');
+  if (container) container.innerHTML = html;
+}
+
+async function gerarResumoCaso() {
+  var key = getKey();
+  if (!key) { alert('Informe a chave de API.'); return; }
+  var modelo = document.getElementById('sel-modelo').value;
+  var andamento = document.getElementById('f-and').value.trim();
+  if (!andamento && !ctxDocs.principal && !ctxDocs.incidente) {
+    alert('Carregue pelo menos o andamento, cópia do processo principal ou incidente para gerar o resumo.');
+    return;
+  }
+
+  var nomeModelo = modelo==='gpt4o'?'GPT-4o':modelo==='claude-sonnet'?'Claude Sonnet':'Claude Opus';
+
+  // Mudar para aba resultado
+  go('res');
+  document.getElementById('res-empty').style.display = 'none';
+  document.getElementById('res-content').style.display = 'block';
+  setSt2('res-st','info','Gerando resumo do caso via '+nomeModelo+'...');
+  document.getElementById('res-nome').textContent = 'Resumo do caso · Modelo: '+nomeModelo;
+  document.getElementById('res-uso').innerHTML = '';
+
+  var pasta = document.getElementById('f-pasta').value.trim();
+  var proc = document.getElementById('f-proc').value.trim();
+  var cliente = document.getElementById('f-cliente').value.trim();
+  var desc = document.getElementById('f-desc').value.trim();
+  var ctxExtra = montarContextoAdicional();
+
+  var sysResumo = 'Você é um advogado sênior especializado em análise processual. Produza um RESUMO TÉCNICO ESTRUTURADO do caso, em português jurídico formal, organizando as informações nas seguintes seções obrigatórias (cada uma em caixa alta, seguida do conteúdo em parágrafos normais):\n\n' +
+    '1 - IDENTIFICAÇÃO DO PROCESSO (número, tribunal, vara, classe processual)\n' +
+    '2 - PARTES (autor/requerente/recorrente e réu/requerido/recorrido, com qualificação quando disponível)\n' +
+    '3 - OBJETO DA DEMANDA (pedidos iniciais, pretensão autoral, defesa central)\n' +
+    '4 - FATOS RELEVANTES (cronologia concisa dos principais acontecimentos processuais)\n' +
+    '5 - DECISÕES PROFERIDAS (sentença, acórdão, decisões interlocutórias relevantes, com resumo do dispositivo)\n' +
+    '6 - ESTADO ATUAL DO PROCESSO (fase processual, próximo ato esperado, prazos em curso)\n' +
+    '7 - PONTOS CONTROVERTIDOS (matérias ainda em disputa, teses de cada parte)\n' +
+    '8 - RISCOS E OPORTUNIDADES PARA A DEFESA (análise estratégica, precedentes desfavoráveis/favoráveis, pontos a explorar)\n' +
+    '9 - PRÓXIMOS PASSOS SUGERIDOS (recomendações técnicas para atuação)\n\n' +
+    'Regras: use linguagem técnica jurídica; não invente fatos; se uma informação não estiver nos documentos, registre "não consta nos autos analisados"; mantenha o resumo entre 800 e 2000 palavras; não use marcadores de markdown (>, *, #, ---); use caixa alta apenas nos títulos numerados; os parágrafos devem ser em texto corrido, não em listas.';
+
+  var usrResumo = (pasta?'Pasta: '+pasta+'\n':'') +
+    (proc?'Número do processo: '+proc+'\n':'') +
+    (cliente?'Cliente: '+cliente+'\n':'') +
+    (desc?'Descrição da demanda: '+desc+'\n':'') +
+    '\nDOCUMENTOS PARA ANÁLISE:\n\n' +
+    (andamento?'=== ANDAMENTO / DECISÃO PRINCIPAL ===\n'+andamento+'\n\n':'') +
+    ctxExtra.trim() +
+    '\n\nProduza o resumo estruturado nas 9 seções obrigatórias.';
+
+  // Salvar contexto para regenerar
+  ultimoSysPrompt = sysResumo;
+  ultimoUsrPrompt = usrResumo;
+  ultimoModelo = modelo;
+  ultimoKey = key;
+
+  try {
+    var full = '';
+    var out = document.getElementById('res-txt');
+    out.textContent = '';
+    var usoTokensIn = 0, usoTokensOut = 0;
+
+    if (modelo === 'gpt4o') {
+      var res = await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sysResumo},{role:'user',content:usrResumo}],temperature:0.2,max_tokens:8000,stream:true,stream_options:{include_usage:true}})});
+      if (!res.ok) { var er = await res.json(); throw new Error(er.error?er.error.message:'Erro OpenAI'); }
+      var rd = res.body.getReader(), dc = new TextDecoder();
+      while(true){var rv=await rd.read();if(rv.done)break;dc.decode(rv.value).split('\n').forEach(function(ln){if(ln.startsWith('data: ')&&ln!=='data: [DONE]'){try{var parsed=JSON.parse(ln.slice(6));if(parsed.usage){usoTokensIn=parsed.usage.prompt_tokens||0;usoTokensOut=parsed.usage.completion_tokens||0;}if(parsed.choices&&parsed.choices[0]&&parsed.choices[0].delta){var d=parsed.choices[0].delta.content;if(d){full+=d;out.textContent=full;out.scrollTop=99999;}}}catch(e){}}});}
+    } else {
+      var cm = modelo==='claude-sonnet'?'claude-sonnet-4-5':'claude-opus-4-5';
+      var res = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:cm,max_tokens:8000,system:sysResumo,messages:[{role:'user',content:usrResumo}],stream:true})});
+      if (!res.ok) { var er = await res.json(); throw new Error(er.error?er.error.message:'Erro Anthropic'); }
+      var rd = res.body.getReader(), dc = new TextDecoder();
+      while(true){var rv=await rd.read();if(rv.done)break;dc.decode(rv.value).split('\n').forEach(function(ln){if(ln.startsWith('data: ')){try{var ev=JSON.parse(ln.slice(6));if(ev.type==='message_start'&&ev.message&&ev.message.usage){usoTokensIn=ev.message.usage.input_tokens||0;}if(ev.type==='message_delta'&&ev.usage){usoTokensOut=ev.usage.output_tokens||0;}if(ev.type==='content_block_delta'&&ev.delta&&ev.delta.text){full+=ev.delta.text;out.textContent=full;out.scrollTop=99999;}}catch(e){}}});}
+    }
+
+    minuta = full;
+    atualizarContagem();
+    if (usoTokensIn > 0 || usoTokensOut > 0) {
+      exibirUsoNaUI(usoTokensIn, usoTokensOut, modelo, 'resumo');
+    }
+    nomeArq = (pasta?pasta+' - ':'') + 'resumo do caso';
+    document.getElementById('res-nome').textContent = 'Arquivo: '+nomeArq+'.docx  ·  Modelo: '+nomeModelo+'  ·  (Resumo estruturado)';
+    setSt2('res-st','ok','Resumo gerado com sucesso.');
+  } catch(e) { setSt2('res-st','err','Erro ao gerar resumo: '+e.message); }
+}
+
 async function gerarMinuta() {
   var erroFmt = validarFormatacao();
   if (erroFmt) { alert(erroFmt); go('cfg'); return; }
@@ -1523,7 +1882,7 @@ async function gerarMinuta() {
   var nomeModelo=modelo==='gpt4o'?'GPT-4o':modelo==='claude-sonnet'?'Claude Sonnet':'Claude Opus';
   setSt2('res-st','info','Aguarde — gerando via '+nomeModelo+'...');
   var enriquecimento = getEnriquecimento();
-  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- SEMPRE que mencionar um artigo de lei, súmula, resolução normativa ou dispositivo legal específico, TRANSCREVA o texto do dispositivo na íntegra (ou o trecho relevante) entre aspas duplas, imediatamente após a referência. Exemplo: Ao citar o artigo 525 do CPC, transcrever em seguida: “Transcorrido o prazo previsto no artigo 523 sem o pagamento voluntário, inicia-se o prazo de 15 dias para apresentar impugnação.”\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para títulos, não utilizar "**texto**" ou "*texto*" para negrito/itálico, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- O PEDIDO FINAL SEMPRE DEVE INCLUIR, em letra "a)" ou como penúltima alínea, o requerimento padrão de intimações: "que todas as publicações, intimações e notificações sejam realizadas exclusivamente em nome do(a) advogado(a) [NOME_ADVOGADO_INTIMACOES], sob pena de nulidade". O sistema substituirá [NOME_ADVOGADO_INTIMACOES] automaticamente pelo advogado selecionado.\n- CONTEXTOS DIFERENCIADOS: o usuário pode fornecer três tipos de documentos anexos marcados como "=== CÓPIA DO PROCESSO PRINCIPAL ===" (contexto geral do processo, histórico, petições anteriores), "=== INCIDENTE / RECURSO EM JULGAMENTO ===" (decisão/acórdão que se impugna, matéria sob análise) e "=== EVIDÊNCIAS / PROVAS ===" (laudos, contratos, documentos probatórios). Use cada um para sua finalidade adequada: contextualize a partir do processo principal, foque a fundamentação na matéria do incidente/recurso, cite e invoque as evidências onde pertinente. NÃO misture indevidamente os três contextos — diferencie argumentos gerais de argumentos específicos da matéria sob análise.\n- HIERARQUIA DE TÍTULOS: (i) TÍTULOS PRINCIPAIS em CAIXA ALTA e negrito, em linha isolada — serão numerados automaticamente (ex: DO CABIMENTO, DA TEMPESTIVIDADE, DOS PEDIDOS); (ii) SUBTÓPICOS em CAIXA ALTA e negrito, também em linha isolada, mas PRECEDIDOS DO MARCADOR [SUB] no início da linha — estes NÃO serão numerados (ex: [SUB]DA VIOLAÇÃO AO ARTIGO 5º DA RN 566/2022, [SUB]DA ALÍNEA A DO ARTIGO 105 DA CONSTITUIÇÃO). Use subtópicos para dividir argumentos dentro de um tópico principal.\n- NÃO CONSIDERAR como títulos: endereçamento (EXCELENTÍSSIMO...), nome do recurso/peça (RECURSO ESPECIAL, RAZÕES DO RECURSO, CONTESTAÇÃO), identificação das partes (Recorrente:, Autor:, Réu:), número do processo, origem. Esses devem aparecer como parágrafos normais no cabeçalho da peça, não como tópicos numerados.\n- ITÁLICO: expressões em latim ou outros idiomas estrangeiros DEVEM ser envolvidas pelo marcador [IT]termo[/IT] para serem formatadas em itálico. Exemplos: [IT]data venia[/IT], [IT]ex officio[/IT], [IT]sub judice[/IT], [IT]in casu[/IT], [IT]a quo[/IT], [IT]ad quem[/IT], [IT]habeas corpus[/IT], [IT]pacta sunt servanda[/IT], [IT]bis in idem[/IT], [IT]res judicata[/IT], [IT]mutatis mutandis[/IT].\n- JURISPRUDÊNCIA: NUNCA invente decisões, julgados, números de processo, ementas ou relatores. Cite APENAS: (a) súmulas consolidadas de tribunais superiores (STF, STJ, TST) quando efetivamente existirem; (b) teses firmadas em repetitivos/repercussão geral identificáveis por tema; (c) dispositivos legais, resoluções normativas e enunciados. SE for citar um precedente específico, use formulação genérica indicando que cabe ao advogado conferir (ex: "conforme precedente do STJ sobre o tema da taxatividade mitigada do rol da ANS" em vez de inventar "REsp 1.886.929/SP"). DAR PREFERÊNCIA a jurisprudência recente (até 1 ano); se não houver tese consolidada recente, ampliar margem semestralmente até encontrar algo consolidado. SEMPRE incluir aviso ao final da peça, antes das referências, no formato: "OBSERVAÇÃO AO ADVOGADO: a jurisprudência citada nesta minuta deve ser conferida pelo signatário antes do protocolo, especialmente números de processo, datas e ementas, uma vez que foi gerada por IA."\n- Termine o corpo principal da peça com os pedidos finais (Ante ao exposto, requer-se: a), b), c)).\n\n'+getInstrucaoEstrutura(tipo==='auto'?inferir((inst||'')+' '+andamento):tipo)+'\n\n'+getInstrucaoDensidade();
+  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'Regras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- SEMPRE que mencionar um artigo de lei, súmula, resolução normativa ou dispositivo legal específico, TRANSCREVA o texto do dispositivo na íntegra (ou o trecho relevante) entre aspas duplas, imediatamente após a referência. Exemplo: Ao citar o artigo 525 do CPC, transcrever em seguida: “Transcorrido o prazo previsto no artigo 523 sem o pagamento voluntário, inicia-se o prazo de 15 dias para apresentar impugnação.”\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para títulos, não utilizar "**texto**" ou "*texto*" para negrito/itálico, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- O PEDIDO FINAL SEMPRE DEVE INCLUIR, como ÚLTIMA alínea da lista de pedidos (sempre a última, após todas as demais alíneas substantivas), o requerimento padrão de intimações: "que todas as publicações, intimações e notificações sejam realizadas exclusivamente em nome do(a) advogado(a) [NOME_ADVOGADO_INTIMACOES], sob pena de nulidade". O sistema substituirá [NOME_ADVOGADO_INTIMACOES] automaticamente pelo advogado selecionado.\n- CONTEXTOS DIFERENCIADOS: o usuário pode fornecer três tipos de documentos anexos marcados como "=== CÓPIA DO PROCESSO PRINCIPAL ===" (contexto geral do processo, histórico, petições anteriores), "=== INCIDENTE / RECURSO EM JULGAMENTO ===" (decisão/acórdão que se impugna, matéria sob análise) e "=== EVIDÊNCIAS / PROVAS ===" (laudos, contratos, documentos probatórios). Use cada um para sua finalidade adequada: contextualize a partir do processo principal, foque a fundamentação na matéria do incidente/recurso, cite e invoque as evidências onde pertinente. NÃO misture indevidamente os três contextos — diferencie argumentos gerais de argumentos específicos da matéria sob análise.\n- HIERARQUIA DE TÍTULOS: (i) TÍTULOS PRINCIPAIS em CAIXA ALTA e negrito, em linha isolada — serão numerados automaticamente (ex: DO CABIMENTO, DA TEMPESTIVIDADE, DOS PEDIDOS); (ii) SUBTÓPICOS em CAIXA ALTA e negrito, também em linha isolada, mas PRECEDIDOS DO MARCADOR [SUB] no início da linha — estes NÃO serão numerados (ex: [SUB]DA VIOLAÇÃO AO ARTIGO 5º DA RN 566/2022, [SUB]DA ALÍNEA A DO ARTIGO 105 DA CONSTITUIÇÃO). Use subtópicos para dividir argumentos dentro de um tópico principal.\n- NÃO CONSIDERAR como títulos: endereçamento (EXCELENTÍSSIMO...), nome do recurso/peça (RECURSO ESPECIAL, RAZÕES DO RECURSO, CONTESTAÇÃO), identificação das partes (Recorrente:, Autor:, Réu:), número do processo, origem. Esses devem aparecer como parágrafos normais no cabeçalho da peça, não como tópicos numerados.\n- ITÁLICO: expressões em latim ou outros idiomas estrangeiros DEVEM ser envolvidas pelo marcador [IT]termo[/IT] para serem formatadas em itálico. Exemplos: [IT]data venia[/IT], [IT]ex officio[/IT], [IT]sub judice[/IT], [IT]in casu[/IT], [IT]a quo[/IT], [IT]ad quem[/IT], [IT]habeas corpus[/IT], [IT]pacta sunt servanda[/IT], [IT]bis in idem[/IT], [IT]res judicata[/IT], [IT]mutatis mutandis[/IT].\n- JURISPRUDÊNCIA: NUNCA invente decisões, julgados, números de processo, ementas ou relatores. Cite APENAS: (a) súmulas consolidadas de tribunais superiores (STF, STJ, TST) quando efetivamente existirem; (b) teses firmadas em repetitivos/repercussão geral identificáveis por tema; (c) dispositivos legais, resoluções normativas e enunciados. SE for citar um precedente específico, use formulação genérica indicando que cabe ao advogado conferir (ex: "conforme precedente do STJ sobre o tema da taxatividade mitigada do rol da ANS" em vez de inventar "REsp 1.886.929/SP"). DAR PREFERÊNCIA a jurisprudência recente (até 1 ano); se não houver tese consolidada recente, ampliar margem semestralmente até encontrar algo consolidado. SEMPRE incluir aviso ao final da peça, antes das referências, no formato: "OBSERVAÇÃO AO ADVOGADO: a jurisprudência citada nesta minuta deve ser conferida pelo signatário antes do protocolo, especialmente números de processo, datas e ementas, uma vez que foi gerada por IA."\n- Termine o corpo principal da peça com os pedidos finais (Ante ao exposto, requer-se: a), b), c)).\n\n'+getInstrucaoEstrutura(tipo==='auto'?inferir((inst||'')+' '+andamento):tipo)+'\n\n'+getInstrucaoDensidade();
   var ctxExtra = montarContextoAdicional();
   var procModo = document.getElementById('f-proc-modo') ? document.getElementById('f-proc-modo').value : 'manual';
   var procInfo = procModo === 'auto' ? 'IDENTIFICAR AUTOMATICAMENTE no andamento' : (proc || 'não informado');
@@ -1538,22 +1897,26 @@ async function gerarMinuta() {
   try {
     var full='';
     var out=document.getElementById('res-txt');
+    var usoTokensIn=0, usoTokensOut=0;
     if (modelo==='gpt4o') {
-      var res=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.3,max_tokens:30000,stream:true})});
+      var res=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.3,max_tokens:30000,stream:true,stream_options:{include_usage:true}})});
       if (!res.ok){var er=await res.json();throw new Error(er.error?er.error.message:'Erro OpenAI');}
       var rd=res.body.getReader(),dc=new TextDecoder();
       setSt2('res-st','info','Recebendo resposta do GPT-4o...');
-      while(true){var rv=await rd.read();if(rv.done)break;dc.decode(rv.value).split('\n').forEach(function(ln){if(ln.startsWith('data: ')&&ln!=='data: [DONE]'){try{var d=JSON.parse(ln.slice(6)).choices[0].delta.content;if(d){full+=d;out.textContent=full;out.scrollTop=99999;}}catch(e){}}});}
+      while(true){var rv=await rd.read();if(rv.done)break;dc.decode(rv.value).split('\n').forEach(function(ln){if(ln.startsWith('data: ')&&ln!=='data: [DONE]'){try{var parsed=JSON.parse(ln.slice(6));if(parsed.usage){usoTokensIn=parsed.usage.prompt_tokens||0;usoTokensOut=parsed.usage.completion_tokens||0;}if(parsed.choices&&parsed.choices[0]&&parsed.choices[0].delta){var d=parsed.choices[0].delta.content;if(d){full+=d;out.textContent=full;out.scrollTop=99999;}}}catch(e){}}});}
     } else {
       var cm=modelo==='claude-sonnet'?'claude-sonnet-4-5':'claude-opus-4-5';
       var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:cm,max_tokens:30000,system:sys,messages:[{role:'user',content:usr}],stream:true})});
       if (!res.ok){var er=await res.json();throw new Error(er.error?er.error.message:'Erro Anthropic');}
       var rd=res.body.getReader(),dc=new TextDecoder();
       setSt2('res-st','info','Recebendo resposta do '+nomeModelo+'...');
-      while(true){var rv=await rd.read();if(rv.done)break;dc.decode(rv.value).split('\n').forEach(function(ln){if(ln.startsWith('data: ')){try{var ev=JSON.parse(ln.slice(6));if(ev.type==='content_block_delta'&&ev.delta&&ev.delta.text){full+=ev.delta.text;out.textContent=full;out.scrollTop=99999;}}catch(e){}}});}
+      while(true){var rv=await rd.read();if(rv.done)break;dc.decode(rv.value).split('\n').forEach(function(ln){if(ln.startsWith('data: ')){try{var ev=JSON.parse(ln.slice(6));if(ev.type==='message_start'&&ev.message&&ev.message.usage){usoTokensIn=ev.message.usage.input_tokens||0;}if(ev.type==='message_delta'&&ev.usage){usoTokensOut=ev.usage.output_tokens||0;}if(ev.type==='content_block_delta'&&ev.delta&&ev.delta.text){full+=ev.delta.text;out.textContent=full;out.scrollTop=99999;}}catch(e){}}});}
     }
     minuta=full;
     atualizarContagem();
+    if (usoTokensIn > 0 || usoTokensOut > 0) {
+      exibirUsoNaUI(usoTokensIn, usoTokensOut, modelo, tipo);
+    }
     var nomePeca=tipo==='auto'?inferir((inst||'')+' '+andamento):tipo;
     nomeArq=(pasta?pasta+' - ':'')+nomePeca;
     document.getElementById('res-nome').textContent='Arquivo: '+nomeArq+'.docx  ·  Modelo: '+nomeModelo;
@@ -1830,11 +2193,29 @@ function sanitizarMarkdown(texto) {
 // ── ESTRUTURAS OBRIGATÓRIAS POR TIPO DE PEÇA ──────────────────
 var ESTRUTURAS = {
   'recurso especial': {
-    topicos: ['DO CABIMENTO', 'DA TEMPESTIVIDADE', 'DO PREQUESTIONAMENTO', 'DA EMENTA E/OU RESUMO DA DECISÃO RECORRIDA', 'DAS RAZÕES DE REFORMA (fundamentação por alínea do artigo 105, inciso III da Constituição da República)', 'DA DIVERGÊNCIA JURISPRUDENCIAL (quando aplicável)', 'DOS PEDIDOS'],
+    topicos: [
+      'DO CABIMENTO',
+      'DA TEMPESTIVIDADE',
+      'DO PREQUESTIONAMENTO',
+      'DA SUPERAÇÃO DOS ÓBICES DE ADMISSIBILIDADE (Súmula 7/STJ — reexame de prova; Súmula 5/STJ — interpretação de cláusula contratual; Súmula 211/STJ — prequestionamento; Súmula 182/STJ — impugnação específica; Súmula 83/STJ — divergência superada)',
+      'DA EMENTA E/OU RESUMO DA DECISÃO RECORRIDA',
+      'DAS RAZÕES DE REFORMA (fundamentação por alínea do artigo 105, inciso III da Constituição da República)',
+      'DA DIVERGÊNCIA JURISPRUDENCIAL (quando aplicável)',
+      'DOS PEDIDOS'
+    ],
     intro: false
   },
   'recurso extraordinário': {
-    topicos: ['DO CABIMENTO', 'DA TEMPESTIVIDADE', 'DO PREQUESTIONAMENTO', 'DA REPERCUSSÃO GERAL', 'DA EMENTA E/OU RESUMO DA DECISÃO RECORRIDA', 'DAS RAZÕES DE REFORMA (violação à Constituição da República)', 'DOS PEDIDOS'],
+    topicos: [
+      'DO CABIMENTO',
+      'DA TEMPESTIVIDADE',
+      'DO PREQUESTIONAMENTO',
+      'DA REPERCUSSÃO GERAL',
+      'DA SUPERAÇÃO DOS ÓBICES DE ADMISSIBILIDADE (Súmulas 279/STF — reexame de prova; 280/STF — interpretação de norma local; 282 e 356/STF — prequestionamento; 636/STF — ofensa reflexa)',
+      'DA EMENTA E/OU RESUMO DA DECISÃO RECORRIDA',
+      'DAS RAZÕES DE REFORMA (violação à Constituição da República)',
+      'DOS PEDIDOS'
+    ],
     intro: false
   },
   'agravo de instrumento': {
@@ -2288,7 +2669,7 @@ async function executarGeracao(sys, usr, isContinuacao) {
       var res = await fetch('https://api.openai.com/v1/chat/completions', {
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-        body: JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.3,max_tokens:30000,stream:true})
+        body: JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.3,max_tokens:30000,stream:true,stream_options:{include_usage:true}})
       });
       if (!res.ok) { var er=await res.json(); throw new Error(er.error?er.error.message:'Erro OpenAI'); }
       var rd = res.body.getReader(), dc = new TextDecoder();
@@ -2388,7 +2769,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.30',
+      version: '1.31',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
@@ -2513,12 +2894,18 @@ document.addEventListener('keydown', handlerAtalhos);
 
 // INIT
 (function(){
+  verificarLogin();
   var oai=sessionStorage.getItem('oai'), ant=sessionStorage.getItem('ant');
   if(oai){document.getElementById('key-openai').value=oai;document.getElementById('st-openai').textContent='Chave salva.';document.getElementById('nn-cfg').classList.add('ok');}
   if(ant){document.getElementById('key-anthropic').value=ant;document.getElementById('st-anthropic').textContent='Chave salva.';document.getElementById('nn-cfg').classList.add('ok');}
   try{
     var saved=localStorage.getItem(LSP);
-    if(saved){procs=JSON.parse(saved);if(procs.length>0){document.getElementById('card-xlsx').style.display='none';iniciarTabela();}}
+    if(saved){
+      procs=JSON.parse(saved);
+      // Recalcular tribunal para processos antigos que não tinham a propriedade
+      procs.forEach(function(p){ if(!p.tribunal && p.proc) p.tribunal = extrairTribunal(p.proc); });
+      if(procs.length>0){document.getElementById('card-xlsx').style.display='none';iniciarTabela();}
+    }
   }catch(e){}
   // Inicializar subáreas (Cível como default)
   if (document.getElementById('f-area')) atualizarSubareas();
