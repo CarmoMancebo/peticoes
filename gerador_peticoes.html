@@ -134,7 +134,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-ver">OAB/SP 274.575 · versão 1.37</div>
+    <div class="login-ver">OAB/SP 274.575 · versão 1.38</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -158,7 +158,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.37</span>
+    <span class="tb-meta" id="tb-versao">versão 1.38</span>
   </div>
 </div>
 
@@ -493,7 +493,16 @@ tbody tr.st-p td{background:#b3e5fc}
           <div class="field">
             <label>Sistema</label>
             <select id="f-sistema">
-              <option>e-SAJ (TJSP)</option><option>e-Proc (TJSP)</option><option>PJe</option><option>Outro</option>
+              <option value="e-SAJ (TJSP)">e-SAJ (TJSP)</option>
+              <option value="e-Proc (TJSP)">e-Proc (TJSP)</option>
+              <option value="e-SAJ (TJSC)">e-SAJ (TJSC)</option>
+              <option value="e-SAJ (TJAM)">e-SAJ (TJAM)</option>
+              <option value="e-SAJ (TJAL)">e-SAJ (TJAL)</option>
+              <option value="e-SAJ (TJMS)">e-SAJ (TJMS)</option>
+              <option value="PJe">PJe (demais tribunais)</option>
+              <option value="e-Proc (TRF)">e-Proc (TRF)</option>
+              <option value="e-STJ">e-STJ</option>
+              <option value="Outro">Outro</option>
             </select>
           </div>
           <div class="field">
@@ -1210,20 +1219,26 @@ function detectarSistemaPorNumero(num) {
   var numLimpo = num.replace(/[^0-9]/g,'');
   if (numLimpo.length < 20) return null;
   var tj = extrairTribunal(num);
-  // TJSP: 4→e-Proc, 0 ou 2→e-SAJ
+  var primeiro = numLimpo[0]; // primeiro dígito do NNNNNNN — determina sistema em alguns TJs
+
+  // TJSP: regra por primeiro dígito (convenção e-Proc/e-SAJ do TJSP)
   if (tj === 'TJSP') {
-    var primeiro = numLimpo[0];
     if (primeiro === '4') return 'e-Proc (TJSP)';
-    if (primeiro === '0' || primeiro === '2') return 'e-SAJ (TJSP)';
+    return 'e-SAJ (TJSP)'; // 0, 1, 2, 3 → e-SAJ
   }
-  // Fallback por tribunal (convenção comum)
-  var mapSistema = {
-    'TJSP':'e-SAJ (TJSP)',
-    'TJMG':'PJe','TJRJ':'PJe','TJRS':'PJe','TJPR':'PJe','TJSC':'e-SAJ',
-    'TJDF':'PJe','TJGO':'PJe','TJBA':'PJe','TJPE':'PJe','TJCE':'PJe',
-    'STJ':'e-STJ','STF':'PJe'
-  };
-  return mapSistema[tj] || 'Outro';
+
+  // Tribunais que usam e-SAJ (além do TJSP)
+  var eSAJ = { 'TJSC':'e-SAJ (TJSC)', 'TJAM':'e-SAJ (TJAM)', 'TJAL':'e-SAJ (TJAL)', 'TJMS':'e-SAJ (TJMS)' };
+  if (eSAJ[tj]) return eSAJ[tj];
+
+  // Tribunais superiores
+  if (tj === 'STJ') return 'e-STJ';
+
+  // TRFs: usam e-Proc
+  if (tj && tj.startsWith('TRF')) return 'e-Proc (TRF)';
+
+  // Demais tribunais estaduais e superiores: PJe
+  return 'PJe';
 }
 
 function onTipoChange() {
@@ -1243,30 +1258,49 @@ function onTipoChange() {
 function onProcInput() {
   var num = document.getElementById('f-proc').value.trim();
   var info = document.getElementById('proc-tj-info');
-  if (num && num.replace(/[^0-9]/g,'').length >= 20) {
+  var numLimpo = num.replace(/[^0-9]/g,'');
+
+  if (num && numLimpo.length >= 20) {
     var tj = extrairTribunal(num);
-    if (tj && tj !== 'Desconhecido') {
-      info.innerHTML = '🏛 Tribunal identificado automaticamente: <strong>' + tj + '</strong>';
-      info.style.color = 'var(--green)';
-      // Ajustar sistema automaticamente
+    if (tj && tj !== 'Desconhecido' && !tj.startsWith('TJ-')) {
       var sys = detectarSistemaPorNumero(num);
+      var msgInfo = '🏛 <strong>' + tj + '</strong>';
+      if (sys) msgInfo += ' · <strong>' + sys + '</strong>';
+
+      // Selecionar sistema no dropdown automaticamente
       if (sys) {
         var sel = document.getElementById('f-sistema');
         if (sel) {
-          // Procurar opção com valor/texto correspondente
-          for (var i=0; i<sel.options.length; i++) {
-            if (sel.options[i].text === sys || sel.options[i].value === sys) {
+          var encontrou = false;
+          for (var i = 0; i < sel.options.length; i++) {
+            if (sel.options[i].value === sys) {
               sel.selectedIndex = i;
+              encontrou = true;
               break;
             }
           }
-          info.innerHTML += ' · Sistema: <strong>' + sys + '</strong>';
+          // Se sistema detectado não está no select (ex: e-SAJ de outro estado), selecionar "Outro"
+          if (!encontrou) {
+            for (var j = 0; j < sel.options.length; j++) {
+              if (sel.options[j].value === 'Outro') { sel.selectedIndex = j; break; }
+            }
+          }
         }
       }
+
+      info.innerHTML = msgInfo + ' <span style="color:var(--text3);font-size:10px">(detectado automaticamente)</span>';
+      info.style.color = 'var(--green)';
+    } else if (tj && tj.startsWith('TJ-')) {
+      // Tribunal não mapeado — mostrar código
+      info.innerHTML = '⚠ Tribunal não identificado (código: ' + tj + ') — selecione o sistema manualmente';
+      info.style.color = 'var(--amber)';
     } else {
-      info.innerHTML = '⚠ Tribunal não reconhecido pelo padrão CNJ — verifique o número';
+      info.innerHTML = '⚠ Número não reconhecido como padrão CNJ — verifique';
       info.style.color = 'var(--amber)';
     }
+  } else if (numLimpo.length > 0 && numLimpo.length < 20) {
+    info.innerHTML = '<span style="color:var(--text3);font-size:11px">Digite o número completo (20 dígitos) para identificação automática</span>';
+    info.style.color = '';
   } else {
     info.textContent = '';
   }
@@ -1543,16 +1577,15 @@ var TRIBUNAL_MAP = {
 };
 
 function extrairTribunal(numProc) {
-  if (!numProc || numProc.length < 20) return 'Desconhecido';
-  // Formato: NNNNNNN-DD.AAAA.J.TT.OOOO (7-2-4-1-2-4)
-  // Posições: 0-6: 7 algarismos, 8-9: 2, 11-14: 4, 16: 1, 17-18: 2 (TT), 20-23: 4
+  if (!numProc) return 'Desconhecido';
+  // Formato CNJ: NNNNNNN-DD.AAAA.J.TT.OOOO
+  // Dígitos limpos (20 ao total): N[0:7] D[7:9] A[9:13] J[13] TT[14:16] O[16:20]
   var partes = numProc.replace(/[^0-9]/g, '');
   if (partes.length < 20) return 'Desconhecido';
-  // J.TT = posição 15-16 (J) e 17-18 (TT)
-  var j = partes[14];
-  var tt = partes.slice(15, 17);
+  var j  = partes[13];          // segmento J (1 dígito: 1=STF, 3=STJ, 4=TRF, 5=TRT, 6=TRE, 7=STM, 8=TJ estadual, 9=TJM)
+  var tt = partes.slice(14, 16); // segmento TT (2 dígitos: código do tribunal)
   var chave = j + '.' + tt;
-  return TRIBUNAL_MAP[chave] || 'TJ-' + tt;
+  return TRIBUNAL_MAP[chave] || ('TJ-' + tt);
 }
 
 function gc(r, termos) {
@@ -3353,7 +3386,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.37',
+      version: '1.38',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
