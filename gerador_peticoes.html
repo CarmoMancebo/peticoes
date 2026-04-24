@@ -134,7 +134,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-ver">OAB/SP 274.575 · versão 1.38</div>
+    <div class="login-ver">OAB/SP 274.575 · versão 1.39</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -158,7 +158,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.38</span>
+    <span class="tb-meta" id="tb-versao">versão 1.39</span>
   </div>
 </div>
 
@@ -380,37 +380,6 @@ tbody tr.st-p td{background:#b3e5fc}
           </select>
           <select id="filtro-tribunal" onchange="renderTabela()" style="font-size:12px;width:100%">
             <option value="">Todos os tribunais</option>
-            <option value="TJSP">TJSP</option>
-            <option value="TJMG">TJMG</option>
-            <option value="TJRJ">TJRJ</option>
-            <option value="TJBA">TJBA</option>
-            <option value="TJRS">TJRS</option>
-            <option value="TJSC">TJSC</option>
-            <option value="TJPR">TJPR</option>
-            <option value="TJPE">TJPE</option>
-            <option value="TJDF">TJDF</option>
-            <option value="TJCE">TJCE</option>
-            <option value="TJGO">TJGO</option>
-            <option value="TJMT">TJMT</option>
-            <option value="TJMS">TJMS</option>
-            <option value="TJPI">TJPI</option>
-            <option value="TJRN">TJRN</option>
-            <option value="TJRO">TJRO</option>
-            <option value="TJRR">TJRR</option>
-            <option value="TJAC">TJAC</option>
-            <option value="TJAL">TJAL</option>
-            <option value="TJAP">TJAP</option>
-            <option value="TJAM">TJAM</option>
-            <option value="TJES">TJES</option>
-            <option value="TJMA">TJMA</option>
-            <option value="TJPA">TJPA</option>
-            <option value="TJPB">TJPB</option>
-            <option value="TJSE">TJSE</option>
-            <option value="TJTO">TJTO</option>
-            <option value="STJ">STJ</option>
-            <option value="STF">STF</option>
-            <option value="TST">TST</option>
-            <option value="TSE">TSE</option>
           </select>
         </div>
         <!-- Linha 2: filtro positivo -->
@@ -1600,6 +1569,47 @@ function gc(r, termos) {
 function getSt() { try { return JSON.parse(localStorage.getItem(LSS)||'{}'); } catch(e){return {};} }
 function setSts(key,val) { var s=getSt(); if(val) s[key]=val; else delete s[key]; try{localStorage.setItem(LSS,JSON.stringify(s));}catch(e){} }
 
+// Popula o select de tribunal dinamicamente com os tribunais encontrados na planilha
+function atualizarFiltroTribunal() {
+  var sel = document.getElementById('filtro-tribunal');
+  if (!sel) return;
+
+  // Coletar tribunais únicos presentes em procs, ordenados alfabeticamente
+  var tribunaisSet = {};
+  procs.forEach(function(p) {
+    var tj = p.tribunal || extrairTribunal(p.proc || '');
+    if (tj && tj !== 'Desconhecido' && !tj.startsWith('TJ-')) {
+      tribunaisSet[tj] = true;
+    }
+  });
+  var tribunais = Object.keys(tribunaisSet).sort();
+
+  // Preservar seleção atual
+  var selAtual = sel.value;
+
+  // Reconstruir options
+  sel.innerHTML = '<option value="">Todos os tribunais (' + procs.length + ' processos)</option>';
+  tribunais.forEach(function(tj) {
+    var count = procs.filter(function(p) {
+      return (p.tribunal || extrairTribunal(p.proc || '')) === tj;
+    }).length;
+    var opt = document.createElement('option');
+    opt.value = tj;
+    opt.textContent = tj + ' (' + count + ')';
+    sel.appendChild(opt);
+  });
+
+  // Restaurar seleção se ainda existe
+  if (selAtual) {
+    for (var i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === selAtual) {
+        sel.selectedIndex = i;
+        break;
+      }
+    }
+  }
+}
+
 function iniciarTabela() {
   var s = getSt();
   procs.forEach(function(p) {
@@ -1620,6 +1630,7 @@ function iniciarTabela() {
   document.getElementById('proc-hdr').style.display='block';
   document.getElementById('twrap').style.display='block';
   document.getElementById('nn-proc').classList.add('ok');
+  atualizarFiltroTribunal(); // popula o select com os tribunais reais da planilha
   renderTabela();
 }
 
@@ -1721,6 +1732,9 @@ function trocarPlanilha() {
     { icon: '🗑', title: 'Remover planilha?', ok: 'Sim, remover tudo', cancel: 'Cancelar' }).then(function(ok) { if (ok) {
     localStorage.removeItem(LSP); localStorage.removeItem(LSS); procs=[];
     document.getElementById('card-xlsx').style.display='block';
+    // Resetar select de tribunal para o estado vazio (sem planilha)
+    var selTrib = document.getElementById('filtro-tribunal');
+    if (selTrib) selTrib.innerHTML = '<option value="">Todos os tribunais</option>';
     document.getElementById('proc-hdr').style.display='none';
     document.getElementById('twrap').style.display='none';
   }});
@@ -3386,7 +3400,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.38',
+      version: '1.39',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
@@ -3555,7 +3569,10 @@ function _modalKeyHandler(e) {
       procs=JSON.parse(saved);
       // Recalcular tribunal para processos antigos que não tinham a propriedade
       procs.forEach(function(p){ if(!p.tribunal && p.proc) p.tribunal = extrairTribunal(p.proc); });
-      if(procs.length>0){document.getElementById('card-xlsx').style.display='none';iniciarTabela();}
+      if(procs.length>0){
+        document.getElementById('card-xlsx').style.display='none';
+        iniciarTabela(); // já chama atualizarFiltroTribunal internamente
+      }
     }
   }catch(e){}
   // Inicializar subáreas (Cível como default)
