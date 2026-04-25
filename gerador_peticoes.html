@@ -2347,13 +2347,13 @@ async function gerarMinuta() {
   if (!densidade || !densidade.value) { alert('Selecione a densidade do texto no card Configurações da peça.'); return; }
 
   // Lembrete: sem peça de referência ativa
-  // refs.ativa nunca definida — qualquer referência carregada é considerada ativa
   if (refs.length === 0) {
     var okRef = await customConfirm(
       'Peças de referência ajudam a IA a manter o estilo, estrutura e tom que você usa nas suas petições, melhorando significativamente o resultado.\n\nRecomendamos carregar ao menos uma referência antes de gerar (aba Configuração → Peças de referência).',
       { icon: '📎', title: 'Nenhuma peça de referência ativa', ok: 'Continuar sem referência', cancel: 'Ir para Configuração' }
     );
     if (!okRef) { go('cfg'); return; }
+  }
 
   // Alerta: sem timbrado carregado
   if (!timbrado) {
@@ -2362,7 +2362,6 @@ async function gerarMinuta() {
       { icon: '🖨', title: 'Sem timbrado carregado', ok: 'Gerar sem timbrado', cancel: 'Ir para Configuração' }
     );
     if (!okTimb) { go('cfg'); return; }
-  }
   }
 
   // Alerta: se o contexto carregado for grande (>~50k chars), sugerir resumir antes
