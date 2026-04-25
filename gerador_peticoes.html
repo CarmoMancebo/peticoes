@@ -2386,6 +2386,7 @@ async function gerarMinuta() {
   }
   var key=getKey(), modelo=document.getElementById('sel-modelo').value;
   if (!key){alert('Informe a chave de API.');return;}
+  var fmt = getFormatacao(); // necessário para injetar formato de data no prompt
   var andamento=document.getElementById('f-and').value.trim();
   if (!andamento){alert('Cole ou carregue o andamento do tribunal.');return;}
   var procVal=document.getElementById('f-proc').value.trim();
