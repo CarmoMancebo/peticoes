@@ -143,7 +143,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-ver">OAB/SP 274.575 · versão 1.52</div>
+    <div class="login-ver">OAB/SP 274.575 · versão 1.53</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -167,7 +167,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.52</span>
+    <span class="tb-meta" id="tb-versao">versão 1.53</span>
   </div>
 </div>
 
@@ -683,6 +683,26 @@ tbody tr.st-p td{background:#b3e5fc}
           <label>Peça a revisar <span style="color:var(--red)">*</span></label>
           <textarea id="f-peca-revisar" rows="10" placeholder="Cole aqui a peça que deseja revisar. A IA irá corrigir a redação, adequar à terminologia jurídica obrigatória, verificar a estrutura dos tópicos, corrigir o uso de § e parágrafo, e aprimorar a argumentação mantendo o conteúdo original."></textarea>
         </div>
+        <div class="card" id="card-calc-prazo" style="margin-bottom:12px">
+          <div class="card-title" style="cursor:pointer" onclick="toggleCardPrazo()">
+            ⏱ Calcular prazo a partir da decisão
+            <span id="card-prazo-toggle" style="float:right;font-size:11px;color:var(--text3)">▼ expandir</span>
+          </div>
+          <div id="card-prazo-body" style="display:none;padding:10px 0 4px">
+            <div class="field">
+              <label>Texto da decisão / despacho <span style="color:var(--text3);font-weight:400">(cole o trecho com o prazo)</span></label>
+              <textarea id="txt-decisao-prazo" rows="4" placeholder="Ex: 'Intime-se a parte ré para apresentar contestação no prazo de 15 dias úteis...'"></textarea>
+            </div>
+            <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+              <div class="field" style="flex:1;min-width:120px">
+                <label>Data de início <span style="color:var(--text3);font-weight:400">(intimação/publicação)</span></label>
+                <input type="date" id="inp-data-inicio-prazo" />
+              </div>
+              <button class="btn btn-s" onclick="extrairECalcularPrazo()" style="margin-bottom:4px">Calcular</button>
+            </div>
+            <div id="res-prazo" style="display:none;margin-top:8px;padding:10px;background:var(--blue-bg);border-radius:6px;font-size:13px"></div>
+          </div>
+        </div>
         <div class="field">
           <label>Instruções adicionais / teses específicas (opcional)</label>
           <textarea id="f-inst" style="min-height:70px" placeholder="Ex.: incluir tese sobre inexistência de cobertura pelo rol da ANS, questionar horas de terapia, abordar ADI 7265..."></textarea>
@@ -804,7 +824,66 @@ tbody tr.st-p td{background:#b3e5fc}
 
 <script>
 var procs = [], refs = [], minuta = '', nomeArq = '', tpIdx = -1, filtro = 'todos';
-var sortCol = null, sortAsc = true; // ordenação da tabela de processos
+var sortCol = null, sortAsc = true;
+
+// Feriados nacionais + TJSP para cálculo de prazos (formato YYYY-MM-DD)
+var FERIADOS_TJSP = (function(){
+  var nac = [
+    "2025-01-01","2025-04-18","2025-04-21","2025-05-01","2025-09-07",
+    "2025-10-12","2025-11-02","2025-11-15","2025-11-20","2025-12-25",
+    "2026-01-01","2026-04-03","2026-04-21","2026-05-01","2026-09-07",
+    "2026-10-12","2026-11-02","2026-11-15","2026-11-20","2026-12-25"
+  ];
+  var sp  = [
+    "2025-01-25","2025-07-09",  // Aniversário SP, Revolução Constitucionalista
+    "2026-01-25","2026-07-09"
+  ];
+  var rec = []; // recesso TJSP: 20/dez a 20/jan (gerado dinamicamente)
+  [2024,2025,2026].forEach(function(y){
+    for(var d=20;d<=31;d++) rec.push(y+"-12-"+String(d).padStart(2,"0"));
+    for(var d=1;d<=20;d++)  rec.push((y+1)+"-01-"+String(d).padStart(2,"0"));
+  });
+  var all = {};
+  nac.concat(sp).concat(rec).forEach(function(d){all[d]=true;});
+  return all;
+})();
+
+function isDiaUtil(dt) {
+  var d = new Date(dt + "T12:00:00");
+  if (d.getDay()===0 || d.getDay()===6) return false;
+  var iso = dt.substring(0,10);
+  return !FERIADOS_TJSP[iso];
+}
+
+function adicionarDiasUteis(dtBase, n) {
+  var d = new Date(dtBase + "T12:00:00");
+  var added = 0;
+  while (added < n) {
+    d.setDate(d.getDate() + 1);
+    var iso = d.toISOString().substring(0,10);
+    if (isDiaUtil(iso)) added++;
+  }
+  return d.toISOString().substring(0,10);
+}
+
+function formatarDataBR(iso) {
+  var p = iso.split("-");
+  return p[2]+"/"+p[1]+"/"+p[0];
+}
+
+function isoHoje() {
+  return new Date().toISOString().substring(0,10);
+}
+
+function calcularPrazo(diasUteis, dataBase) {
+  var base = dataBase || isoHoje();
+  var venc = adicionarDiasUteis(base, diasUteis);
+  var d2   = adicionarDiasUteis(venc, -2);
+  // D-2: 2 dias úteis antes do vencimento
+  var d2iso = adicionarDiasUteis(base, diasUteis - 2);
+  return { vencimento: venc, d2: d2iso, base: base };
+}
+ // ordenação da tabela de processos
 var ultimoSysPrompt = '', ultimoUsrPrompt = '', ultimoModelo = '', ultimoKey = ''; // para regenerar/continuar
 var modoEdit = false;
 // Rastreio de operações da sessão (para somar custos: resumo + petição + regenerar etc.)
@@ -1677,6 +1756,61 @@ function esconderBarra() {
   if (b) { b.style.display="none"; b.classList.remove("indeterminado"); }
 }
 
+function toggleCardPrazo() {
+  var body = document.getElementById("card-prazo-body");
+  var tog  = document.getElementById("card-prazo-toggle");
+  if (!body) return;
+  var vis = body.style.display !== "none";
+  body.style.display = vis ? "none" : "block";
+  tog.textContent = vis ? "▼ expandir" : "▲ recolher";
+}
+
+async function extrairECalcularPrazo() {
+  var txt = (document.getElementById("txt-decisao-prazo")||{}).value||"";
+  var dataIni = (document.getElementById("inp-data-inicio-prazo")||{}).value||isoHoje();
+  var resDiv = document.getElementById("res-prazo");
+  if (!txt.trim()) { alert("Cole o texto da decisão para extrair o prazo."); return; }
+
+  // Tentar extrair prazo numericamente por regex antes de chamar a IA
+  var m = txt.match(/(\d+)\s*(?:dias?\s*)?úteis?/i)
+         || txt.match(/(\d+)\s*dias?/i)
+         || txt.match(/prazo\s+de\s+(\d+)/i);
+  var diasNum = m ? parseInt(m[1]) : null;
+
+  // Tipos conhecidos por nome
+  var mapPrazos = {
+    "contestação":15, "contrarrazões":15, "apelação":15, "agravo de instrumento":15,
+    "embargos de declaração":5, "recurso especial":15, "recurso ordinário":15,
+    "impugnação ao cumprimento":15, "cumprimento":15, "manifestação":5
+  };
+  if (!diasNum) {
+    var txtL = txt.toLowerCase();
+    for (var k in mapPrazos) {
+      if (txtL.indexOf(k) >= 0) { diasNum = mapPrazos[k]; break; }
+    }
+  }
+
+  if (!diasNum) {
+    resDiv.style.display = "block";
+    resDiv.innerHTML = "⚠️ Não foi possível identificar o prazo automaticamente. Informe o número de dias:";
+    // Fallback manual
+    var manual = prompt("Quantos dias úteis?", "15");
+    diasNum = parseInt(manual);
+    if (!diasNum || isNaN(diasNum)) return;
+  }
+
+  var r = calcularPrazo(diasNum, dataIni);
+  var semanas = Math.ceil(diasNum / 5);
+
+  resDiv.style.display = "block";
+  resDiv.innerHTML =
+    "<strong>Prazo identificado:</strong> " + diasNum + " dias úteis<br>" +
+    "<strong>Início (intimação):</strong> " + formatarDataBR(r.base) + "<br>" +
+    "<strong>Vencimento:</strong> <span style=\"color:var(--red);font-weight:700\">" + formatarDataBR(r.vencimento) + "</span><br>" +
+    "<strong>⚠ D-2 (alerta interno):</strong> <span style=\"color:var(--amber);font-weight:700\">" + formatarDataBR(r.d2) + "</span><br>" +
+    "<span style=\"font-size:11px;color:var(--text3)\">Feriados TJSP e recesso forense considerados. Verifique feriados municipais e suspensões avulsas.</span>";
+}
+
 function sortTabela(col) {
   if (sortCol === col) { sortAsc = !sortAsc; } else { sortCol = col; sortAsc = true; }
   // Atualizar visual dos headers
@@ -2415,6 +2549,41 @@ async function gerarMinuta() {
   var inst=document.getElementById('f-inst').value.trim();
   var sis=document.getElementById('f-sistema').value;
   var refBlock=refs.length>0?'\n\nPEÇAS DE REFERÊNCIA — use como modelo de estilo, estrutura e linguagem:\n'+refs.map(function(r){return '\n--- '+r.name+' ---\n'+r.txt;}).join('\n'):'';
+  // ── CHECKLIST PRÉ-GERAÇÃO ─────────────────────────────────────────────
+  var _area   = (document.getElementById('f-area')  ||{}).value||'';
+  var _sub    = (document.getElementById('f-subarea')||{}).value||'';
+  var _tipo2  = document.getElementById('f-tipo').value;
+  var _and2   = document.getElementById('f-and').value.trim();
+  var _proc2  = document.getElementById('f-proc').value.trim();
+  var _parte2 = document.getElementById('f-parte').value.trim();
+  var _cli2   = document.getElementById('f-cliente').value.trim();
+  var _checks = [
+    { ok: !!_proc2,              txt: 'Número do processo informado' },
+    { ok: !!_and2,               txt: 'Andamento / decisão preenchido' },
+    { ok: _tipo2 && _tipo2 !== 'auto', txt: 'Tipo de peça selecionado' + (_tipo2==='auto' ? ' (automático — pode gerar erro de estrutura)' : '') },
+    { ok: !!_parte2,             txt: 'Parte contrária identificada' },
+    { ok: !!_cli2,               txt: 'Cliente / representado identificado' },
+    { ok: refs.length > 0,       txt: 'Peça de referência carregada' },
+    { ok: !!timbrado,            txt: 'Timbrado carregado' },
+    { ok: !!(_area && _sub),     txt: 'Área e subárea do direito selecionadas' },
+  ];
+  var _totalOk  = _checks.filter(function(ch){return ch.ok;}).length;
+  var _totalWarn= _checks.filter(function(ch){return !ch.ok;}).length;
+  // Mostrar checklist apenas se houver ao menos 1 item pendente NÃO crítico
+  // (itens críticos já foram validados acima e retornam antes de chegar aqui)
+  if (_totalWarn > 0) {
+    var _lista = _checks.map(function(ch){
+      return (ch.ok ? '✅ ' : '⚠️  ') + ch.txt;
+    }).join('\n');
+    var _msg = 'Revisão antes de gerar (' + _totalOk + '/' + _checks.length + ' itens OK):\n\n' + _lista +
+      '\n\nVocê pode prosseguir assim mesmo ou cancelar para ajustar.';
+    var _okCheck = await customConfirm(_msg,
+      { icon: '📋', title: 'Checklist pré-geração', ok: 'Gerar assim mesmo', cancel: 'Cancelar e ajustar' }
+    );
+    if (!_okCheck) return;
+  }
+  // ── FIM CHECKLIST ─────────────────────────────────────────────────────
+
   var btn=document.getElementById('btn-ger');
   btn.disabled=true; btn.textContent='Gerando...'; mostrarBarra();
   go('res');
@@ -3533,7 +3702,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.52',
+      version: '1.53',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
