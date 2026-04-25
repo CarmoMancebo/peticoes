@@ -138,7 +138,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-ver">OAB/SP 274.575 · versão 1.47</div>
+    <div class="login-ver">OAB/SP 274.575 · versão 1.48</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -162,7 +162,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.47</span>
+    <span class="tb-meta" id="tb-versao">versão 1.48</span>
   </div>
 </div>
 
@@ -1239,10 +1239,10 @@ function onProcInput() {
 
   if (num && numLimpo.length >= 20) {
     var tj = extrairTribunal(num);
-    if (tj && tj !== 'Desconhecido' && !tj.startsWith('TJ-')) {
-      var sys = detectarSistemaPorNumero(num);
-      var msgInfo = '🏛 <strong>' + tj + '</strong>';
-      if (sys) msgInfo += ' · <strong>' + sys + '</strong>';
+    var sys = detectarSistemaPorNumero(num);
+    if (sys) {
+      var tjLabel = (tj && !tj.startsWith('TJ-') && tj !== 'Desconhecido') ? tj : null;
+      var msgInfo = tjLabel ? ('🏛 <strong>' + tjLabel + '</strong> · <strong>' + sys + '</strong>') : ('🖥 <strong>' + sys + '</strong>');
 
       // Selecionar sistema no dropdown automaticamente
       if (sys) {
@@ -1267,12 +1267,8 @@ function onProcInput() {
 
       info.innerHTML = msgInfo + ' <span style="color:var(--text3);font-size:10px">(detectado automaticamente)</span>';
       info.style.color = 'var(--green)';
-    } else if (tj && tj.startsWith('TJ-')) {
-      // Tribunal não mapeado — mostrar código
-      info.innerHTML = '⚠ Tribunal não identificado (código: ' + tj + ') — selecione o sistema manualmente';
-      info.style.color = 'var(--amber)';
     } else {
-      info.innerHTML = '⚠ Número não reconhecido como padrão CNJ — verifique';
+      info.innerHTML = '⚠ Número não reconhecido como padrão CNJ — verifique o formato';
       info.style.color = 'var(--amber)';
     }
   } else if (numLimpo.length > 0 && numLimpo.length < 20) {
@@ -2032,11 +2028,14 @@ function base64ToArrayBuffer(b64) {
 
 // Preços das APIs (USD por 1M tokens) — atualizar conforme necessário
 var PRECOS_API = {
-  'gpt4o':         { in: 2.50,  out: 10.00, nome: 'GPT-4o' },
-  'claude-sonnet': { in: 3.00,  out: 15.00, nome: 'Claude Sonnet' },
-  'claude-opus':   { in: 15.00, out: 75.00, nome: 'Claude Opus' }
+  'gpt4o':           { in: 2.50, out: 10.00, nome: 'GPT-4o' },
+  'claude-sonnet':   { in: 3.00, out: 15.00, nome: 'Claude Sonnet 4.5' },
+  'claude-sonnet46': { in: 3.00, out: 15.00, nome: 'Claude Sonnet 4.6' },
+  'claude-opus':     { in: 5.00, out: 25.00, nome: 'Claude Opus 4.6' }
 };
-// Cotação USD→BRL (aproximada, usuário pode ajustar)
+// Preços verificados: abril/2026 — fonte: platform.claude.com/docs/pricing
+// Claude Opus anterior (4.1, depreciado): $15/$75 — redução de 3× com Opus 4.6
+// Cotação USD→BRL (atualizar conforme câmbio do dia)
 var COTACAO_USD_BRL = 5.90;
 
 function calcularCusto(modelo, tokensIn, tokensOut) {
@@ -2086,7 +2085,7 @@ function exibirUsoNaUI(tokensIn, tokensOut, modelo, tipoPeca) {
 
   // Calcular custo em TODOS os modelos (comparativo para a op atual)
   var comparativo = [];
-  ['gpt4o','claude-sonnet','claude-opus'].forEach(function(m){
+  ['gpt4o','claude-sonnet','claude-sonnet46','claude-opus'].forEach(function(m){
     var c = calcularCusto(m, tokensIn, tokensOut);
     var marcadorAtual = (m === modelo) ? ' <strong style="color:var(--blue)">← usado</strong>' : '';
     comparativo.push(
@@ -3447,7 +3446,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.47',
+      version: '1.48',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
