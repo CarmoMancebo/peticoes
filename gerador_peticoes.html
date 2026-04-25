@@ -14,6 +14,9 @@
 #barra-progresso-inner { height:100%; width:0%; background:var(--blue); border-radius:2px; transition:width 0.3s ease; }
 #barra-progresso.indeterminado #barra-progresso-inner { animation:barra-slide 1.4s ease-in-out infinite; width:40%; }
 @keyframes barra-slide { 0%{transform:translateX(-100%)} 100%{transform:translateX(350%)} }
+tr.prazo-vencido { background:rgba(220,38,38,.07) !important; }
+tr.prazo-hoje    { background:rgba(220,38,38,.12) !important; }
+tr.prazo-d2      { background:rgba(245,158,11,.07) !important; }
 .rec-item { padding:6px 12px; cursor:pointer; font-size:12px; }
 .rec-item:hover { background:var(--hover); }
 .th-sort { cursor:pointer; user-select:none; white-space:nowrap; }
@@ -145,7 +148,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-ver">OAB/SP 274.575 · versão 1.54</div>
+    <div class="login-ver">OAB/SP 274.575 · versão 1.55</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -169,7 +172,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.54</span>
+    <span class="tb-meta" id="tb-versao">versão 1.55</span>
   </div>
 </div>
 
@@ -179,7 +182,8 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="nav-item" onclick="go('proc')" id="nav-proc"><span class="nav-num" id="nn-proc">2</span> Processos</div>
     <div class="nav-sep"></div>
     <div class="nav-item" onclick="go('ger')" id="nav-ger"><span class="nav-num">3</span> Gerar petição</div>
-    <div class="nav-item" onclick="go('res')" id="nav-res"><span class="nav-num">4</span> Resultado</div>
+    <div class="nav-item" onclick="go('dash')" id="nav-dash" title="Dashboard"><span class="nav-num">4</span> Stats</div>
+    <div class="nav-item" onclick="go('res')" id="nav-res"><span class="nav-num">5</span> Resultado</div>
   </nav>
 
   <main class="main">
@@ -491,6 +495,7 @@ tbody tr.st-p td{background:#b3e5fc}
             <label style="visibility:hidden">Ações</label>
             <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
               <button class="btn btn-s btn-sm" onclick="abrirNoTribunal()" title="Abrir site do tribunal com o número do processo pré-preenchido">🔗 Abrir no tribunal</button>
+              <button class="btn btn-s btn-sm" onclick="verHistoricoProcesso(document.getElementById('f-proc').value)" title="Ver histórico de gerações para este processo">📋 Histórico</button>
               <button class="btn btn-s btn-sm" onclick="copiarProcesso()" title="Copiar número do processo">📋 Copiar número</button>
               <span id="proc-copy-st" style="font-size:11px;color:var(--green);align-self:center"></span>
             </div>
@@ -615,10 +620,12 @@ tbody tr.st-p td{background:#b3e5fc}
           <select id="f-tipo" onchange="onTipoChange()">
             <option value="auto" selected>Identificar automaticamente pelo andamento</option>
             <optgroup label="── Revisão ──">
+              <option value="roteiro de audiência">🎤 Roteiro de audiência</option>
               <option value="revisão de peça">✏️ Revisar peça existente</option>
             </optgroup>
             <optgroup label="── Fase de conhecimento ──">
               <option value="contestação">Contestação</option>
+              <option value="contestação de liminar">Contestação de liminar / Pedido de reconsideração</option>
               <option value="embargos de declaração">Embargos de declaração</option>
               <option value="especificação de provas">Especificação de provas</option>
               <option value="manifestação a decisão interlocutória">Manifestação a decisão interlocutória</option>
@@ -709,7 +716,10 @@ tbody tr.st-p td{background:#b3e5fc}
           </div>
         </div>
         <div class="field">
-          <label>Instruções adicionais / teses específicas (opcional)</label>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <label>Instruções adicionais / teses específicas (opcional)</label>
+            <button class="btn btn-s btn-sm" onclick="abrirBancoTeses()" title="Inserir tese do banco">📚 Banco de teses</button>
+          </div>
           <textarea id="f-inst" style="min-height:70px" placeholder="Ex.: incluir tese sobre inexistência de cobertura pelo rol da ANS, questionar horas de terapia, abordar ADI 7265..."></textarea>
         </div>
         <div id="refs-ativas" style="display:none">
@@ -733,12 +743,22 @@ tbody tr.st-p td{background:#b3e5fc}
       <div id="draft-st" style="font-size:10px;color:var(--text3);min-height:14px;margin-bottom:4px;text-align:right"></div>
       <div class="btn-row">
         <button class="btn btn-p" id="btn-ger" onclick="gerarMinuta()" disabled>Gerar minuta</button>
+        <button class="btn btn-s" id="btn-comparar" onclick="compararModelos()" disabled title="Gera simultaneamente com GPT-4o e Claude e exibe lado a lado">⚡ Comparar</button>
         <button class="btn btn-s" onclick="gerarResumoCaso()" title="Gera um resumo estruturado do caso a partir do andamento e contextos carregados">📝 Resumir caso</button>
         <button class="btn btn-s" onclick="limparForm()">Limpar</button>
       </div>
     </div>
 
-    <!-- RESULTADO -->
+    <!-- DASHBOARD -->
+    <div id="panel-dash" class="panel">
+      <div class="panel-title">📊 Dashboard de Uso</div>
+      <div id="dash-content" style="padding:8px 0"></div>
+      <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-s btn-sm" onclick="renderDashboard()">🔄 Atualizar</button>
+        <button class="btn btn-s btn-sm" onclick="exportarCustosCSV()">📥 Exportar CSV</button>
+      </div>
+    </div>
+<!-- RESULTADO -->
     <div id="panel-res" class="panel">
       <div class="panel-title">Resultado</div>
       <div class="panel-sub">Minuta gerada — revise antes de protocolar.</div>
@@ -761,6 +781,7 @@ tbody tr.st-p td{background:#b3e5fc}
         <div class="btn-row">
           <button class="btn btn-p" onclick="baixarDocx()">📥 Baixar .docx</button>
           <button class="btn btn-s btn-sm" onclick="copiarTextoMinuta()" title="Copiar texto puro para a área de transferência">📋 Copiar texto</button>
+          <button class="btn btn-s btn-sm" onclick="abrirHistoricoMinutas()" title="Ver minutas anteriores">🗂 Histórico</button>
           <button class="btn btn-s" onclick="baixarPdf()">📄 Baixar PDF</button>
           <button class="btn btn-s" onclick="copiar()">📋 Copiar texto</button>
           <span style="width:1px;background:var(--border2);margin:0 4px"></span>
@@ -1119,6 +1140,7 @@ function getEnriquecimento() {
 }
 
 function go(id) {
+  if (id === 'dash') setTimeout(renderDashboard, 50);
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active')});
   document.getElementById('panel-'+id).classList.add('active');
@@ -1874,6 +1896,62 @@ function agendarSalvarRascunho() {
 }
 
 // ── HISTÓRICO DE PROCESSOS RECENTES ────────────────────────────────────
+// ── BANCO DE TESES ──────────────────────────────────────────────────────
+function carregarTeses() {
+  try { return JSON.parse(localStorage.getItem("gp_teses")||"[]"); } catch(e){ return []; }
+}
+
+function salvarTeses(arr) {
+  try { localStorage.setItem("gp_teses", JSON.stringify(arr)); } catch(e){}
+}
+
+function abrirBancoTeses() {
+  var teses = carregarTeses();
+  var div = document.getElementById("modal-teses");
+  if (!div) return;
+  var lista = teses.length ? teses.map(function(t,i){
+    return '<div style="display:flex;gap:6px;align-items:flex-start;margin-bottom:6px">'+
+      '<div style="flex:1;font-size:12px;padding:6px 8px;background:var(--bg2);border-radius:4px;cursor:pointer" onclick="inserirTese('+i+')">'+
+      '<strong>'+t.titulo+'</strong><div style="color:var(--text3);font-size:11px;margin-top:2px">'+t.texto.substring(0,80)+'...</div></div>'+
+      '<button class="btn btn-s btn-sm" style="flex-shrink:0" onclick="excluirTese('+i+')">✕</button></div>';
+  }).join("") : '<p style="color:var(--text3);font-size:12px">Nenhuma tese salva ainda.</p>';
+  document.getElementById("teses-lista").innerHTML = lista;
+  div.style.display = "flex";
+}
+
+function fecharBancoTeses() {
+  var div = document.getElementById("modal-teses");
+  if (div) div.style.display = "none";
+}
+
+function salvarTese() {
+  var titulo = (document.getElementById("nova-tese-titulo")||{}).value.trim();
+  var texto  = (document.getElementById("nova-tese-texto")||{}).value.trim();
+  if (!titulo || !texto) { alert("Informe título e texto da tese."); return; }
+  var teses = carregarTeses();
+  teses.unshift({titulo:titulo, texto:texto, data:new Date().toISOString()});
+  salvarTeses(teses);
+  document.getElementById("nova-tese-titulo").value="";
+  document.getElementById("nova-tese-texto").value="";
+  abrirBancoTeses();
+}
+
+function inserirTese(i) {
+  var teses = carregarTeses();
+  var t = teses[i];
+  if (!t) return;
+  var inst = document.getElementById("f-inst");
+  if (inst) inst.value = (inst.value ? inst.value + "\n\n" : "") + t.texto;
+  fecharBancoTeses();
+}
+
+function excluirTese(i) {
+  var teses = carregarTeses();
+  teses.splice(i,1);
+  salvarTeses(teses);
+  abrirBancoTeses();
+}
+
 function registrarProcRecente(num) {
   if (!num || num.length < 10) return;
   try {
@@ -1905,6 +1983,99 @@ function selecionarRecente(num) {
   if (inp) { inp.value = num; onProcInput(); }
   var list = document.getElementById("proc-recentes-list");
   if (list) list.style.display = "none";
+}
+
+// ── HISTÓRICO DE MINUTAS ──────────────────────────────────────────────
+function salvarMinutaNoHistorico(texto, tipo, proc) {
+  if (!texto || texto.length < 50) return;
+  try {
+    var hist = JSON.parse(localStorage.getItem("gp_minutas")||"[]");
+    hist.unshift({
+      data: new Date().toISOString(),
+      tipo: tipo, proc: proc,
+      preview: texto.substring(0,200),
+      texto: texto.substring(0,50000)
+    });
+    hist = hist.slice(0,20);
+    localStorage.setItem("gp_minutas", JSON.stringify(hist));
+  } catch(e){}
+}
+
+function renderDashboard() {
+  var div = document.getElementById("dash-content");
+  if (!div) return;
+  try {
+    var hist = JSON.parse(localStorage.getItem("gp_uso")||"[]");
+    if (!hist.length) { div.innerHTML='<p style="color:var(--text3)">Nenhum dado de uso registrado ainda.</p>'; return; }
+    // Totais gerais
+    var totUsd=0,totBrl=0,totTk=0,totPecas=hist.length;
+    var porModelo={}; var porTipo={};
+    hist.forEach(function(h){
+      totUsd += (h.custoUsd||0);
+      totBrl += (h.custoBrl||0);
+      totTk  += (h.tokensIn||0)+(h.tokensOut||0);
+      var m=h.modelo||"?"; porModelo[m]=(porModelo[m]||0)+1;
+      var t=(h.tipoPeca||"?").substring(0,20); porTipo[t]=(porTipo[t]||0)+1;
+    });
+    var modelos = Object.entries(porModelo).sort(function(a,b){return b[1]-a[1];}).map(function(e){return e[0]+": "+e[1];}).join(" · ");
+    var topTipos = Object.entries(porTipo).sort(function(a,b){return b[1]-a[1];}).slice(0,5).map(function(e){return e[0]+": "+e[1];}).join("<br>");
+    // Últimos 7 dias
+    var agora=Date.now(), semana=7*24*3600*1000;
+    var semHist=hist.filter(function(h){return h.data&&(agora-new Date(h.data).getTime())<semana;});
+    var semUsd=semHist.reduce(function(s,h){return s+(h.custoUsd||0);},0);
+    div.innerHTML =
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px">'+
+      '<div style="background:var(--bg2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3)">Total de gerações</div><div style="font-size:24px;font-weight:700">'+totPecas+'</div></div>'+
+      '<div style="background:var(--bg2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3)">Custo total (USD)</div><div style="font-size:24px;font-weight:700">$'+totUsd.toFixed(4)+'</div></div>'+
+      '<div style="background:var(--bg2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3)">Custo total (BRL)</div><div style="font-size:24px;font-weight:700">R$'+totBrl.toFixed(2)+'</div></div>'+
+      '<div style="background:var(--bg2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3)">Custo últimos 7 dias</div><div style="font-size:24px;font-weight:700">$'+semUsd.toFixed(4)+'</div></div>'+
+      '<div style="background:var(--bg2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3)">Total de tokens</div><div style="font-size:24px;font-weight:700">'+Math.round(totTk/1000)+'k</div></div>'+
+      '</div>'+
+      '<div style="font-size:12px"><strong>Por modelo:</strong> '+modelos+'</div>'+
+      '<div style="font-size:12px;margin-top:8px"><strong>Top tipos de peça:</strong><br>'+topTipos+'</div>';
+  } catch(e){ div.innerHTML='<p style="color:var(--red)">Erro: '+e.message+'</p>'; }
+}
+
+function limparHistoricoUso() {
+  if (!confirm("Limpar todo o histórico de uso? Esta ação não pode ser desfeita.")) return;
+  try { localStorage.removeItem("gp_uso"); renderDashboard(); } catch(e){}
+}
+
+function abrirHistoricoMinutas() {
+  try {
+    var hist = JSON.parse(localStorage.getItem("gp_minutas")||"[]");
+    var div = document.getElementById("modal-minutas");
+    if (!div) return;
+    var lista = hist.length ? hist.map(function(m,i){
+      var d = new Date(m.data).toLocaleString("pt-BR");
+      return '<div style="border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:8px;cursor:pointer" onclick="restaurarMinuta('+i+')">'+
+        '<div style="display:flex;justify-content:space-between"><strong style="font-size:12px">'+m.tipo+'</strong><span style="font-size:10px;color:var(--text3)">'+d+'</span></div>'+
+        (m.proc?'<div style="font-size:10px;color:var(--text3);margin:2px 0">'+m.proc+'</div>':'')+
+        '<div style="font-size:11px;color:var(--text2);margin-top:4px">'+m.preview.substring(0,120)+'…</div>'+
+        '</div>';
+    }).join("") : '<p style="color:var(--text3);font-size:12px">Nenhuma minuta no histórico.</p>';
+    document.getElementById("minutas-lista").innerHTML = lista;
+    div.style.display = "flex";
+  } catch(e){ alert("Erro ao carregar histórico."); }
+}
+
+function fecharHistoricoMinutas() {
+  var div = document.getElementById("modal-minutas");
+  if (div) div.style.display = "none";
+}
+
+function restaurarMinuta(i) {
+  try {
+    var hist = JSON.parse(localStorage.getItem("gp_minutas")||"[]");
+    var m = hist[i];
+    if (!m) return;
+    minuta = m.texto;
+    document.getElementById("res-txt").textContent = m.texto;
+    document.getElementById("res-empty").style.display = "none";
+    document.getElementById("res-content").style.display = "block";
+    go("res");
+    fecharHistoricoMinutas();
+  } catch(e){}
 }
 
 function sortTabela(col) {
@@ -1980,17 +2151,29 @@ function renderTabela() {
     var tr = document.createElement('tr');
     var cls = {CUMPRIDO:'st-c',CANCELADO:'st-x',REAGENDADO:'st-r',TRANSFERIDO:'st-t','AG. RETORNO':'st-a',PENDENTE:'st-p'}[trat];
     if (cls) tr.classList.add(cls);
-    var prazoStr='';
+    var prazoStr=''; var prazoIso=null; var prazoClasse='';
     if (p.prazo) {
       var num=parseFloat(p.prazo);
-      prazoStr=(!isNaN(num)&&num>40000)?new Date((num-25569)*86400*1000).toLocaleDateString('pt-BR'):p.prazo;
+      if (!isNaN(num) && num>40000) {
+        var prazoDate=new Date((num-25569)*86400*1000);
+        prazoStr=prazoDate.toLocaleDateString('pt-BR');
+        prazoIso=prazoDate.toISOString().substring(0,10);
+      } else { prazoStr=p.prazo; }
+    }
+    // Colorização por proximidade do prazo (apenas processos pendentes)
+    if (prazoIso && !isTrat) {
+      var hoje=isoHoje();
+      var d2iso=adicionarDiasUteis(prazoIso,-2);
+      if (prazoIso < hoje) { prazoClasse='prazo-vencido'; }
+      else if (prazoIso === hoje) { prazoClasse='prazo-hoje'; }
+      else if (d2iso <= hoje) { prazoClasse='prazo-d2'; }
     }
     var tipoStr=(p.tipo||'').replace('Prazos Cíveis - ','').replace('Prazo Interno - ','').slice(0,30);
     var conc=t.conc||'';
     var badge=trat||'—';
     tr.innerHTML='<td>'+p.pasta+'</td>'+
       '<td style="font-family:monospace;font-size:10px">'+p.proc+'</td>'+
-      '<td style="font-size:11px;white-space:nowrap">'+prazoStr+'</td>'+
+      '<td style="font-size:11px;white-space:nowrap">'+(prazoClasse==='prazo-vencido'?'<span style="color:var(--red);font-weight:700">⚠ '+prazoStr+'</span>':prazoClasse==='prazo-hoje'?'<span style="color:var(--red);font-weight:700">🔴 '+prazoStr+'</span>':prazoClasse==='prazo-d2'?'<span style="color:var(--amber);font-weight:700">🟡 '+prazoStr+'</span>':prazoStr)+'</td>'+
       '<td style="font-size:11px">'+tipoStr+'</td>'+
       '<td style="font-size:12px">'+(p.parte||'')+'</td>'+
       '<td style="font-size:12px">'+(p.desc||'')+'</td>'+
@@ -2000,6 +2183,7 @@ function renderTabela() {
         (conc?'<br><span style="font-size:10px;color:var(--text3)">'+conc.slice(0,28)+(conc.length>28?'…':'')+'</span>':'')+
         '<br><button class="btn btn-s btn-sm" style="margin-top:3px" onclick="event.stopPropagation();abrirTP('+i+')">Tratativa</button>'+
       '</td>';
+    if (prazoClasse && !isTrat) tr.classList.add(prazoClasse);
     tr.onclick=function(){selProc(i,tr);};
     tbody.appendChild(tr);
   });
@@ -2341,6 +2525,35 @@ function calcularCusto(modelo, tokensIn, tokensOut) {
   };
 }
 
+// ── HISTÓRICO DE GERAÇÃO POR PROCESSO ─────────────────────────────────
+function registrarGeracaoNoHistorico(proc, tipo, modelo, tokens) {
+  if (!proc) return;
+  try {
+    var chave = "gp_hist_" + proc.replace(/[^\w]/g,"_");
+    var hist = JSON.parse(localStorage.getItem(chave)||"[]");
+    hist.unshift({
+      data: new Date().toISOString(),
+      tipo: tipo, modelo: modelo, tokens: tokens
+    });
+    hist = hist.slice(0, 30); // manter últimos 30 por processo
+    localStorage.setItem(chave, JSON.stringify(hist));
+  } catch(e){}
+}
+
+function verHistoricoProcesso(proc) {
+  if (!proc) { alert("Selecione um processo."); return; }
+  try {
+    var chave = "gp_hist_" + proc.replace(/[^\w]/g,"_");
+    var hist = JSON.parse(localStorage.getItem(chave)||"[]");
+    if (!hist.length) { alert("Nenhuma geração registrada para: " + proc); return; }
+    var linhas = hist.map(function(h,i){
+      var d = new Date(h.data).toLocaleString("pt-BR");
+      return (i+1)+". "+d+" — "+h.tipo+" ("+h.modelo+", ~"+h.tokens+" tokens)";
+    });
+    alert("Histórico de gerações — " + proc + ":\n\n" + linhas.join("\n"));
+  } catch(e){ alert("Erro ao ler histórico."); }
+}
+
 function registrarUso(modelo, tokensIn, tokensOut, tipoPeca) {
   var c = calcularCusto(modelo, tokensIn, tokensOut);
   try {
@@ -2474,6 +2687,53 @@ function carregarFeriadosCustom() {
       }).join("\n");
     }
   } catch(e){}
+}
+
+async function compararModelos() {
+  var keyOai = document.getElementById("key-openai")&&document.getElementById("key-openai").value.trim()||sessionStorage.getItem("oai")||"";
+  var keyAnt = document.getElementById("key-anthropic")&&document.getElementById("key-anthropic").value.trim()||sessionStorage.getItem("ant")||"";
+  if (!keyOai || !keyAnt) { alert("Para comparar modelos, informe as chaves de API do OpenAI e da Anthropic na aba Configuração."); return; }
+  var btnC = document.getElementById("btn-comparar");
+  var btnG = document.getElementById("btn-ger");
+  btnC.disabled=true; btnC.textContent="⏳ Comparando..."; btnG.disabled=true;
+  go("res");
+  var resDiv = document.getElementById("res-txt");
+  resDiv.textContent = "Gerando com os dois modelos em paralelo...";
+  mostrarBarra();
+  try {
+    // Usar o mesmo prompt que gerarMinuta usaria
+    var fmt=getFormatacao();
+    var enriq=getEnriquecimento();
+    var tipo=document.getElementById("f-tipo").value;
+    var andamento=document.getElementById("f-and").value.trim();
+    var inst=document.getElementById("f-inst").value.trim();
+    var sysBase='Você é um advogado experiente. Elabore a peça jurídica solicitada em português técnico.';
+    var usrBase='Tipo de peça: '+tipo+'\nAndamento:\n'+andamento+(inst?"\nInstruções: "+inst:"");
+    var [resGpt, resClaude] = await Promise.all([
+      fetch("https://api.openai.com/v1/chat/completions",{
+        method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+keyOai},
+        body:JSON.stringify({model:"gpt-4o",messages:[{role:"system",content:sysBase},{role:"user",content:usrBase}],max_tokens:4000})
+      }).then(function(r){return r.json();}),
+      fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",headers:{"Content-Type":"application/json","x-api-key":keyAnt,"anthropic-version":"2023-06-01"},
+        body:JSON.stringify({model:"claude-sonnet-4-5-20251001",max_tokens:4000,system:sysBase,messages:[{role:"user",content:usrBase}]})
+      }).then(function(r){return r.json();})
+    ]);
+    var txtGpt = resGpt.choices&&resGpt.choices[0]&&resGpt.choices[0].message&&resGpt.choices[0].message.content||"[Erro GPT-4o: "+(resGpt.error&&resGpt.error.message||"sem resposta")+"]";
+    var txtClaude = resClaude.content&&resClaude.content[0]&&resClaude.content[0].text||"[Erro Claude: "+(resClaude.error&&resClaude.error.message||"sem resposta")+"]";
+    // Exibir lado a lado
+    resDiv.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:12px">'+
+      '<div><strong style="color:var(--blue)">GPT-4o</strong><div style="white-space:pre-wrap;margin-top:8px;padding:10px;background:var(--bg2);border-radius:6px;max-height:600px;overflow-y:auto">'+txtGpt+'</div></div>'+
+      '<div><strong style="color:var(--blue)">Claude Sonnet</strong><div style="white-space:pre-wrap;margin-top:8px;padding:10px;background:var(--bg2);border-radius:6px;max-height:600px;overflow-y:auto">'+txtClaude+'</div></div>'+
+      '</div>';
+    document.getElementById("res-empty").style.display="none";
+    document.getElementById("res-content").style.display="block";
+  } catch(e) {
+    resDiv.textContent = "Erro na comparação: "+e.message;
+  } finally {
+    btnC.disabled=false; btnC.textContent="⚡ Comparar"; btnG.disabled=false;
+    esconderBarra();
+  }
 }
 
 function copiarTextoMinuta() {
@@ -2651,6 +2911,7 @@ async function gerarResumoCaso() {
     }
 
     minuta = full;
+    salvarMinutaNoHistorico(full, tipo, proc);
     atualizarContagem();
     if (usoTokensIn > 0 || usoTokensOut > 0) {
       exibirUsoNaUI(usoTokensIn, usoTokensOut, modelo, 'resumo');
@@ -2818,9 +3079,11 @@ async function gerarMinuta() {
       while(true){var rv=await rd.read();if(rv.done)break;dc.decode(rv.value).split('\n').forEach(function(ln){if(ln.startsWith('data: ')){try{var ev=JSON.parse(ln.slice(6));if(ev.type==='message_start'&&ev.message&&ev.message.usage){usoTokensIn=ev.message.usage.input_tokens||0;}if(ev.type==='message_delta'&&ev.usage){usoTokensOut=ev.usage.output_tokens||0;}if(ev.type==='content_block_delta'&&ev.delta&&ev.delta.text){full+=ev.delta.text;out.textContent=full;out.scrollTop=99999;}}catch(e){}}});}
     }
     minuta=full;
+    salvarMinutaNoHistorico(full, tipo, proc);
     atualizarContagem();
     if (usoTokensIn > 0 || usoTokensOut > 0) {
       exibirUsoNaUI(usoTokensIn, usoTokensOut, modelo, tipo);
+    registrarGeracaoNoHistorico(proc, tipo, modelo, usoTokensIn+usoTokensOut);
     }
     var nomePeca=tipo==='auto'?inferir((inst||'')+' '+andamento):tipo;
     nomeArq=(pasta?pasta+' - ':'')+nomePeca+' - GeradoPorIA';
@@ -3101,6 +3364,19 @@ function sanitizarMarkdown(texto) {
 
 // ── ESTRUTURAS OBRIGATÓRIAS POR TIPO DE PEÇA ──────────────────
 var ESTRUTURAS = {
+  'roteiro de audiência': {
+    topicos: [
+      'DADOS DA AUDIÊNCIA (data, hora, tipo, juízo, processo)',
+      'RESUMO DO CASO (2-3 parágrafos — fatos, pedido, posição da defesa)',
+      'TESE PRINCIPAL DA DEFESA',
+      'PONTOS DE ATENÇÃO E RISCOS',
+      'ROTEIRO DE PERGUNTAS ÀS TESTEMUNHAS DO AUTOR',
+      'PERGUNTAS AO PERITO (se audiência de instrução com laudo)',
+      'ALEGAÇÕES FINAIS ORAIS (estrutura resumida)',
+      'PEDIDOS A FORMULAR NA AUDIÊNCIA'
+    ],
+    intro: true
+  },
   'revisão de peça': {
     topicos: ['ANÁLISE E REVISÃO DA PEÇA'],
     intro: false
@@ -3127,6 +3403,20 @@ var ESTRUTURAS = {
       'DA REPERCUSSÃO GERAL',
       'DA SUPERAÇÃO DOS ÓBICES DE ADMISSIBILIDADE (Súmulas 279/STF — reexame de prova; 280/STF — interpretação de norma local; 282 e 356/STF — prequestionamento; 636/STF — ofensa reflexa)',
       'DAS RAZÕES PARA REFORMA DO ACÓRDÃO (violação à Constituição da República — use SUBTÓPICOS em [SUB] para cada matéria/dispositivo violado)',
+      'DOS PEDIDOS'
+    ],
+    intro: false
+  },
+  'contestação de liminar': {
+    topicos: [
+      'DA URGÊNCIA (exposição dos motivos que justificam a manifestação imediata)',
+      'DOS FATOS',
+      'DA DECISÃO LIMINAR IMPUGNADA (transcrição do dispositivo)',
+      'DA AUSÊNCIA DOS REQUISITOS DA TUTELA DE URGÊNCIA (artigo 300 do CPC)',
+      'DA PROBABILIDADE DO DIREITO DA OPERADORA (ausência de ato ilícito, exclusão contratual/legal)',
+      'DA IRREVERSIBILIDADE DOS EFEITOS (artigo 300, § 3º do CPC)',
+      'DA RESPONSABILIDADE DO AUTOR PELOS DANOS (artigo 302 do CPC)',
+      'DO DIREITO (fundamentos de mérito)',
       'DOS PEDIDOS'
     ],
     intro: false
@@ -3816,6 +4106,7 @@ async function executarGeracao(sys, usr, isContinuacao) {
       }
     }
     minuta = full;
+    salvarMinutaNoHistorico(full, tipo, proc);
     atualizarContagem();
     setSt2('res-st','ok',(isContinuacao?'Continuação concluída':'Nova versão gerada') + '. Revise antes de protocolar.');
   } catch(e) {
@@ -3879,7 +4170,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.54',
+      version: '1.55',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
@@ -4126,6 +4417,32 @@ function _modalKeyHandler(e) {
     </div>
   </div>
 </div>
+<!-- Modal Banco de Teses -->
+      <div id="modal-teses" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:16px">
+        <div style="background:var(--bg);border-radius:10px;width:100%;max-width:580px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between">
+            <strong>📚 Banco de Teses</strong>
+            <button class="btn btn-s btn-sm" onclick="fecharBancoTeses()">Fechar</button>
+          </div>
+          <div style="padding:16px;overflow-y:auto;flex:1">
+            <input id="nova-tese-titulo" type="text" placeholder="Título da tese" style="width:100%;margin-bottom:6px"/>
+            <textarea id="nova-tese-texto" rows="4" placeholder="Texto para inserir nas instruções adicionais..."></textarea>
+            <button class="btn btn-s" onclick="salvarTese()" style="margin-top:6px">💾 Salvar</button>
+            <hr style="border:none;border-top:1px solid var(--border);margin:12px 0"/>
+            <div id="teses-lista"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Modal Histórico de Minutas -->
+      <div id="modal-minutas" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:16px">
+        <div style="background:var(--bg);border-radius:10px;width:100%;max-width:600px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between">
+            <strong>🗂 Histórico de Minutas</strong>
+            <button class="btn btn-s btn-sm" onclick="fecharHistoricoMinutas()">Fechar</button>
+          </div>
+          <div id="minutas-lista" style="padding:16px;overflow-y:auto;flex:1"></div>
+        </div>
+      </div>
 </body>
 </html>
       <div class="card">
