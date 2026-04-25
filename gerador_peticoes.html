@@ -38,6 +38,15 @@ tr.prazo-d2      { background:rgba(245,158,11,.07) !important; }
   --red-bg:#FCEBEB;--red:#A32D2D;
   --radius:10px;--rsm:6px;
 }
+[data-theme="dark"]{
+  --bg:#1a1a18;--surface:#242422;--surface2:#2e2e2b;
+  --bg2:#242422;
+  --border:rgba(255,255,255,.10);--border2:rgba(255,255,255,.18);
+  --text:#f0ede6;--text2:#a8a5a0;--text3:#6b6966;
+  --blue:#4a9fd4;--blue-bg:#1a2d3d;--blue-mid:#4a9fd4;
+  --red:#f87171;--amber:#fbbf24;--green:#34d399;
+  --hover:rgba(255,255,255,.06);
+}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
 .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;display:grid;grid-template-columns:240px 1fr 240px;align-items:center;height:72px;position:sticky;top:0;z-index:100}
 .tb-left{display:flex;align-items:center;justify-content:flex-start}
@@ -148,7 +157,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-ver">OAB/SP 274.575 · versão 1.55</div>
+    <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.56 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -172,7 +181,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.55</span>
+    <span class="tb-meta" id="tb-versao">versão 1.56</span>
   </div>
 </div>
 
@@ -468,7 +477,8 @@ tbody tr.st-p td{background:#b3e5fc}
                 <option value="auto">Automático (IA identifica)</option>
               </select>
               <input type="text" id="f-proc" oninput="onProcInput()" onfocus="mostrarRecentes()" onblur="setTimeout(function(){var l=document.getElementById('proc-recentes-list');if(l)l.style.display='none';},200)" placeholder="Ex: 0001002-98.2025.8.26.0108" style="flex:1;" />
-          <div style="position:relative"><div id="proc-recentes-list" style="display:none;position:absolute;z-index:200;background:var(--bg2);border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.15);width:100%;max-height:200px;overflow-y:auto"></div></div>
+          <div style="position:relative"><div id="contador-prazo" style="display:none;align-items:center;gap:6px;margin-top:4px;padding:4px 8px;background:var(--bg2);border-radius:4px"></div>
+          <div id="proc-recentes-list" style="display:none;position:absolute;z-index:200;background:var(--bg2);border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.15);width:100%;max-height:200px;overflow-y:auto"></div></div>
             </div>
             <div id="proc-tj-info" style="font-size:11px;color:var(--text3);margin-top:4px;min-height:14px"></div>
           </div>
@@ -539,6 +549,7 @@ tbody tr.st-p td{background:#b3e5fc}
           <label>Texto do andamento / decisão / despacho / sentença / acórdão</label>
           <textarea id="f-and" style="min-height:140px" placeholder="Cole o texto ou carregue um arquivo acima..."></textarea>
           <div style="font-size:10px;color:var(--text3);text-align:right;margin-top:2px"><span id="cnt-and">0</span> chars · <span id="cnt-and-tk">0</span> tokens est.</div>
+          <div id="alerta-dlp" style="display:none;margin-top:6px;padding:8px 10px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:6px;font-size:11px;color:#92400E"></div>
         </div>
       </div>
 
@@ -781,7 +792,9 @@ tbody tr.st-p td{background:#b3e5fc}
         <div class="btn-row">
           <button class="btn btn-p" onclick="baixarDocx()">📥 Baixar .docx</button>
           <button class="btn btn-s btn-sm" onclick="copiarTextoMinuta()" title="Copiar texto puro para a área de transferência">📋 Copiar texto</button>
+          <button class="btn btn-s btn-sm" onclick="verificarQualidade()" title="Verificar uso de termos proibidos, § vs parágrafo, ordem dos tópicos etc.">✔ Verificar</button>
           <button class="btn btn-s btn-sm" onclick="abrirHistoricoMinutas()" title="Ver minutas anteriores">🗂 Histórico</button>
+          <button class="btn btn-s btn-sm" onclick="enviarWhatsApp()" title="Enviar texto da minuta via WhatsApp Web">💬 WhatsApp</button>
           <button class="btn btn-s" onclick="baixarPdf()">📄 Baixar PDF</button>
           <button class="btn btn-s" onclick="copiar()">📋 Copiar texto</button>
           <span style="width:1px;background:var(--border2);margin:0 4px"></span>
@@ -2001,6 +2014,106 @@ function salvarMinutaNoHistorico(texto, tipo, proc) {
   } catch(e){}
 }
 
+// ── CONTADOR REGRESSIVO DE PRAZO ────────────────────────────────────────
+function calcularDiasUteisRestantes(prazoSerial) {
+  if (!prazoSerial) return null;
+  var num = parseFloat(prazoSerial);
+  if (isNaN(num) || num < 40000) return null;
+  var prazoDate = new Date((num-25569)*86400*1000);
+  var prazoIso = prazoDate.toISOString().substring(0,10);
+  var hoje = isoHoje();
+  if (prazoIso < hoje) return -999; // vencido
+  if (prazoIso === hoje) return 0;
+  // Contar dias úteis entre hoje e vencimento
+  var d = new Date(hoje+"T12:00:00");
+  var fim = new Date(prazoIso+"T12:00:00");
+  var count = 0;
+  while (d < fim) {
+    d.setDate(d.getDate()+1);
+    if (isDiaUtil(d.toISOString().substring(0,10))) count++;
+  }
+  return count;
+}
+
+function atualizarContadorPrazo(proc) {
+  var div = document.getElementById("contador-prazo");
+  if (!div) return;
+  if (!proc || !procs.length) { div.style.display="none"; return; }
+  var p = procs.find(function(x){ return x.proc===proc || x.pasta===proc; });
+  if (!p || !p.prazo) { div.style.display="none"; return; }
+  var dias = calcularDiasUteisRestantes(p.prazo);
+  if (dias === null) { div.style.display="none"; return; }
+  div.style.display = "flex";
+  var cor = dias <= 0 ? "var(--red)" : dias <= 2 ? "var(--amber)" : "var(--text2)";
+  var label = dias === -999 ? "⚠ VENCIDO" :
+              dias === 0   ? "🔴 VENCE HOJE" :
+              dias === 1   ? "🟡 1 dia útil" :
+              "📅 " + dias + " dias úteis";
+  div.innerHTML = '<span style="font-size:11px;color:var(--text3)">Prazo:</span> '+
+    '<strong style="font-size:12px;color:'+cor+'">'+label+'</strong>';
+}
+
+// ── EXPORTAR / IMPORTAR CONFIGURAÇÕES ───────────────────────────────────
+function exportarConfig() {
+  try {
+    var cfg = {
+      versao: "1.56",
+      exportadoEm: new Date().toISOString(),
+      formato: {
+        fonte: (document.getElementById("fmt-fonte")||{}).value,
+        tamanho: (document.getElementById("fmt-tamanho")||{}).value,
+        data: (document.getElementById("fmt-data")||{}).value,
+        alinhamento: (document.getElementById("fmt-alinhamento")||{}).value,
+        densidade: (document.getElementById("f-densidade")||{}).value,
+      },
+      area: (document.getElementById("f-area")||{}).value,
+      modelo: (document.getElementById("sel-modelo")||{}).value,
+      tema: localStorage.getItem("gp_tema")||"light",
+      cotacao: COTACAO_USD_BRL,
+      teses: JSON.parse(localStorage.getItem("gp_teses")||"[]"),
+      feriadosCustom: JSON.parse(localStorage.getItem("gp_feriados_custom")||"[]"),
+    };
+    var blob = new Blob([JSON.stringify(cfg, null, 2)], {type:"application/json"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "config_gerador_" + new Date().toISOString().slice(0,10) + ".json";
+    a.click();
+  } catch(e){ alert("Erro ao exportar: "+e.message); }
+}
+
+function importarConfig() {
+  var inp = document.createElement("input");
+  inp.type = "file"; inp.accept = ".json";
+  inp.onchange = function(){
+    var f = inp.files[0]; if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function(e){
+      try {
+        var cfg = JSON.parse(e.target.result);
+        if (cfg.formato) {
+          if (cfg.formato.fonte)       { var el=document.getElementById("fmt-fonte");       if(el) el.value=cfg.formato.fonte; }
+          if (cfg.formato.tamanho)     { var el=document.getElementById("fmt-tamanho");     if(el) el.value=cfg.formato.tamanho; }
+          if (cfg.formato.data)        { var el=document.getElementById("fmt-data");        if(el) el.value=cfg.formato.data; }
+          if (cfg.formato.alinhamento) { var el=document.getElementById("fmt-alinhamento"); if(el) el.value=cfg.formato.alinhamento; }
+          if (cfg.formato.densidade)   { var el=document.getElementById("f-densidade");     if(el) el.value=cfg.formato.densidade; }
+        }
+        if (cfg.area)   { var el=document.getElementById("f-area");   if(el) { el.value=cfg.area; atualizarSubareas(); } }
+        if (cfg.modelo) { var el=document.getElementById("sel-modelo"); if(el) el.value=cfg.modelo; }
+        if (cfg.cotacao) COTACAO_USD_BRL = cfg.cotacao;
+        if (cfg.tema) { localStorage.setItem("gp_tema", cfg.tema); carregarTema(); }
+        if (cfg.teses && cfg.teses.length) localStorage.setItem("gp_teses", JSON.stringify(cfg.teses));
+        if (cfg.feriadosCustom && cfg.feriadosCustom.length) {
+          localStorage.setItem("gp_feriados_custom", JSON.stringify(cfg.feriadosCustom));
+          carregarFeriadosCustom();
+        }
+        alert("✅ Configurações importadas com sucesso!");
+      } catch(err){ alert("Erro ao importar: "+err.message); }
+    };
+    rd.readAsText(f);
+  };
+  inp.click();
+}
+
 function renderDashboard() {
   var div = document.getElementById("dash-content");
   if (!div) return;
@@ -2191,6 +2304,7 @@ function renderTabela() {
 }
 
 function selProc(i,tr) {
+  atualizarContadorPrazo(procs[i]&&(procs[i].proc||procs[i].pasta));
   document.querySelectorAll('#tbody tr').forEach(function(r){r.classList.remove('sel');});
   tr.classList.add('sel');
   var p=procs[i];
@@ -2734,6 +2848,141 @@ async function compararModelos() {
     btnC.disabled=false; btnC.textContent="⚡ Comparar"; btnG.disabled=false;
     esconderBarra();
   }
+}
+
+// ── VERIFICADOR DE QUALIDADE ────────────────────────────────────────────
+// ── TEMA CLARO/ESCURO ───────────────────────────────────────────────────
+function toggleTema() {
+  var html = document.documentElement;
+  var atual = html.getAttribute("data-theme");
+  var novo = atual === "dark" ? "light" : "dark";
+  html.setAttribute("data-theme", novo);
+  try { localStorage.setItem("gp_tema", novo); } catch(e){}
+  var btn = document.getElementById("btn-tema");
+  if (btn) btn.textContent = novo === "dark" ? "☀️" : "🌙";
+}
+
+function carregarTema() {
+  try {
+    var t = localStorage.getItem("gp_tema") || "light";
+    document.documentElement.setAttribute("data-theme", t);
+    var btn = document.getElementById("btn-tema");
+    if (btn) btn.textContent = t === "dark" ? "☀️" : "🌙";
+  } catch(e){}
+}
+
+// ── DETECTOR DE DLP ─────────────────────────────────────────────────────
+var TERMOS_DLP = [
+  "câncer","neoplasia","tumor","carcinoma","leucemia","linfoma",
+  "diabetes","diabético","insulina","insulinodependente",
+  "hipertensão","hipertensivo","cardíaco","cardiopatia","arritmia","infarto",
+  "hiv","aids","imunossuprimido","imunossupressão",
+  "doença de crohn","colite","lupus","esclerose","parkinson","alzheimer",
+  "hepatite","cirrose","renal","diálise","transplante",
+  "autismo","tdah","esquizofrenia","bipolar","depressão",
+  "artrite","artrose","fibromialgia","espondilite",
+  "epilepsia","convulsão","derrame","avc","acidente vascular",
+  "cirurgia","internação","quimioterapia","radioterapia","hemodiálise",
+  "CID","doença preexistente","lesão preexistente"
+];
+
+function detectarDLP(texto) {
+  var alerta = document.getElementById("alerta-dlp");
+  if (!alerta) return;
+  if (!texto || texto.length < 20) { alerta.style.display="none"; return; }
+  var txtL = texto.toLowerCase();
+  var encontrados = TERMOS_DLP.filter(function(t){
+    return txtL.indexOf(t.toLowerCase()) >= 0;
+  });
+  if (encontrados.length) {
+    alerta.style.display = "block";
+    alerta.innerHTML = "⚠️ <strong>Possível DLP detectado:</strong> " +
+      encontrados.slice(0,5).join(", ") +
+      (encontrados.length > 5 ? " e outros..." : "") +
+      ". Verifique a declaração de saúde e considere arguir CPT ou rescisão por fraude.";
+  } else {
+    alerta.style.display = "none";
+  }
+}
+
+function enviarWhatsApp() {
+  var txt = (document.getElementById("res-txt")||{}).textContent||"";
+  if (!txt.trim()) { alert("Nenhuma minuta para enviar."); return; }
+  var proc = (document.getElementById("f-proc")||{}).value||"";
+  var tipo = (document.getElementById("f-tipo")||{}).value||"";
+  var header = (tipo && tipo !== "auto" ? tipo.toUpperCase() : "PETIÇÃO") +
+    (proc ? " — Proc. " + proc : "") + "\n\n";
+  var msg = header + txt.substring(0, 3000) + (txt.length > 3000 ? "\n\n[continua...]" : "");
+  var url = "https://web.whatsapp.com/send?text=" + encodeURIComponent(msg);
+  window.open(url, "_blank");
+}
+
+function verificarQualidade() {
+  var txt = (document.getElementById("res-txt")||{}).textContent||"";
+  if (!txt.trim()) { alert("Nenhuma minuta para verificar."); return; }
+  var problemas = [];
+  var avisos   = [];
+
+  // 1. Termos proibidos
+  var proibidos = [
+    {p:/\bart\.\s*\d/gi,         msg:"Abreviação \"art.\" — usar \"artigo\" por extenso"},
+    {p:/Vossa Excelência/gi,       msg:"\"Vossa Excelência\" — substituir por \"esse juízo\" ou \"esse órgão\""},
+    {p:/§\s*[Úú]nico/gi,          msg:"\"§ único\" — usar \"parágrafo único\" por extenso"},
+    {p:/parágrafo\s+\d/gi,        msg:"\"parágrafo N\" — usar o símbolo § seguido do número"},
+    {p:/breve resumo/gi,           msg:"Expressão \"breve resumo\" — evitar"},
+    {p:/a presente demanda/gi,     msg:"Expressão \"a presente demanda\" — evitar"},
+    {p:/Diante do exposto/gi,      msg:"\"Diante do exposto\" — substituir por \"Ante ao exposto\""},
+    {p:/\bAutor\b/g,              msg:"\"Autor\" em maiúsculo no meio de frase — usar minúsculo"},
+    {p:/\bRéu\b/g,               msg:"\"Réu\" em maiúsculo no meio de frase — usar minúsculo"},
+    {p:/sentença de primeiro grau/gi, msg:"\"sentença de primeiro grau\" — evitar"},
+    {p:/sistema SISBAJUD/gi,       msg:"\"sistema SISBAJUD\" — termo a evitar"},
+  ];
+  proibidos.forEach(function(r){
+    var m = txt.match(r.p);
+    if (m) problemas.push("🔴 "+r.msg+" ("+m.length+"x)");
+  });
+
+  // 2. Jurisprudência sem número de processo
+  var juri = txt.match(/(?:STJ|STF|TJSP|TRF),[^.]{0,60}?(?:Rel\.|relator|Min\.|Ministr)/gi)||[];
+  var juriSemNum = juri.filter(function(j){
+    return !/\d{4,}[-.]\//.test(j) && !/REsp|AREsp|HC|RE |AC |AgRg/i.test(j);
+  });
+  if (juriSemNum.length) avisos.push("🟡 "+juriSemNum.length+" citação(ões) de jurisprudência sem número de processo identificado");
+
+  // 3. DOS FATOS antes de DA DECISÃO/SENTENÇA
+  var posFatos = txt.indexOf("DOS FATOS");
+  var posDecisao = Math.max(txt.indexOf("DA SENTENÇA"), txt.indexOf("DA DECISÃO"), txt.indexOf("DO ACÓRDÃO"));
+  if (posFatos > 0 && posDecisao > 0 && posFatos > posDecisao) {
+    problemas.push("🔴 Ordem incorreta: DOS FATOS aparece após DA DECISÃO/SENTENÇA");
+  }
+
+  // 4. Pedidos no formato correto (a), b), c))
+  if (txt.indexOf("DOS PEDIDOS") >= 0) {
+    if (!/a\)/.test(txt)) avisos.push("🟡 Tópico DOS PEDIDOS sem estrutura alfabética a), b), c)...");
+  }
+
+  // 5. Datas no formato errado
+  var datasErradas = txt.match(/\d{1,2} de (?:jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)\w* de \d{4}/gi)||[];
+  var fmt = (document.getElementById("fmt-data")||{}).value||"numerica";
+  if (fmt === "numerica" && datasErradas.length) {
+    avisos.push("🟡 "+datasErradas.length+" data(s) no formato por extenso — configuração pede numérico (DD/MM/AAAA)");
+  }
+
+  // 6. Verificar "Ante ao exposto"
+  if (txt.indexOf("DOS PEDIDOS") >= 0 && !/Ante ao exposto/i.test(txt)) {
+    avisos.push("🟡 Seção de pedidos não começa com \"Ante ao exposto, requer-se:\"");
+  }
+
+  // Resultado
+  var total = problemas.length + avisos.length;
+  if (!total) {
+    alert("✅ Verificação concluída — nenhum problema encontrado!");
+    return;
+  }
+  var msg = "Verificação de qualidade — "+total+" item(ns) encontrado(s):\n\n";
+  if (problemas.length) msg += problemas.join("\n") + "\n\n";
+  if (avisos.length)    msg += avisos.join("\n");
+  alert(msg);
 }
 
 function copiarTextoMinuta() {
@@ -4170,7 +4419,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.55',
+      version: '1.56',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
@@ -4352,6 +4601,9 @@ function _modalKeyHandler(e) {
   // Contador de chars/tokens no campo andamento
   var _fAnd = document.getElementById("f-and");
   if (_fAnd) _fAnd.addEventListener("input", function(){
+    // Detector de DLP
+    detectarDLP(this.value);
+
     var n = this.value.length;
     var el1 = document.getElementById("cnt-and");
     var el2 = document.getElementById("cnt-and-tk");
@@ -4369,6 +4621,7 @@ function _modalKeyHandler(e) {
   });
   setTimeout(restaurarRascunho, 400);
   carregarFeriadosCustom();
+  carregarTema();
   // Listener tipo de peça → card revisão
   var _selTipo = document.getElementById("f-tipo");
   if (_selTipo) _selTipo.addEventListener("change", function(){
@@ -4445,6 +4698,14 @@ function _modalKeyHandler(e) {
       </div>
 </body>
 </html>
+      <div class="card">
+        <div class="card-title">⚙️ Exportar / Importar configurações</div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:8px">Salve e restaure todas as preferências, teses e feriados em outro dispositivo.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-s btn-sm" onclick="exportarConfig()">📤 Exportar config</button>
+          <button class="btn btn-s btn-sm" onclick="importarConfig()">📥 Importar config</button>
+        </div>
+      </div>
       <div class="card">
         <div class="card-title">📅 Feriados municipais (cálculo de prazos)</div>
         <p style="font-size:12px;color:var(--text3);margin-bottom:8px">Adicione feriados municipais ou datas de suspensão judicial para que o extrator de prazos os considere.</p>
