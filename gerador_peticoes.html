@@ -143,7 +143,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-ver">OAB/SP 274.575 · versão 1.51</div>
+    <div class="login-ver">OAB/SP 274.575 · versão 1.51.1</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -167,7 +167,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.51</span>
+    <span class="tb-meta" id="tb-versao">versão 1.51.1</span>
   </div>
 </div>
 
@@ -2769,11 +2769,11 @@ var ESTRUTURAS = {
     intro: false
   },
   'agravo de instrumento': {
-    topicos: ['DO CABIMENTO', 'DA TEMPESTIVIDADE', 'DA EMENTA E/OU RESUMO DA DECISÃO AGRAVADA', 'DOS FATOS', 'DO DIREITO', 'DA NECESSIDADE DE CONCESSÃO DE EFEITO SUSPENSIVO (quando aplicável)', 'DOS PEDIDOS'],
+    topicos: ['DO CABIMENTO', 'DA TEMPESTIVIDADE', 'DOS FATOS', 'DA DECISÃO AGRAVADA E SUAS RAZÕES DE REFORMA', 'DO DIREITO', 'DA NECESSIDADE DE CONCESSÃO DE EFEITO SUSPENSIVO (quando aplicável)', 'DOS PEDIDOS'],
     intro: false
   },
   'apelação': {
-    topicos: ['DO CABIMENTO', 'DA TEMPESTIVIDADE', 'DA EMENTA E/OU RESUMO DA SENTENÇA', 'DOS FATOS', 'DO DIREITO (razões de reforma)', 'DOS PEDIDOS'],
+    topicos: ['DO CABIMENTO', 'DA TEMPESTIVIDADE', 'DOS FATOS', 'DA SENTENÇA RECORRIDA E RAZÕES DE REFORMA', 'DOS PEDIDOS'],
     intro: false
   },
   'contestação': {
@@ -2927,15 +2927,19 @@ var ESTRUTURAS = {
 function getInstrucaoEstrutura(tipoPeca) {
   var tipo = String(tipoPeca||'').toLowerCase();
   var est = ESTRUTURAS[tipo];
-  // Fallback: procurar chave parcial
+  // Fallback: procurar chave parcial — preferir chave mais longa (mais específica)
   if (!est) {
+    var melhorChave = null, melhorLen = 0;
     for (var k in ESTRUTURAS) {
-      if (tipo.indexOf(k) >= 0 || k.indexOf(tipo) >= 0) { est = ESTRUTURAS[k]; break; }
+      if ((tipo.indexOf(k) >= 0 || k.indexOf(tipo) >= 0) && k.length > melhorLen) {
+        melhorChave = k; melhorLen = k.length;
+      }
     }
+    if (melhorChave) est = ESTRUTURAS[melhorChave];
   }
   if (!est) return '';
   var intro = est.intro ? 'Inicie a peça com um parágrafo de introdução (sem título de tópico) contendo breve resumo do caso e/ou do ato/decisão/despacho que se está cumprindo ou manifestando, com indicação do ID/fls./evento do documento de referência quando disponível no andamento fornecido. Não use o rótulo "DA INTRODUÇÃO" como título — apenas escreva o parágrafo diretamente após o endereçamento.\n\n' : '';
-  return 'ESTRUTURA OBRIGATÓRIA DA PEÇA ('+tipoPeca.toUpperCase()+'): '+intro+'Organize o conteúdo nos seguintes tópicos, nesta ordem, em CAIXA ALTA e negrito: ' + est.topicos.map(function(t){return '\n  - ' + t;}).join('') + '\n\nCada tópico deve ser desenvolvido com a profundidade adequada à densidade solicitada. Não omita nenhum tópico obrigatório, ainda que seja para indicar que não se aplica ao caso concreto.';
+  return 'ESTRUTURA OBRIGATÓRIA DA PEÇA ('+tipoPeca.toUpperCase()+'): '+intro+'Organize o conteúdo nos seguintes tópicos, nesta ordem, em CAIXA ALTA e negrito: ' + est.topicos.map(function(t){return '\n  - ' + t;}).join('') + '\n\nCada tópico deve ser desenvolvido com a profundidade adequada à densidade solicitada. Não omita nenhum tópico obrigatório, ainda que seja para indicar que não se aplica ao caso concreto. ORDEM OBRIGATÓRIA E INVIOLÁVEL: reproduza os tópicos exatamente na sequência listada acima — nunca reordene, mescle ou inverta tópicos. DOS FATOS deve SEMPRE preceder qualquer tópico que trate da decisão, sentença ou acórdão recorrido.';
 }
 
 // ── DENSIDADE DO TEXTO ────────────────────────────────────────
@@ -3512,7 +3516,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.51',
+      version: '1.51.1',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
