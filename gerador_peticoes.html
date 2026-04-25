@@ -17,6 +17,8 @@
 tr.prazo-vencido { background:rgba(220,38,38,.07) !important; }
 tr.prazo-hoje    { background:rgba(220,38,38,.12) !important; }
 tr.prazo-d2      { background:rgba(245,158,11,.07) !important; }
+.g-res-item{cursor:pointer;transition:background .15s}
+.g-res-item:hover{background:var(--hover)}
 /* Ficha de processo — painel lateral deslizante */
 #ficha-proc {
   position:fixed; top:0; right:-420px; width:400px; height:100vh;
@@ -183,7 +185,11 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.57 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
+    <div style="display:flex;align-items:center;gap:6px;flex:1;max-width:280px;margin:0 8px">
+          <input id="busca-global" type="text" placeholder="🔍 Busca global..." style="font-size:11px;padding:4px 8px;border-radius:16px;border:1px solid var(--border);background:var(--bg2);color:var(--text);width:100%;" oninput="buscaGlobal(this.value)" onfocus="document.getElementById('res-busca-global').style.display='block'" onblur="setTimeout(function(){document.getElementById('res-busca-global').style.display='none';},200)">
+          <div id="res-busca-global" style="display:none;position:absolute;top:48px;left:0;right:0;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
+        </div>
+        <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.58 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -207,7 +213,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.57</span>
+    <span class="tb-meta" id="tb-versao">versão 1.58</span>
   </div>
 </div>
 
@@ -777,13 +783,24 @@ tbody tr.st-p td{background:#b3e5fc}
         <div class="tip" id="rtotal"></div>
       </div>
 
+      <div style="margin-bottom:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+          <span style="font-size:10px;color:var(--text3)">Contexto estimado</span>
+          <span id="ctx-lbl" style="font-size:10px;color:var(--text3)">—</span>
+        </div>
+        <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden">
+          <div id="ctx-bar" style="height:100%;width:0%;background:var(--blue);border-radius:2px;transition:width .4s,background .3s"></div>
+        </div>
+      </div>
       <div id="draft-st" style="font-size:10px;color:var(--text3);min-height:14px;margin-bottom:4px;text-align:right"></div>
       <div class="btn-row">
         <button class="btn btn-p" id="btn-ger" onclick="gerarMinuta()" disabled>Gerar minuta</button>
         <button class="btn btn-s" id="btn-comparar" onclick="compararModelos()" disabled title="Gera simultaneamente com GPT-4o e Claude e exibe lado a lado">⚡ Comparar</button>
         <button class="btn btn-s" onclick="gerarResumoCaso()" title="Gera um resumo estruturado do caso a partir do andamento e contextos carregados">📝 Resumir caso</button>
         <button class="btn btn-s" onclick="limparForm()">Limpar</button>
-      </div>
+      
+        <button class="btn btn-s btn-sm" id="btn-partes" onclick="gerarEmPartes()" disabled title="Gerar tópico a tópico — útil para peças longas">📑 Em partes</button>
+        <button id="btn-prox-parte" class="btn btn-s btn-sm" style="display:none" onclick="gerarProximaParte()" title="Gerar próximo tópico">▶ Próximo tópico</button></div>
     </div>
 
     <!-- DASHBOARD -->
@@ -1459,6 +1476,8 @@ function onProcInput() {
 function checkBtn() {
   var btn = document.getElementById('btn-ger');
   if (btn) btn.disabled = !(getKey() && document.getElementById('f-proc').value.trim());
+  var bPartes=document.getElementById('btn-partes'); if(bPartes) bPartes.disabled=btn?btn.disabled:true;
+  var bComp=document.getElementById('btn-comparar'); if(bComp) bComp.disabled=btn?btn.disabled:true;
 }
 
 // REFS
@@ -2288,10 +2307,158 @@ function abrirFicha(i) {
     '<div class="ficha-section">'+
     '  <div class="ficha-label">Histórico de gerações</div>'+
     histHTML +
+    '</div>'+
+    '<hr style="border:none;border-top:1px solid var(--border);margin:12px 0"/>'+
+    '<div class="ficha-section">'+
+    '  <div class="ficha-label">Editar tratativa</div>'+
+    '  <select id="ficha-trat-sel" style="width:100%;margin-bottom:6px" onchange="salvarFichaTratativa()">'+
+    '    <option value="">— status —</option>'+
+    '    <option value="CUMPRIDO"'+( st.trat==="CUMPRIDO" ? " selected" : "")+'> CUMPRIDO</option>'+
+    '    <option value="CANCELADO"'+( st.trat==="CANCELADO" ? " selected" : "")+'> CANCELADO</option>'+
+    '    <option value="TRANSFERIDO"'+( st.trat==="TRANSFERIDO" ? " selected" : "")+'> TRANSFERIDO</option>'+
+    '    <option value="REAGENDADO"'+( st.trat==="REAGENDADO" ? " selected" : "")+'> REAGENDADO</option>'+
+    '    <option value="AG. RETORNO"'+( st.trat==="AG. RETORNO" ? " selected" : "")+'> AG. RETORNO</option>'+
+    '  </select>'+
+    '  <textarea id="ficha-conc-ta" rows="3" placeholder="Conclusão / observação..." '+
+    '    style="font-size:12px;margin-bottom:6px" oninput="salvarFichaTratativa()">'+
+    (st.conc||"")+'</textarea>'+
+    '  <span id="ficha-saved-st" style="font-size:10px;color:var(--text3)"></span>'+
     '</div>';
 
   document.getElementById("ficha-proc").classList.add("aberta");
   document.getElementById("ficha-overlay").classList.add("visivel");
+}
+
+function salvarFichaTratativa() {
+  if (_fichaIdx < 0) return;
+  var p = procs[_fichaIdx];
+  if (!p) return;
+  var key = p.pasta || p.proc;
+  var s = getSt();
+  var st = s[key] || {};
+  var trat = (document.getElementById("ficha-trat-sel")||{}).value||"";
+  var conc = (document.getElementById("ficha-conc-ta")||{}).value||"";
+  if (trat) st.trat = trat; else delete st.trat;
+  if (conc) st.conc = conc; else delete st.conc;
+  setSts(key, Object.keys(st).length ? st : null);
+  var stEl = document.getElementById("ficha-saved-st");
+  if (stEl) {
+    stEl.textContent = "✓ Salvo";
+    setTimeout(function(){ stEl.textContent = ""; }, 2000);
+  }
+  renderTabela(); // atualizar badge na tabela
+}
+
+// ── NOTIFICAÇÕES DE PRAZO ──────────────────────────────────────────────
+function solicitarPermissaoNotificacao() {
+  if (!("Notification" in window)) return;
+  if (Notification.permission === "default") {
+    Notification.requestPermission();
+  }
+}
+
+function verificarPrazosENotificar() {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  if (!procs || !procs.length) return;
+  var hoje = isoHoje();
+  var alertas = [];
+  procs.forEach(function(p) {
+    if (!p.prazo) return;
+    var num = parseFloat(p.prazo);
+    if (isNaN(num) || num < 40000) return;
+    var prazoIso = new Date((num-25569)*86400*1000).toISOString().substring(0,10);
+    var dias = calcularDiasUteisRestantes(p.prazo);
+    if (dias === -999) {
+      alertas.push({ p:p, msg:"⚠ VENCIDO — "+prazoIso, urgencia:3 });
+    } else if (dias === 0) {
+      alertas.push({ p:p, msg:"🔴 VENCE HOJE — "+prazoIso, urgencia:2 });
+    } else if (dias <= 2) {
+      alertas.push({ p:p, msg:"🟡 D-"+dias+" — vence em "+prazoIso, urgencia:1 });
+    }
+  });
+  if (!alertas.length) return;
+  // Ordenar por urgência e notificar os 3 primeiros
+  alertas.sort(function(a,b){return b.urgencia-a.urgencia;});
+  alertas.slice(0,3).forEach(function(a){
+    try {
+      new Notification("Prazo: "+(a.p.pasta||a.p.proc), {
+        body: a.msg + "\n" + (a.p.parte||a.p.desc||"").substring(0,60),
+        icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>⚖️</text></svg>",
+        tag: "prazo-"+a.p.proc
+      });
+    } catch(e){}
+  });
+}
+
+function ativarNotificacoes() {
+  if (!("Notification" in window)) {
+    alert("Seu navegador não suporta notificações.");
+    return;
+  }
+  Notification.requestPermission().then(function(p){
+    if (p === "granted") {
+      localStorage.setItem("gp_notif", "1");
+      verificarPrazosENotificar();
+      alert("✅ Notificações ativadas! Você será alertado sobre prazos críticos ao abrir a ferramenta.");
+    } else {
+      alert("Permissão negada. Ative as notificações nas configurações do navegador.");
+    }
+  });
+}
+
+// ── BUSCA GLOBAL ────────────────────────────────────────────────────────
+function buscaGlobal(q) {
+  var res = document.getElementById("res-busca-global");
+  if (!res) return;
+  q = (q||"").toLowerCase().trim();
+  if (q.length < 2) { res.innerHTML=""; return; }
+  var itens = [];
+
+  // Processos
+  (procs||[]).forEach(function(p,i){
+    var hay = ((p.pasta||"")+" "+(p.proc||"")+" "+(p.parte||"")+" "+(p.desc||"")+" "+(p.cliente||"")).toLowerCase();
+    if (hay.indexOf(q)>=0) itens.push({
+      cat:"📁 Processo", label:(p.pasta||p.proc)+" — "+(p.parte||p.desc||"").substring(0,40),
+      action:"selProc("+i+",document.createElement('tr'));go('ger')"
+    });
+  });
+
+  // Minutas
+  try {
+    var mins = JSON.parse(localStorage.getItem("gp_minutas")||"[]");
+    mins.forEach(function(m,i){
+      if ((m.tipo||"").toLowerCase().indexOf(q)>=0 || (m.proc||"").toLowerCase().indexOf(q)>=0
+          || (m.preview||"").toLowerCase().indexOf(q)>=0) {
+        itens.push({ cat:"📄 Minuta",
+          label:new Date(m.data).toLocaleDateString("pt-BR")+" — "+m.tipo+(m.proc?" ("+m.proc+")":""),
+          action:"restaurarMinuta("+i+")"
+        });
+      }
+    });
+  } catch(e){}
+
+  // Teses
+  try {
+    var teses = JSON.parse(localStorage.getItem("gp_teses")||"[]");
+    teses.forEach(function(t,i){
+      if ((t.titulo||"").toLowerCase().indexOf(q)>=0 || (t.texto||"").toLowerCase().indexOf(q)>=0) {
+        itens.push({ cat:"📚 Tese",
+          label:t.titulo,
+          action:"inserirTese("+i+")"
+        });
+      }
+    });
+  } catch(e){}
+
+  if (!itens.length) {
+    res.innerHTML='<div style="padding:10px 14px;font-size:12px;color:var(--text3)">Nenhum resultado</div>';
+    return;
+  }
+  res.innerHTML = itens.slice(0,12).map(function(it){
+    return '<div onclick="'+it.action+'" class="g-res-item" style="padding:8px 14px;border-bottom:1px solid var(--border)">'+
+      '<span style="font-size:10px;color:var(--text3);margin-right:6px">'+it.cat+'</span>'+
+      '<span style="font-size:12px">'+it.label+'</span></div>';
+  }).join("");
 }
 
 function fecharFicha() {
@@ -2313,6 +2480,75 @@ function selecionarEGerar() {
   var tr = document.querySelectorAll("#tbody tr")[_fichaIdx] || document.createElement("tr");
   selProc(_fichaIdx, tr);
   fecharFicha();
+}
+
+// ── SUMÁRIO DO PROCESSO (IMPRESSÃO/PDF) ────────────────────────────────
+function gerarSumarioPDF() {
+  if (_fichaIdx < 0) { alert("Abra a ficha de um processo primeiro."); return; }
+  var p = procs[_fichaIdx];
+  if (!p) return;
+  var s = getSt();
+  var key = p.pasta || p.proc;
+  var st = s[key] || {};
+  var hist = [];
+  try {
+    hist = JSON.parse(localStorage.getItem("gp_hist_"+(p.proc||"").replace(/[^\w]/g,"_"))||"[]");
+  } catch(e){}
+  var prazoStr = p.prazo || "—";
+  var diasR = null;
+  if (p.prazo) {
+    var num=parseFloat(p.prazo);
+    if(!isNaN(num)&&num>40000){
+      prazoStr=new Date((num-25569)*86400*1000).toLocaleDateString("pt-BR");
+      diasR=calcularDiasUteisRestantes(p.prazo);
+    }
+  }
+  var prazoLabel = diasR===null ? prazoStr :
+    diasR===-999 ? "⚠ VENCIDO — "+prazoStr :
+    diasR===0 ? "🔴 VENCE HOJE — "+prazoStr :
+    prazoStr+" ("+diasR+" dias úteis)";
+  var histLines = hist.slice(0,5).map(function(h){
+    return "<li>"+new Date(h.data).toLocaleString("pt-BR")+" — "+h.tipo+" ("+h.modelo+")</li>";
+  }).join("");
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ficha — '+(p.pasta||p.proc)+'</title>'+
+    '<style>body{font-family:Arial,sans-serif;font-size:12px;color:#1a1a18;padding:20mm;margin:0}'+
+    'h1{font-size:16px;margin-bottom:4px}h2{font-size:11px;color:#888;margin:0 0 16px}table{border-collapse:collapse;width:100%}'+
+    'td{padding:6px 8px;border:1px solid #ddd;vertical-align:top}td:first-child{font-weight:600;width:160px;color:#555}'+
+    'ul{margin:4px 0;padding-left:16px}li{margin:2px 0}'+
+    '@media print{body{padding:0}}'+ '</style></head><body>'+
+    '<h1>Ficha do Processo</h1>'+
+    '<h2>Gerado em: '+new Date().toLocaleString("pt-BR")+'</h2>'+
+    '<table>'+
+    (p.pasta?'<tr><td>Pasta</td><td>'+p.pasta+'</td></tr>':'')+
+    '<tr><td>Processo</td><td style="font-family:monospace">'+p.proc+'</td></tr>'+
+    (p.cliente?'<tr><td>Cliente</td><td>'+p.cliente+'</td></tr>':'')+
+    (p.parte?'<tr><td>Parte contrária</td><td>'+p.parte+'</td></tr>':'')+
+    (p.resp?'<tr><td>Responsável</td><td>'+p.resp+'</td></tr>':'')+
+    '<tr><td>Prazo</td><td>'+prazoLabel+'</td></tr>'+
+    (p.desc?'<tr><td>Descrição</td><td>'+p.desc+'</td></tr>':'')+
+    (st.trat?'<tr><td>Status</td><td>'+st.trat+'</td></tr>':'')+
+    (st.conc?'<tr><td>Conclusão</td><td>'+st.conc+'</td></tr>':'')+
+    (histLines?'<tr><td>Gerações</td><td><ul>'+histLines+'</ul></td></tr>':'')+
+    '</table></body></html>';
+  var w = window.open("","_blank","width=700,height=900");
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(function(){ w.print(); }, 600);
+}
+
+// ── FAVORITOS ───────────────────────────────────────────────────────────
+function getFavs() {
+  try { return JSON.parse(localStorage.getItem("gp_favs")||"{}"); } catch(e){ return {}; }
+}
+
+function toggleFav(proc, e) {
+  if (e) e.stopPropagation();
+  var favs = getFavs();
+  if (favs[proc]) delete favs[proc];
+  else favs[proc] = true;
+  try { localStorage.setItem("gp_favs", JSON.stringify(favs)); } catch(e){}
+  renderTabela();
 }
 
 function sortTabela(col) {
@@ -2342,6 +2578,13 @@ function sortTabela(col) {
 
 function renderTabela() {
   var s = getSt();
+  var favs = getFavs();
+  // Favoritos sempre no topo (sem mudar a ordenação dos demais)
+  var procsOrdenados = procs.slice().sort(function(a,b){
+    var fa=favs[a.proc]?1:0, fb=favs[b.proc]?1:0;
+    return fb-fa;
+  });
+
   var buscaRaw = (document.getElementById('busca').value||'').toLowerCase().trim();
   var fResp = (document.getElementById('filtro-resp').value||'').toLowerCase();
   var tbody = document.getElementById('tbody');
@@ -2349,7 +2592,7 @@ function renderTabela() {
   var vis=0, tot=procs.length;
   var totTrat = Object.keys(s).filter(function(k){var t=s[k];return t&&['CUMPRIDO','CANCELADO','TRANSFERIDO','REAGENDADO','AG. RETORNO'].indexOf(t.trat)>=0;}).length;
 
-  procs.forEach(function(p,i) {
+  procsOrdenados.forEach(function(p,i) {
     var key = p.pasta||p.proc;
     var t = s[key]||{};
     var trat = t.trat||'';
@@ -2408,9 +2651,9 @@ function renderTabela() {
     var tipoStr=(p.tipo||'').replace('Prazos Cíveis - ','').replace('Prazo Interno - ','').slice(0,30);
     var conc=t.conc||'';
     var badge=trat||'—';
-    tr.innerHTML='<td style="white-space:nowrap">'+p.pasta+
-      ' <button class="btn btn-s btn-sm" style="font-size:9px;padding:1px 5px;margin-left:2px" onclick="event.stopPropagation();abrirFicha('+i+')" title="Ver ficha completa">📋</button></td>'+
-      '<td style="font-family:monospace;font-size:10px">'+p.proc+'</td>'+
+    tr.innerHTML='<td style="white-space:nowrap">'+(favs[p.proc]?'⭐ ':'')+p.pasta+
+      ' <button class="btn btn-s btn-sm" style="font-size:9px;padding:1px 5px;margin-left:2px" onclick="event.stopPropagation();abrirFicha('+i+')" title="Ver ficha">📋</button>'+
+      ' <button class="btn btn-s btn-sm" style="font-size:9px;padding:1px 4px" onclick="event.stopPropagation();toggleFav(this.getAttribute(\"data-proc\"),event)" data-proc="'+p.proc+'" title="Favorito">'+(favs[p.proc]?'★':'☆')+'</button></td>'+
       '<td style="font-size:11px;white-space:nowrap">'+(prazoClasse==='prazo-vencido'?'<span style="color:var(--red);font-weight:700">⚠ '+prazoStr+'</span>':prazoClasse==='prazo-hoje'?'<span style="color:var(--red);font-weight:700">🔴 '+prazoStr+'</span>':prazoClasse==='prazo-d2'?'<span style="color:var(--amber);font-weight:700">🟡 '+prazoStr+'</span>':prazoStr)+'</td>'+
       '<td style="font-size:11px">'+tipoStr+'</td>'+
       '<td style="font-size:12px">'+(p.parte||'')+'</td>'+
@@ -3111,6 +3354,80 @@ function verificarQualidade() {
   if (problemas.length) msg += problemas.join("\n") + "\n\n";
   if (avisos.length)    msg += avisos.join("\n");
   alert(msg);
+}
+
+// ── INDICADOR DE CONTEXTO ──────────────────────────────────────────────
+var LIMITES_CONTEXTO = {
+  "gpt4o":           200000,
+  "claude-sonnet":   200000,
+  "claude-sonnet46": 200000,
+  "claude-opus":     200000
+};
+
+function atualizarIndicadorContexto() {
+  var bar = document.getElementById("ctx-bar");
+  var lbl = document.getElementById("ctx-lbl");
+  if (!bar || !lbl) return;
+  var modelo = (document.getElementById("sel-modelo")||{}).value||"claude-sonnet";
+  var limite = LIMITES_CONTEXTO[modelo] || 128000;
+
+  // Estimar tokens do prompt atual
+  var andamento = (document.getElementById("f-and")||{}).value||"";
+  var inst = (document.getElementById("f-inst")||{}).value||"";
+  var refTxt = (refs||[]).map(function(r){return r.txt||"";}).join(" ");
+  var enriq = getEnriquecimento ? getEnriquecimento() : "";
+  // sys prompt base ≈ 18000 tokens (estimativa estável)
+  var sysBase = 18000;
+  var usrEstim = Math.round((andamento.length + inst.length + refTxt.length + enriq.length) / 4);
+  var total = sysBase + usrEstim;
+  var pct = Math.min(100, Math.round(total / limite * 100));
+
+  bar.style.width = pct + "%";
+  bar.style.background = pct > 80 ? "var(--red)" : pct > 60 ? "var(--amber)" : "var(--blue)";
+  lbl.textContent = "~" + Math.round(total/1000) + "k / " + Math.round(limite/1000) + "k tokens (" + pct + "%)";
+}
+
+// ── MODO PEÇA EM PARTES ─────────────────────────────────────────────────
+var _topicosRestantes = [];
+var _parteAtual = 0;
+
+function gerarEmPartes() {
+  var tipo = document.getElementById("f-tipo").value;
+  var est = ESTRUTURAS[tipo];
+  if (!est || !est.topicos || est.topicos.length < 3) {
+    alert("Selecione um tipo de peça com estrutura definida (pelo menos 3 tópicos) para usar o modo em partes.");
+    return;
+  }
+  _topicosRestantes = est.topicos.slice();
+  _parteAtual = 0;
+  gerarProximaParte();
+}
+
+function gerarProximaParte() {
+  if (!_topicosRestantes.length) {
+    alert("✅ Todos os tópicos foram gerados. Revise a minuta completa.");
+    return;
+  }
+  var topico = _topicosRestantes.shift();
+  _parteAtual++;
+  var total = (_parteAtual + _topicosRestantes.length);
+  var instAtual = document.getElementById("f-inst").value;
+  var instrExtra = (instAtual ? instAtual + "\n\n" : "") +
+    "MODO PARTES — Gere APENAS o tópico: " + topico + "\n" +
+    "Este é o tópico " + _parteAtual + " de " + total + " no total. " +
+    "Não repita tópicos anteriores. Termine com [FIM DO TÓPICO].";
+  document.getElementById("f-inst").value = instrExtra;
+  gerarMinuta();
+  // Restaurar instruções originais após gerar
+  setTimeout(function(){
+    document.getElementById("f-inst").value = instAtual;
+  }, 500);
+  // Mostrar botão de próximo tópico se há mais
+  var btnNext = document.getElementById("btn-prox-parte");
+  if (btnNext) {
+    btnNext.style.display = _topicosRestantes.length ? "inline-flex" : "none";
+    btnNext.textContent = "▶ Próximo: " + (_topicosRestantes[0]||"").substring(0,25) + "...";
+  }
 }
 
 function copiarTextoMinuta() {
@@ -4547,7 +4864,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.57',
+      version: '1.58',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
@@ -4738,7 +5055,12 @@ function _modalKeyHandler(e) {
     if (el1) el1.textContent = n.toLocaleString("pt-BR");
     if (el2) el2.textContent = Math.round(n/4).toLocaleString("pt-BR");
     onTipoChange(); // atualizar sugestão de tipo
+    atualizarIndicadorContexto();
   });
+  // Atualizar indicador também ao mudar modelo
+  var _selMod = document.getElementById("sel-modelo");
+  if (_selMod) _selMod.addEventListener("change", atualizarIndicadorContexto);
+  setTimeout(atualizarIndicadorContexto, 500);
   // Rascunho automático — listeners nos campos
   CAMPOS_RASCUNHO.forEach(function(id){
     var el = document.getElementById(id);
@@ -4750,6 +5072,11 @@ function _modalKeyHandler(e) {
   setTimeout(restaurarRascunho, 400);
   carregarFeriadosCustom();
   carregarTema();
+  // Verificar prazos e notificar se permissão já foi concedida
+  if (localStorage.getItem("gp_notif") === "1") {
+    setTimeout(verificarPrazosENotificar, 2000);
+  }
+  solicitarPermissaoNotificacao();
   // Listener tipo de peça → card revisão
   var _selTipo = document.getElementById("f-tipo");
   if (_selTipo) _selTipo.addEventListener("change", function(){
@@ -4806,6 +5133,7 @@ function _modalKeyHandler(e) {
           <strong style="font-size:14px">📋 Ficha do Processo</strong>
           <div style="display:flex;gap:6px">
             <button class="btn btn-s btn-sm" onclick="abrirNoSistema()" title="Abrir no tribunal">🔗 Abrir</button>
+            <button class="btn btn-s btn-sm" onclick="gerarSumarioPDF()" title="Imprimir / exportar PDF da ficha">🖨 PDF</button>
             <button class="btn btn-s btn-sm" onclick="selecionarEGerar()" title="Selecionar e ir para geração">✏️ Gerar</button>
             <button class="btn btn-s btn-sm" onclick="fecharFicha()">✕</button>
           </div>
@@ -4842,6 +5170,12 @@ function _modalKeyHandler(e) {
       </div>
 </body>
 </html>
+      <div class="card">
+        <div class="card-title">🔔 Notificações de prazo</div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:8px">Receba alertas no navegador quando prazos vencerem (D-2, hoje ou vencido).</p>
+        <button class="btn btn-s btn-sm" onclick="ativarNotificacoes()">🔔 Ativar notificações</button>
+        <span id="notif-st" style="font-size:11px;color:var(--text3);margin-left:8px"></span>
+      </div>
       <div class="card">
         <div class="card-title">⚙️ Exportar / Importar configurações</div>
         <p style="font-size:12px;color:var(--text3);margin-bottom:8px">Salve e restaure todas as preferências, teses e feriados em outro dispositivo.</p>
