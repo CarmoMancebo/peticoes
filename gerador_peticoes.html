@@ -143,7 +143,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-ver">OAB/SP 274.575 · versão 1.50</div>
+    <div class="login-ver">OAB/SP 274.575 · versão 1.51</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -167,7 +167,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.50</span>
+    <span class="tb-meta" id="tb-versao">versão 1.51</span>
   </div>
 </div>
 
@@ -406,7 +406,7 @@ tbody tr.st-p td{background:#b3e5fc}
         <table>
           <thead id="thead-sort"><tr>
             <th onclick="sortTabela('pasta')" class="th-sort" title="Ordenar por Pasta">Pasta</th><th onclick="sortTabela('proc')" class="th-sort" title="Ordenar por Processo">Processo</th><th onclick="sortTabela('prazo')" class="th-sort" title="Ordenar por Prazo">Prazo</th><th onclick="sortTabela('tipo')" class="th-sort" title="Ordenar por Tipo">Tipo</th>
-            <th onclick="sortTabela('parte')" class="th-sort" title="Ordenar por Parte contrária">Parte contrária</th><th>Descrição</th><th onclick="sortTabela('resp')" class="th-sort" title="Ordenar por Responsável">Resp.</th>
+            <th onclick="sortTabela('parte')" class="th-sort" title="Ordenar por Parte contrária">Parte contrária</th><th onclick="sortTabela('desc')" class="th-sort" title="Ordenar por Descrição">Descrição</th><th onclick="sortTabela('resp')" class="th-sort" title="Ordenar por Responsável">Resp.</th>
             <th style="text-align:center">Tratativa</th>
           </tr></thead>
           <tbody id="tbody"></tbody>
@@ -3512,7 +3512,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.50',
+      version: '1.51',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
