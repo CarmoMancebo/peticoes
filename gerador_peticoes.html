@@ -9,6 +9,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* Barra de progresso de geração */
+#barra-progresso { display:none; height:3px; background:var(--blue-bg); border-radius:2px; margin-bottom:8px; overflow:hidden; }
+#barra-progresso-inner { height:100%; width:0%; background:var(--blue); border-radius:2px; transition:width 0.3s ease; }
+#barra-progresso.indeterminado #barra-progresso-inner { animation:barra-slide 1.4s ease-in-out infinite; width:40%; }
+@keyframes barra-slide { 0%{transform:translateX(-100%)} 100%{transform:translateX(350%)} }
 .th-sort { cursor:pointer; user-select:none; white-space:nowrap; }
 .th-sort:hover { background:var(--hover); }
 .th-sort.sort-asc::after { content:" ▲"; font-size:9px; opacity:.7; }
@@ -138,7 +143,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-ver">OAB/SP 274.575 · versão 1.49</div>
+    <div class="login-ver">OAB/SP 274.575 · versão 1.50</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -162,7 +167,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.49</span>
+    <span class="tb-meta" id="tb-versao">versão 1.50</span>
   </div>
 </div>
 
@@ -346,6 +351,7 @@ tbody tr.st-p td{background:#b3e5fc}
           <small>Carregada uma vez — dados salvos automaticamente</small>
         </div>
         <input type="file" id="inp-xlsx" accept=".xlsx,.xls" style="display:none" onchange="loadXLSX(this)" />
+        <div id="xlsx-info" style="font-size:11px;color:var(--text3);margin-top:4px;min-height:14px"></div>
       </div>
 
       <div id="proc-hdr" style="display:none;margin-bottom:10px">
@@ -703,7 +709,8 @@ tbody tr.st-p td{background:#b3e5fc}
     <div id="panel-res" class="panel">
       <div class="panel-title">Resultado</div>
       <div class="panel-sub">Minuta gerada — revise antes de protocolar.</div>
-      <div id="res-empty" style="text-align:center;padding:3rem 1rem;color:var(--text3)">
+      <div id="barra-progresso" class="indeterminado"><div id="barra-progresso-inner"></div></div>
+        <div id="res-empty" style="text-align:center;padding:3rem 1rem;color:var(--text3)">
         <p>Nenhuma minuta gerada ainda.</p>
       </div>
       <div id="res-content" style="display:none">
@@ -742,7 +749,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tp-body">
     <div class="tp-inf" id="tp-inf"></div>
-    <div class="field"><label>Responsável (col. J)</label><input type="text" id="tp-resp" oninput="updConc()" /></div>
+    <div class="field"><label>Responsável</label><input type="text" id="tp-resp" oninput="updConc()" /></div>
     <div class="field">
       <label>Tratativa (col. K)</label>
       <select id="tp-trat" onchange="onTrat()">
@@ -1486,7 +1493,7 @@ function loadXLSX(inp) {
         desc:     gc(r,['descrição','descricao']),
         prazo:    gc(r,['prazo fatal','prazo']),
         tipo:     gc(r,['tipo - subtipo','tipo subtipo','tipo']),
-        resp:     gc(r,['responsável','responsavel']),
+        resp:     gc(r,['responsável','responsavel','responsable','resp.','resp ','advogado responsável','advogado responsavel','adv. responsável','adv responsável','responsável pelo caso']),
         _trat:    gc(r,['tratativa']),
         _transf:  gc(r,['transferido para','transferido']),
         _data:    gc(r,['data']),
@@ -1497,6 +1504,10 @@ function loadXLSX(inp) {
     });
     try { localStorage.setItem(LSP, JSON.stringify(procs)); } catch(e){}
     document.getElementById('card-xlsx').style.display='none';
+    // Detectar se a coluna responsável foi encontrada
+    var temResp = procs.some(function(p){ return p.resp && p.resp.trim(); });
+    var infoXlsx = document.getElementById('xlsx-info');
+    if (infoXlsx) infoXlsx.textContent = temResp ? '✓ Coluna Responsável detectada automaticamente.' : '⚠ Coluna Responsável não encontrada — verifique o cabeçalho da planilha.';
     iniciarTabela();
   };
   rd.readAsArrayBuffer(f);
@@ -1644,6 +1655,15 @@ function filtrar(f) {
     document.getElementById('f-'+t).classList.toggle('active',t===f);
   });
   renderTabela();
+}
+
+function mostrarBarra() {
+  var b = document.getElementById("barra-progresso");
+  if (b) { b.style.display="block"; b.classList.add("indeterminado"); }
+}
+function esconderBarra() {
+  var b = document.getElementById("barra-progresso");
+  if (b) { b.style.display="none"; b.classList.remove("indeterminado"); }
 }
 
 function sortTabela(col) {
@@ -2385,7 +2405,7 @@ async function gerarMinuta() {
   var sis=document.getElementById('f-sistema').value;
   var refBlock=refs.length>0?'\n\nPEÇAS DE REFERÊNCIA — use como modelo de estilo, estrutura e linguagem:\n'+refs.map(function(r){return '\n--- '+r.name+' ---\n'+r.txt;}).join('\n'):'';
   var btn=document.getElementById('btn-ger');
-  btn.disabled=true; btn.textContent='Gerando...';
+  btn.disabled=true; btn.textContent='Gerando...'; mostrarBarra();
   go('res');
   document.getElementById('res-empty').style.display='none';
   document.getElementById('res-content').style.display='block';
@@ -2448,7 +2468,7 @@ async function gerarMinuta() {
     document.getElementById('res-nome').textContent='Arquivo: '+nomeArq+'.docx  ·  Modelo: '+nomeModelo;
     setSt2('res-st','ok','Minuta gerada com sucesso. Revise antes de protocolar.');
   } catch(e){setSt2('res-st','err','Erro: '+e.message);}
-  btn.disabled=false; btn.textContent='Gerar minuta';
+  btn.disabled=false; btn.textContent='Gerar minuta'; esconderBarra();
 }
 
 function inferir(t) {
@@ -3492,7 +3512,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.49',
+      version: '1.50',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
