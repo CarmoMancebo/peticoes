@@ -231,7 +231,7 @@ tbody tr.st-p td{background:#b3e5fc}
           <input id="busca-global" type="text" placeholder="🔍 Busca global..." style="font-size:11px;padding:4px 8px;border-radius:16px;border:1px solid var(--border);background:var(--bg2);color:var(--text);width:100%;" oninput="buscaGlobal(this.value)" onfocus="document.getElementById('res-busca-global').style.display='block'" onblur="setTimeout(function(){document.getElementById('res-busca-global').style.display='none';},200)">
           <div id="res-busca-global" style="display:none;position:absolute;top:48px;left:0;right:0;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
         </div>
-        <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.61.1 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
+        <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.61.1.1 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -255,7 +255,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.61.1</span>
+    <span class="tb-meta" id="tb-versao">versão 1.61.1.1</span>
   </div>
 </div>
 
@@ -2949,45 +2949,27 @@ function sortTabela(col, ev) {
 function renderTabela() {
   var s = getSt();
   var favs = getFavs();
-  // Favoritos sempre no topo
   var procsOrdenados = procs.slice().sort(function(a,b){
     var fa=favs[a.proc]?1:0, fb=favs[b.proc]?1:0;
     return fb-fa;
   });
-
-  // ── Detecção de duplicatas ──────────────────────────────────────────
-  // dupProc: mesmo número de processo (mais de 1 linha com o mesmo proc)
   var mapProc = {};
   procsOrdenados.forEach(function(p){
-    if (!p.proc) return;
-    var k = p.proc.trim();
-    mapProc[k] = (mapProc[k]||0) + 1;
+    if(!p.proc) return;
+    mapProc[p.proc.trim()]=(mapProc[p.proc.trim()]||0)+1;
   });
-  // dupTarefa: mesma pasta + mesma parte (tarefas repetidas no mesmo caso)
   var mapTarefa = {};
   procsOrdenados.forEach(function(p){
-    var k = (p.pasta||"").trim() + "|" + (p.parte||"").trim();
-    if (k === "|") return; // ignora linhas sem pasta nem parte
-    mapTarefa[k] = (mapTarefa[k]||0) + 1;
+    var k=(p.pasta||'').trim()+'|'+(p.parte||'').trim();
+    if(k!=='|') mapTarefa[k]=(mapTarefa[k]||0)+1;
   });
-
-  // Atualizar legenda de duplicatas
-
-  var buscaRaw = (document.getElementById('busca').value||'').toLowerCase().trim();
-  var fResp = (document.getElementById('filtro-resp').value||'').toLowerCase();
-  var fRespAtivo = fResp && document.getElementById('filtro-resp').selectedIndex > 1;
-  // Detecção de duplicatas
-  var mapProc = {};
-  procsOrdenados.forEach(function(p){ if(p.proc){var k=p.proc.trim();mapProc[k]=(mapProc[k]||0)+1;} });
-  var mapTarefa = {};
-  procsOrdenados.forEach(function(p){ var k=(p.pasta||'').trim()+'|'+(p.parte||'').trim();if(k!=='|')mapTarefa[k]=(mapTarefa[k]||0)+1; });
-
-  var itensVisiveis = [];
-  var tbody = document.getElementById('tbody');
+  var buscaRaw=(document.getElementById('busca').value||'').toLowerCase().trim();
+  var fResp=(document.getElementById('filtro-resp').value||'').toLowerCase();
+  var fRespAtivo=fResp&&document.getElementById('filtro-resp').selectedIndex>1;
+  var tbody=document.getElementById('tbody');
   tbody.innerHTML='';
   var vis=0, tot=procs.length;
-  var totTrat = Object.keys(s).filter(function(k){var t=s[k];return t&&['CUMPRIDO','CANCELADO','TRANSFERIDO','REAGENDADO','AG. RETORNO'].indexOf(t.trat)>=0;}).length;
-
+  var totTrat=Object.keys(s).filter(function(k){var t=s[k];return t&&['CUMPRIDO','CANCELADO','TRANSFERIDO','REAGENDADO','AG. RETORNO'].indexOf(t.trat)>=0;}).length;
   var itensVisiveis = [];
   procsOrdenados.forEach(function(p,i) {
     var key = p.pasta||p.proc;
@@ -3085,181 +3067,25 @@ function renderTabela() {
     itensVisiveis.push({p:p, tr:tr, i:i});
   });
 
-  // Inserir no tbody (normal ou agrupado)
+  // Inserir no tbody
   if (modoGrupo) {
     renderTabelaGrupada(tbody, itensVisiveis, s, favs);
   } else {
-    itensVisiveis.forEach(function(item){ tbody.appendChild(item.tr); });
+    itensVisiveis.forEach(function(item){tbody.appendChild(item.tr);});
   }
-
-  // Contador
-  var cnt = document.getElementById('contador-linhas');
-  if (cnt) cnt.textContent = 'Mostrando ' + itensVisiveis.length + ' de ' + procs.length + ' processos';
-  document.getElementById('proc-count').textContent=tot+' processos · '+(tot-totTrat)+' pendentes · '+totTrat+' tratados · exibindo '+vis;
-
-  // Legenda duplicatas
-  var nDupProc   = Object.values(mapProc).filter(function(v){return v>1;}).length;
-  var nDupTarefa = Object.values(mapTarefa).filter(function(v){return v>1;}).length;
-  var legendEl = document.getElementById('legend-dup');
-  if (legendEl) {
-    legendEl.style.display = (nDupProc+nDupTarefa) ? 'flex' : 'none';
-    legendEl.innerHTML =
-      (nDupProc ? '<span><span style="color:var(--amber)">⚠</span> '+nDupProc+' duplicado(s)</span>' : '') +
-      (nDupTarefa ? '<span><span style="color:#a78bfa">↔</span> '+nDupTarefa+' par(es) repetidos</span>' : '');
+  var cnt=document.getElementById('contador-linhas');
+  if(cnt) cnt.textContent='Mostrando '+itensVisiveis.length+' de '+procs.length+' processos';
+  var nDupProc=Object.values(mapProc).filter(function(v){return v>1;}).length;
+  var nDupTarefa=Object.values(mapTarefa).filter(function(v){return v>1;}).length;
+  var legendEl=document.getElementById('legend-dup');
+  if(legendEl){
+    legendEl.style.display=(nDupProc+nDupTarefa)?'flex':'none';
+    legendEl.innerHTML=(nDupProc?'<span>⚠ '+nDupProc+' dup</span>':'')+
+      (nDupTarefa?'<span>↔ '+nDupTarefa+' rep</span>':'');
   }
-}
-
-function renderTabela() {
-  var s = getSt();
-  var favs = getFavs();
-  // Favoritos sempre no topo
-  var procsOrdenados = procs.slice().sort(function(a,b){
-    var fa=favs[a.proc]?1:0, fb=favs[b.proc]?1:0;
-    return fb-fa;
-  });
-
-  // ── Detecção de duplicatas ──────────────────────────────────────────
-  // dupProc: mesmo número de processo (mais de 1 linha com o mesmo proc)
-  var mapProc = {};
-  procsOrdenados.forEach(function(p){
-    if (!p.proc) return;
-    var k = p.proc.trim();
-    mapProc[k] = (mapProc[k]||0) + 1;
-  });
-  // dupTarefa: mesma pasta + mesma parte (tarefas repetidas no mesmo caso)
-  var mapTarefa = {};
-  procsOrdenados.forEach(function(p){
-    var k = (p.pasta||"").trim() + "|" + (p.parte||"").trim();
-    if (k === "|") return; // ignora linhas sem pasta nem parte
-    mapTarefa[k] = (mapTarefa[k]||0) + 1;
-  });
-
-  // ── Inserir linhas no tbody (normal ou agrupado) ─────────────────────
-  if (modoGrupo) {
-    renderTabelaGrupada(tbody, itensVisiveis, s, favs);
-  } else {
-    itensVisiveis.forEach(function(item){ tbody.appendChild(item.tr); });
-  }
-  // Contador de linhas
-  var cnt = document.getElementById("contador-linhas");
-  if (cnt) cnt.textContent = "Mostrando " + itensVisiveis.length + " de " + procs.length + " processos";
-  // Atualizar legenda de duplicatas
-  var nDupProc   = Object.values(mapProc).filter(function(v){return v>1;}).length;
-  var nDupTarefa = Object.values(mapTarefa).filter(function(v){return v>1;}).length;
-  var legendEl = document.getElementById("legend-dup");
-  if (legendEl) {
-    legendEl.style.display = (nDupProc+nDupTarefa) ? "flex" : "none";
-    legendEl.innerHTML = 
-      (nDupProc   ? '<span><span style="color:var(--amber)">⚠</span> '+nDupProc+' processo(s) duplicado(s)</span>' : "") +
-      (nDupTarefa ? '<span><span style="color:#a78bfa">↔</span> '+nDupTarefa+' par(es) pasta+parte repetidos</span>' : "");
-  }
-
-  var buscaRaw = (document.getElementById('busca').value||'').toLowerCase().trim();
-  var fResp = (document.getElementById('filtro-resp').value||'').toLowerCase();
-  var fRespAtivo = fResp && document.getElementById('filtro-resp').selectedIndex > 1;
-  var tbody = document.getElementById('tbody');
-  tbody.innerHTML='';
-  var vis=0, tot=procs.length;
-  var totTrat = Object.keys(s).filter(function(k){var t=s[k];return t&&['CUMPRIDO','CANCELADO','TRANSFERIDO','REAGENDADO','AG. RETORNO'].indexOf(t.trat)>=0;}).length;
-
-  var itensVisiveis = [];
-  procsOrdenados.forEach(function(p,i) {
-    var key = p.pasta||p.proc;
-    var t = s[key]||{};
-    var trat = t.trat||'';
-    var isTrat = ['CUMPRIDO','CANCELADO','TRANSFERIDO','REAGENDADO','AG. RETORNO'].indexOf(trat)>=0;
-    if (filtro==='pend' && isTrat) return;
-    if (filtro==='trat' && !isTrat) return;
-    if (filtro==='dup') {
-      var kP2=(p.proc||'').trim(), kT2=(p.pasta||'').trim()+'|'+(p.parte||'').trim();
-      if (mapProc[kP2]<=1 && (mapTarefa[kT2]<=1||kT2==='|')) return;
-    }
-    if (buscaRaw.length >= 3) {
-      var hay = (p.pasta+' '+p.proc+' '+p.parte+' '+p.desc+' '+p.resp+' '+p.cliente+' '+(p.tipo||'')).toLowerCase();
-      var termos = buscaRaw.split(/[,;]+/).map(function(t){return t.trim();}).filter(function(t){return t.length>=2;});
-      var ok = termos.every(function(t){return hay.indexOf(t)>=0;});
-      if (!ok) return;
-    }
-    if (fResp) {
-      var r = (p.resp||'').toLowerCase();
-      if (fResp==='may') { if (r.indexOf('may')<0) return; }
-      else { if (r.indexOf(fResp)<0) return; }
-    }
-    var fTrat = (document.getElementById('filtro-trat').value||'').trim();
-    if (fTrat) {
-      if (fTrat === 'VAZIO') { if (trat) return; }
-      else { if (trat !== fTrat) return; }
-    }
-    var fTrib = (document.getElementById('filtro-tribunal').value||'').trim();
-    if (fTrib) {
-      var tribProc = p.tribunal || extrairTribunal(p.proc || '');
-      if (tribProc !== fTrib) return;
-    }
-    var buscaNegRaw = (document.getElementById('busca-neg').value||'').toLowerCase().trim();
-    if (buscaNegRaw.length >= 2) {
-      var hayNeg = (p.pasta+' '+p.proc+' '+p.parte+' '+p.desc+' '+p.resp+' '+p.cliente+' '+(p.tipo||'')).toLowerCase();
-      var termosNeg = buscaNegRaw.split(/[,;]+/).map(function(t){return t.trim();}).filter(function(t){return t.length>=2;});
-      var excluir = termosNeg.some(function(t){return hayNeg.indexOf(t)>=0;});
-      if (excluir) return;
-    }
-    vis++;
-    var tr = document.createElement('tr');
-    var cls = {CUMPRIDO:'st-c',CANCELADO:'st-x',REAGENDADO:'st-r',TRANSFERIDO:'st-t','AG. RETORNO':'st-a',PENDENTE:'st-p'}[trat];
-    if (cls) tr.classList.add(cls);
-    var prazoStr=''; var prazoIso=null; var prazoClasse='';
-    if (p.prazo) {
-      var num=parseFloat(p.prazo);
-      if (!isNaN(num) && num>40000) {
-        var prazoDate=new Date((num-25569)*86400*1000);
-        prazoStr=prazoDate.toLocaleDateString('pt-BR');
-        prazoIso=prazoDate.toISOString().substring(0,10);
-      } else { prazoStr=p.prazo; }
-    }
-    // Colorização por proximidade do prazo (apenas processos pendentes)
-    if (prazoIso && !isTrat) {
-      var hoje=isoHoje();
-      var d2iso=adicionarDiasUteis(prazoIso,-2);
-      if (prazoIso < hoje) { prazoClasse='prazo-vencido'; }
-      else if (prazoIso === hoje) { prazoClasse='prazo-hoje'; }
-      else if (d2iso <= hoje) { prazoClasse='prazo-d2'; }
-    }
-    var tipoStr=(p.tipo||'').replace('Prazos Cíveis - ','').replace('Prazo Interno - ','').slice(0,30);
-    var conc=t.conc||'';
-    var badge=trat||'—';
-    tr.innerHTML='<td style="white-space:nowrap">'+(favs[p.proc]?'⭐ ':'')+p.pasta+
-      ' <button class="btn btn-s btn-sm" style="font-size:9px;padding:1px 5px;margin-left:2px" onclick="event.stopPropagation();abrirFicha('+i+')" title="Ver ficha">📋</button>'+
-      ' <button class="btn btn-s btn-sm" style="font-size:9px;padding:1px 4px" onclick="event.stopPropagation();toggleFav(this.getAttribute(\"data-proc\"),event)" data-proc="'+p.proc+'" title="Favorito">'+(favs[p.proc]?'★':'☆')+'</button></td>'+
-      '<td style="font-size:11px;white-space:nowrap">'+(prazoClasse==='prazo-vencido'?'<span style="color:var(--red);font-weight:700">⚠ '+prazoStr+'</span>':prazoClasse==='prazo-hoje'?'<span style="color:var(--red);font-weight:700">🔴 '+prazoStr+'</span>':prazoClasse==='prazo-d2'?'<span style="color:var(--amber);font-weight:700">🟡 '+prazoStr+'</span>':prazoStr)+'</td>'+
-      '<td style="font-size:11px">'+tipoStr+'</td>'+
-      '<td style="font-size:12px">'+(p.parte||'')+'</td>'+
-      '<td style="font-size:12px">'+(p.desc||'')+'</td>'+
-      '<td style="font-size:11px">'+(p.resp||'')+'</td>'+
-      '<td style="text-align:center;white-space:nowrap">'+
-        '<span class="badge">'+badge+'</span>'+
-        (conc?'<br><span style="font-size:10px;color:var(--text3)">'+conc.slice(0,28)+(conc.length>28?'…':'')+'</span>':'')+
-        '<br><button class="btn btn-s btn-sm" style="margin-top:3px" onclick="event.stopPropagation();abrirTP('+i+')">Tratativa</button>'+
-      '</td>';
-    if (prazoClasse && !isTrat) tr.classList.add(prazoClasse);
-    itensVisiveis.push({p:p, tr:tr, i:i});
-    // Destaque por responsável
-    if (fRespAtivo && (p.resp||"").toLowerCase() === fResp) tr.classList.add("resp-highlight");
-    // Duplicatas
-    var kProc   = (p.proc||"").trim();
-    var kTarefa = (p.pasta||"").trim()+"|"+(p.parte||"").trim();
-    if (mapProc[kProc] > 1)   tr.classList.add("dup-proc");
-    else if (mapTarefa[kTarefa] > 1 && kTarefa !== "|") tr.classList.add("dup-tarefa");
-    // Tooltip com motivo
-    if (mapProc[kProc] > 1)   tr.title = "⚠ Processo duplicado: " + mapProc[kProc] + " linhas com o mesmo número";
-    else if (mapTarefa[kTarefa] > 1 && kTarefa !== "|") tr.title = "↔ Pasta+Parte repetidos em " + mapTarefa[kTarefa] + " linhas";
-    tr.setAttribute("data-idx", i);
-    tr.onclick=function(){selProc(i,tr);};
-    tr.ondblclick=function(e){e.stopPropagation();abrirFicha(i);};
-    // Botão ficha rápida (ícone) na coluna de pasta
-
-    tbody.appendChild(tr);
-  });
   document.getElementById('proc-count').textContent=tot+' processos · '+(tot-totTrat)+' pendentes · '+totTrat+' tratados · exibindo '+vis;
 }
+
 
 function selProc(i,tr) {
   atualizarContadorPrazo(procs[i]&&(procs[i].proc||procs[i].pasta));
