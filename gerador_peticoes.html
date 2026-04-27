@@ -189,7 +189,7 @@ tbody tr.st-p td{background:#b3e5fc}
           <input id="busca-global" type="text" placeholder="🔍 Busca global..." style="font-size:11px;padding:4px 8px;border-radius:16px;border:1px solid var(--border);background:var(--bg2);color:var(--text);width:100%;" oninput="buscaGlobal(this.value)" onfocus="document.getElementById('res-busca-global').style.display='block'" onblur="setTimeout(function(){document.getElementById('res-busca-global').style.display='none';},200)">
           <div id="res-busca-global" style="display:none;position:absolute;top:48px;left:0;right:0;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
         </div>
-        <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.58 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
+        <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.58.1 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -213,7 +213,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.58</span>
+    <span class="tb-meta" id="tb-versao">versão 1.58.1</span>
   </div>
 </div>
 
@@ -368,6 +368,29 @@ tbody tr.st-p td{background:#b3e5fc}
           <input type="file" id="inp-backup" accept=".json" style="display:none" onchange="importarBackup(this)" />
         </div>
         <div id="backup-st" style="margin-top:8px"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🔔 Notificações de prazo</div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:8px">Receba alertas no navegador sobre prazos críticos (D-2, hoje ou vencido).</p>
+        <button class="btn btn-s btn-sm" onclick="ativarNotificacoes()">🔔 Ativar notificações</button>
+        <span id="notif-st" style="font-size:11px;color:var(--text3);margin-left:8px"></span>
+      </div>
+      <div class="card">
+        <div class="card-title">⚙️ Exportar / Importar configurações</div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:8px">Salve e restaure preferências, teses e feriados em outro dispositivo.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-s btn-sm" onclick="exportarConfig()">📤 Exportar config</button>
+          <button class="btn btn-s btn-sm" onclick="importarConfig()">📥 Importar config</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📅 Feriados municipais (cálculo de prazos)</div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:8px">Adicione feriados municipais para o extrator de prazos considerar.</p>
+        <textarea id="feriados-custom" rows="3" placeholder="Um por linha, formato DD/MM/AAAA&#10;Ex: 09/07/2026" style="font-size:12px;font-family:monospace;margin-bottom:6px"></textarea>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="btn btn-s btn-sm" onclick="salvarFeriadosCustom()">Salvar feriados</button>
+          <span id="feriados-st" style="font-size:11px;color:var(--text3)"></span>
+        </div>
       </div>
 
       <div class="card" style="background:var(--blue-bg);border-color:var(--blue-mid)">
@@ -4864,7 +4887,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.58',
+      version: '1.58.1',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
@@ -5170,27 +5193,3 @@ function _modalKeyHandler(e) {
       </div>
 </body>
 </html>
-      <div class="card">
-        <div class="card-title">🔔 Notificações de prazo</div>
-        <p style="font-size:12px;color:var(--text3);margin-bottom:8px">Receba alertas no navegador quando prazos vencerem (D-2, hoje ou vencido).</p>
-        <button class="btn btn-s btn-sm" onclick="ativarNotificacoes()">🔔 Ativar notificações</button>
-        <span id="notif-st" style="font-size:11px;color:var(--text3);margin-left:8px"></span>
-      </div>
-      <div class="card">
-        <div class="card-title">⚙️ Exportar / Importar configurações</div>
-        <p style="font-size:12px;color:var(--text3);margin-bottom:8px">Salve e restaure todas as preferências, teses e feriados em outro dispositivo.</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-s btn-sm" onclick="exportarConfig()">📤 Exportar config</button>
-          <button class="btn btn-s btn-sm" onclick="importarConfig()">📥 Importar config</button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">📅 Feriados municipais (cálculo de prazos)</div>
-        <p style="font-size:12px;color:var(--text3);margin-bottom:8px">Adicione feriados municipais ou datas de suspensão judicial para que o extrator de prazos os considere.</p>
-        <textarea id="feriados-custom" rows="3" placeholder="Um por linha, formato DD/MM/AAAA&#10;Ex: 09/07/2026&#10;Ex: 25/01/2027" style="font-size:12px;font-family:monospace;margin-bottom:6px"></textarea>
-        <div style="display:flex;align-items:center;gap:8px">
-          <button class="btn btn-s btn-sm" onclick="salvarFeriadosCustom()">Salvar feriados</button>
-          <span id="feriados-st" style="font-size:11px;color:var(--text3)"></span>
-        </div>
-      </div>
-
