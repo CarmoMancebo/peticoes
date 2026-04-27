@@ -46,6 +46,18 @@ tr.prazo-d2      { background:rgba(245,158,11,.07) !important; }
 .ficha-value.mono { font-family:monospace; font-size:11px; }
 .ficha-badge-row { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
 /* Duplicatas na tabela */
+/* Legenda fixa da tabela */
+#tabela-legenda { display:flex; flex-wrap:wrap; gap:8px; font-size:11px; color:var(--text3); padding:6px 2px; margin-top:6px; align-items:center; }
+#tabela-legenda span { display:flex; align-items:center; gap:3px; white-space:nowrap; }
+#contador-linhas { font-size:11px; color:var(--text3); margin-left:auto; padding:2px 6px; background:var(--bg2); border-radius:10px; }
+/* Destaque por responsável */
+tr.resp-highlight { background:rgba(24,95,165,.08) !important; }
+tr.resp-highlight td:last-child { font-weight:600; }
+/* Grupos de processos */
+.grupo-header { background:var(--blue-bg) !important; cursor:pointer; font-weight:600; font-size:11px; }
+.grupo-header td { padding:4px 8px !important; }
+.grupo-row.collapsed { display:none; }
+
 tr.dup-proc { outline:2px solid var(--amber); outline-offset:-2px; }
 tr.dup-proc td:first-child::before { content:"⚠ "; color:var(--amber); font-size:10px; }
 tr.dup-tarefa { outline:2px dashed #a78bfa; outline-offset:-2px; }
@@ -196,7 +208,7 @@ tbody tr.st-p td{background:#b3e5fc}
           <input id="busca-global" type="text" placeholder="🔍 Busca global..." style="font-size:11px;padding:4px 8px;border-radius:16px;border:1px solid var(--border);background:var(--bg2);color:var(--text);width:100%;" oninput="buscaGlobal(this.value)" onfocus="document.getElementById('res-busca-global').style.display='block'" onblur="setTimeout(function(){document.getElementById('res-busca-global').style.display='none';},200)">
           <div id="res-busca-global" style="display:none;position:absolute;top:48px;left:0;right:0;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
         </div>
-        <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.59 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
+        <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.60 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -220,7 +232,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.59</span>
+    <span class="tb-meta" id="tb-versao">versão 1.60</span>
   </div>
 </div>
 
@@ -439,6 +451,9 @@ tbody tr.st-p td{background:#b3e5fc}
             <button class="fbtn" id="f-pend" onclick="filtrar('pend')">Pendentes</button>
             <button class="fbtn" id="f-trat" onclick="filtrar('trat')">Tratados</button>
           <button class="btn btn-s btn-sm" id="btn-dup" onclick="filtrar('dup')" title="Mostrar apenas processos duplicados">⚠ Duplicatas</button>
+          <button class="btn btn-s btn-sm" id="btn-grupo" onclick="toggleModoGrupo()" title="Agrupar linhas do mesmo processo">📂 Agrupar</button>
+          <button class="btn btn-s btn-sm" onclick="exportarTabelaFiltrada()" title="Exportar linhas visíveis para XLSX">📥 Exportar</button>
+          <button class="btn btn-s btn-sm" onclick="mesclarDuplicatas()" title="Mesclar linhas com mesmo número de processo">🔀 Mesclar</button>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
             <span class="tip" id="proc-count"></span>
@@ -490,6 +505,15 @@ tbody tr.st-p td{background:#b3e5fc}
           </tr></thead>
           <tbody id="tbody"></tbody>
         </table>
+      </div>
+      <div id="tabela-legenda">
+        <span><span style="color:var(--red)">🔴</span> Vence hoje</span>
+        <span><span style="color:var(--amber)">🟡</span> D-2</span>
+        <span style="outline:2px solid var(--amber);padding:1px 4px;border-radius:3px">⚠</span> Proc. duplicado
+        <span style="outline:2px dashed #a78bfa;padding:1px 4px;border-radius:3px">↔</span> Tarefa repetida
+        <span>⭐ Favorito</span>
+        <span style="background:rgba(24,95,165,.08);padding:1px 6px;border-radius:3px">Resp. destacado</span>
+        <span id="contador-linhas"></span>
       </div>
     </div>
 
@@ -2359,6 +2383,23 @@ function abrirFicha(i) {
 
   document.getElementById("ficha-proc").classList.add("aberta");
   document.getElementById("ficha-overlay").classList.add("visivel");
+  var fb = document.getElementById("ficha-busca");
+  if (fb) { fb.style.display="block"; fb.value=""; }
+}
+
+function filtrarFicha(q) {
+  var body = document.getElementById("ficha-body");
+  if (!body) return;
+  q = (q||"").toLowerCase().trim();
+  // Destacar seções que contenham o texto buscado
+  var secoes = body.querySelectorAll(".ficha-section");
+  secoes.forEach(function(sec){
+    var txt = sec.textContent.toLowerCase();
+    sec.style.opacity = (!q || txt.indexOf(q)>=0) ? "1" : "0.2";
+    // Destacar o texto encontrado
+    if (q && txt.indexOf(q)>=0) sec.style.background = "rgba(245,158,11,.08)";
+    else sec.style.background = "";
+  });
 }
 
 function salvarFichaTratativa() {
@@ -2569,6 +2610,101 @@ function gerarSumarioPDF() {
   setTimeout(function(){ w.print(); }, 600);
 }
 
+// ── MESCLAR DUPLICATAS ─────────────────────────────────────────────────
+function mesclarDuplicatas() {
+  // Agrupa por número de processo; mantém a linha com prazo mais próximo
+  // e a tratativa mais recente
+  if (!procs.length) { alert("Nenhum processo carregado."); return; }
+  var grupos = {};
+  procs.forEach(function(p) {
+    var k = (p.proc||"").trim();
+    if (!k) { grupos["__"+Math.random()] = [p]; return; }
+    if (!grupos[k]) grupos[k] = [];
+    grupos[k].push(p);
+  });
+  var dups = Object.values(grupos).filter(function(g){return g.length>1;});
+  if (!dups.length) { alert("✅ Nenhuma duplicata encontrada."); return; }
+  var total = dups.reduce(function(s,g){return s+g.length-1;},0);
+  if (!confirm("Serão mescladas "+total+" linha(s) duplicada(s) em "+dups.length+
+    " processo(s).\nRegra: mantém a linha com o prazo mais próximo; preserva a tratativa.\n\nContinuar?")) return;
+  var novaLista = [];
+  Object.values(grupos).forEach(function(grupo){
+    if (grupo.length === 1) { novaLista.push(grupo[0]); return; }
+    // Prazo mais próximo (menor serial Excel maior que zero)
+    var base = grupo.reduce(function(melhor, p){
+      var pm = parseFloat(melhor.prazo)||0;
+      var pp = parseFloat(p.prazo)||0;
+      if (pp <= 0) return melhor;
+      if (pm <= 0) return p;
+      return pp < pm ? p : melhor;
+    });
+    novaLista.push(base);
+  });
+  procs = novaLista;
+  try { localStorage.setItem(LSP, JSON.stringify(procs)); } catch(e){}
+  renderTabela();
+  alert("✅ Mesclagem concluída. "+total+" linha(s) removida(s).");
+}
+
+// ── AGRUPAMENTO POR PROCESSO ───────────────────────────────────────────
+var modoGrupo = false;
+
+function toggleModoGrupo() {
+  modoGrupo = !modoGrupo;
+  var btn = document.getElementById("btn-grupo");
+  if (btn) {
+    btn.classList.toggle("active", modoGrupo);
+    btn.title = modoGrupo ? "Voltar à lista normal" : "Agrupar linhas do mesmo processo";
+  }
+  renderTabela();
+}
+
+function renderTabelaGrupada(tbody, procsVisiveis, s, favs) {
+  // Agrupar por número de processo
+  var grupos = {}; var ordem = [];
+  procsVisiveis.forEach(function(item){
+    var k = (item.p.proc||"—").trim();
+    if (!grupos[k]) { grupos[k] = []; ordem.push(k); }
+    grupos[k].push(item);
+  });
+  ordem.forEach(function(key){
+    var grupo = grupos[key];
+    var multi = grupo.length > 1;
+    // Linha de cabeçalho do grupo
+    var hdr = document.createElement("tr");
+    hdr.className = "grupo-header";
+    var p0 = grupo[0].p;
+    var nDias = calcularDiasUteisRestantes ? calcularDiasUteisRestantes(p0.prazo) : null;
+    var prazoTxt = "";
+    if (p0.prazo) {
+      var num = parseFloat(p0.prazo);
+      if (!isNaN(num)&&num>40000) prazoTxt = new Date((num-25569)*86400*1000).toLocaleDateString("pt-BR");
+      else prazoTxt = p0.prazo;
+    }
+    var prazoLabel = nDias===null?"":nDias===-999?"⚠ VENCIDO":nDias===0?"🔴 HOJE":"📅 "+prazoTxt;
+    hdr.innerHTML = '<td colspan="8" style="font-size:11px">'+
+      (multi?"▼ ":"")+"<strong>"+(p0.proc||"—")+"</strong>"+
+      (p0.parte?" — "+p0.parte:"")+
+      (prazoLabel?" <span style='float:right;font-weight:400'>" + prazoLabel + "</span>":"") +
+      " <span style='float:right;font-weight:400;margin-right:12px;color:var(--text3)'>" + grupo.length + " linha(s)</span>"+
+      '</td>';
+    if (multi) hdr.onclick = (function(g, h){
+      return function(){
+        var collapsed = g[0].tr.classList.contains("collapsed");
+        g.forEach(function(item){item.tr.classList.toggle("collapsed",!collapsed);});
+        h.querySelector("td").innerHTML = h.querySelector("td").innerHTML
+          .replace(/^[▼▶] /,(!collapsed?"▶ ":"▼ "));
+      };
+    })(grupo, hdr);
+    tbody.appendChild(hdr);
+    // Linhas do grupo
+    grupo.forEach(function(item){
+      item.tr.classList.add("grupo-row");
+      tbody.appendChild(item.tr);
+    });
+  });
+}
+
 // ── FAVORITOS ───────────────────────────────────────────────────────────
 function getFavs() {
   try { return JSON.parse(localStorage.getItem("gp_favs")||"{}"); } catch(e){ return {}; }
@@ -2632,6 +2768,16 @@ function renderTabela() {
     if (k === "|") return; // ignora linhas sem pasta nem parte
     mapTarefa[k] = (mapTarefa[k]||0) + 1;
   });
+
+  // ── Inserir linhas no tbody (normal ou agrupado) ─────────────────────
+  if (modoGrupo) {
+    renderTabelaGrupada(tbody, itensVisiveis, s, favs);
+  } else {
+    itensVisiveis.forEach(function(item){ tbody.appendChild(item.tr); });
+  }
+  // Contador de linhas
+  var cnt = document.getElementById("contador-linhas");
+  if (cnt) cnt.textContent = "Mostrando " + itensVisiveis.length + " de " + procs.length + " processos";
   // Atualizar legenda de duplicatas
   var nDupProc   = Object.values(mapProc).filter(function(v){return v>1;}).length;
   var nDupTarefa = Object.values(mapTarefa).filter(function(v){return v>1;}).length;
@@ -2645,11 +2791,13 @@ function renderTabela() {
 
   var buscaRaw = (document.getElementById('busca').value||'').toLowerCase().trim();
   var fResp = (document.getElementById('filtro-resp').value||'').toLowerCase();
+  var fRespAtivo = fResp && document.getElementById('filtro-resp').selectedIndex > 1;
   var tbody = document.getElementById('tbody');
   tbody.innerHTML='';
   var vis=0, tot=procs.length;
   var totTrat = Object.keys(s).filter(function(k){var t=s[k];return t&&['CUMPRIDO','CANCELADO','TRANSFERIDO','REAGENDADO','AG. RETORNO'].indexOf(t.trat)>=0;}).length;
 
+  var itensVisiveis = [];
   procsOrdenados.forEach(function(p,i) {
     var key = p.pasta||p.proc;
     var t = s[key]||{};
@@ -2727,6 +2875,9 @@ function renderTabela() {
         '<br><button class="btn btn-s btn-sm" style="margin-top:3px" onclick="event.stopPropagation();abrirTP('+i+')">Tratativa</button>'+
       '</td>';
     if (prazoClasse && !isTrat) tr.classList.add(prazoClasse);
+    itensVisiveis.push({p:p, tr:tr, i:i});
+    // Destaque por responsável
+    if (fRespAtivo && (p.resp||"").toLowerCase() === fResp) tr.classList.add("resp-highlight");
     // Duplicatas
     var kProc   = (p.proc||"").trim();
     var kTarefa = (p.pasta||"").trim()+"|"+(p.parte||"").trim();
@@ -2735,6 +2886,7 @@ function renderTabela() {
     // Tooltip com motivo
     if (mapProc[kProc] > 1)   tr.title = "⚠ Processo duplicado: " + mapProc[kProc] + " linhas com o mesmo número";
     else if (mapTarefa[kTarefa] > 1 && kTarefa !== "|") tr.title = "↔ Pasta+Parte repetidos em " + mapTarefa[kTarefa] + " linhas";
+    tr.setAttribute("data-idx", i);
     tr.onclick=function(){selProc(i,tr);};
     tr.ondblclick=function(e){e.stopPropagation();abrirFicha(i);};
     // Botão ficha rápida (ícone) na coluna de pasta
@@ -2770,6 +2922,41 @@ function trocarPlanilha() {
     document.getElementById('twrap').style.display='none';
   }});
 
+}
+
+function exportarTabelaFiltrada() {
+  // Coletar apenas as linhas visíveis na tbody
+  var tbody = document.getElementById("tbody");
+  if (!tbody || !tbody.rows.length) { alert("Nenhuma linha visível para exportar."); return; }
+  var dados = [];
+  Array.from(tbody.rows).forEach(function(tr){
+    var idx = parseInt(tr.getAttribute("data-idx"));
+    if (isNaN(idx) || !procs[idx]) return;
+    var p = procs[idx];
+    var prazoStr = "";
+    if (p.prazo) {
+      var num = parseFloat(p.prazo);
+      prazoStr = (!isNaN(num)&&num>40000) ? new Date((num-25569)*86400*1000).toLocaleDateString("pt-BR") : p.prazo;
+    }
+    var s = getSt(); var key = p.pasta||p.proc; var st = s[key]||{};
+    dados.push({
+      "Pasta": p.pasta||"",
+      "Processo": p.proc||"",
+      "Parte contrária": p.parte||"",
+      "Cliente": p.cliente||"",
+      "Prazo": prazoStr,
+      "Tipo": p.tipo||"",
+      "Descrição": p.desc||"",
+      "Responsável": p.resp||"",
+      "Status": st.trat||"",
+      "Conclusão": st.conc||""
+    });
+  });
+  if (!dados.length) { alert("Nenhuma linha para exportar."); return; }
+  var ws = XLSX.utils.json_to_sheet(dados);
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Processos");
+  XLSX.writeFile(wb, "processos_filtrados_" + new Date().toISOString().slice(0,10) + ".xlsx");
 }
 
 function exportXLSX() {
@@ -4934,7 +5121,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.59',
+      version: '1.60',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
@@ -5200,7 +5387,12 @@ function _modalKeyHandler(e) {
       <!-- Ficha de Processo -->
       <div id="ficha-proc">
         <div class="ficha-header">
-          <strong style="font-size:14px">📋 Ficha do Processo</strong>
+          <div style="flex:1">
+            <strong style="font-size:14px">📋 Ficha do Processo</strong>
+            <input id="ficha-busca" type="text" placeholder="🔍 Buscar na ficha..."
+              oninput="filtrarFicha(this.value)"
+              style="display:none;font-size:11px;width:100%;margin-top:4px;padding:3px 8px;border-radius:12px;border:1px solid var(--border);background:var(--bg2)">
+          </div>
           <div style="display:flex;gap:6px">
             <button class="btn btn-s btn-sm" onclick="abrirNoSistema()" title="Abrir no tribunal">🔗 Abrir</button>
             <button class="btn btn-s btn-sm" onclick="gerarSumarioPDF()" title="Imprimir / exportar PDF da ficha">🖨 PDF</button>
