@@ -19,6 +19,29 @@ tr.prazo-hoje    { background:rgba(220,38,38,.12) !important; }
 tr.prazo-d2      { background:rgba(245,158,11,.07) !important; }
 .g-res-item{cursor:pointer;transition:background .15s}
 .g-res-item:hover{background:var(--hover)}
+/* Template em série */
+#modal-batch .batch-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.batch-status{font-size:10px;padding:2px 6px;border-radius:10px;white-space:nowrap}
+.batch-status.ok{background:#d1fae5;color:#065f46}
+.batch-status.err{background:#fee2e2;color:#991b1b}
+.batch-status.run{background:#e0f2fe;color:#0369a1}
+.batch-status.pend{background:var(--bg2);color:var(--text3)}
+/* Barra de prazo na ficha */
+.prazo-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:4px}
+.prazo-fill{height:100%;border-radius:3px;transition:width .5s}
+/* Sort secundário */
+.th-sort.sort-sec::after{content:" ·";font-size:9px;opacity:.5}
+/* Coluna pinada — ativada via classe no twrap */
+#twrap.pin-cols #tbody tr td:first-child,
+#twrap.pin-cols #thead-sort tr th:first-child{
+  position:sticky;left:0;background:var(--surface);z-index:2;
+  box-shadow:2px 0 4px rgba(0,0,0,.06);
+}
+#twrap.pin-cols #tbody tr td:nth-child(3),
+#twrap.pin-cols #thead-sort tr th:nth-child(3){
+  position:sticky;left:90px;background:var(--surface);z-index:2;
+}
+
 /* Ficha de processo — painel lateral deslizante */
 #ficha-proc {
   position:fixed; top:0; right:-420px; width:400px; height:100vh;
@@ -208,7 +231,7 @@ tbody tr.st-p td{background:#b3e5fc}
           <input id="busca-global" type="text" placeholder="🔍 Busca global..." style="font-size:11px;padding:4px 8px;border-radius:16px;border:1px solid var(--border);background:var(--bg2);color:var(--text);width:100%;" oninput="buscaGlobal(this.value)" onfocus="document.getElementById('res-busca-global').style.display='block'" onblur="setTimeout(function(){document.getElementById('res-busca-global').style.display='none';},200)">
           <div id="res-busca-global" style="display:none;position:absolute;top:48px;left:0;right:0;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
         </div>
-        <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.60 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
+        <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.61 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -232,7 +255,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.60</span>
+    <span class="tb-meta" id="tb-versao">versão 1.61</span>
   </div>
 </div>
 
@@ -432,7 +455,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <!-- PROCESSOS -->
     <div id="panel-proc" class="panel">
       <div class="panel-title">Processos</div>
-      <div class="panel-sub">Clique para selecionar · 📋 para ficha completa · Duplo clique abre a ficha · Use "Tratativa" para registrar andamento.</div>
+      <div class="panel-sub">Clique para selecionar · 📋 ficha · Duplo clique abre ficha · Shift+clique na coluna para ordenação secundária</div>
 
       <div class="card" id="card-xlsx">
         <div class="fzone" onclick="document.getElementById('inp-xlsx').click()">
@@ -451,6 +474,7 @@ tbody tr.st-p td{background:#b3e5fc}
             <button class="fbtn" id="f-pend" onclick="filtrar('pend')">Pendentes</button>
             <button class="fbtn" id="f-trat" onclick="filtrar('trat')">Tratados</button>
           <button class="btn btn-s btn-sm" id="btn-dup" onclick="filtrar('dup')" title="Mostrar apenas processos duplicados">⚠ Duplicatas</button>
+          <button class="btn btn-s btn-sm" id="btn-pin" onclick="togglePinColunas()" title="Fixar Pasta e Processo durante rolagem">📌 Fixar cols</button>
           <button class="btn btn-s btn-sm" id="btn-grupo" onclick="toggleModoGrupo()" title="Agrupar linhas do mesmo processo">📂 Agrupar</button>
           <button class="btn btn-s btn-sm" onclick="exportarTabelaFiltrada()" title="Exportar linhas visíveis para XLSX">📥 Exportar</button>
           <button class="btn btn-s btn-sm" onclick="mesclarDuplicatas()" title="Mesclar linhas com mesmo número de processo">🔀 Mesclar</button>
@@ -499,8 +523,8 @@ tbody tr.st-p td{background:#b3e5fc}
         <div id="twrap" style="display:none;overflow-x:auto">
         <table>
           <thead id="thead-sort"><tr>
-            <th onclick="sortTabela('pasta')" class="th-sort" title="Ordenar por Pasta">Pasta</th><th onclick="sortTabela('proc')" class="th-sort" title="Ordenar por Processo">Processo</th><th onclick="sortTabela('prazo')" class="th-sort" title="Ordenar por Prazo">Prazo</th><th onclick="sortTabela('tipo')" class="th-sort" title="Ordenar por Tipo">Tipo</th>
-            <th onclick="sortTabela('parte')" class="th-sort" title="Ordenar por Parte contrária">Parte contrária</th><th onclick="sortTabela('desc')" class="th-sort" title="Ordenar por Descrição">Descrição</th><th onclick="sortTabela('resp')" class="th-sort" title="Ordenar por Responsável">Resp.</th>
+            <th onclick="sortTabela('pasta',event)" class="th-sort" title="Ordenar por Pasta">Pasta</th><th onclick="sortTabela('proc',event)" class="th-sort" title="Ordenar por Processo">Processo</th><th onclick="sortTabela('prazo',event)" class="th-sort" title="Ordenar por Prazo">Prazo</th><th onclick="sortTabela('tipo',event)" class="th-sort" title="Ordenar por Tipo">Tipo</th>
+            <th onclick="sortTabela('parte',event)" class="th-sort" title="Ordenar por Parte contrária">Parte contrária</th><th onclick="sortTabela('desc',event)" class="th-sort" title="Ordenar por Descrição">Descrição</th><th onclick="sortTabela('resp',event)" class="th-sort" title="Ordenar por Responsável">Resp.</th>
             <th style="text-align:center">Tratativa</th>
           </tr></thead>
           <tbody id="tbody"></tbody>
@@ -855,6 +879,7 @@ tbody tr.st-p td{background:#b3e5fc}
         <button class="btn btn-s" onclick="gerarResumoCaso()" title="Gera um resumo estruturado do caso a partir do andamento e contextos carregados">📝 Resumir caso</button>
         <button class="btn btn-s" onclick="limparForm()">Limpar</button>
       
+        <button class="btn btn-s btn-sm" onclick="abrirBatch()" title="Gerar a mesma peça para múltiplos processos e baixar em ZIP">📑 Em série</button>
         <button class="btn btn-s btn-sm" id="btn-partes" onclick="gerarEmPartes()" disabled title="Gerar tópico a tópico — útil para peças longas">📑 Em partes</button>
         <button id="btn-prox-parte" class="btn btn-s btn-sm" style="display:none" onclick="gerarProximaParte()" title="Gerar próximo tópico">▶ Próximo tópico</button></div>
     </div>
@@ -965,6 +990,7 @@ tbody tr.st-p td{background:#b3e5fc}
 <script>
 var procs = [], refs = [], minuta = '', nomeArq = '', tpIdx = -1, filtro = 'todos';
 var sortCol = null, sortAsc = true;
+var sortCol2 = null, sortAsc2 = true; // ordenação secundária (Shift+clique)
 
 // Feriados nacionais + TJSP para cálculo de prazos (formato YYYY-MM-DD)
 var FERIADOS_TJSP = (function(){
@@ -2115,6 +2141,133 @@ function salvarMinutaNoHistorico(texto, tipo, proc) {
   } catch(e){}
 }
 
+// ── TEMPLATE EM SÉRIE (BATCH) ──────────────────────────────────────────
+var _batchProcs = [];     // processos selecionados para o lote
+var _batchTipo = "";      // tipo de peça a gerar
+var _batchResultados = []; // {proc, texto, erro}
+var _batchRunning = false;
+
+function abrirBatch() {
+  if (!procs.length) { alert("Carregue a planilha de processos antes de usar o template em série."); return; }
+  var div = document.getElementById("modal-batch");
+  if (!div) return;
+  _batchResultados = [];
+  // Montar lista de processos selecionáveis
+  var lista = procs.map(function(p, i){
+    return '<label class="batch-item"><input type="checkbox" value="'+i+'" checked> '+
+      '<span style="font-family:monospace;font-size:11px">'+( p.proc||p.pasta||"—")+'</span>'+
+      '<span style="color:var(--text3);font-size:11px">' + (p.parte||"").substring(0,30) + '</span>'+
+      '<span class="batch-status pend" id="bs-'+i+'">Pendente</span></label>';
+  }).join("");
+  document.getElementById("batch-lista").innerHTML = lista;
+  // Preencher select de tipo com as opções do f-tipo
+  var selOrig = document.getElementById("f-tipo");
+  var selBatch = document.getElementById("batch-tipo");
+  if (selOrig && selBatch) selBatch.innerHTML = selOrig.innerHTML;
+  div.style.display = "flex";
+}
+
+function fecharBatch() {
+  var div = document.getElementById("modal-batch");
+  if (div) div.style.display = "none";
+  _batchRunning = false;
+}
+
+async function executarBatch() {
+  if (_batchRunning) return;
+  var key = getKey();
+  if (!key) { alert("Informe a chave de API antes de executar."); return; }
+  var checks = document.querySelectorAll("#batch-lista input[type=checkbox]:checked");
+  if (!checks.length) { alert("Selecione ao menos um processo."); return; }
+  var tipo = (document.getElementById("batch-tipo")||{}).value||"";
+  if (!tipo || tipo === "auto") { alert("Selecione um tipo de peça específico para o lote."); return; }
+  _batchTipo = tipo;
+  var andExtra = (document.getElementById("batch-inst")||{}).value||"";
+  _batchProcs = Array.from(checks).map(function(cb){ return parseInt(cb.value); });
+  _batchResultados = [];
+  _batchRunning = true;
+  document.getElementById("btn-batch-run").disabled = true;
+  document.getElementById("btn-batch-dl").style.display = "none";
+  var modelo = (document.getElementById("sel-modelo")||{}).value||"claude-sonnet";
+  var enriq = getEnriquecimento ? getEnriquecimento() : "";
+  var fmt = getFormatacao ? getFormatacao() : {};
+  for (var idx = 0; idx < _batchProcs.length; idx++) {
+    if (!_batchRunning) break;
+    var i = _batchProcs[idx];
+    var p = procs[i];
+    var stEl = document.getElementById("bs-"+i);
+    if (stEl) { stEl.textContent = "Gerando…"; stEl.className = "batch-status run"; }
+    try {
+      var sys = ultimoSysPrompt || "";
+      // Montar usr para este processo
+      var prazoStr = "";
+      if (p.prazo) {
+        var num = parseFloat(p.prazo);
+        if (!isNaN(num)&&num>40000) prazoStr = new Date((num-25569)*86400*1000).toLocaleDateString("pt-BR");
+        else prazoStr = p.prazo;
+      }
+      var usr = "Processo: "+(p.proc||"—")+"\nPasta: "+(p.pasta||"—")+"\nCliente: "+(p.cliente||"—")+
+        "\nParte contrária: "+(p.parte||"—")+"\nTipo de peça: "+tipo+
+        "\nPrazo: "+(prazoStr||"—")+"\nDescrição: "+(p.desc||"—")+
+        (andExtra?"\nInstruções adicionais: "+andExtra:"")+"\n\nElabore a peça completa pronta para protocolo.";
+      // Usar sys do último prompt ou montar sys básico
+      if (!sys) sys = "Você é um advogado especializado. Elabore a peça jurídica solicitada em português técnico.";
+      var texto = await chamarAPIBatch(sys, usr, modelo, key);
+      _batchResultados.push({ proc: p.proc||p.pasta, pasta: p.pasta, parte: p.parte, tipo: tipo, texto: texto });
+      if (stEl) { stEl.textContent = "✓ OK"; stEl.className = "batch-status ok"; }
+    } catch(e) {
+      _batchResultados.push({ proc: p.proc||p.pasta, pasta: p.pasta, parte: p.parte, tipo: tipo, texto: "", erro: e.message });
+      if (stEl) { stEl.textContent = "Erro"; stEl.className = "batch-status err"; }
+    }
+    // Pequena pausa entre chamadas
+    await new Promise(function(r){ setTimeout(r, 800); });
+  }
+  _batchRunning = false;
+  document.getElementById("btn-batch-run").disabled = false;
+  var nOk = _batchResultados.filter(function(r){return !r.erro;}).length;
+  if (nOk > 0) document.getElementById("btn-batch-dl").style.display = "inline-flex";
+  setSt2("res-st","ok", nOk+" peça(s) gerada(s) em lote.");
+}
+
+async function chamarAPIBatch(sys, usr, modelo, key) {
+  if (modelo === "gpt4o") {
+    var res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
+      body: JSON.stringify({model:"gpt-4o",messages:[{role:"system",content:sys},{role:"user",content:usr}],max_tokens:16000})
+    });
+    var d = await res.json();
+    if (!res.ok) throw new Error(d.error?d.error.message:"Erro OpenAI");
+    return d.choices[0].message.content;
+  } else {
+    var cm = modelo==="claude-sonnet"?"claude-sonnet-4-5-20251001":"claude-opus-4-20250514";
+    var res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body: JSON.stringify({model:cm,max_tokens:16000,system:sys,messages:[{role:"user",content:usr}]})
+    });
+    var d = await res.json();
+    if (!res.ok) throw new Error(d.error?d.error.message:"Erro Anthropic");
+    return d.content[0].text;
+  }
+}
+
+async function baixarBatchZip() {
+  if (!_batchResultados.length) return;
+  // Usar JSZip para criar ZIP com um TXT por processo
+  var zip = new JSZip();
+  _batchResultados.forEach(function(r){
+    if (r.erro) return;
+    var nome = (r.pasta||r.proc||"processo").replace(/[/\\:*?"<>|]/g,"_");
+    zip.file(nome+"_"+r.tipo.substring(0,20)+".txt", r.texto);
+  });
+  var blob = await zip.generateAsync({type:"blob"});
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "batch_"+new Date().toISOString().slice(0,10)+".zip";
+  a.click();
+}
+
 // ── CONTADOR REGRESSIVO DE PRAZO ────────────────────────────────────────
 function calcularDiasUteisRestantes(prazoSerial) {
   if (!prazoSerial) return null;
@@ -2353,6 +2506,17 @@ function abrirFicha(i) {
     '<div class="ficha-section">'+
     '  <div class="ficha-label">Vencimento do prazo</div>'+
     '  <div class="ficha-value">' + prazoCorHTML + "</div>" +
+    // Barra de progresso do prazo
+    (function(){
+      if (diasRestantes === null || diasRestantes === -999) return "";
+      var total = 15;
+      var restPct = diasRestantes <= 0 ? 0 : Math.min(100, Math.round(diasRestantes/total*100));
+      var barColor = diasRestantes <= 0 ? "var(--red)" : diasRestantes <= 2 ? "var(--amber)" : "var(--blue)";
+      return '<div class="prazo-track"><div class="prazo-fill" style="width:'+restPct+'%;background:'+barColor+'"></div></div>'+
+        '<div style="font-size:10px;color:var(--text3);margin-top:2px">'+
+        (diasRestantes<=0?"Vencido":""+diasRestantes+" dias úteis restantes")+
+        " de ~"+total+" de referência</div>";
+    })() +
     '</div>'+
     (p.desc ? '<div class="ficha-section"><div class="ficha-label">Descrição</div>'+
       '<div class="ficha-value" style="font-size:12px">'+p.desc+"</div></div>" : "") +
@@ -2479,6 +2643,16 @@ function ativarNotificacoes() {
   });
 }
 
+// ── PINAGEM DE COLUNAS ──────────────────────────────────────────────────
+var _pinAtivo = false;
+function togglePinColunas() {
+  _pinAtivo = !_pinAtivo;
+  var tw = document.getElementById("twrap");
+  if (tw) tw.classList.toggle("pin-cols", _pinAtivo);
+  var btn = document.getElementById("btn-pin");
+  if (btn) { btn.classList.toggle("active", _pinAtivo); btn.title = _pinAtivo ? "Desafixar colunas" : "Fixar Pasta e Processo durante rolagem"; }
+}
+
 // ── BUSCA GLOBAL ────────────────────────────────────────────────────────
 function buscaGlobal(q) {
   var res = document.getElementById("res-busca-global");
@@ -2532,6 +2706,23 @@ function buscaGlobal(q) {
       '<span style="font-size:10px;color:var(--text3);margin-right:6px">'+it.cat+'</span>'+
       '<span style="font-size:12px">'+it.label+'</span></div>';
   }).join("");
+}
+
+function exportarFichaTexto() {
+  var body = document.getElementById("ficha-body");
+  if (!body || !body.textContent.trim()) { alert("Abra a ficha de um processo primeiro."); return; }
+  var txt = body.innerText || body.textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(txt).then(function(){
+      var btn = document.getElementById("btn-ficha-copy");
+      if (btn) { var orig=btn.textContent; btn.textContent="✓ Copiado!"; setTimeout(function(){btn.textContent=orig;},2000); }
+    });
+  } else {
+    var ta = document.createElement("textarea");
+    ta.value = txt;
+    document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+    alert("Texto da ficha copiado.");
+  }
 }
 
 function fecharFicha() {
@@ -2719,27 +2910,38 @@ function toggleFav(proc, e) {
   renderTabela();
 }
 
-function sortTabela(col) {
-  if (sortCol === col) { sortAsc = !sortAsc; } else { sortCol = col; sortAsc = true; }
+function sortTabela(col, ev) {
+  var shift = ev && ev.shiftKey;
+  if (shift) {
+    // Sort secundário
+    if (sortCol2 === col) sortAsc2 = !sortAsc2;
+    else { sortCol2 = col; sortAsc2 = true; }
+  } else {
+    if (sortCol === col) { sortAsc = !sortAsc; }
+    else { sortCol = col; sortAsc = true; sortCol2 = null; }
+  }
   // Atualizar visual dos headers
   document.querySelectorAll(".th-sort").forEach(function(th){
-    th.classList.remove("sort-asc","sort-desc");
-    if (th.getAttribute("onclick") === "sortTabela('"+col+"')"){
-      th.classList.add(sortAsc ? "sort-asc" : "sort-desc");
-    }
+    th.classList.remove("sort-asc","sort-desc","sort-sec");
+    var thCol = (th.getAttribute("onclick")||"").replace(/sortTabela\('([^']+)'.*/,"$1");
+    if (thCol === sortCol) th.classList.add(sortAsc ? "sort-asc" : "sort-desc");
+    if (thCol === sortCol2) th.classList.add("sort-sec");
   });
-  // Ordenar o array procs
-  procs.sort(function(a,b){
-    var va, vb;
+  // Ordenar com critério primário + secundário
+  function cmpCol(a, b, col, asc) {
     if (col === "prazo") {
-      // Prazo pode ser serial Excel ou string — comparar como número quando possível
-      va = parseFloat(a.prazo)||0; vb = parseFloat(b.prazo)||0;
-      return sortAsc ? va-vb : vb-va;
+      var va = parseFloat(a.prazo)||0, vb = parseFloat(b.prazo)||0;
+      return asc ? va-vb : vb-va;
     }
-    va = (a[col]||"").toLowerCase(); vb = (b[col]||"").toLowerCase();
-    if (va<vb) return sortAsc?-1:1;
-    if (va>vb) return sortAsc?1:-1;
+    var va = (a[col]||"").toLowerCase(), vb = (b[col]||"").toLowerCase();
+    if (va<vb) return asc?-1:1;
+    if (va>vb) return asc?1:-1;
     return 0;
+  }
+  procs.sort(function(a,b){
+    var r = sortCol ? cmpCol(a,b,sortCol,sortAsc) : 0;
+    if (r === 0 && sortCol2) r = cmpCol(a,b,sortCol2,sortAsc2);
+    return r;
   });
   renderTabela();
 }
@@ -5121,7 +5323,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.60',
+      version: '1.61',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
@@ -5396,12 +5598,39 @@ function _modalKeyHandler(e) {
           <div style="display:flex;gap:6px">
             <button class="btn btn-s btn-sm" onclick="abrirNoSistema()" title="Abrir no tribunal">🔗 Abrir</button>
             <button class="btn btn-s btn-sm" onclick="gerarSumarioPDF()" title="Imprimir / exportar PDF da ficha">🖨 PDF</button>
+            <button id="btn-ficha-copy" class="btn btn-s btn-sm" onclick="exportarFichaTexto()" title="Copiar conteúdo da ficha como texto">📋 Copiar</button>
             <button class="btn btn-s btn-sm" onclick="selecionarEGerar()" title="Selecionar e ir para geração">✏️ Gerar</button>
             <button class="btn btn-s btn-sm" onclick="fecharFicha()">✕</button>
           </div>
         </div>
         <div class="ficha-body" id="ficha-body">
           <p style="color:var(--text3);font-size:12px">Clique em um processo para ver a ficha.</p>
+        </div>
+      </div>
+<!-- Modal Template em Série (Batch) -->
+      <div id="modal-batch" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:16px">
+        <div style="background:var(--bg);border-radius:10px;width:100%;max-width:640px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+            <strong>📑 Template em Série</strong>
+            <button class="btn btn-s btn-sm" onclick="fecharBatch()">Fechar</button>
+          </div>
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+            <div style="flex:1;min-width:180px">
+              <label style="font-size:11px;color:var(--text3)">Tipo de peça</label>
+              <select id="batch-tipo" style="width:100%;margin-top:2px"></select>
+            </div>
+            <div style="flex:2;min-width:200px">
+              <label style="font-size:11px;color:var(--text3)">Instruções adicionais (opcional)</label>
+              <input id="batch-inst" type="text" placeholder="Ex: focar na DUT, mencionar o perito..." style="width:100%;margin-top:2px">
+            </div>
+          </div>
+          <div id="batch-lista" style="padding:12px 16px;overflow-y:auto;flex:1;font-size:12px"></div>
+          <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center">
+            <button id="btn-batch-run" class="btn btn-p" onclick="executarBatch()">▶ Executar lote</button>
+            <button id="btn-batch-dl" class="btn btn-s" onclick="baixarBatchZip()" style="display:none">📦 Baixar ZIP</button>
+            <button class="btn btn-s btn-sm" onclick="_batchRunning=false">⏹ Parar</button>
+            <span style="font-size:11px;color:var(--text3);margin-left:auto">Cada peça é gerada sequencialmente</span>
+          </div>
         </div>
       </div>
 <!-- Modal Banco de Teses -->
