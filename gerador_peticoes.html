@@ -45,6 +45,13 @@ tr.prazo-d2      { background:rgba(245,158,11,.07) !important; }
 .ficha-value { font-size:13px; color:var(--text); word-break:break-word; }
 .ficha-value.mono { font-family:monospace; font-size:11px; }
 .ficha-badge-row { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
+/* Duplicatas na tabela */
+tr.dup-proc { outline:2px solid var(--amber); outline-offset:-2px; }
+tr.dup-proc td:first-child::before { content:"⚠ "; color:var(--amber); font-size:10px; }
+tr.dup-tarefa { outline:2px dashed #a78bfa; outline-offset:-2px; }
+tr.dup-tarefa td:first-child::before { content:"↔ "; color:#a78bfa; font-size:10px; }
+.legend-dup { display:flex; gap:12px; flex-wrap:wrap; font-size:11px; color:var(--text3); padding:6px 2px; margin-top:4px; }
+.legend-dup span { display:flex; align-items:center; gap:4px; }
 .rec-item { padding:6px 12px; cursor:pointer; font-size:12px; }
 .rec-item:hover { background:var(--hover); }
 .th-sort { cursor:pointer; user-select:none; white-space:nowrap; }
@@ -189,7 +196,7 @@ tbody tr.st-p td{background:#b3e5fc}
           <input id="busca-global" type="text" placeholder="🔍 Busca global..." style="font-size:11px;padding:4px 8px;border-radius:16px;border:1px solid var(--border);background:var(--bg2);color:var(--text);width:100%;" oninput="buscaGlobal(this.value)" onfocus="document.getElementById('res-busca-global').style.display='block'" onblur="setTimeout(function(){document.getElementById('res-busca-global').style.display='none';},200)">
           <div id="res-busca-global" style="display:none;position:absolute;top:48px;left:0;right:0;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
         </div>
-        <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.58.1 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
+        <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.59 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -213,7 +220,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.58.1</span>
+    <span class="tb-meta" id="tb-versao">versão 1.59</span>
   </div>
 </div>
 
@@ -431,6 +438,7 @@ tbody tr.st-p td{background:#b3e5fc}
             <button class="fbtn active" id="f-todos" onclick="filtrar('todos')">Todos</button>
             <button class="fbtn" id="f-pend" onclick="filtrar('pend')">Pendentes</button>
             <button class="fbtn" id="f-trat" onclick="filtrar('trat')">Tratados</button>
+          <button class="btn btn-s btn-sm" id="btn-dup" onclick="filtrar('dup')" title="Mostrar apenas processos duplicados">⚠ Duplicatas</button>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
             <span class="tip" id="proc-count"></span>
@@ -472,7 +480,8 @@ tbody tr.st-p td{background:#b3e5fc}
         </div>
       </div>
 
-      <div id="twrap" style="display:none;overflow-x:auto">
+      <div id="legend-dup" class="legend-dup" style="display:none"></div>
+        <div id="twrap" style="display:none;overflow-x:auto">
         <table>
           <thead id="thead-sort"><tr>
             <th onclick="sortTabela('pasta')" class="th-sort" title="Ordenar por Pasta">Pasta</th><th onclick="sortTabela('proc')" class="th-sort" title="Ordenar por Processo">Processo</th><th onclick="sortTabela('prazo')" class="th-sort" title="Ordenar por Prazo">Prazo</th><th onclick="sortTabela('tipo')" class="th-sort" title="Ordenar por Tipo">Tipo</th>
@@ -2602,11 +2611,37 @@ function sortTabela(col) {
 function renderTabela() {
   var s = getSt();
   var favs = getFavs();
-  // Favoritos sempre no topo (sem mudar a ordenação dos demais)
+  // Favoritos sempre no topo
   var procsOrdenados = procs.slice().sort(function(a,b){
     var fa=favs[a.proc]?1:0, fb=favs[b.proc]?1:0;
     return fb-fa;
   });
+
+  // ── Detecção de duplicatas ──────────────────────────────────────────
+  // dupProc: mesmo número de processo (mais de 1 linha com o mesmo proc)
+  var mapProc = {};
+  procsOrdenados.forEach(function(p){
+    if (!p.proc) return;
+    var k = p.proc.trim();
+    mapProc[k] = (mapProc[k]||0) + 1;
+  });
+  // dupTarefa: mesma pasta + mesma parte (tarefas repetidas no mesmo caso)
+  var mapTarefa = {};
+  procsOrdenados.forEach(function(p){
+    var k = (p.pasta||"").trim() + "|" + (p.parte||"").trim();
+    if (k === "|") return; // ignora linhas sem pasta nem parte
+    mapTarefa[k] = (mapTarefa[k]||0) + 1;
+  });
+  // Atualizar legenda de duplicatas
+  var nDupProc   = Object.values(mapProc).filter(function(v){return v>1;}).length;
+  var nDupTarefa = Object.values(mapTarefa).filter(function(v){return v>1;}).length;
+  var legendEl = document.getElementById("legend-dup");
+  if (legendEl) {
+    legendEl.style.display = (nDupProc+nDupTarefa) ? "flex" : "none";
+    legendEl.innerHTML = 
+      (nDupProc   ? '<span><span style="color:var(--amber)">⚠</span> '+nDupProc+' processo(s) duplicado(s)</span>' : "") +
+      (nDupTarefa ? '<span><span style="color:#a78bfa">↔</span> '+nDupTarefa+' par(es) pasta+parte repetidos</span>' : "");
+  }
 
   var buscaRaw = (document.getElementById('busca').value||'').toLowerCase().trim();
   var fResp = (document.getElementById('filtro-resp').value||'').toLowerCase();
@@ -2622,6 +2657,10 @@ function renderTabela() {
     var isTrat = ['CUMPRIDO','CANCELADO','TRANSFERIDO','REAGENDADO','AG. RETORNO'].indexOf(trat)>=0;
     if (filtro==='pend' && isTrat) return;
     if (filtro==='trat' && !isTrat) return;
+    if (filtro==='dup') {
+      var kP2=(p.proc||'').trim(), kT2=(p.pasta||'').trim()+'|'+(p.parte||'').trim();
+      if (mapProc[kP2]<=1 && (mapTarefa[kT2]<=1||kT2==='|')) return;
+    }
     if (buscaRaw.length >= 3) {
       var hay = (p.pasta+' '+p.proc+' '+p.parte+' '+p.desc+' '+p.resp+' '+p.cliente+' '+(p.tipo||'')).toLowerCase();
       var termos = buscaRaw.split(/[,;]+/).map(function(t){return t.trim();}).filter(function(t){return t.length>=2;});
@@ -2688,6 +2727,14 @@ function renderTabela() {
         '<br><button class="btn btn-s btn-sm" style="margin-top:3px" onclick="event.stopPropagation();abrirTP('+i+')">Tratativa</button>'+
       '</td>';
     if (prazoClasse && !isTrat) tr.classList.add(prazoClasse);
+    // Duplicatas
+    var kProc   = (p.proc||"").trim();
+    var kTarefa = (p.pasta||"").trim()+"|"+(p.parte||"").trim();
+    if (mapProc[kProc] > 1)   tr.classList.add("dup-proc");
+    else if (mapTarefa[kTarefa] > 1 && kTarefa !== "|") tr.classList.add("dup-tarefa");
+    // Tooltip com motivo
+    if (mapProc[kProc] > 1)   tr.title = "⚠ Processo duplicado: " + mapProc[kProc] + " linhas com o mesmo número";
+    else if (mapTarefa[kTarefa] > 1 && kTarefa !== "|") tr.title = "↔ Pasta+Parte repetidos em " + mapTarefa[kTarefa] + " linhas";
     tr.onclick=function(){selProc(i,tr);};
     tr.ondblclick=function(e){e.stopPropagation();abrirFicha(i);};
     // Botão ficha rápida (ícone) na coluna de pasta
@@ -4887,7 +4934,7 @@ function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].f
 function exportarBackup() {
   try {
     var payload = {
-      version: '1.58.1',
+      version: '1.59',
       timestamp: new Date().toISOString(),
       processos: JSON.parse(localStorage.getItem('gp_p') || '[]'),
       status: JSON.parse(localStorage.getItem('gp_s') || '{}'),
