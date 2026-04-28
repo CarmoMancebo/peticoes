@@ -252,7 +252,7 @@ tbody tr.st-p td{background:#b3e5fc}
           <input id="busca-global" type="text" placeholder="🔍 Busca global..." style="font-size:11px;padding:4px 8px;border-radius:16px;border:1px solid var(--border);background:var(--bg2);color:var(--text);width:100%;" oninput="buscaGlobal(this.value)" onfocus="document.getElementById('res-busca-global').style.display='block'" onblur="setTimeout(function(){document.getElementById('res-busca-global').style.display='none';},200)">
           <div id="res-busca-global" style="display:none;position:absolute;top:48px;left:0;right:0;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
         </div>
-        <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.65.0 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
+        <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.64.1 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -276,7 +276,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.65.0</span>
+    <span class="tb-meta" id="tb-versao">versão 1.64.1</span>
   </div>
 </div>
 
@@ -1793,49 +1793,9 @@ function loadXLSX(inp) {
   rd.onload = function(e) {
     var wb = XLSX.read(e.target.result,{type:'array'});
     var ws = wb.Sheets[wb.SheetNames[0]];
-
-    // ── Detecção automática de formato ──────────────────────────────────────
-    // Novo formato (agenda TecnoJuris): linha 0 = título do usuário/data,
-    // linha 1 = cabeçalho real (Pasta, Processo, Cliente Principal, etc.).
-    // Formato legado: linha 0 já é o cabeçalho.
-    // Estratégia: ler como array bruto, verificar se a linha 0 contém alguma
-    // das colunas esperadas; se não, pular para a linha 1.
-    var raw = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
-    var COLUNAS_ESPERADAS = ['pasta','processo','prazo fatal','tipo','cliente','contrario'];
-    function linhaEhCabecalho(row) {
-      if (!row || !row.length) return false;
-      var joined = row.map(function(c){ return String(c).toLowerCase().trim(); }).join('|');
-      return COLUNAS_ESPERADAS.some(function(c){ return joined.indexOf(c) >= 0; });
-    }
-    var headerRowIdx = 0;
-    if (!linhaEhCabecalho(raw[0]) && linhaEhCabecalho(raw[1])) {
-      headerRowIdx = 1; // pular linha de título
-    }
-    // Montar objeto chave→valor com o cabeçalho detectado
-    var headers = raw[headerRowIdx];
-    var data = [];
-    for (var i = headerRowIdx + 1; i < raw.length; i++) {
-      var row = raw[i];
-      // Ignorar linhas completamente vazias
-      if (!row || row.every(function(c){ return c === '' || c === null || c === undefined; })) continue;
-      var obj = {};
-      headers.forEach(function(h, idx) {
-        obj[String(h).trim()] = (row[idx] !== undefined && row[idx] !== null) ? row[idx] : '';
-      });
-      data.push(obj);
-    }
-    // ────────────────────────────────────────────────────────────────────────
-
+    var data = XLSX.utils.sheet_to_json(ws,{defval:''});
     procs = data.map(function(r){
       var numProc = gc(r,['processo']);
-      // Prazo: pode vir como Date serial do Excel ou como string ISO/texto
-      var prazoRaw = gc(r,['prazo fatal','prazo']);
-      var prazoFmt = prazoRaw;
-      if (prazoRaw && !isNaN(Number(prazoRaw))) {
-        // Serial numérico do Excel → converter para Date
-        var d = XLSX.SSF.parse_date_code(Number(prazoRaw));
-        if (d) prazoFmt = new Date(d.y, d.m-1, d.d, d.H||0, d.M||0).toISOString();
-      }
       return {
         pasta:    gc(r,['pasta']),
         proc:     numProc,
@@ -1843,9 +1803,9 @@ function loadXLSX(inp) {
         cliente:  gc(r,['cliente principal','cliente'])||'Notre Dame Intermédica Saúde S/A',
         parte:    gc(r,['contrario principal','contrário principal','contrario','parte']),
         desc:     gc(r,['descrição','descricao']),
-        prazo:    prazoFmt,
+        prazo:    gc(r,['prazo fatal','prazo']),
         tipo:     gc(r,['tipo - subtipo','tipo subtipo','tipo']),
-        resp:     gc(r,['responsável','responsavel','responsable','resp.','resp ','advogado responsável','advogado responsavel','adv. responsável','adv responsável','responsável pelo caso','é executante','executante']),
+        resp:     gc(r,['responsável','responsavel','responsable','resp.','resp ','advogado responsável','advogado responsavel','adv. responsável','adv responsável','responsável pelo caso']),
         _trat:    gc(r,['tratativa']),
         _transf:  gc(r,['transferido para','transferido']),
         _data:    gc(r,['data']),
