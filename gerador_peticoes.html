@@ -148,7 +148,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .login-card{background:#fff;border-radius:16px;padding:40px 36px;box-shadow:0 10px 40px rgba(0,0,0,.2);max-width:400px;width:100%;text-align:center}
 .login-logo{font-size:28px;font-weight:700;color:#0C2E5B;margin-bottom:4px;letter-spacing:.02em}
 .login-sub{font-size:13px;color:#718096;margin-bottom:4px}
-.login-ver{font-size:11px;color:#A0AEC0;margin-bottom:28px}
+.login-ver{font-size:11px;color:#A0AEC0;margin-bottom:28px;text-align:center}
 .login-field{text-align:left;margin-bottom:16px}
 .login-field label{display:block;font-size:12px;color:#4A5568;margin-bottom:6px;font-weight:500}
 .login-field input{width:100%;padding:12px 14px;font-size:14px;border:1px solid #CBD5E0;border-radius:8px;box-sizing:border-box;transition:border-color .15s}
@@ -250,7 +250,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="login-sub">Carmo Mancebo | Advogado</div>
     <div style="display:flex;align-items:center;gap:6px;flex:1;max-width:280px;margin:0 8px">
         </div>
-        <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.64.1 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
+        <div class="login-ver" style="display:flex;align-items:center;gap:8px;justify-content:center">OAB/SP 274.575 · versão 1.64.1.2 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -274,7 +274,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.64.1.1</span>
+    <span class="tb-meta" id="tb-versao">versão 1.64.1.2</span>
   </div>
 </div>
 
@@ -485,7 +485,6 @@ tbody tr.st-p td{background:#b3e5fc}
             <button class="fbtn" id="f-trat" onclick="filtrar('trat')">Tratados</button>
           <button class="btn btn-s btn-sm" id="btn-dup" onclick="filtrar('dup')" title="Mostrar apenas processos duplicados">⚠ Duplicatas</button>
           <button class="btn btn-s btn-sm active" id="btn-toggle-prazo" onclick="toggleDestaquePrazos()" title="Ativar/desativar destaque de prazos críticos">🔴 Prazos ON</button>
-          <button class="btn btn-s btn-sm" id="btn-prazos-toggle" onclick="togglePrazosVisuais()" title="Ativar/desativar coloração de prazos na tabela">🔴 Prazos ON</button>
           <button class="btn btn-s btn-sm" id="btn-pin" onclick="togglePinColunas()" title="Fixar Pasta e Processo durante rolagem">📌 Fixar cols</button>
           <button class="btn btn-s btn-sm" id="btn-grupo" onclick="toggleModoGrupo()" title="Agrupar linhas do mesmo processo">📂 Agrupar</button>
           <button class="btn btn-s btn-sm" onclick="exportarTabelaFiltrada()" title="Exportar XLSX">📥 XLSX</button>
@@ -1084,10 +1083,12 @@ function carregarFeriadosCidades(){try{_cidadesAtivas=JSON.parse(localStorage.ge
 function calcularPrazo(diasUteis, dataBase) {
   var base = dataBase || isoHoje();
   var venc = adicionarDiasUteis(base, diasUteis);
-  var d2   = adicionarDiasUteis(venc, -2);
-  // D-2: 2 dias úteis antes do vencimento
+  // D-2: 2 dias úteis antes do vencimento (alerta interno)
   var d2iso = adicionarDiasUteis(base, diasUteis - 2);
-  return { vencimento: venc, d2: d2iso, base: base };
+  // D+1 e D+2: 1 e 2 dias úteis após o vencimento
+  var d1pos = adicionarDiasUteis(venc, 1);
+  var d2pos = adicionarDiasUteis(venc, 2);
+  return { vencimento: venc, d2: d2iso, d1: d1pos, d2pos: d2pos, base: base };
 }
  // ordenação da tabela de processos
 var ultimoSysPrompt = '', ultimoUsrPrompt = '', ultimoModelo = '', ultimoKey = ''; // para regenerar/continuar
@@ -2095,13 +2096,15 @@ async function extrairECalcularPrazo() {
   var r = calcularPrazo(diasNum, dataIni);
   var semanas = Math.ceil(diasNum / 5);
 
-  _ultimoPrazoCaculado={diasUteis:diasNum,inicio:dataIni,vencimento:r.vencimento,d2:r.d2};
+  _ultimoPrazoCaculado={diasUteis:diasNum,inicio:dataIni,vencimento:r.vencimento,d2:r.d2,d1:r.d1,d2pos:r.d2pos};
   resDiv.style.display = "block";
   resDiv.innerHTML =
     "<strong>Prazo identificado:</strong> " + diasNum + " dias úteis<br>" +
     "<strong>Início (intimação):</strong> " + formatarDataBR(r.base) + "<br>" +
     "<strong>Vencimento:</strong> <span style=\"color:var(--red);font-weight:700\">" + formatarDataBR(r.vencimento) + "</span><br>" +
     "<strong>⚠ D-2 (alerta interno):</strong> <span style=\"color:var(--amber);font-weight:700\">" + formatarDataBR(r.d2) + "</span><br>" +
+    "<strong>D+1:</strong> <span style=\"color:var(--text2)\">" + formatarDataBR(r.d1) + "</span><br>" +
+    "<strong>D+2:</strong> <span style=\"color:var(--text2)\">" + formatarDataBR(r.d2pos) + "</span><br>" +
     "<span style=\"font-size:11px;color:var(--text3)\">Feriados TJSP e recesso forense considerados. Verifique feriados municipais e suspensões avulsas.</span>";
 }
 
@@ -2771,6 +2774,11 @@ function ativarNotificacoes() {
 function toggleDestaquePrazos() {
   _destaquePrazos = !_destaquePrazos;
   try { localStorage.setItem("gp_destaque_prazos", _destaquePrazos ? "1" : "0"); } catch(e){}
+  
+  // Também aplica classe CSS no body para coloração visual
+  document.body.classList.toggle("prazos-on", _destaquePrazos);
+  localStorage.setItem("gp_prazos_on", _destaquePrazos ? "1" : "0");
+  
   var btn = document.getElementById("btn-toggle-prazo");
   if (btn) {
     btn.textContent = _destaquePrazos ? "🔴 Prazos ON" : "⬜ Prazos OFF";
@@ -3021,15 +3029,6 @@ function toggleFav(proc, e) {
 }
 
 // ── TOGGLE COLORAÇÃO PRAZOS ────────────────────────────────────────────
-function togglePrazosVisuais() {
-  var ativo = document.body.classList.toggle("prazos-on");
-  localStorage.setItem("gp_prazos_on", ativo ? "1" : "0");
-  var btn = document.getElementById("btn-prazos-toggle");
-  if (btn) {
-    btn.classList.toggle("active", ativo);
-    btn.textContent = ativo ? "🔴 Prazos ON" : "⬜ Prazos OFF";
-  }
-}
 function carregarEstadoPrazos() {
   if (localStorage.getItem("gp_prazos_on") !== "0") {
     document.body.classList.add("prazos-on");
@@ -4783,7 +4782,7 @@ var ESTRUTURAS = {
     intro: false
   },
   'contestação': {
-    topicos: ['DA TEMPESTIVIDADE','DOS FATOS','PRELIMINARMENTE (quando aplicável)','DO MÉRITO (mérito: impugnação analítica aos fatos, fundamentos jurídicos da defesa e refutação dos pedidos do autor — tudo em tópico único, sem subdivisão)','DOS PEDIDOS'],
+    topicos: ['DA TEMPESTIVIDADE','DOS FATOS','PRELIMINARMENTE (quando aplicável)','DO MÉRITO (mérito: impugnação analítica aos fatos e fundamentos jurídicos da defesa)','DA AUSÊNCIA DE COBERTURA PELO ROL DA ANS (RN 465/2021 — quando pertinente: demonstrar que o procedimento não consta no rol taxativo da ANS e que não há obrigação legal de cobertura, com fundamento no artigo 10 da Lei 9.656/98 e no artigo 2º da RN 465/2021)','DA ADI 7265 E CONSTITUCIONALIDADE DA LEI 14.454/2022 (quando pertinente: reforçar que o STF confirmou a constitucionalidade do rol taxativo mitigado e dos critérios cumulativos do § 13 do artigo 10 da Lei 9.656/98, afastando interpretações que ampliam coberturas sem base legal)','DO QUESTIONAMENTO DA QUANTIDADE DE HORAS DE TRATAMENTO E PRESTAÇÃO DE CONTAS (quando pertinente em casos de terapias como ABA, TO, Fono, Psico: questionar a quantidade excessiva de horas prescritas, requerer detalhamento do plano terapêutico e prestação de contas pormenorizada da necessidade técnica da carga horária indicada, com fundamento nas DUTs da RN 465/2021)','DOS PEDIDOS'],
     intro: false
   },
   'impugnação ao cumprimento de sentença': {
