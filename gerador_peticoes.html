@@ -231,7 +231,7 @@ tbody tr.st-p td{background:#b3e5fc}
           <input id="busca-global" type="text" placeholder="🔍 Busca global..." style="font-size:11px;padding:4px 8px;border-radius:16px;border:1px solid var(--border);background:var(--bg2);color:var(--text);width:100%;" oninput="buscaGlobal(this.value)" onfocus="document.getElementById('res-busca-global').style.display='block'" onblur="setTimeout(function(){document.getElementById('res-busca-global').style.display='none';},200)">
           <div id="res-busca-global" style="display:none;position:absolute;top:48px;left:0;right:0;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
         </div>
-        <div class="login-ver" style="display:flex;align-items:center;gap:8px;justify-content:center">OAB/SP 274.575 · versão 1.66.2</div>
+        <div class="login-ver" style="display:flex;align-items:center;gap:8px;justify-content:center">OAB/SP 274.575 · versão 1.66.3</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -256,7 +256,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="tb-right">
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.66.2</span>
+    <span class="tb-meta" id="tb-versao">versão 1.66.3</span>
   </div>
 </div>
 
@@ -3053,6 +3053,7 @@ function renderTabela() {
     tr.innerHTML='<td style="white-space:nowrap">'+(favs[p.proc]?'⭐ ':'')+p.pasta+
       ' <button class="btn btn-s btn-sm" style="font-size:9px;padding:1px 5px;margin-left:2px" onclick="event.stopPropagation();abrirFicha('+i+')" title="Ver ficha">📋</button>'+
       ' <button class="btn btn-s btn-sm" style="font-size:9px;padding:1px 4px" onclick="event.stopPropagation();toggleFav(this.getAttribute(\"data-proc\"),event)" data-proc="'+p.proc+'" title="Favorito">'+(favs[p.proc]?'★':'☆')+'</button></td>'+
+      '<td style="font-size:11px;white-space:nowrap">'+(p.proc||'')+'</td>'+
       '<td style="font-size:11px;white-space:nowrap">'+(prazoClasse==='prazo-vencido'?'<span style="color:var(--red);font-weight:700">⚠ '+prazoStr+'</span>':prazoClasse==='prazo-hoje'?'<span style="color:var(--red);font-weight:700">🔴 '+prazoStr+'</span>':prazoClasse==='prazo-d2'?'<span style="color:var(--amber);font-weight:700">🟡 '+prazoStr+'</span>':prazoStr)+'</td>'+
       '<td style="font-size:11px">'+tipoStr+'</td>'+
       '<td style="font-size:12px">'+(p.parte||'')+'</td>'+
