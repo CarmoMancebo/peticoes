@@ -188,23 +188,9 @@ textarea{resize:vertical;min-height:90px;line-height:1.6}
 .fzone:hover{background:var(--surface2);border-color:var(--blue-mid)}
 .fzone p{font-size:13px;color:var(--text2);margin-bottom:4px}
 .fzone small{font-size:11px;color:var(--text3)}
-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+table{width:100%;border-collapse:collapse;font-size:12px}
 thead th{font-weight:600;font-size:11px;color:var(--text2);text-align:left;padding:7px 8px;border-bottom:1px solid var(--border);background:var(--surface2)}
-thead th:nth-child(1){width:85px}   /* Pasta */
-thead th:nth-child(2){width:140px}  /* Processo */
-thead th:nth-child(3){width:90px}   /* Prazo */
-thead th:nth-child(4){width:75px}   /* Tipo */
-thead th:nth-child(5){width:130px}  /* Parte */
-thead th:nth-child(6){width:auto}   /* Descrição (flex) */
-thead th:nth-child(7){width:65px}   /* Resp */
-thead th:nth-child(8){width:95px}   /* Tratativa */
-tbody td{padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle;word-wrap:break-word;overflow-wrap:break-word}
-body.prazos-off tr.prazo-vencido td,
-body.prazos-off tr.prazo-hoje td,
-body.prazos-off tr.prazo-d2 td { background:transparent !important; }
-body.prazos-off tr.prazo-vencido td span,
-body.prazos-off tr.prazo-hoje td span,
-body.prazos-off tr.prazo-d2 td span { color:inherit !important; font-weight:normal !important; }
+tbody td{padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
 tbody tr:hover td{background:var(--surface2);cursor:pointer}
 tbody tr.sel td{background:var(--blue-bg)}
 tbody tr.st-c td{background:#d4edda}
@@ -245,7 +231,7 @@ tbody tr.st-p td{background:#b3e5fc}
           <input id="busca-global" type="text" placeholder="🔍 Busca global..." style="font-size:11px;padding:4px 8px;border-radius:16px;border:1px solid var(--border);background:var(--bg2);color:var(--text);width:100%;" oninput="buscaGlobal(this.value)" onfocus="document.getElementById('res-busca-global').style.display='block'" onblur="setTimeout(function(){document.getElementById('res-busca-global').style.display='none';},200)">
           <div id="res-busca-global" style="display:none;position:absolute;top:48px;left:0;right:0;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
         </div>
-        <div class="login-ver" style="display:flex;align-items:center;gap:8px;justify-content:center">OAB/SP 274.575 · versão 1.66.6</div>
+        <div class="login-ver" style="display:flex;align-items:center;gap:8px;justify-content:center">OAB/SP 274.575 · versão 1.67</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -269,9 +255,8 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
-    <button id="btn-prazos-toolbar" onclick="togglePrazosColoracao()" title="Ativar/desativar colorização de prazos" style="background:none;border:1px solid var(--border2);cursor:pointer;font-size:11px;padding:3px 8px;line-height:1;vertical-align:middle;margin-right:8px;border-radius:4px;color:var(--text)">Prazos: ON</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.66.6</span>
+    <span class="tb-meta" id="tb-versao">versão 1.67</span>
   </div>
 </div>
 
@@ -1776,17 +1761,16 @@ function loadXLSX(inp) {
   rd.onload = function(e) {
     var wb = XLSX.read(e.target.result,{type:'array'});
     var ws = wb.Sheets[wb.SheetNames[0]];
-    // Tentar ler normalmente primeiro (linha 1 como cabeçalho)
     var data = XLSX.utils.sheet_to_json(ws,{defval:''});
-    // Se a primeira linha não tem cabeçalhos válidos (detecta pelo campo "Pasta" ou "Processo")
+    // Verificar se a linha 1 tem cabeçalhos válidos (deve conter "Pasta" ou "Processo")
     var primeiraLinha = data[0] || {};
     var temCabecalhoValido = Object.keys(primeiraLinha).some(function(k){
       var kl = k.toLowerCase();
       return kl.indexOf('pasta') >= 0 || kl.indexOf('processo') >= 0;
     });
-    // Se não tem cabeçalho válido, tentar pular a primeira linha (usar range)
+    // Se não tem cabeçalho válido na linha 1, tenta ler com a linha 2 como cabeçalho
     if (!temCabecalhoValido) {
-      data = XLSX.utils.sheet_to_json(ws, {defval:'', range:1}); // range:1 pula a linha 0 (usa linha 1 como header)
+      data = XLSX.utils.sheet_to_json(ws, {defval:'', range:1});
     }
     procs = data.map(function(r){
       var numProc = gc(r,['processo']);
@@ -3079,7 +3063,6 @@ function renderTabela() {
     tr.innerHTML='<td style="white-space:nowrap">'+(favs[p.proc]?'⭐ ':'')+p.pasta+
       ' <button class="btn btn-s btn-sm" style="font-size:9px;padding:1px 5px;margin-left:2px" onclick="event.stopPropagation();abrirFicha('+i+')" title="Ver ficha">📋</button>'+
       ' <button class="btn btn-s btn-sm" style="font-size:9px;padding:1px 4px" onclick="event.stopPropagation();toggleFav(this.getAttribute(\"data-proc\"),event)" data-proc="'+p.proc+'" title="Favorito">'+(favs[p.proc]?'★':'☆')+'</button></td>'+
-      '<td style="font-size:11px;white-space:nowrap">'+(p.proc||'')+'</td>'+
       '<td style="font-size:11px;white-space:nowrap">'+(prazoClasse==='prazo-vencido'?'<span style="color:var(--red);font-weight:700">⚠ '+prazoStr+'</span>':prazoClasse==='prazo-hoje'?'<span style="color:var(--red);font-weight:700">🔴 '+prazoStr+'</span>':prazoClasse==='prazo-d2'?'<span style="color:var(--amber);font-weight:700">🟡 '+prazoStr+'</span>':prazoStr)+'</td>'+
       '<td style="font-size:11px">'+tipoStr+'</td>'+
       '<td style="font-size:12px">'+(p.parte||'')+'</td>'+
@@ -3730,23 +3713,6 @@ function carregarTema() {
     document.documentElement.setAttribute("data-theme", t);
     var btn = document.getElementById("btn-tema-toolbar");
     if (btn) btn.textContent = t === "dark" ? "☀️" : "🌙";
-  } catch(e){}
-}
-
-function togglePrazosColoracao() {
-  var ativo = document.body.classList.toggle("prazos-off");
-  // ativo=true significa que a classe foi ADICIONADA (prazos OFF)
-  var btn = document.getElementById("btn-prazos-toolbar");
-  if (btn) btn.textContent = ativo ? "Prazos: OFF" : "Prazos: ON";
-  try { localStorage.setItem("gp_prazos_off", ativo ? "1" : "0"); } catch(e){}
-}
-
-function carregarPrazosColoracao() {
-  try {
-    var off = localStorage.getItem("gp_prazos_off") === "1";
-    if (off) document.body.classList.add("prazos-off");
-    var btn = document.getElementById("btn-prazos-toolbar");
-    if (btn) btn.textContent = off ? "Prazos: OFF" : "Prazos: ON";
   } catch(e){}
 }
 
@@ -5587,7 +5553,6 @@ function _modalKeyHandler(e) {
   carregarFeriadosCustom();
   carregarFeriadosCidades();
   carregarTema();
-  carregarPrazosColoracao();
   // Verificar prazos e notificar se permissão já foi concedida
   if (localStorage.getItem("gp_notif") === "1") {
     setTimeout(verificarPrazosENotificar, 2000);
