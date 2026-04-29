@@ -274,7 +274,7 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.64.1</span>
+    <span class="tb-meta" id="tb-versao">versão 1.1.1</span>
   </div>
 </div>
 
@@ -534,8 +534,8 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
 
       <div id="legend-dup" class="legend-dup" style="display:none"></div>
-        <div id="twrap" style="display:none;overflow-x:auto">
-        <table>
+        <div id="twrap" style="display:none;overflow-x:hidden">
+        <table style="font-size:11px">
           <thead id="thead-sort"><tr>
             <th onclick="sortTabela('pasta',event)" class="th-sort" title="Ordenar por Pasta">Pasta</th><th onclick="sortTabela('proc',event)" class="th-sort" title="Ordenar por Processo">Processo</th><th onclick="sortTabela('prazo',event)" class="th-sort" title="Ordenar por Prazo">Prazo</th><th onclick="sortTabela('tipo',event)" class="th-sort" title="Ordenar por Tipo">Tipo</th>
             <th onclick="sortTabela('parte',event)" class="th-sort" title="Ordenar por Parte contrária">Parte contrária</th><th onclick="sortTabela('desc',event)" class="th-sort" title="Ordenar por Descrição">Descrição</th><th onclick="sortTabela('resp',event)" class="th-sort" title="Ordenar por Responsável">Resp.</th>
@@ -3160,7 +3160,7 @@ function renderTabela() {
     var tipoStr=(p.tipo||'').replace('Prazos Cíveis - ','').replace('Prazo Interno - ','').slice(0,30);
     var conc=t.conc||'';
     var badge=trat||'—';
-    tr.innerHTML='<td style="white-space:nowrap">'+(favs[p.proc]?'⭐ ':'')+p.pasta+
+    tr.innerHTML='<td style="white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis" title="'+p.pasta+'">'+(favs[p.proc]?'⭐ ':'')+p.pasta+
       ' <button class="btn btn-s btn-sm" style="font-size:9px;padding:1px 5px;margin-left:2px" onclick="event.stopPropagation();abrirFicha('+i+')" title="Ver ficha">📋</button>'+
       ' <button class="btn btn-s btn-sm" style="font-size:9px;padding:1px 4px" onclick="event.stopPropagation();toggleFav(this.getAttribute(\"data-proc\"),event)" data-proc="'+p.proc+'" title="Favorito">'+(favs[p.proc]?'★':'☆')+'</button></td>'+
       '<td style="font-size:11px">'+(p.proc||'')+'</td>'+
