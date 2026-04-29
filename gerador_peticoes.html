@@ -250,7 +250,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="login-sub">Carmo Mancebo | Advogado</div>
     <div style="display:flex;align-items:center;gap:6px;flex:1;max-width:280px;margin:0 8px">
         </div>
-        <div class="login-ver" style="display:flex;align-items:center;gap:8px;justify-content:center">OAB/SP 274.575 · versão 1.64.1.2 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
+        <div class="login-ver" style="display:flex;align-items:center;gap:8px;justify-content:center">OAB/SP 274.575 · versão 1.66</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -273,8 +273,9 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="tb-oab">OAB/SP 274.575</div>
   </div>
   <div class="tb-right">
+    <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.64.1.2</span>
+    <span class="tb-meta" id="tb-versao">versão 1.66</span>
   </div>
 </div>
 
@@ -2777,7 +2778,7 @@ function toggleDestaquePrazos() {
   
   // Também aplica classe CSS no body para coloração visual
   document.body.classList.toggle("prazos-on", _destaquePrazos);
-  localStorage.setItem("gp_prazos_on", _destaquePrazos ? "1" : "0");
+  try { localStorage.setItem("gp_prazos_on", _destaquePrazos ? "1" : "0"); } catch(e){}
   
   var btn = document.getElementById("btn-toggle-prazo");
   if (btn) {
@@ -4782,7 +4783,7 @@ var ESTRUTURAS = {
     intro: false
   },
   'contestação': {
-    topicos: ['DA TEMPESTIVIDADE','DOS FATOS','PRELIMINARMENTE (quando aplicável)','DO MÉRITO (mérito: impugnação analítica aos fatos e fundamentos jurídicos da defesa)','DA AUSÊNCIA DE COBERTURA PELO ROL DA ANS (RN 465/2021 — quando pertinente: demonstrar que o procedimento não consta no rol taxativo da ANS e que não há obrigação legal de cobertura, com fundamento no artigo 10 da Lei 9.656/98 e no artigo 2º da RN 465/2021)','DA ADI 7265 E CONSTITUCIONALIDADE DA LEI 14.454/2022 (quando pertinente: reforçar que o STF confirmou a constitucionalidade do rol taxativo mitigado e dos critérios cumulativos do § 13 do artigo 10 da Lei 9.656/98, afastando interpretações que ampliam coberturas sem base legal)','DO QUESTIONAMENTO DA QUANTIDADE DE HORAS DE TRATAMENTO E PRESTAÇÃO DE CONTAS (quando pertinente em casos de terapias como ABA, TO, Fono, Psico: questionar a quantidade excessiva de horas prescritas, requerer detalhamento do plano terapêutico e prestação de contas pormenorizada da necessidade técnica da carga horária indicada, com fundamento nas DUTs da RN 465/2021)','DOS PEDIDOS'],
+    topicos: ['DA TEMPESTIVIDADE','DOS FATOS','PRELIMINARMENTE (quando aplicável)','DO MÉRITO','DA AUSÊNCIA DE COBERTURA PELO ROL DA ANS (quando pertinente)','DA ADI 7265 E DA LEI 14.454/2022 (quando pertinente)','DO QUESTIONAMENTO DE HORAS DE TRATAMENTO (quando pertinente)','DOS PEDIDOS'],
     intro: false
   },
   'impugnação ao cumprimento de sentença': {
