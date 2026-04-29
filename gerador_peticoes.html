@@ -3845,7 +3845,7 @@ function toggleTema() {
   var novo = atual === "dark" ? "light" : "dark";
   html.setAttribute("data-theme", novo);
   try { localStorage.setItem("gp_tema", novo); } catch(e){}
-  var btn = document.getElementById("btn-tema");
+  var btn = document.getElementById("btn-tema-toolbar");
   if (btn) btn.textContent = novo === "dark" ? "☀️" : "🌙";
 }
 
@@ -3853,7 +3853,7 @@ function carregarTema() {
   try {
     var t = localStorage.getItem("gp_tema") || "light";
     document.documentElement.setAttribute("data-theme", t);
-    var btn = document.getElementById("btn-tema");
+    var btn = document.getElementById("btn-tema-toolbar");
     if (btn) btn.textContent = t === "dark" ? "☀️" : "🌙";
   } catch(e){}
 }
