@@ -231,7 +231,7 @@ tbody tr.st-p td{background:#b3e5fc}
           <input id="busca-global" type="text" placeholder="🔍 Busca global..." style="font-size:11px;padding:4px 8px;border-radius:16px;border:1px solid var(--border);background:var(--bg2);color:var(--text);width:100%;" oninput="buscaGlobal(this.value)" onfocus="document.getElementById('res-busca-global').style.display='block'" onblur="setTimeout(function(){document.getElementById('res-busca-global').style.display='none';},200)">
           <div id="res-busca-global" style="display:none;position:absolute;top:48px;left:0;right:0;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
         </div>
-        <div class="login-ver" style="display:flex;align-items:center;gap:8px;justify-content:center">OAB/SP 274.575 · versão 1.66.3</div>
+        <div class="login-ver" style="display:flex;align-items:center;gap:8px;justify-content:center">OAB/SP 274.575 · versão 1.66.4</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -256,7 +256,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="tb-right">
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.66.3</span>
+    <span class="tb-meta" id="tb-versao">versão 1.66.4</span>
   </div>
 </div>
 
@@ -1761,7 +1761,18 @@ function loadXLSX(inp) {
   rd.onload = function(e) {
     var wb = XLSX.read(e.target.result,{type:'array'});
     var ws = wb.Sheets[wb.SheetNames[0]];
+    // Tentar ler normalmente primeiro (linha 1 como cabeçalho)
     var data = XLSX.utils.sheet_to_json(ws,{defval:''});
+    // Se a primeira linha não tem cabeçalhos válidos (detecta pelo campo "Pasta" ou "Processo")
+    var primeiraLinha = data[0] || {};
+    var temCabecalhoValido = Object.keys(primeiraLinha).some(function(k){
+      var kl = k.toLowerCase();
+      return kl.indexOf('pasta') >= 0 || kl.indexOf('processo') >= 0;
+    });
+    // Se não tem cabeçalho válido, tentar pular a primeira linha (usar range)
+    if (!temCabecalhoValido) {
+      data = XLSX.utils.sheet_to_json(ws, {defval:'', range:1}); // range:1 pula a linha 0 (usa linha 1 como header)
+    }
     procs = data.map(function(r){
       var numProc = gc(r,['processo']);
       return {
