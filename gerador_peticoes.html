@@ -209,7 +209,7 @@ textarea{resize:vertical;min-height:90px;line-height:1.6}
 .fzone:hover{background:var(--surface2);border-color:var(--blue-mid)}
 .fzone p{font-size:13px;color:var(--text2);margin-bottom:4px}
 .fzone small{font-size:11px;color:var(--text3)}
-table{width:100%;border-collapse:collapse;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
 thead th{font-weight:600;font-size:11px;color:var(--text2);text-align:left;padding:7px 8px;border-bottom:1px solid var(--border);background:var(--surface2)}
 tbody td{padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
 tbody tr:hover td{background:var(--surface2);cursor:pointer}
@@ -537,9 +537,9 @@ tbody tr.st-p td{background:#b3e5fc}
         <div id="twrap" style="display:none;overflow-x:auto">
         <table>
           <thead id="thead-sort"><tr>
-            <th onclick="sortTabela('pasta',event)" class="th-sort" title="Ordenar por Pasta">Pasta</th><th onclick="sortTabela('proc',event)" class="th-sort" title="Ordenar por Processo">Processo</th><th onclick="sortTabela('prazo',event)" class="th-sort" title="Ordenar por Prazo">Prazo</th><th onclick="sortTabela('tipo',event)" class="th-sort" title="Ordenar por Tipo">Tipo</th>
-            <th onclick="sortTabela('parte',event)" class="th-sort" title="Ordenar por Parte contrária">Parte contrária</th><th onclick="sortTabela('desc',event)" class="th-sort" title="Ordenar por Descrição">Descrição</th><th onclick="sortTabela('resp',event)" class="th-sort" title="Ordenar por Responsável">Resp.</th>
-            <th style="text-align:center">Tratativa</th>
+            <th onclick="sortTabela('pasta',event)" class="th-sort" title="Ordenar por Pasta" style="width:90px;max-width:90px">Pasta</th><th onclick="sortTabela('proc',event)" class="th-sort" title="Ordenar por Processo" style="width:140px;max-width:140px">Processo</th><th onclick="sortTabela('prazo',event)" class="th-sort" title="Ordenar por Prazo" style="width:90px;max-width:90px">Prazo</th><th onclick="sortTabela('tipo',event)" class="th-sort" title="Ordenar por Tipo" style="width:120px;max-width:120px">Tipo</th>
+            <th onclick="sortTabela('parte',event)" class="th-sort" title="Ordenar por Parte contrária" style="width:140px;max-width:140px">Parte contrária</th><th onclick="sortTabela('desc',event)" class="th-sort" title="Ordenar por Descrição" style="width:180px;max-width:180px">Descrição</th><th onclick="sortTabela('resp',event)" class="th-sort" title="Ordenar por Responsável" style="width:100px;max-width:100px">Resp.</th>
+            <th style="text-align:center;width:110px;max-width:110px">Tratativa</th>
           </tr></thead>
           <tbody id="tbody"></tbody>
         </table>
@@ -3162,11 +3162,11 @@ function renderTabela() {
     var tipoStr=(p.tipo||'').replace('Prazos Cíveis - ','').replace('Prazo Interno - ','').slice(0,30);
     var conc=t.conc||'';
     var badge=trat||'—';
-    tr.innerHTML='<td style="white-space:nowrap">'+(favs[p.proc]?'⭐ ':'')+p.pasta+
+    tr.innerHTML='<td style="white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis">'+(favs[p.proc]?'⭐ ':'')+p.pasta+
       ' <button class="btn btn-s btn-sm" style="font-size:9px;padding:1px 5px;margin-left:2px" onclick="event.stopPropagation();abrirFicha('+i+')" title="Ver ficha">📋</button>'+
       ' <button class="btn btn-s btn-sm" style="font-size:9px;padding:1px 4px" onclick="event.stopPropagation();toggleFav(this.getAttribute(\"data-proc\"),event)" data-proc="'+p.proc+'" title="Favorito">'+(favs[p.proc]?'★':'☆')+'</button></td>'+
-      '<td style="font-size:11px">'+(p.proc||'')+'</td>'+
-      '<td style="font-size:11px;white-space:nowrap">'+(function(){
+      '<td style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+(p.proc||'')+'">'+(p.proc||'')+'</td>'+
+      '<td style="font-size:11px;white-space:nowrap;max-width:90px">'+(function(){
       var label = prazoClasse==='prazo-vencido' ? '<span style="color:var(--red);font-weight:700">⚠ '+prazoStr+'</span>'
         : prazoClasse==='prazo-hoje' ? '<span style="color:var(--red);font-weight:700">🔴 '+prazoStr+'</span>'
         : prazoClasse==='prazo-d2'   ? '<span style="color:var(--amber);font-weight:700">🟡 '+prazoStr+'</span>'
@@ -3179,11 +3179,11 @@ function renderTabela() {
       return '<div class="prazo-cell-wrap">'+label+
         '<div class="prazo-mini-track"><div class="prazo-mini-fill" style="width:'+pct+'%;background:'+cor+'"></div></div></div>';
     })()+'</td>'+
-      '<td style="font-size:11px">'+tipoStr+'</td>'+
-      '<td style="font-size:12px">'+(p.parte||'')+'</td>'+
-      '<td style="font-size:12px">'+(p.desc||'')+'</td>'+
-      '<td style="font-size:11px">'+(p.resp||'')+'</td>'+
-      '<td style="text-align:center;white-space:nowrap">'+
+      '<td style="font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+tipoStr+'">'+tipoStr+'</td>'+
+      '<td style="font-size:12px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+(p.parte||'')+'">'+(p.parte||'')+'</td>'+
+      '<td style="font-size:12px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+(p.desc||'')+'">'+(p.desc||'')+'</td>'+
+      '<td style="font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+(p.resp||'')+'">'+(p.resp||'')+'</td>'+
+      '<td style="text-align:center;white-space:nowrap;max-width:110px">'+
         '<span class="badge">'+badge+'</span>'+
         (conc?'<br><span style="font-size:10px;color:var(--text3)">'+conc.slice(0,28)+(conc.length>28?'…':'')+'</span>':'')+
         '<br><button class="btn btn-s btn-sm" style="margin-top:3px" onclick="event.stopPropagation();abrirTP('+i+')">Tratativa</button>'+
