@@ -188,8 +188,16 @@ textarea{resize:vertical;min-height:90px;line-height:1.6}
 .fzone:hover{background:var(--surface2);border-color:var(--blue-mid)}
 .fzone p{font-size:13px;color:var(--text2);margin-bottom:4px}
 .fzone small{font-size:11px;color:var(--text3)}
-table{width:100%;border-collapse:collapse;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
 thead th{font-weight:600;font-size:11px;color:var(--text2);text-align:left;padding:7px 8px;border-bottom:1px solid var(--border);background:var(--surface2)}
+thead th:nth-child(1){width:95px}  /* Pasta */
+thead th:nth-child(2){width:155px} /* Processo */
+thead th:nth-child(3){width:85px}  /* Prazo */
+thead th:nth-child(4){width:90px}  /* Tipo */
+thead th:nth-child(5){width:140px} /* Parte */
+thead th:nth-child(6){width:auto}  /* Descrição (flex) */
+thead th:nth-child(7){width:80px}  /* Resp */
+thead th:nth-child(8){width:110px} /* Tratativa */
 tbody td{padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
 tbody tr:hover td{background:var(--surface2);cursor:pointer}
 tbody tr.sel td{background:var(--blue-bg)}
@@ -231,7 +239,7 @@ tbody tr.st-p td{background:#b3e5fc}
           <input id="busca-global" type="text" placeholder="🔍 Busca global..." style="font-size:11px;padding:4px 8px;border-radius:16px;border:1px solid var(--border);background:var(--bg2);color:var(--text);width:100%;" oninput="buscaGlobal(this.value)" onfocus="document.getElementById('res-busca-global').style.display='block'" onblur="setTimeout(function(){document.getElementById('res-busca-global').style.display='none';},200)">
           <div id="res-busca-global" style="display:none;position:absolute;top:48px;left:0;right:0;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
         </div>
-        <div class="login-ver" style="display:flex;align-items:center;gap:8px;justify-content:center">OAB/SP 274.575 · versão 1.66.4</div>
+        <div class="login-ver" style="display:flex;align-items:center;gap:8px;justify-content:center">OAB/SP 274.575 · versão 1.66.5</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -256,7 +264,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="tb-right">
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.66.4</span>
+    <span class="tb-meta" id="tb-versao">versão 1.66.5</span>
   </div>
 </div>
 
