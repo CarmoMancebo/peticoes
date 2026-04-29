@@ -148,7 +148,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .login-card{background:#fff;border-radius:16px;padding:40px 36px;box-shadow:0 10px 40px rgba(0,0,0,.2);max-width:400px;width:100%;text-align:center}
 .login-logo{font-size:28px;font-weight:700;color:#0C2E5B;margin-bottom:4px;letter-spacing:.02em}
 .login-sub{font-size:13px;color:#718096;margin-bottom:4px}
-.login-ver{font-size:11px;color:#A0AEC0;margin-bottom:28px;text-align:center}
+.login-ver{font-size:11px;color:#A0AEC0;margin-bottom:28px}
 .login-field{text-align:left;margin-bottom:16px}
 .login-field label{display:block;font-size:12px;color:#4A5568;margin-bottom:6px;font-weight:500}
 .login-field input{width:100%;padding:12px 14px;font-size:14px;border:1px solid #CBD5E0;border-radius:8px;box-sizing:border-box;transition:border-color .15s}
@@ -250,8 +250,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="login-sub">Carmo Mancebo | Advogado</div>
     <div style="display:flex;align-items:center;gap:6px;flex:1;max-width:280px;margin:0 8px">
         </div>
-        <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.66.1</div>
-        <div style="display:none"><!-- botão de tema removido daqui --><button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
+        <div class="login-ver" style="display:flex;align-items:center;gap:8px">OAB/SP 274.575 · versão 1.64.1 <button id="btn-tema" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0;line-height:1">🌙</button></div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -274,9 +273,8 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="tb-oab">OAB/SP 274.575</div>
   </div>
   <div class="tb-right">
-    <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.66.1</span>
+    <span class="tb-meta" id="tb-versao">versão 1.64.1.1</span>
   </div>
 </div>
 
@@ -418,8 +416,7 @@ tbody tr.st-p td{background:#b3e5fc}
         <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Defina uma senha de acesso para bloquear o uso da ferramenta. A proteção é local e cosmética — útil para impedir acesso casual quando o computador estiver desbloqueado. Não é criptografia forte.</p>
         <div class="btn-row">
           <button class="btn btn-s btn-sm" onclick="trocarSenha()">🔑 Cadastrar / alterar senha</button>
-          <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
-    <button class="btn btn-s btn-sm" onclick="bloquearAcesso()">🔒 Bloquear agora</button>
+          <button class="btn btn-s btn-sm" onclick="bloquearAcesso()">🔒 Bloquear agora</button>
         </div>
       </div>
 
@@ -3848,7 +3845,7 @@ function toggleTema() {
   var novo = atual === "dark" ? "light" : "dark";
   html.setAttribute("data-theme", novo);
   try { localStorage.setItem("gp_tema", novo); } catch(e){}
-  var btn = document.getElementById("btn-tema-toolbar");
+  var btn = document.getElementById("btn-tema");
   if (btn) btn.textContent = novo === "dark" ? "☀️" : "🌙";
 }
 
@@ -3856,7 +3853,7 @@ function carregarTema() {
   try {
     var t = localStorage.getItem("gp_tema") || "light";
     document.documentElement.setAttribute("data-theme", t);
-    var btn = document.getElementById("btn-tema-toolbar");
+    var btn = document.getElementById("btn-tema");
     if (btn) btn.textContent = t === "dark" ? "☀️" : "🌙";
   } catch(e){}
 }
