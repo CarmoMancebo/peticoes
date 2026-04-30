@@ -198,9 +198,17 @@ textarea{resize:vertical;min-height:90px;line-height:1.6}
 .fzone:hover{background:var(--surface2);border-color:var(--blue-mid)}
 .fzone p{font-size:13px;color:var(--text2);margin-bottom:4px}
 .fzone small{font-size:11px;color:var(--text3)}
-table{width:100%;border-collapse:collapse;font-size:12px}
-thead th{font-weight:600;font-size:11px;color:var(--text2);text-align:left;padding:7px 8px;border-bottom:1px solid var(--border);background:var(--surface2)}
-tbody td{padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+thead th{font-weight:600;font-size:11px;color:var(--text2);text-align:left;padding:7px 8px;border-bottom:1px solid var(--border);background:var(--surface2);overflow:hidden;text-overflow:ellipsis}
+thead th:nth-child(1){width:11%}  /* Pasta */
+thead th:nth-child(2){width:17%}  /* Processo */
+thead th:nth-child(3){width:11%}  /* Prazo */
+thead th:nth-child(4){width:9%}   /* Tipo */
+thead th:nth-child(5){width:14%}  /* Parte */
+thead th:nth-child(6){width:auto} /* Descrição (flex) */
+thead th:nth-child(7){width:8%}   /* Resp */
+thead th:nth-child(8){width:11%}  /* Tratativa */
+tbody td{padding:6px 8px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle;word-wrap:break-word;overflow-wrap:break-word}
 tbody tr:hover td{background:var(--surface2);cursor:pointer}
 tbody tr.sel td{background:var(--blue-bg)}
 tbody tr.st-c td{background:#d4edda}
@@ -237,7 +245,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-ver">OAB/SP 274.575 · versão 1.69.2</div>
+    <div class="login-ver">OAB/SP 274.575 · versão 1.69.3</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -261,9 +269,8 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
-    <button id="btn-prazos-toolbar" onclick="togglePrazosColoracao()" title="Ativar/desativar colorização de prazos" style="background:none;border:1px solid var(--border2);cursor:pointer;font-size:11px;padding:3px 8px;line-height:1;vertical-align:middle;margin-right:8px;border-radius:4px;color:var(--text)">Prazos: OFF</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.69.2</span>
+    <span class="tb-meta" id="tb-versao">versão 1.69.3</span>
   </div>
 </div>
 
@@ -477,6 +484,7 @@ tbody tr.st-p td{background:#b3e5fc}
           <button class="btn btn-s btn-sm" id="btn-grupo" onclick="toggleModoGrupo()" title="Agrupar linhas do mesmo processo">📂 Agrupar</button>
           <button class="btn btn-s btn-sm" onclick="exportarTabelaFiltrada()" title="Exportar linhas visíveis para XLSX">📥 Exportar</button>
           <button class="btn btn-s btn-sm" onclick="mesclarDuplicatas()" title="Mesclar linhas com mesmo número de processo">🔀 Mesclar</button>
+          <button class="btn btn-s btn-sm" id="btn-prazos-toggle" onclick="togglePrazosColoracao()" title="Ativar/desativar colorização de prazos vencidos">🎨 Prazos: OFF</button>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
             <span class="tip" id="proc-count"></span>
@@ -3725,8 +3733,8 @@ function carregarTema() {
 
 function togglePrazosColoracao() {
   var off = document.body.classList.toggle("prazos-off");
-  var btn = document.getElementById("btn-prazos-toolbar");
-  if (btn) btn.textContent = off ? "Prazos: OFF" : "Prazos: ON";
+  var btn = document.getElementById("btn-prazos-toggle");
+  if (btn) btn.textContent = off ? "🎨 Prazos: OFF" : "🎨 Prazos: ON";
   try { localStorage.setItem("gp_prazos_off", off ? "1" : "0"); } catch(e){}
 }
 
@@ -3737,8 +3745,8 @@ function carregarPrazosColoracao() {
     var off = (v === null) ? true : (v === "1");
     if (off) document.body.classList.add("prazos-off");
     else document.body.classList.remove("prazos-off");
-    var btn = document.getElementById("btn-prazos-toolbar");
-    if (btn) btn.textContent = off ? "Prazos: OFF" : "Prazos: ON";
+    var btn = document.getElementById("btn-prazos-toggle");
+    if (btn) btn.textContent = off ? "🎨 Prazos: OFF" : "🎨 Prazos: ON";
   } catch(e){}
 }
 
