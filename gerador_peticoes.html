@@ -227,7 +227,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-        <div class="login-ver" style="display:flex;align-items:center;gap:8px;justify-content:center">OAB/SP 274.575 · versão 1.67.1</div>
+        <div class="login-ver" style="display:flex;align-items:center;gap:8px;justify-content:center">OAB/SP 274.575 · versão 1.67.2</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -252,7 +252,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="tb-right">
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.67.1</span>
+    <span class="tb-meta" id="tb-versao">versão 1.67.2</span>
   </div>
 </div>
 
@@ -1757,17 +1757,40 @@ function loadXLSX(inp) {
   rd.onload = function(e) {
     var wb = XLSX.read(e.target.result,{type:'array'});
     var ws = wb.Sheets[wb.SheetNames[0]];
-    var data = XLSX.utils.sheet_to_json(ws,{defval:''});
-    // Verificar se a linha 1 tem cabeçalhos válidos (deve conter "Pasta" ou "Processo")
-    var primeiraLinha = data[0] || {};
-    var temCabecalhoValido = Object.keys(primeiraLinha).some(function(k){
-      var kl = k.toLowerCase();
-      return kl.indexOf('pasta') >= 0 || kl.indexOf('processo') >= 0;
-    });
-    // Se não tem cabeçalho válido na linha 1, tenta ler com a linha 2 como cabeçalho
-    if (!temCabecalhoValido) {
-      data = XLSX.utils.sheet_to_json(ws, {defval:'', range:1});
+
+    // Lê tudo como array de arrays (cada linha é um array)
+    var rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+
+    // Procura a linha de cabeçalho: aquela que contém "Pasta" e "Processo"
+    var headerIdx = -1;
+    for (var i=0; i<Math.min(rows.length, 5); i++) {
+      var rowText = rows[i].map(function(c){return (''+c).toLowerCase();}).join('|');
+      if (rowText.indexOf('pasta') >= 0 && rowText.indexOf('processo') >= 0) {
+        headerIdx = i;
+        break;
+      }
     }
+
+    if (headerIdx === -1) {
+      alert('Não foi possível identificar a linha de cabeçalho. Verifique se a planilha contém colunas "Pasta" e "Processo".');
+      return;
+    }
+
+    // Constrói os objetos manualmente usando a linha de cabeçalho identificada
+    var headers = rows[headerIdx].map(function(h){return (''+h).trim();});
+    var data = [];
+    for (var i=headerIdx+1; i<rows.length; i++) {
+      var obj = {};
+      var temAlgo = false;
+      for (var j=0; j<headers.length; j++) {
+        if (headers[j]) {
+          obj[headers[j]] = rows[i][j] !== undefined ? rows[i][j] : '';
+          if (obj[headers[j]] !== '') temAlgo = true;
+        }
+      }
+      if (temAlgo) data.push(obj);
+    }
+
     procs = data.map(function(r){
       var numProc = gc(r,['processo']);
       return {
