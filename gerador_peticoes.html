@@ -137,7 +137,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .login-card{background:#fff;border-radius:16px;padding:40px 36px;box-shadow:0 10px 40px rgba(0,0,0,.2);max-width:400px;width:100%;text-align:center}
 .login-logo{font-size:28px;font-weight:700;color:#0C2E5B;margin-bottom:4px;letter-spacing:.02em}
 .login-sub{font-size:13px;color:#718096;margin-bottom:4px}
-.login-ver{font-size:11px;color:#A0AEC0;margin-bottom:28px;text-align:center}
+.login-oab{font-size:13px;color:#718096;margin-bottom:28px;text-align:center}
+.login-ver{font-size:11px;color:#A0AEC0;margin-top:12px;text-align:center}
 .login-field{text-align:left;margin-bottom:16px}
 .login-field label{display:block;font-size:12px;color:#4A5568;margin-bottom:6px;font-weight:500}
 .login-field input{width:100%;padding:12px 14px;font-size:14px;border:1px solid #CBD5E0;border-radius:8px;box-sizing:border-box;transition:border-color .15s}
@@ -200,8 +201,8 @@ textarea{resize:vertical;min-height:90px;line-height:1.6}
 .fzone small{font-size:11px;color:var(--text3)}
 table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
 thead th{font-weight:600;font-size:11px;color:var(--text2);text-align:left;padding:7px 8px;border-bottom:1px solid var(--border);background:var(--surface2);overflow:hidden;text-overflow:ellipsis}
-thead th:nth-child(1){width:11%}  /* Pasta */
-thead th:nth-child(2){width:17%}  /* Processo */
+thead th:nth-child(1){width:9%}   /* Pasta */
+thead th:nth-child(2){width:19%}  /* Processo */
 thead th:nth-child(3){width:11%}  /* Prazo */
 thead th:nth-child(4){width:9%}   /* Tipo */
 thead th:nth-child(5){width:14%}  /* Parte */
@@ -245,7 +246,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-ver">OAB/SP 274.575 · versão 1.69.3</div>
+    <div class="login-oab">OAB/SP 274.575</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -255,6 +256,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="login-hint">
       <a href="#" onclick="resetarSenha();return false;" style="color:#185FA5;text-decoration:none">Esqueci minha senha</a>
     </div>
+    <div class="login-ver">versão 1.69.4</div>
   </div>
 </div>
 
@@ -270,7 +272,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="tb-right">
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.69.3</span>
+    <span class="tb-meta" id="tb-versao">versão 1.69.4</span>
   </div>
 </div>
 
