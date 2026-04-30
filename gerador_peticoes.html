@@ -227,7 +227,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-        <div class="login-ver" style="display:flex;align-items:center;gap:8px;justify-content:center">OAB/SP 274.575 · versão 1.67.3</div>
+        <div class="login-ver">OAB/SP 274.575 · versão 1.68</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -252,7 +252,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="tb-right">
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.67.3</span>
+    <span class="tb-meta" id="tb-versao">versão 1.68</span>
   </div>
 </div>
 
@@ -1757,40 +1757,16 @@ function loadXLSX(inp) {
   rd.onload = function(e) {
     var wb = XLSX.read(e.target.result,{type:'array'});
     var ws = wb.Sheets[wb.SheetNames[0]];
-
-    // Lê tudo como array de arrays (cada linha é um array)
-    var rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
-
-    // Procura a linha de cabeçalho: aquela que contém "Pasta" e "Processo"
-    var headerIdx = -1;
-    for (var i=0; i<Math.min(rows.length, 5); i++) {
-      var rowText = rows[i].map(function(c){return (''+c).toLowerCase();}).join('|');
-      if (rowText.indexOf('pasta') >= 0 && rowText.indexOf('processo') >= 0) {
-        headerIdx = i;
-        break;
+    var data = XLSX.utils.sheet_to_json(ws,{defval:''});
+    // Detecção: se as chaves são "__EMPTY", "__EMPTY_1" etc. (sinal de que linha 1 é título, não cabeçalho)
+    if (data.length > 0) {
+      var chaves = Object.keys(data[0]);
+      var temEmpty = chaves.some(function(k){ return k.indexOf('__EMPTY') === 0; });
+      if (temEmpty) {
+        // Re-lê pulando a linha 1 (título)
+        data = XLSX.utils.sheet_to_json(ws,{defval:'', range:1});
       }
     }
-
-    if (headerIdx === -1) {
-      alert('Não foi possível identificar a linha de cabeçalho. Verifique se a planilha contém colunas "Pasta" e "Processo".');
-      return;
-    }
-
-    // Constrói os objetos manualmente usando a linha de cabeçalho identificada
-    var headers = rows[headerIdx].map(function(h){return (''+h).trim();});
-    var data = [];
-    for (var i=headerIdx+1; i<rows.length; i++) {
-      var obj = {};
-      var temAlgo = false;
-      for (var j=0; j<headers.length; j++) {
-        if (headers[j]) {
-          obj[headers[j]] = rows[i][j] !== undefined ? rows[i][j] : '';
-          if (obj[headers[j]] !== '') temAlgo = true;
-        }
-      }
-      if (temAlgo) data.push(obj);
-    }
-
     procs = data.map(function(r){
       var numProc = gc(r,['processo']);
       return {
@@ -5572,7 +5548,6 @@ function _modalKeyHandler(e) {
   carregarFeriadosCustom();
   carregarFeriadosCidades();
   carregarTema();
-  // Aplica estado inicial do modo "Automático" do campo Número do processo
   if (typeof toggleProcModo === 'function') toggleProcModo();
   // Verificar prazos e notificar se permissão já foi concedida
   if (localStorage.getItem("gp_notif") === "1") {
