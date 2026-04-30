@@ -227,7 +227,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-ver">OAB/SP 274.575 · versão 1.69</div>
+    <div class="login-ver">OAB/SP 274.575 · versão 1.69.1</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -252,7 +252,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="tb-right">
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.69</span>
+    <span class="tb-meta" id="tb-versao">versão 1.69.1</span>
   </div>
 </div>
 
@@ -3058,6 +3058,7 @@ function renderTabela() {
     tr.innerHTML='<td style="white-space:nowrap">'+(favs[p.proc]?'⭐ ':'')+p.pasta+
       ' <button class="btn btn-s btn-sm" style="font-size:9px;padding:1px 5px;margin-left:2px" onclick="event.stopPropagation();abrirFicha('+i+')" title="Ver ficha">📋</button>'+
       ' <button class="btn btn-s btn-sm" style="font-size:9px;padding:1px 4px" onclick="event.stopPropagation();toggleFav(this.getAttribute(\"data-proc\"),event)" data-proc="'+p.proc+'" title="Favorito">'+(favs[p.proc]?'★':'☆')+'</button></td>'+
+      '<td style="font-size:11px;white-space:nowrap">'+(p.proc||'')+'</td>'+
       '<td style="font-size:11px;white-space:nowrap">'+(prazoClasse==='prazo-vencido'?'<span style="color:var(--red);font-weight:700">⚠ '+prazoStr+'</span>':prazoClasse==='prazo-hoje'?'<span style="color:var(--red);font-weight:700">🔴 '+prazoStr+'</span>':prazoClasse==='prazo-d2'?'<span style="color:var(--amber);font-weight:700">🟡 '+prazoStr+'</span>':prazoStr)+'</td>'+
       '<td style="font-size:11px">'+tipoStr+'</td>'+
       '<td style="font-size:12px">'+(p.parte||'')+'</td>'+
