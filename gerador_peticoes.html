@@ -14,9 +14,19 @@
 #barra-progresso-inner { height:100%; width:0%; background:var(--blue); border-radius:2px; transition:width 0.3s ease; }
 #barra-progresso.indeterminado #barra-progresso-inner { animation:barra-slide 1.4s ease-in-out infinite; width:40%; }
 @keyframes barra-slide { 0%{transform:translateX(-100%)} 100%{transform:translateX(350%)} }
-tr.prazo-vencido { background:rgba(220,38,38,.07) !important; }
-tr.prazo-hoje    { background:rgba(220,38,38,.12) !important; }
-tr.prazo-d2      { background:rgba(245,158,11,.07) !important; }
+tr.prazo-vencido { background:transparent !important; }
+tr.prazo-hoje    { background:transparent !important; }
+tr.prazo-d2      { background:transparent !important; }
+/* Modo Prazos OFF: remove qualquer colorização de linhas e ícones de prazo */
+body.prazos-off tbody tr td { background:transparent !important; }
+body.prazos-off tr.prazo-vencido,
+body.prazos-off tr.prazo-hoje,
+body.prazos-off tr.prazo-d2 { background:transparent !important; }
+body.prazos-off tr.prazo-vencido td span[style*="color:var(--red)"],
+body.prazos-off tr.prazo-hoje td span[style*="color:var(--red)"],
+body.prazos-off tr.prazo-d2 td span[style*="color:var(--amber)"] {
+  color:inherit !important; font-weight:normal !important;
+}
 .g-res-item{cursor:pointer;transition:background .15s}
 .g-res-item:hover{background:var(--hover)}
 /* Template em série */
@@ -227,7 +237,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="login-card">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-ver">OAB/SP 274.575 · versão 1.69.1</div>
+    <div class="login-ver">OAB/SP 274.575 · versão 1.69.2</div>
     <div class="login-field">
       <label>Senha de acesso</label>
       <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
@@ -251,8 +261,9 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
+    <button id="btn-prazos-toolbar" onclick="togglePrazosColoracao()" title="Ativar/desativar colorização de prazos" style="background:none;border:1px solid var(--border2);cursor:pointer;font-size:11px;padding:3px 8px;line-height:1;vertical-align:middle;margin-right:8px;border-radius:4px;color:var(--text)">Prazos: OFF</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.69.1</span>
+    <span class="tb-meta" id="tb-versao">versão 1.69.2</span>
   </div>
 </div>
 
@@ -3712,6 +3723,25 @@ function carregarTema() {
   } catch(e){}
 }
 
+function togglePrazosColoracao() {
+  var off = document.body.classList.toggle("prazos-off");
+  var btn = document.getElementById("btn-prazos-toolbar");
+  if (btn) btn.textContent = off ? "Prazos: OFF" : "Prazos: ON";
+  try { localStorage.setItem("gp_prazos_off", off ? "1" : "0"); } catch(e){}
+}
+
+function carregarPrazosColoracao() {
+  try {
+    // Padrão: OFF (sem colorização) — só fica ON se o usuário clicar para ativar
+    var v = localStorage.getItem("gp_prazos_off");
+    var off = (v === null) ? true : (v === "1");
+    if (off) document.body.classList.add("prazos-off");
+    else document.body.classList.remove("prazos-off");
+    var btn = document.getElementById("btn-prazos-toolbar");
+    if (btn) btn.textContent = off ? "Prazos: OFF" : "Prazos: ON";
+  } catch(e){}
+}
+
 // ── DETECTOR DE DLP ─────────────────────────────────────────────────────
 var TERMOS_DLP = [
   "câncer","neoplasia","tumor","carcinoma","leucemia","linfoma",
@@ -5549,6 +5579,7 @@ function _modalKeyHandler(e) {
   carregarFeriadosCustom();
   carregarFeriadosCidades();
   carregarTema();
+  carregarPrazosColoracao();
   if (typeof toggleProcModo === 'function') toggleProcModo();
   // Verificar prazos e notificar se permissão já foi concedida
   if (localStorage.getItem("gp_notif") === "1") {
