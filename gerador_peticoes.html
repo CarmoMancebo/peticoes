@@ -255,7 +255,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="login-hint">
       <a href="#" onclick="resetarSenha();return false;" style="color:#185FA5;text-decoration:none">Esqueci minha senha</a>
     </div>
-    <div class="login-ver">versão 1.69.7</div>
+    <div class="login-ver">versão 1.69.8</div>
   </div>
 </div>
 
@@ -271,7 +271,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="tb-right">
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.69.7</span>
+    <span class="tb-meta" id="tb-versao">versão 1.69.8</span>
   </div>
 </div>
 
@@ -3075,8 +3075,8 @@ function renderTabela() {
     var tipoStr=(p.tipo||'').replace('Prazos Cíveis - ','').replace('Prazo Interno - ','').slice(0,30);
     var conc=t.conc||'';
     var badge=trat||'—';
-    tr.innerHTML='<td style="white-space:nowrap"><div>'+(favs[p.proc]?'⭐ ':'')+p.pasta+'</div>'+
-      '<div style="margin-top:3px">'+
+    tr.innerHTML='<td style="word-break:break-word;overflow-wrap:break-word"><div>'+(favs[p.proc]?'⭐ ':'')+p.pasta+'</div>'+
+      '<div style="margin-top:3px;white-space:nowrap">'+
       '<button class="btn btn-s btn-sm" style="font-size:9px;padding:1px 5px" onclick="event.stopPropagation();abrirFicha('+i+')" title="Ver ficha">📋</button>'+
       ' <button class="btn btn-s btn-sm" style="font-size:9px;padding:1px 4px" onclick="event.stopPropagation();toggleFav(this.getAttribute(\"data-proc\"),event)" data-proc="'+p.proc+'" title="Favorito">'+(favs[p.proc]?'★':'☆')+'</button>'+
       '</div></td>'+
