@@ -259,7 +259,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="login-hint">
       <a href="#" onclick="resetarSenha();return false;" style="color:#185FA5;text-decoration:none">Esqueci minha senha</a>
     </div>
-    <div class="login-ver">versão 1.69.9</div>
+    <div class="login-ver">versão 1.69.10</div>
   </div>
 </div>
 
@@ -275,7 +275,7 @@ tbody tr.st-p td{background:#b3e5fc}
   <div class="tb-right">
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.69.9</span>
+    <span class="tb-meta" id="tb-versao">versão 1.69.10</span>
   </div>
 </div>
 
@@ -4119,7 +4119,7 @@ async function gerarResumoCaso() {
     }
 
     minuta = full;
-    salvarMinutaNoHistorico(full, tipo, proc);
+    salvarMinutaNoHistorico(full, 'resumo', proc);
     atualizarContagem();
     if (usoTokensIn > 0 || usoTokensOut > 0) {
       exibirUsoNaUI(usoTokensIn, usoTokensOut, modelo, 'resumo');
