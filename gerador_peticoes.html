@@ -502,7 +502,7 @@ tbody tr.st-p td{background:#b3e5fc}
           </div>
         </div>
         <!-- Linha 1: seletores uniformes -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
           <select id="filtro-resp" onchange="renderTabela()" style="font-size:12px;width:100%">
             <option value="">Todos os responsáveis</option>
             <option value="CARMO">CARMO</option>
@@ -523,19 +523,6 @@ tbody tr.st-p td{background:#b3e5fc}
           </select>
           <select id="filtro-tribunal" onchange="renderTabela()" style="font-size:12px;width:100%">
             <option value="">Todos os tribunais</option>
-          </select>
-          <select id="filtro-sistema" onchange="renderTabela()" style="font-size:12px;width:100%">
-            <option value="">Todos os sistemas</option>
-            <option value="e-SAJ (TJSP)">e-SAJ (TJSP)</option>
-            <option value="e-Proc (TJSP)">e-Proc (TJSP)</option>
-            <option value="e-SAJ (TJSC)">e-SAJ (TJSC)</option>
-            <option value="e-SAJ (TJAM)">e-SAJ (TJAM)</option>
-            <option value="e-SAJ (TJAL)">e-SAJ (TJAL)</option>
-            <option value="e-SAJ (TJMS)">e-SAJ (TJMS)</option>
-            <option value="PJe">PJe</option>
-            <option value="e-Proc (TRF)">e-Proc (TRF)</option>
-            <option value="e-STJ">e-STJ</option>
-            <option value="Outro">Outro</option>
           </select>
         </div>
         <!-- Linha 2: filtro positivo -->
@@ -1804,7 +1791,6 @@ function loadXLSX(inp) {
         desc:     gc(r,['descrição','descricao']),
         prazo:    gc(r,['prazo fatal','prazo']),
         tipo:     gc(r,['tipo - subtipo','tipo subtipo','tipo']),
-        sistema:  gc(r,['sistema']) || detectarSistema(numProc),
         resp:     gc(r,['responsável','responsavel','responsable','resp.','resp ','advogado responsável','advogado responsavel','adv. responsável','adv responsável','responsável pelo caso']),
         _trat:    gc(r,['tratativa']),
         _transf:  gc(r,['transferido para','transferido']),
@@ -3065,12 +3051,6 @@ function renderTabela() {
     if (fTrib) {
       var tribProc = p.tribunal || extrairTribunal(p.proc || '');
       if (tribProc !== fTrib) return;
-    }
-    var fSistema = (document.getElementById('filtro-sistema').value||'').trim();
-    if (fSistema) {
-      // Se a planilha não tem coluna "sistema", p.sistema será undefined ou vazio
-      // Nesse caso, não filtra (mostra todos os processos)
-      if (p.sistema && p.sistema !== fSistema) return;
     }
     var buscaNegRaw = (document.getElementById('busca-neg').value||'').toLowerCase().trim();
     if (buscaNegRaw.length >= 2) {
