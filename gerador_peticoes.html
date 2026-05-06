@@ -259,7 +259,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="login-hint">
       <a href="#" onclick="resetarSenha();return false;" style="color:#185FA5;text-decoration:none">Esqueci minha senha</a>
     </div>
-    <div class="login-ver">versão 1.69.10</div>
+    <div class="login-ver">versão 1.70</div>
   </div>
 </div>
 
@@ -274,8 +274,12 @@ tbody tr.st-p td{background:#b3e5fc}
   </div>
   <div class="tb-right">
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
+    <div style="position:relative;margin-right:12px">
+      <input id="busca-global-toolbar" type="text" placeholder="🔍 Busca global..." style="font-size:11px;padding:4px 8px;border-radius:16px;border:1px solid var(--border);background:var(--bg2);color:var(--text);width:200px" oninput="buscaGlobal(this.value)" onfocus="document.getElementById('res-busca-global-toolbar').style.display='block'" onblur="setTimeout(function(){document.getElementById('res-busca-global-toolbar').style.display='none';},200)">
+      <div id="res-busca-global-toolbar" style="display:none;position:absolute;top:32px;right:0;width:320px;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
+    </div>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.69.10</span>
+    <span class="tb-meta" id="tb-versao">versão 1.70</span>
   </div>
 </div>
 
@@ -498,7 +502,7 @@ tbody tr.st-p td{background:#b3e5fc}
           </div>
         </div>
         <!-- Linha 1: seletores uniformes -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
           <select id="filtro-resp" onchange="renderTabela()" style="font-size:12px;width:100%">
             <option value="">Todos os responsáveis</option>
             <option value="CARMO">CARMO</option>
@@ -519,6 +523,19 @@ tbody tr.st-p td{background:#b3e5fc}
           </select>
           <select id="filtro-tribunal" onchange="renderTabela()" style="font-size:12px;width:100%">
             <option value="">Todos os tribunais</option>
+          </select>
+          <select id="filtro-sistema" onchange="renderTabela()" style="font-size:12px;width:100%">
+            <option value="">Todos os sistemas</option>
+            <option value="e-SAJ (TJSP)">e-SAJ (TJSP)</option>
+            <option value="e-Proc (TJSP)">e-Proc (TJSP)</option>
+            <option value="e-SAJ (TJSC)">e-SAJ (TJSC)</option>
+            <option value="e-SAJ (TJAM)">e-SAJ (TJAM)</option>
+            <option value="e-SAJ (TJAL)">e-SAJ (TJAL)</option>
+            <option value="e-SAJ (TJMS)">e-SAJ (TJMS)</option>
+            <option value="PJe">PJe</option>
+            <option value="e-Proc (TRF)">e-Proc (TRF)</option>
+            <option value="e-STJ">e-STJ</option>
+            <option value="Outro">Outro</option>
           </select>
         </div>
         <!-- Linha 2: filtro positivo -->
@@ -610,21 +627,6 @@ tbody tr.st-p td{background:#b3e5fc}
 
         <!-- Linha 2: Sistema (mesmo lugar do seletor auto/manual) + Botões na direita (mesmo lugar do input número) -->
         <div class="row2" style="grid-template-columns:1fr 2fr;gap:12px;align-items:flex-end;margin-bottom:14px">
-          <div class="field">
-            <label>Sistema</label>
-            <select id="f-sistema">
-              <option value="e-SAJ (TJSP)">e-SAJ (TJSP)</option>
-              <option value="e-Proc (TJSP)">e-Proc (TJSP)</option>
-              <option value="e-SAJ (TJSC)">e-SAJ (TJSC)</option>
-              <option value="e-SAJ (TJAM)">e-SAJ (TJAM)</option>
-              <option value="e-SAJ (TJAL)">e-SAJ (TJAL)</option>
-              <option value="e-SAJ (TJMS)">e-SAJ (TJMS)</option>
-              <option value="PJe">PJe (demais tribunais)</option>
-              <option value="e-Proc (TRF)">e-Proc (TRF)</option>
-              <option value="e-STJ">e-STJ</option>
-              <option value="Outro">Outro</option>
-            </select>
-          </div>
           <div class="field">
             <label style="visibility:hidden">Ações</label>
             <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
@@ -1802,6 +1804,7 @@ function loadXLSX(inp) {
         desc:     gc(r,['descrição','descricao']),
         prazo:    gc(r,['prazo fatal','prazo']),
         tipo:     gc(r,['tipo - subtipo','tipo subtipo','tipo']),
+        sistema:  gc(r,['sistema']),
         resp:     gc(r,['responsável','responsavel','responsable','resp.','resp ','advogado responsável','advogado responsavel','adv. responsável','adv responsável','responsável pelo caso']),
         _trat:    gc(r,['tratativa']),
         _transf:  gc(r,['transferido para','transferido']),
@@ -2699,7 +2702,7 @@ function togglePinColunas() {
 
 // ── BUSCA GLOBAL ────────────────────────────────────────────────────────
 function buscaGlobal(q) {
-  var res = document.getElementById("res-busca-global");
+  var res = document.getElementById("res-busca-global-toolbar");
   if (!res) return;
   q = (q||"").toLowerCase().trim();
   if (q.length < 2) { res.innerHTML=""; return; }
@@ -3048,6 +3051,8 @@ function renderTabela() {
       var tribProc = p.tribunal || extrairTribunal(p.proc || '');
       if (tribProc !== fTrib) return;
     }
+    var fSistema = (document.getElementById('filtro-sistema').value||'').trim();
+    if (fSistema && p.sistema && p.sistema !== fSistema) return;
     var buscaNegRaw = (document.getElementById('busca-neg').value||'').toLowerCase().trim();
     if (buscaNegRaw.length >= 2) {
       var hayNeg = (p.pasta+' '+p.proc+' '+p.parte+' '+p.desc+' '+p.resp+' '+p.cliente+' '+(p.tipo||'')).toLowerCase();
