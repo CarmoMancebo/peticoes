@@ -259,7 +259,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="login-hint">
       <a href="#" onclick="resetarSenha();return false;" style="color:#185FA5;text-decoration:none">Esqueci minha senha</a>
     </div>
-    <div class="login-ver">versão 1.70</div>
+    <div class="login-ver">versão 1.70.1</div>
   </div>
 </div>
 
@@ -273,13 +273,13 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="tb-oab">OAB/SP 274.575</div>
   </div>
   <div class="tb-right">
-    <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <div style="position:relative;margin-right:12px">
       <input id="busca-global-toolbar" type="text" placeholder="🔍 Busca global..." style="font-size:11px;padding:4px 8px;border-radius:16px;border:1px solid var(--border);background:var(--bg2);color:var(--text);width:200px" oninput="buscaGlobal(this.value)" onfocus="document.getElementById('res-busca-global-toolbar').style.display='block'" onblur="setTimeout(function(){document.getElementById('res-busca-global-toolbar').style.display='none';},200)">
       <div id="res-busca-global-toolbar" style="display:none;position:absolute;top:32px;right:0;width:320px;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
     </div>
+    <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.70</span>
+    <span class="tb-meta" id="tb-versao">versão 1.70.1</span>
   </div>
 </div>
 
@@ -1804,7 +1804,7 @@ function loadXLSX(inp) {
         desc:     gc(r,['descrição','descricao']),
         prazo:    gc(r,['prazo fatal','prazo']),
         tipo:     gc(r,['tipo - subtipo','tipo subtipo','tipo']),
-        sistema:  gc(r,['sistema']),
+        sistema:  gc(r,['sistema']) || detectarSistema(numProc),
         resp:     gc(r,['responsável','responsavel','responsable','resp.','resp ','advogado responsável','advogado responsavel','adv. responsável','adv responsável','responsável pelo caso']),
         _trat:    gc(r,['tratativa']),
         _transf:  gc(r,['transferido para','transferido']),
@@ -1882,6 +1882,21 @@ function extrairTribunal(numProc) {
   var tt = partes.slice(14, 16); // segmento TT (2 dígitos: código do tribunal)
   var chave = j + '.' + tt;
   return TRIBUNAL_MAP[chave] || ('TJ-' + tt);
+}
+
+function detectarSistema(numProc) {
+  if (!numProc) return '';
+  var trib = extrairTribunal(numProc);
+  // TJ-SP (26) → e-SAJ ou e-Proc
+  if (trib === 'TJ-SP') return 'e-SAJ (TJSP)'; // Padrão TJSP
+  if (trib === 'TJ-SC') return 'e-SAJ (TJSC)';
+  if (trib === 'TJ-AM') return 'e-SAJ (TJAM)';
+  if (trib === 'TJ-AL') return 'e-SAJ (TJAL)';
+  if (trib === 'TJ-MS') return 'e-SAJ (TJMS)';
+  if (trib.indexOf('TRF') === 0) return 'e-Proc (TRF)';
+  if (trib === 'STJ') return 'e-STJ';
+  // Demais tribunais → PJe (padrão)
+  return 'PJe';
 }
 
 function gc(r, termos) {
@@ -3052,7 +3067,11 @@ function renderTabela() {
       if (tribProc !== fTrib) return;
     }
     var fSistema = (document.getElementById('filtro-sistema').value||'').trim();
-    if (fSistema && p.sistema && p.sistema !== fSistema) return;
+    if (fSistema) {
+      // Se a planilha não tem coluna "sistema", p.sistema será undefined ou vazio
+      // Nesse caso, não filtra (mostra todos os processos)
+      if (p.sistema && p.sistema !== fSistema) return;
+    }
     var buscaNegRaw = (document.getElementById('busca-neg').value||'').toLowerCase().trim();
     if (buscaNegRaw.length >= 2) {
       var hayNeg = (p.pasta+' '+p.proc+' '+p.parte+' '+p.desc+' '+p.resp+' '+p.cliente+' '+(p.tipo||'')).toLowerCase();
