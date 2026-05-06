@@ -9,48 +9,163 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-/* === TESES RÁPIDAS (A2) === */
-.btn-tese-rapida {
-  font-size: 10px;
-  padding: 3px 7px;
-  border: 1px solid var(--border);
-  background: var(--bg2);
-  color: var(--text);
+/* === TESES RÁPIDAS — PROPOSTA D (tags + popover) === */
+
+/* Tag de tese ativa (chip removível abaixo do textarea) */
+.tese-ativa-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 3px 4px 3px 9px;
+  background: rgba(24,95,165,.10);
+  border: 1px solid rgba(24,95,165,.25);
+  color: var(--blue);
   border-radius: 12px;
-  cursor: pointer;
+  font-weight: 500;
   white-space: nowrap;
-  transition: background .15s, border-color .15s;
 }
-.btn-tese-rapida:hover {
-  background: rgba(24,95,165,.08);
-  border-color: var(--blue);
+.tese-ativa-tag .tese-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--blue);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  padding: 0;
+  margin-left: 2px;
+  opacity: .6;
+  transition: opacity .15s, background .15s;
 }
-.btn-tese-rapida.ativa {
+.tese-ativa-tag .tese-remove:hover {
+  opacity: 1;
   background: rgba(24,95,165,.15);
-  border-color: var(--blue);
-  font-weight: 600;
 }
-.tese-categoria {
+
+/* Popover de adição de teses */
+#popover-teses {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 360px;
+  max-height: 460px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.15);
+  z-index: 1000;
+  overflow: hidden;
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 4px;
+  flex-direction: column;
 }
-.tese-cat-label {
+#popover-teses .pop-busca {
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+#popover-teses .pop-busca input {
+  width: 100%;
+  font-size: 12px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  box-sizing: border-box;
+}
+#popover-teses .pop-lista {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+#popover-teses .pop-categoria-titulo {
   font-size: 9px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text3);
   text-transform: uppercase;
-  letter-spacing: 0.3px;
-  min-width: 88px;
-  padding-top: 5px;
-  flex-shrink: 0;
+  letter-spacing: 0.5px;
+  padding: 8px 12px 4px;
+  background: var(--bg2);
+  position: sticky;
+  top: 0;
+  border-top: 1px solid var(--border);
 }
-.tese-cat-grupo {
+#popover-teses .pop-categoria-titulo:first-child { border-top: 0; }
+#popover-teses .pop-item {
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  flex: 1;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text);
+  user-select: none;
+  transition: background .1s;
+}
+#popover-teses .pop-item:hover {
+  background: rgba(24,95,165,.06);
+}
+#popover-teses .pop-item .pop-check {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 3px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: white;
+  background: var(--bg);
+  transition: background .15s, border-color .15s;
+}
+#popover-teses .pop-item.ativa .pop-check {
+  background: var(--blue);
+  border-color: var(--blue);
+}
+#popover-teses .pop-item.ativa {
+  font-weight: 600;
+  color: var(--blue);
+}
+#popover-teses .pop-item.oculto { display: none; }
+#popover-teses .pop-empty {
+  padding: 16px 12px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text3);
+  font-style: italic;
+}
+#popover-teses .pop-rodape {
+  padding: 8px;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+}
+#popover-teses .pop-rodape button {
+  width: 100%;
+  font-size: 11px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text);
+  transition: background .15s;
+}
+#popover-teses .pop-rodape button:hover {
+  background: rgba(24,95,165,.06);
+}
+
+/* Backdrop transparente para fechar ao clicar fora */
+.popover-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 999;
 }
 
 /* === VALIDADOR DE CITAÇÕES (A3) === */
@@ -347,7 +462,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="login-hint">
       <a href="#" onclick="resetarSenha();return false;" style="color:#185FA5;text-decoration:none">Esqueci minha senha</a>
     </div>
-    <div class="login-ver">versão 1.73</div>
+    <div class="login-ver">versão 1.74</div>
   </div>
 </div>
 
@@ -367,7 +482,7 @@ tbody tr.st-p td{background:#b3e5fc}
     </div>
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.73</span>
+    <span class="tb-meta" id="tb-versao">versão 1.74</span>
   </div>
 </div>
 
@@ -954,79 +1069,17 @@ tbody tr.st-p td{background:#b3e5fc}
           </div>
         </div>
         <div class="field">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-            <label style="margin-bottom:0">Instruções adicionais / teses específicas (opcional)</label>
-            <button class="btn btn-s btn-sm" onclick="abrirBancoTeses()" title="Inserir tese do banco">📚 Banco de teses</button>
-          </div>
-          <div id="teses-rapidas" style="margin-bottom:6px">
-            <div class="tese-categoria">
-              <span class="tese-cat-label">Cobertura ANS</span>
-              <div class="tese-cat-grupo">
-                <button class="btn-tese-rapida" onclick="addTeseRapida('rol')" title="Rol da ANS (RN 465/2021) — taxatividade + camadas de fundamentação">🛡 Rol ANS</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('adi7265')" title="ADI 7265 STF — constitucionalidade da taxatividade">⚖ ADI 7265</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('14454')" title="Lei 14.454/2022 — critérios cumulativos do § 13">📜 Lei 14.454</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('conitec')" title="Ausência de recomendação CONITEC ou órgão internacional aprovado">🎓 CONITEC</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('tema990')" title="Tema 990 STJ — negativa fora do rol legítima">📚 Tema 990</button>
-              </div>
-            </div>
-            <div class="tese-categoria">
-              <span class="tese-cat-label">Específicas</span>
-              <div class="tese-cat-grupo">
-                <button class="btn-tese-rapida" onclick="addTeseRapida('horas-tea')" title="Tema 952 STJ — questionamento de horas de terapia TEA">🧠 Horas TEA</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('off-label')" title="Medicamento off-label — Lei 14.454/2022 hipótese II">💊 Off-label</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('home-care')" title="Home care — não obrigatório salvo substituição de internação">🏠 Home care</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('opme')" title="OPME — exigência de 3 marcas/modelos com indicação fundamentada">🦴 OPME</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('urgencia-24h')" title="Carência 24h para urgência/emergência — art. 12, V, c">🚑 Urgência/24h</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('experimental')" title="Tratamento experimental — exclusão legal expressa (art. 10, I)">🧪 Experimental</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('subst-terap')" title="Existência de substituto terapêutico no rol">🔄 Subst. terap.</button>
-              </div>
-            </div>
-            <div class="tese-categoria">
-              <span class="tese-cat-label">Processuais</span>
-              <div class="tese-cat-grupo">
-                <button class="btn-tese-rapida" onclick="addTeseRapida('inversao-onus')" title="Impugnar inversão automática do ônus da prova (art. 6º, VIII, CDC)">🚫 Inversão ônus</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('tutela-urgencia')" title="Impugnar tutela de urgência — requisitos cumulativos (art. 300 CPC)">🎯 Tutela urgência</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('tutela-evidencia')" title="Tutela da evidência em favor da operadora (art. 311, II, CPC)">📑 Tutela evidência</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('litigancia-mf')" title="Litigância de má-fé — multa de 1% a 10% (art. 80/81 CPC)">⚠ Litigância MF</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('honor-11')" title="Majoração de honorários em grau recursal (art. 85, § 11, CPC)">📐 Honor. § 11</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('redistribuicao')" title="Redistribuição do ônus exige decisão prévia e fundamentada">🔄 Redistrib. prévia</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('astreintes')" title="Redução de astreintes desproporcionais (arts. 536/537 CPC)">⏱ Astreintes</button>
-              </div>
-            </div>
-            <div class="tese-categoria">
-              <span class="tese-cat-label">Contratuais</span>
-              <div class="tese-cat-grupo">
-                <button class="btn-tese-rapida" onclick="addTeseRapida('reaj-faixa')" title="Reajuste por faixa etária — proporção 6:1 (RN 171/2008)">📈 Reaj. faixa</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('reaj-sinistr')" title="Reajuste por sinistralidade em planos coletivos (RN 63/2003)">📊 Reaj. sinistr.</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('rescisao-col')" title="Rescisão de plano coletivo — RN 557/2022, notificação 60 dias">✂ Rescisão col.</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('inadimplencia')" title="Rescisão por inadimplência > 60 dias (art. 13, II, Lei 9.656/98)">⏳ Inadimpl. 60d</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('art-30-31')" title="Manutenção do ex-empregado (arts. 30/31 + RN 279/2011)">👨‍💼 Art. 30/31</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('portabilidade')" title="Requisitos da RN 438/2018 — 2 anos no plano de origem">🔁 Portabilidade</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('dlp')" title="DLP/CPT — RN 162/2007 + art. 11 da Lei 9.656/98">🔍 DLP</button>
-              </div>
-            </div>
-            <div class="tese-categoria">
-              <span class="tese-cat-label">Defesas civis</span>
-              <div class="tese-cat-grupo">
-                <button class="btn-tese-rapida" onclick="addTeseRapida('dano-moral')" title="Improcedência + redução do quantum indenizatório">💸 Dano moral</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('prescricao')" title="Prescrição trienal — art. 206, § 3º, V, do CC (Tema 610 STJ)">⌛ Prescrição 3a</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('cdc')" title="Aplicação subsidiária do CDC (art. 35-G da Lei 9.656/98)">⚙ CDC subsid.</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('natjus')" title="Remessa ao NATJUS para Nota Técnica (art. 156, § 3º, CPC)">🏥 NATJUS</button>
-              </div>
-            </div>
-            <div class="tese-categoria">
-              <span class="tese-cat-label">Sistêmicas</span>
-              <div class="tese-cat-grupo">
-                <button class="btn-tese-rapida" onclick="addTeseRapida('art-196-199')" title="Art. 196 (dever do Estado) vs art. 199 (saúde suplementar regulada)">🏛 Art. 196/199</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('livre-iniciativa')" title="Livre iniciativa (art. 170 CF) e equilíbrio econômico-financeiro">🆓 Livre iniciativa</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('ato-juridico')" title="Direito adquirido + ato jurídico perfeito (art. 5º, XXXVI, CF)">🔒 Ato jur. perfeito</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('mutualismo')" title="Equilíbrio atuarial e mutualismo">📊 Mutualismo</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('rn565')" title="RN 565/2022 (revogou RN 309/2012 e 566/2022)">📋 RN 565/22</button>
-                <button class="btn-tese-rapida" onclick="addTeseRapida('sumula-102-rev')" title="Súmula 102 do TJSP REVOGADA em 10/09/2025 — não invocar">🚫 Súm. 102 rev.</button>
-              </div>
+          <label style="margin-bottom:6px">Instruções adicionais / teses específicas (opcional)</label>
+          <textarea id="f-inst" style="min-height:90px" placeholder="Ex.: incluir tese sobre inexistência de cobertura pelo rol da ANS, questionar horas de terapia, abordar ADI 7265..."></textarea>
+          <div id="teses-bar" style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap">
+            <span id="teses-ativas-tags" style="display:flex;flex-wrap:wrap;gap:4px;flex:1;min-height:24px;align-items:center">
+              <span id="teses-vazio-msg" style="font-size:11px;color:var(--text3);font-style:italic">Nenhuma tese aplicada</span>
+            </span>
+            <div style="position:relative;display:inline-block">
+              <button type="button" class="btn btn-s btn-sm" onclick="abrirPopoverTeses(event)" id="btn-add-tese" title="Adicionar tese estruturada">+ Adicionar tese ▾</button>
+              <div id="popover-teses" style="display:none"></div>
             </div>
           </div>
-          <textarea id="f-inst" style="min-height:70px" placeholder="Ex.: incluir tese sobre inexistência de cobertura pelo rol da ANS, questionar horas de terapia, abordar ADI 7265..."></textarea>
         </div>
         <div id="refs-ativas" style="display:none">
           <div class="tip" style="margin-bottom:4px">Referências ativas:</div>
@@ -4540,25 +4593,233 @@ var TESES_RAPIDAS = {
   'sumula-102-rev': 'ATENÇÃO PROCESSUAL: a SÚMULA 102 do TJSP foi REVOGADA em 10/09/2025 pelo Órgão Especial do TJSP. A redação anterior ("É abusiva a negativa de plano de saúde em cobrir as despesas de procedimento médico ou cirúrgico necessário à saúde do segurado") foi cancelada porque divergia do entendimento do STJ sobre o rol taxativo mitigado da ANS (Lei nº 14.454/2022). Em peças no TJSP, NÃO INVOCAR a Súmula 102 (revogada). Quando o autor citá-la, refutar expressamente: a súmula NÃO ESTÁ MAIS EM VIGOR. Os fundamentos centrais devem ser ADI 7265 + Lei nº 14.454/2022 + RN nº 465/2021.'
 };
 
-function addTeseRapida(chave) {
+// ============================================================
+// METADADOS DE TESES (rótulos + categorias + tooltips)
+// ============================================================
+// Ordem das categorias define a ordem de exibição no popover
+
+var TESES_META = {
+  'rol':              {cat:'Cobertura ANS',  label:'🛡 Rol ANS',           tip:'Rol da ANS (RN 465/2021) — taxatividade'},
+  'adi7265':          {cat:'Cobertura ANS',  label:'⚖ ADI 7265',           tip:'ADI 7265 STF — constitucionalidade da taxatividade'},
+  '14454':            {cat:'Cobertura ANS',  label:'📜 Lei 14.454',        tip:'Lei 14.454/2022 — critérios cumulativos do § 13'},
+  'conitec':          {cat:'Cobertura ANS',  label:'🎓 CONITEC',           tip:'Ausência de recomendação CONITEC'},
+  'tema990':          {cat:'Cobertura ANS',  label:'📚 Tema 990',          tip:'Tema 990 STJ — negativa fora do rol legítima'},
+
+  'horas-tea':        {cat:'Específicas',    label:'🧠 Horas TEA',         tip:'Tema 952 STJ — questionamento de horas de terapia'},
+  'off-label':        {cat:'Específicas',    label:'💊 Off-label',         tip:'Medicamento off-label — Lei 14.454/2022 hipótese II'},
+  'home-care':        {cat:'Específicas',    label:'🏠 Home care',         tip:'Home care — não obrigatório salvo substituição de internação'},
+  'opme':             {cat:'Específicas',    label:'🦴 OPME',              tip:'OPME — exigência de 3 marcas/modelos'},
+  'urgencia-24h':     {cat:'Específicas',    label:'🚑 Urgência/24h',      tip:'Carência 24h para urgência/emergência'},
+  'experimental':     {cat:'Específicas',    label:'🧪 Experimental',      tip:'Tratamento experimental — exclusão legal expressa'},
+  'subst-terap':      {cat:'Específicas',    label:'🔄 Subst. terap.',     tip:'Existência de substituto terapêutico no rol'},
+
+  'inversao-onus':    {cat:'Processuais',    label:'🚫 Inversão ônus',     tip:'Impugnar inversão automática do ônus da prova'},
+  'tutela-urgencia':  {cat:'Processuais',    label:'🎯 Tutela urgência',   tip:'Impugnar tutela de urgência — requisitos cumulativos'},
+  'tutela-evidencia': {cat:'Processuais',    label:'📑 Tutela evidência',  tip:'Tutela da evidência em favor da operadora'},
+  'litigancia-mf':    {cat:'Processuais',    label:'⚠ Litigância MF',      tip:'Litigância de má-fé — multa de 1% a 10%'},
+  'honor-11':         {cat:'Processuais',    label:'📐 Honor. § 11',       tip:'Majoração de honorários em grau recursal'},
+  'redistribuicao':   {cat:'Processuais',    label:'🔄 Redistrib. prévia', tip:'Redistribuição do ônus exige decisão prévia'},
+  'astreintes':       {cat:'Processuais',    label:'⏱ Astreintes',         tip:'Redução de astreintes desproporcionais'},
+
+  'reaj-faixa':       {cat:'Contratuais',    label:'📈 Reaj. faixa',       tip:'Reajuste por faixa etária — proporção 6:1'},
+  'reaj-sinistr':     {cat:'Contratuais',    label:'📊 Reaj. sinistr.',    tip:'Reajuste por sinistralidade em planos coletivos'},
+  'rescisao-col':     {cat:'Contratuais',    label:'✂ Rescisão col.',      tip:'Rescisão de plano coletivo — RN 557/2022'},
+  'inadimplencia':    {cat:'Contratuais',    label:'⏳ Inadimpl. 60d',     tip:'Rescisão por inadimplência > 60 dias'},
+  'art-30-31':        {cat:'Contratuais',    label:'👨‍💼 Art. 30/31',         tip:'Manutenção do ex-empregado'},
+  'portabilidade':    {cat:'Contratuais',    label:'🔁 Portabilidade',     tip:'Requisitos da RN 438/2018'},
+  'dlp':              {cat:'Contratuais',    label:'🔍 DLP',               tip:'DLP/CPT — RN 162/2007'},
+
+  'dano-moral':       {cat:'Defesas civis',  label:'💸 Dano moral',        tip:'Improcedência + redução do quantum'},
+  'prescricao':       {cat:'Defesas civis',  label:'⌛ Prescrição 3a',      tip:'Prescrição trienal — Tema 610 STJ'},
+  'cdc':              {cat:'Defesas civis',  label:'⚙ CDC subsid.',        tip:'Aplicação subsidiária do CDC'},
+  'natjus':           {cat:'Defesas civis',  label:'🏥 NATJUS',            tip:'Remessa ao NATJUS para Nota Técnica'},
+
+  'art-196-199':      {cat:'Sistêmicas',     label:'🏛 Art. 196/199',      tip:'Art. 196 vs art. 199 — distinção constitucional'},
+  'livre-iniciativa': {cat:'Sistêmicas',     label:'🆓 Livre iniciativa',  tip:'Livre iniciativa (art. 170 CF)'},
+  'ato-juridico':     {cat:'Sistêmicas',     label:'🔒 Ato jur. perfeito', tip:'Direito adquirido + ato jurídico perfeito'},
+  'mutualismo':       {cat:'Sistêmicas',     label:'📊 Mutualismo',        tip:'Equilíbrio atuarial e mutualismo'},
+  'rn565':            {cat:'Sistêmicas',     label:'📋 RN 565/22',         tip:'RN 565/2022 (revogou 309/2012 e 566/2022)'},
+  'sumula-102-rev':   {cat:'Sistêmicas',     label:'🚫 Súm. 102 rev.',     tip:'Súmula 102 do TJSP REVOGADA em 10/09/2025'}
+};
+
+var ORDEM_CATEGORIAS = ['Cobertura ANS','Específicas','Processuais','Contratuais','Defesas civis','Sistêmicas'];
+
+// Estado: chaves das teses ativas
+var TESES_ATIVAS = [];
+
+// Adicionar/remover tese (toggle) — atualiza textarea + tags
+function toggleTese(chave) {
   var tese = TESES_RAPIDAS[chave];
   if (!tese) return;
   var inst = document.getElementById('f-inst');
-  var atual = inst.value.trim();
-  // Evitar duplicação
-  if (atual.indexOf(tese.substring(0, 50)) >= 0) {
-    // Já incluída → remover (toggle)
-    inst.value = atual.split(tese).join('').replace(/\n\n+/g, '\n\n').trim();
-    var btn = document.querySelector('.btn-tese-rapida[onclick*="\''+chave+'\'"]');
-    if (btn) btn.classList.remove('ativa');
+  var idx = TESES_ATIVAS.indexOf(chave);
+
+  if (idx >= 0) {
+    // Já ativa → remover
+    TESES_ATIVAS.splice(idx, 1);
+    inst.value = (inst.value || '').split(tese).join('').replace(/\n{3,}/g, '\n\n').trim();
+  } else {
+    // Adicionar
+    TESES_ATIVAS.push(chave);
+    var atual = (inst.value || '').trim();
+    inst.value = (atual ? atual + '\n\n' : '') + tese;
+  }
+  inst.dispatchEvent(new Event('input', {bubbles: true}));
+  renderTesesAtivas();
+  // Atualizar visual do popover se aberto
+  var pop = document.getElementById('popover-teses');
+  if (pop && pop.style.display === 'flex') renderPopoverItens();
+}
+
+// Compatibilidade: addTeseRapida ainda funciona (chama toggleTese)
+function addTeseRapida(chave) { toggleTese(chave); }
+
+// Renderiza as tags ativas abaixo do textarea
+function renderTesesAtivas() {
+  var box = document.getElementById('teses-ativas-tags');
+  if (!box) return;
+  if (!TESES_ATIVAS.length) {
+    box.innerHTML = '<span id="teses-vazio-msg" style="font-size:11px;color:var(--text3);font-style:italic">Nenhuma tese aplicada</span>';
     return;
   }
-  inst.value = (atual ? atual + '\n\n' : '') + tese;
-  var btn = document.querySelector('.btn-tese-rapida[onclick*="\''+chave+'\'"]');
-  if (btn) btn.classList.add('ativa');
-  // Trigger para outros listeners
-  inst.dispatchEvent(new Event('input', {bubbles: true}));
+  var partes = TESES_ATIVAS.map(function(chave) {
+    var meta = TESES_META[chave];
+    if (!meta) return '';
+    var label = meta.label.replace(/'/g, '&apos;').replace(/"/g, '&quot;');
+    return '<span class="tese-ativa-tag" title="' + (meta.tip || '').replace(/"/g, '&quot;') + '">' +
+           '<span>' + meta.label + '</span>' +
+           '<button class="tese-remove" onclick="toggleTese(\'' + chave + '\')" title="Remover esta tese" type="button">×</button>' +
+           '</span>';
+  });
+  box.innerHTML = partes.join('');
 }
+
+// Abre o popover de seleção
+function abrirPopoverTeses(ev) {
+  if (ev) ev.stopPropagation();
+  var pop = document.getElementById('popover-teses');
+  if (!pop) return;
+
+  // Se já aberto → fechar
+  if (pop.style.display === 'flex') {
+    fecharPopoverTeses();
+    return;
+  }
+
+  // Backdrop transparente para fechar ao clicar fora
+  var bd = document.createElement('div');
+  bd.className = 'popover-backdrop';
+  bd.id = 'popover-backdrop';
+  bd.onclick = fecharPopoverTeses;
+  document.body.appendChild(bd);
+
+  pop.style.display = 'flex';
+  pop.innerHTML = '<div class="pop-busca"><input type="text" id="pop-busca-input" placeholder="🔍 Buscar tese..." autocomplete="off"></div>' +
+                  '<div class="pop-lista" id="pop-lista"></div>' +
+                  '<div class="pop-rodape"><button type="button" onclick="abrirBancoTeses();fecharPopoverTeses();">📚 Abrir Banco de teses completo</button></div>';
+  renderPopoverItens();
+
+  var inp = document.getElementById('pop-busca-input');
+  if (inp) {
+    inp.addEventListener('input', filtrarPopoverTeses);
+    setTimeout(function(){ inp.focus(); }, 50);
+  }
+  // Esc fecha
+  document.addEventListener('keydown', escFechaPopover);
+}
+
+function escFechaPopover(e) {
+  if (e.key === 'Escape') fecharPopoverTeses();
+}
+
+function fecharPopoverTeses() {
+  var pop = document.getElementById('popover-teses');
+  if (pop) { pop.style.display = 'none'; pop.innerHTML = ''; }
+  var bd = document.getElementById('popover-backdrop');
+  if (bd) bd.remove();
+  document.removeEventListener('keydown', escFechaPopover);
+}
+
+// Renderiza itens do popover agrupados por categoria
+function renderPopoverItens() {
+  var lista = document.getElementById('pop-lista');
+  if (!lista) return;
+  var html = '';
+  ORDEM_CATEGORIAS.forEach(function(cat) {
+    var itens = [];
+    Object.keys(TESES_META).forEach(function(chave) {
+      if (TESES_META[chave].cat === cat) itens.push(chave);
+    });
+    if (!itens.length) return;
+    html += '<div class="pop-categoria-titulo">' + cat + '</div>';
+    itens.forEach(function(chave) {
+      var meta = TESES_META[chave];
+      var ativa = TESES_ATIVAS.indexOf(chave) >= 0;
+      var safeKeyword = (meta.label + ' ' + (meta.tip || '')).toLowerCase()
+                        .replace(/'/g, '&apos;').replace(/"/g, '&quot;');
+      html += '<div class="pop-item' + (ativa ? ' ativa' : '') + '" data-chave="' + chave + '" data-busca="' + safeKeyword + '" onclick="toggleTese(\'' + chave + '\')">' +
+              '<span class="pop-check">' + (ativa ? '✓' : '') + '</span>' +
+              '<span>' + meta.label + '</span>' +
+              '</div>';
+    });
+  });
+  lista.innerHTML = html;
+}
+
+// Filtra os itens do popover conforme o que o usuário digita
+function filtrarPopoverTeses() {
+  var inp = document.getElementById('pop-busca-input');
+  if (!inp) return;
+  var q = (inp.value || '').toLowerCase().trim();
+  var itens = document.querySelectorAll('#pop-lista .pop-item');
+  var titulos = document.querySelectorAll('#pop-lista .pop-categoria-titulo');
+  var algumVisivel = false;
+
+  // Mostrar/ocultar itens
+  var visiveisPorCategoria = {};
+  itens.forEach(function(it) {
+    var match = !q || (it.getAttribute('data-busca') || '').indexOf(q) >= 0;
+    if (match) {
+      it.classList.remove('oculto');
+      algumVisivel = true;
+      // Encontrar o título da categoria deste item (irmão anterior do tipo título)
+      var prev = it.previousElementSibling;
+      while (prev && !prev.classList.contains('pop-categoria-titulo')) prev = prev.previousElementSibling;
+      if (prev) visiveisPorCategoria[prev.textContent] = true;
+    } else {
+      it.classList.add('oculto');
+    }
+  });
+
+  // Mostrar/ocultar títulos de categoria conforme tem item visível
+  titulos.forEach(function(t) {
+    if (visiveisPorCategoria[t.textContent]) {
+      t.style.display = '';
+    } else {
+      t.style.display = 'none';
+    }
+  });
+
+  // Mensagem "nenhum resultado"
+  var lista = document.getElementById('pop-lista');
+  var emp = lista.querySelector('.pop-empty');
+  if (!algumVisivel) {
+    if (!emp) {
+      var d = document.createElement('div');
+      d.className = 'pop-empty';
+      d.textContent = 'Nenhuma tese encontrada para "' + q + '"';
+      lista.appendChild(d);
+    }
+  } else if (emp) {
+    emp.remove();
+  }
+}
+
+// Inicializar tags ao carregar
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof renderTesesAtivas === 'function') renderTesesAtivas();
+});
+
 
 // ============================================================
 // A3: VALIDADOR DE CITAÇÕES JURISPRUDENCIAIS
