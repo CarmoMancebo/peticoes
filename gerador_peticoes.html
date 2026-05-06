@@ -30,6 +30,28 @@
   border-color: var(--blue);
   font-weight: 600;
 }
+.tese-categoria {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.tese-cat-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  min-width: 88px;
+  padding-top: 5px;
+  flex-shrink: 0;
+}
+.tese-cat-grupo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: 1;
+}
 
 /* === VALIDADOR DE CITAÇÕES (A3) === */
 .alerta-citacao {
@@ -325,7 +347,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="login-hint">
       <a href="#" onclick="resetarSenha();return false;" style="color:#185FA5;text-decoration:none">Esqueci minha senha</a>
     </div>
-    <div class="login-ver">versão 1.72</div>
+    <div class="login-ver">versão 1.73</div>
   </div>
 </div>
 
@@ -345,7 +367,7 @@ tbody tr.st-p td{background:#b3e5fc}
     </div>
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.72</span>
+    <span class="tb-meta" id="tb-versao">versão 1.73</span>
   </div>
 </div>
 
@@ -920,25 +942,89 @@ tbody tr.st-p td{background:#b3e5fc}
             <div id="feriados-st" style="font-size:11px;color:var(--text3);margin-top:3px"></div>
           </div>
         </div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="card-title" style="cursor:pointer;display:flex;justify-content:space-between" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none'">
+            <span>✏️ Revisar / conferir peça existente</span>
+            <span style="font-size:11px;color:var(--text3)">▼</span>
+          </div>
+          <div style="display:none;padding:8px 0 4px">
+            <p style="font-size:12px;color:var(--text3);margin-bottom:6px">Cole a peça e clique em "▶ Ativar revisão" para a IA corrigir redação e estrutura.</p>
+            <textarea id="f-peca-revisar-card" rows="8" placeholder="Cole aqui a peça a revisar..."></textarea>
+            <button class="btn btn-s" onclick="ativarModoRevisao()" style="margin-top:6px">▶ Ativar revisão</button>
+          </div>
+        </div>
         <div class="field">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div class="card" style="margin-bottom:12px"><div class="card-title" style="cursor:pointer;display:flex;justify-content:space-between" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none'"><span>✏️ Revisar / conferir peça existente</span><span style="font-size:11px;color:var(--text3)">▼</span></div><div style="display:none;padding:8px 0 4px"><p style="font-size:12px;color:var(--text3);margin-bottom:6px">Cole a peça e clique em "▶ Ativar revisão" para a IA corrigir redação e estrutura.</p><textarea id="f-peca-revisar-card" rows="8" placeholder="Cole aqui a peça a revisar..."></textarea><button class="btn btn-s" onclick="ativarModoRevisao()" style="margin-top:6px">▶ Ativar revisão</button></div></div>
-        <label>Instruções adicionais / teses específicas (opcional)</label>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <label style="margin-bottom:0">Instruções adicionais / teses específicas (opcional)</label>
             <button class="btn btn-s btn-sm" onclick="abrirBancoTeses()" title="Inserir tese do banco">📚 Banco de teses</button>
           </div>
-          <div id="teses-rapidas" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
-            <button class="btn-tese-rapida" onclick="addTeseRapida('rol')" title="Inclusão automática + camadas de fundamentação">🛡 Rol ANS</button>
-            <button class="btn-tese-rapida" onclick="addTeseRapida('adi7265')" title="Constitucionalidade da taxatividade">⚖ ADI 7265</button>
-            <button class="btn-tese-rapida" onclick="addTeseRapida('14454')" title="Critérios cumulativos do § 13">📜 Lei 14.454</button>
-            <button class="btn-tese-rapida" onclick="addTeseRapida('dlp')" title="Doença/lesão preexistente">🔍 DLP</button>
-            <button class="btn-tese-rapida" onclick="addTeseRapida('cdc')" title="Aplicação subsidiária do CDC">⚙ CDC subsid.</button>
-            <button class="btn-tese-rapida" onclick="addTeseRapida('astreintes')" title="Redução de astreintes desproporcionais">⏱ Astreintes</button>
-            <button class="btn-tese-rapida" onclick="addTeseRapida('horas-tea')" title="Tema 952 - horas de terapia TEA">🧠 Horas TEA</button>
-            <button class="btn-tese-rapida" onclick="addTeseRapida('dano-moral')" title="Improcedência + redução do quantum">💸 Dano moral</button>
-            <button class="btn-tese-rapida" onclick="addTeseRapida('prescricao')" title="Prescrição trienal (art. 206 §3º V CC)">⌛ Prescrição 3a</button>
-            <button class="btn-tese-rapida" onclick="addTeseRapida('natjus')" title="Remessa ao NATJUS para Nota Técnica">🏥 NATJUS</button>
-            <button class="btn-tese-rapida" onclick="addTeseRapida('mutualismo')" title="Equilíbrio atuarial e mutualismo">📊 Mutualismo</button>
-            <button class="btn-tese-rapida" onclick="addTeseRapida('rn565')" title="RN 565/2022 (revogou RN 309/2012 e 566/2022)">📋 RN 565/22</button>
+          <div id="teses-rapidas" style="margin-bottom:6px">
+            <div class="tese-categoria">
+              <span class="tese-cat-label">Cobertura ANS</span>
+              <div class="tese-cat-grupo">
+                <button class="btn-tese-rapida" onclick="addTeseRapida('rol')" title="Rol da ANS (RN 465/2021) — taxatividade + camadas de fundamentação">🛡 Rol ANS</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('adi7265')" title="ADI 7265 STF — constitucionalidade da taxatividade">⚖ ADI 7265</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('14454')" title="Lei 14.454/2022 — critérios cumulativos do § 13">📜 Lei 14.454</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('conitec')" title="Ausência de recomendação CONITEC ou órgão internacional aprovado">🎓 CONITEC</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('tema990')" title="Tema 990 STJ — negativa fora do rol legítima">📚 Tema 990</button>
+              </div>
+            </div>
+            <div class="tese-categoria">
+              <span class="tese-cat-label">Específicas</span>
+              <div class="tese-cat-grupo">
+                <button class="btn-tese-rapida" onclick="addTeseRapida('horas-tea')" title="Tema 952 STJ — questionamento de horas de terapia TEA">🧠 Horas TEA</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('off-label')" title="Medicamento off-label — Lei 14.454/2022 hipótese II">💊 Off-label</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('home-care')" title="Home care — não obrigatório salvo substituição de internação">🏠 Home care</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('opme')" title="OPME — exigência de 3 marcas/modelos com indicação fundamentada">🦴 OPME</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('urgencia-24h')" title="Carência 24h para urgência/emergência — art. 12, V, c">🚑 Urgência/24h</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('experimental')" title="Tratamento experimental — exclusão legal expressa (art. 10, I)">🧪 Experimental</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('subst-terap')" title="Existência de substituto terapêutico no rol">🔄 Subst. terap.</button>
+              </div>
+            </div>
+            <div class="tese-categoria">
+              <span class="tese-cat-label">Processuais</span>
+              <div class="tese-cat-grupo">
+                <button class="btn-tese-rapida" onclick="addTeseRapida('inversao-onus')" title="Impugnar inversão automática do ônus da prova (art. 6º, VIII, CDC)">🚫 Inversão ônus</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('tutela-urgencia')" title="Impugnar tutela de urgência — requisitos cumulativos (art. 300 CPC)">🎯 Tutela urgência</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('tutela-evidencia')" title="Tutela da evidência em favor da operadora (art. 311, II, CPC)">📑 Tutela evidência</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('litigancia-mf')" title="Litigância de má-fé — multa de 1% a 10% (art. 80/81 CPC)">⚠ Litigância MF</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('honor-11')" title="Majoração de honorários em grau recursal (art. 85, § 11, CPC)">📐 Honor. § 11</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('redistribuicao')" title="Redistribuição do ônus exige decisão prévia e fundamentada">🔄 Redistrib. prévia</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('astreintes')" title="Redução de astreintes desproporcionais (arts. 536/537 CPC)">⏱ Astreintes</button>
+              </div>
+            </div>
+            <div class="tese-categoria">
+              <span class="tese-cat-label">Contratuais</span>
+              <div class="tese-cat-grupo">
+                <button class="btn-tese-rapida" onclick="addTeseRapida('reaj-faixa')" title="Reajuste por faixa etária — proporção 6:1 (RN 171/2008)">📈 Reaj. faixa</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('reaj-sinistr')" title="Reajuste por sinistralidade em planos coletivos (RN 63/2003)">📊 Reaj. sinistr.</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('rescisao-col')" title="Rescisão de plano coletivo — RN 557/2022, notificação 60 dias">✂ Rescisão col.</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('inadimplencia')" title="Rescisão por inadimplência > 60 dias (art. 13, II, Lei 9.656/98)">⏳ Inadimpl. 60d</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('art-30-31')" title="Manutenção do ex-empregado (arts. 30/31 + RN 279/2011)">👨‍💼 Art. 30/31</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('portabilidade')" title="Requisitos da RN 438/2018 — 2 anos no plano de origem">🔁 Portabilidade</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('dlp')" title="DLP/CPT — RN 162/2007 + art. 11 da Lei 9.656/98">🔍 DLP</button>
+              </div>
+            </div>
+            <div class="tese-categoria">
+              <span class="tese-cat-label">Defesas civis</span>
+              <div class="tese-cat-grupo">
+                <button class="btn-tese-rapida" onclick="addTeseRapida('dano-moral')" title="Improcedência + redução do quantum indenizatório">💸 Dano moral</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('prescricao')" title="Prescrição trienal — art. 206, § 3º, V, do CC (Tema 610 STJ)">⌛ Prescrição 3a</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('cdc')" title="Aplicação subsidiária do CDC (art. 35-G da Lei 9.656/98)">⚙ CDC subsid.</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('natjus')" title="Remessa ao NATJUS para Nota Técnica (art. 156, § 3º, CPC)">🏥 NATJUS</button>
+              </div>
+            </div>
+            <div class="tese-categoria">
+              <span class="tese-cat-label">Sistêmicas</span>
+              <div class="tese-cat-grupo">
+                <button class="btn-tese-rapida" onclick="addTeseRapida('art-196-199')" title="Art. 196 (dever do Estado) vs art. 199 (saúde suplementar regulada)">🏛 Art. 196/199</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('livre-iniciativa')" title="Livre iniciativa (art. 170 CF) e equilíbrio econômico-financeiro">🆓 Livre iniciativa</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('ato-juridico')" title="Direito adquirido + ato jurídico perfeito (art. 5º, XXXVI, CF)">🔒 Ato jur. perfeito</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('mutualismo')" title="Equilíbrio atuarial e mutualismo">📊 Mutualismo</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('rn565')" title="RN 565/2022 (revogou RN 309/2012 e 566/2022)">📋 RN 565/22</button>
+                <button class="btn-tese-rapida" onclick="addTeseRapida('sumula-102-rev')" title="Súmula 102 do TJSP REVOGADA em 10/09/2025 — não invocar">🚫 Súm. 102 rev.</button>
+              </div>
+            </div>
           </div>
           <textarea id="f-inst" style="min-height:70px" placeholder="Ex.: incluir tese sobre inexistência de cobertura pelo rol da ANS, questionar horas de terapia, abordar ADI 7265..."></textarea>
         </div>
@@ -4417,7 +4503,41 @@ var TESES_RAPIDAS = {
   'prescricao': 'Arguir PRESCRIÇÃO TRIENAL (artigo 206, § 3º, inciso V, do Código Civil): a pretensão indenizatória em saúde suplementar tem natureza de REPARAÇÃO CIVIL — prescreve em 3 (três) anos, não 10 anos. Tema 610 do STJ. Estratégia preliminar útil em ações com pedido de indenização por danos morais ou materiais decorrentes de negativa administrativa.',
   'natjus': 'Requerer remessa ao NATJUS (Núcleo de Apoio Técnico do Judiciário) para elaboração de NOTA TÉCNICA prévia, com fundamento no artigo 156, § 3º, do CPC e na Recomendação CNJ nº 31/2010. ATENÇÃO: NATJUS elabora NOTA TÉCNICA — não laudo pericial; o laudo pericial é elaborado por perito nomeado pelo juízo. A Nota Técnica é documento de subsídio técnico-científico ao julgador.',
   'mutualismo': 'Sustentar a preservação do MUTUALISMO e do EQUILÍBRIO ECONÔMICO-ATUARIAL: o sistema de saúde suplementar é fundado no princípio da mutualidade — decisões judiciais ampliativas têm impacto coletivo e desorganizam o sistema (ADI 7265 do STF, voto do Min. Relator). Cobertura individual ampliada gera onerosidade excessiva (artigo 478 do Código Civil) e desequilíbrio sistêmico, prejudicando os demais beneficiários.',
-  'rn565': 'Citar a RN nº 565/2022 (vigência 01/01/2023) como atual norma sobre cobertura assistencial obrigatória — REVOGOU a RN nº 309/2012 e a RN nº 566/2022. Consolidou as regras de cobertura, incorporou os dispositivos da Lei nº 14.454/2022 ao regulamento e detalhou o fluxo de solicitação e resposta. ATENÇÃO: NÃO citar RN nº 309/2012 ou RN nº 566/2022 (desatualizadas).'
+  'rn565': 'Citar a RN nº 565/2022 (vigência 01/01/2023) como atual norma sobre cobertura assistencial obrigatória — REVOGOU a RN nº 309/2012 e a RN nº 566/2022. Consolidou as regras de cobertura, incorporou os dispositivos da Lei nº 14.454/2022 ao regulamento e detalhou o fluxo de solicitação e resposta. ATENÇÃO: NÃO citar RN nº 309/2012 ou RN nº 566/2022 (desatualizadas).',
+
+  // ── COBERTURA ANS (novas) ──
+  'conitec': 'Demonstrar a AUSÊNCIA DE RECOMENDAÇÃO DA CONITEC ou de órgão internacional de avaliação de tecnologias em saúde aprovado para uso no Brasil, requisito do § 13 do artigo 10 da Lei nº 9.656/1998 (Lei nº 14.454/2022). Não basta indicação de órgão estrangeiro genérico (FDA, EMA, NICE) sem demonstração de transposição regulatória ao ordenamento brasileiro. Consultar o histórico oficial em http://conitec.gov.br. O ônus probatório do preenchimento integral do requisito é do AUTOR (artigo 373, inciso I, do CPC).',
+  'tema990': 'Invocar o TEMA 990 do STJ — inexistência de obrigatoriedade de cobertura para procedimentos fora do rol da ANS quando não preenchidos os critérios cumulativos da Lei nº 9.656/1998 e da RN nº 465/2021. O Tema 990, lido em conjunto com a Lei nº 14.454/2022 e a ADI 7265, confirma que a recusa fundamentada em ausência de previsão no rol é EXERCÍCIO REGULAR DE DIREITO (artigo 188, inciso I, do Código Civil), afastando a ilicitude e o dever de indenizar.',
+
+  // ── ESPECÍFICAS (novas) ──
+  'off-label': 'Sustentar a NÃO OBRIGATORIEDADE de cobertura de medicamento off-label (uso diverso do previsto em bula). Aplicar a Hipótese II do § 13 do artigo 10 da Lei nº 9.656/1998: cobertura apenas se houver (a) recomendação da CONITEC ou órgão internacional aprovado para uso no Brasil; e (b) inexistência de substituto terapêutico no rol. Diferenciar uso experimental (excluído pelo artigo 10, inciso I) de uso com evidência científica robusta (Temas 106 e 990 do STJ). Prescrição médica isolada não supre os requisitos legais.',
+  'home-care': 'Sustentar a NÃO OBRIGATORIEDADE de cobertura de home care (serviço de assistência domiciliar), salvo quando comprovadamente substituir internação hospitalar coberta (artigo 10 da Lei nº 9.656/1998 — interpretação restritiva). Distinguir: (i) INTERNAÇÃO DOMICILIAR (modalidade médico-hospitalar com equipe multiprofissional — pode ser coberta como substituta da internação); (ii) ATENDIMENTO DOMICILIAR / CUIDADOR (serviço meramente assistencial — NÃO coberto). Exigir relatório médico fundamentado quanto à substituição efetiva e avaliação clínica periódica.',
+  'opme': 'Quanto a OPME (Órteses, Próteses e Materiais Especiais), exigir o cumprimento dos requisitos regulatórios: (a) indicação médica fundamentada com justificativa técnica clara; (b) apresentação de pelo menos 3 marcas/modelos compatíveis para análise pela operadora (Resolução Normativa específica e Resolução CFM nº 1.956/2010); (c) vinculação a procedimento cirúrgico coberto (artigo 10, inciso VII, da Lei nº 9.656/1998 — exclusão de OPME não ligado ao ato cirúrgico). A operadora pode questionar tecnicamente a indicação sem invadir a competência médica.',
+  'urgencia-24h': 'Quanto a urgência/emergência: a CARÊNCIA DE 24 HORAS é o limite legal expresso no artigo 12, inciso V, alínea "c", da Lei nº 9.656/1998 — NÃO há carência zero irrestrita. Aplicar a Resolução CONSU nº 13/1998 que define os conceitos: urgência (risco potencial à vida) e emergência (risco imediato de vida), declarada pelo médico. Verificar (i) o enquadramento do evento nos conceitos regulatórios; (ii) se já havia transcorrido o prazo de carência de 24 horas; (iii) se houve declaração médica específica.',
+  'experimental': 'Invocar a EXCLUSÃO LEGAL EXPRESSA do artigo 10, inciso I, da Lei nº 9.656/1998 — tratamentos clínicos ou cirúrgicos experimentais. As exclusões do artigo 10 são TAXATIVAS e plenamente válidas, não constituindo cláusulas abusivas (não se aplica o artigo 51 do CDC). Distinguir tratamento experimental (sem evidência científica robusta) de tratamento off-label com evidência (Lei nº 14.454/2022, hipótese II). Para tratamentos novos, exigir demonstração de eficácia e segurança baseada em estudos randomizados, metanálises ou diretrizes oficiais — não bastam relatos opinativos.',
+  'subst-terap': 'Identificar e nominar o SUBSTITUTO TERAPÊUTICO disponível no rol da ANS com finalidade equivalente ao procedimento pretendido. A existência de alternativa coberta com cobertura no rol AFASTA a obrigatoriedade de cobertura fora do rol (requisito do § 13, inciso I, alínea "b", do artigo 10 da Lei nº 9.656/1998). Cabe ao AUTOR demonstrar a INADEQUAÇÃO técnica do substituto disponível ao seu caso concreto — a mera preferência por outro tratamento não autoriza cobertura excepcional. Cumulativo aos demais requisitos do § 13.',
+
+  // ── PROCESSUAIS (novas) ──
+  'inversao-onus': 'Impugnar a INVERSÃO AUTOMÁTICA do ônus da prova (artigo 6º, inciso VIII, do CDC). A inversão NÃO é automática — depende de decisão judicial fundamentada e exige a demonstração concreta de: (i) HIPOSSUFICIÊNCIA (não meramente econômica, mas técnica — capacidade probatória); ou (ii) VEROSSIMILHANÇA da alegação (não basta alegar — exige indícios concretos). A inversão deve ser deferida em decisão prévia (não na sentença — artigo 373, § 1º, do CPC) e expressa, oportunizando o contraditório à operadora. Em saúde suplementar, a operadora atua dentro de sistema regulado e tem acesso técnico equivalente ao do beneficiário.',
+  'tutela-urgencia': 'Impugnar a TUTELA DE URGÊNCIA por ausência dos requisitos cumulativos do artigo 300 do CPC: (i) PROBABILIDADE DO DIREITO (fumus boni iuris) — não basta a gravidade da doença; é necessária análise da plausibilidade jurídica à luz do rol da ANS, da Lei nº 14.454/2022 e da ADI 7265; (ii) PERIGO DE DANO ou risco ao resultado útil; (iii) AUSÊNCIA DE IRREVERSIBILIDADE (§ 3º) — coberturas de tratamento experimental ou de alto custo geram obrigação de difícil desfazimento. Requerer ainda CAUÇÃO REAL OU FIDEJUSSÓRIA (§ 1º) e advertir sobre a responsabilidade objetiva do autor por danos da efetivação da tutela (artigo 302 do CPC).',
+  'tutela-evidencia': 'Requerer TUTELA DA EVIDÊNCIA em favor da operadora com fundamento no artigo 311, inciso II, do CPC — alegações de fato comprovadas documentalmente E tese firmada em julgamento de casos repetitivos ou súmula vinculante. Em saúde suplementar, invocar os Temas 990, 106, 952 e 1036 do STJ + ADI 7265 do STF como teses vinculantes (artigos 927 e 985 do CPC). A tutela da evidência dispensa a demonstração de urgência e protege a operadora contra decisões liminares ampliativas que contrariem precedentes consolidados.',
+  'litigancia-mf': 'Arguir LITIGÂNCIA DE MÁ-FÉ com aplicação de multa de 1% a 10% do valor da causa (artigos 80 e 81 do CPC). Hipóteses caracterizadoras frequentes em saúde suplementar: (i) OMISSÃO DE DLP na declaração de saúde; (ii) ALTERAÇÃO DA VERDADE DOS FATOS (artigo 80, inciso II); (iii) DEMANDAS REPETIDAS sobre mesma cobertura já apreciada em outras ações (artigo 80, inciso V — pretensão sem fundamento); (iv) APRESENTAÇÃO DE PRESCRIÇÃO MANIPULADA ou laudo de complacência. Cumular com indenização por perdas e danos (artigo 81, § 3º, do CPC).',
+  'honor-11': 'Requerer expressamente a MAJORAÇÃO DOS HONORÁRIOS em grau recursal com fundamento no artigo 85, § 11, do CPC. A majoração é imperativa quando a operadora for vencedora ou houver melhora da posição processual em sede recursal, considerando o trabalho adicional realizado. Os honorários têm natureza alimentar (§ 14) e constituem direito autônomo do advogado, vedada a compensação por sucumbência parcial. Requerer fixação no patamar máximo (20% — § 2º) considerando a complexidade da matéria, o zelo profissional e o tempo dedicado.',
+  'redistribuicao': 'Impugnar a REDISTRIBUIÇÃO DO ÔNUS DA PROVA realizada na sentença ou em momento processual inadequado. O artigo 373, § 1º, do CPC exige que a redistribuição seja feita por DECISÃO FUNDAMENTADA E PRÉVIA, oportunizando à parte se desincumbir do encargo redistribuído antes da sentença. Redistribuição realizada apenas no julgamento da lide configura nulidade por violação ao contraditório (artigo 5º, inciso LV, da Constituição da República e artigo 10 do CPC) e ao princípio da não-surpresa. A nulidade alcança a sentença e impõe sua anulação para regular instrução probatória.',
+
+  // ── CONTRATUAIS (novas) ──
+  'reaj-faixa': 'Quanto a REAJUSTE POR FAIXA ETÁRIA, demonstrar o cumprimento dos parâmetros regulatórios da RN nº 171/2008 e do artigo 15 da Lei nº 9.656/1998: (i) previsão expressa no contrato inicial; (ii) respeito à PROPORÇÃO MÁXIMA DE 6:1 entre menor e maior faixa; (iii) VEDAÇÃO DE REAJUSTE APÓS 59 ANOS (parágrafo único do artigo 15 — para consumidores com mais de 60 anos que participem do plano há mais de 10 anos); (iv) percentuais aplicados dentro dos limites pactuados. Reajuste regulamentar válido NÃO configura abusividade (Súmula 91 do TJSP — quando aplicável).',
+  'reaj-sinistr': 'Quanto a REAJUSTE POR SINISTRALIDADE em planos coletivos, demonstrar a regularidade da aplicação conforme RN nº 63/2003: (i) previsão contratual expressa; (ii) cálculo baseado no índice de sinistralidade do contrato (relação entre despesas assistenciais e receitas); (iii) periodicidade anual; (iv) comunicação prévia ao contratante. Os reajustes em planos coletivos com mais de 30 vidas NÃO são submetidos a aprovação prévia da ANS — basta a observância dos parâmetros regulatórios e contratuais. A revisão judicial do percentual é EXCEPCIONAL (artigos 421 e 421-A do Código Civil — intervenção mínima).',
+  'rescisao-col': 'Quanto a RESCISÃO de plano coletivo, demonstrar o cumprimento dos requisitos da RN nº 557/2022: (i) NOTIFICAÇÃO PRÉVIA mínima de 60 dias; (ii) MANUTENÇÃO DA COBERTURA até a rescisão efetiva; (iii) VEDAÇÃO de rescisão imotivada nos primeiros 12 meses do contrato. Após o decurso do prazo mínimo de 12 meses e observada a notificação regular, a rescisão é direito potestativo da operadora — não exige justificativa material além da regularidade procedimental. Sustentar a aplicação subsidiária dos artigos 421 e 421-A do Código Civil (autonomia privada e intervenção mínima).',
+  'inadimplencia': 'Quanto a RESCISÃO POR INADIMPLÊNCIA, demonstrar o cumprimento dos requisitos do artigo 13, inciso II, da Lei nº 9.656/1998: (i) inadimplência SUPERIOR A 60 DIAS, consecutivos ou não, nos últimos 12 meses; (ii) NOTIFICAÇÃO COMPROVADA do beneficiário até o 50º dia de inadimplência. A rescisão por inadimplência é DIREITO POTESTATIVO da operadora quando observado o procedimento legal — não configura abusividade nem ato ilícito. Vedação à rescisão DURANTE INTERNAÇÃO do titular (inciso III). A alegação de quitação tardia ou negociação posterior não afasta a regularidade da rescisão já consumada.',
+  'art-30-31': 'Quanto a MANUTENÇÃO PÓS-RESCISÃO (ex-empregado demitido sem justa causa ou aposentado), aplicar os artigos 30 e 31 da Lei nº 9.656/1998 e a RN nº 279/2011: (a) DEMITIDO SEM JUSTA CAUSA: período de manutenção de 1/3 do tempo de contribuição, mínimo 6 meses, máximo 24 meses, mediante assunção integral do custeio (artigo 30); (b) APOSENTADO COM 10+ ANOS de contribuição: manutenção por prazo INDETERMINADO; com menos de 10 anos: 1 ano de manutenção por ano de contribuição (artigo 31, § 1º). Verificar (i) cumprimento do prazo mínimo; (ii) admissão em novo emprego (cessa o direito — § 5º do artigo 30); (iii) coparticipação como fator moderador NÃO computa como contribuição (§ 6º).',
+  'portabilidade': 'Quanto a PORTABILIDADE de carências, verificar o cumprimento dos requisitos da RN nº 438/2018: (i) plano de origem ATIVO E ADIMPLENTE; (ii) PERMANÊNCIA MÍNIMA de 2 anos no plano de origem (3 anos se cumpriu CPT); (iii) plano de destino com PREÇO COMPATÍVEL (mesma faixa de preço definida pela ANS); (iv) requerimento dentro do PERÍODO DE PORTABILIDADE. Demonstrar (a) inadimplência durante o período de carência; (b) incompatibilidade de faixas de preço; ou (c) ausência de tempo mínimo. A operadora de destino NÃO pode exigir nova declaração de saúde — mas pode recusar se requisitos regulamentares não forem cumpridos.',
+
+  // ── SISTÊMICAS (novas) ──
+  'art-196-199': 'Sustentar a DISTINÇÃO CONSTITUCIONAL entre saúde pública (artigo 196 da Constituição da República — dever do ESTADO, garantido por políticas sociais e SUS) e saúde suplementar (artigo 199, caput e § 1º — assistência LIVRE à iniciativa privada, com participação complementar ao SUS por meio de contrato de direito público). O dever constitucional de prestação UNIVERSAL E INTEGRAL de saúde incumbe ao Estado, NÃO aos planos privados. A operadora tem obrigação definida pela LEI ESPECIAL (Lei nº 9.656/1998) e pelo CONTRATO — não pela amplitude irrestrita do artigo 196. A Lei nº 8.080/1990 confirma que o SUS é o instrumento estatal de cumprimento do artigo 196.',
+  'livre-iniciativa': 'Sustentar que a operadora de plano de saúde é AGENTE ECONÔMICO no exercício da LIVRE INICIATIVA (artigo 170 da Constituição da República), garantida pela ordem econômica constitucional juntamente com a propriedade privada (inciso II), livre concorrência (inciso IV) e defesa do consumidor (inciso V). A atividade está submetida a regulação técnica especializada (ANS — Lei nº 9.961/2000) e seu equilíbrio econômico-financeiro deve ser preservado. Decisões judiciais que ampliam coberturas além do contratado e do legalmente previsto comprometem (i) a livre iniciativa; (ii) o equilíbrio econômico-atuarial; (iii) a sustentabilidade do sistema mutual; e (iv) a previsibilidade regulatória.',
+  'ato-juridico': 'Invocar o DIREITO ADQUIRIDO E ATO JURÍDICO PERFEITO (artigo 5º, inciso XXXVI, da Constituição da República) para sustentar a validade das cláusulas contratuais vigentes à época da contratação. A lei nova ou interpretação jurisprudencial superveniente NÃO PODE retroagir para impor à operadora obrigações não previstas no contrato originário. As condições de cobertura, exclusões, carências e segmentação contratadas constituem ATO JURÍDICO PERFEITO, protegido pela cláusula pétrea constitucional. A revisão contratual judicial é EXCEPCIONAL (artigos 421 e 421-A do Código Civil — princípio da intervenção mínima e excepcionalidade da revisão).',
+  'sumula-102-rev': 'ATENÇÃO PROCESSUAL: a SÚMULA 102 do TJSP foi REVOGADA em 10/09/2025 pelo Órgão Especial do TJSP. A redação anterior ("É abusiva a negativa de plano de saúde em cobrir as despesas de procedimento médico ou cirúrgico necessário à saúde do segurado") foi cancelada porque divergia do entendimento do STJ sobre o rol taxativo mitigado da ANS (Lei nº 14.454/2022). Em peças no TJSP, NÃO INVOCAR a Súmula 102 (revogada). Quando o autor citá-la, refutar expressamente: a súmula NÃO ESTÁ MAIS EM VIGOR. Os fundamentos centrais devem ser ADI 7265 + Lei nº 14.454/2022 + RN nº 465/2021.'
 };
 
 function addTeseRapida(chave) {
