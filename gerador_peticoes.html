@@ -703,8 +703,8 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="nav-item" onclick="go('proc')" id="nav-proc"><span class="nav-num" id="nn-proc">2</span> Processos</div>
     <div class="nav-sep"></div>
     <div class="nav-item" onclick="go('ger')" id="nav-ger"><span class="nav-num">3</span> Gerar petição</div>
-    <div class="nav-item" onclick="go('an')" id="nav-an" title="Analisar e resumir processos"><span class="nav-num">4</span> 🔍 Análise de processo</div>
-    <div class="nav-item" onclick="go('dash')" id="nav-dash" title="Dashboard"><span class="nav-num">5</span> Stats</div>
+    <div class="nav-item" onclick="go('an')" id="nav-an" title="Analisar e resumir processos"><span class="nav-num">4</span> Análise de processo</div>
+    <div class="nav-item" onclick="go('dash')" id="nav-dash" title="Painel de métricas e uso"><span class="nav-num">5</span> Painel</div>
     <div class="nav-item" onclick="go('res')" id="nav-res"><span class="nav-num">6</span> Resultado</div>
   </nav>
 
@@ -5652,15 +5652,22 @@ async function executarAnalise() {
   }
 
   try {
-    var resp = await chamarIAGenerica(modelo, sysPrompt, usrPrompt, key);
-    if (!resp || !resp.texto) throw new Error('Resposta vazia da IA.');
-
-    anUltimoResultado = resp.texto;
-    // Renderizar com realce de citações pendentes e refs
-    var htmlRender = anRenderizarResultado(resp.texto);
+    // Mostrar resultado em streaming (texto aparece progressivamente)
     var box = document.getElementById('an-resultado');
-    box.innerHTML = htmlRender;
     box.style.display = 'block';
+    box.textContent = '';
+    document.getElementById('an-status').textContent = '⏳ Gerando análise via ' + nomeModelo + '...';
+
+    var resp = await chamarIAGenerica(modelo, sysPrompt, usrPrompt, key, function(chunk) {
+      // Callback de streaming: atualiza o resultado em tempo real
+      anUltimoResultado += chunk;
+      box.textContent = anUltimoResultado;
+      box.scrollTop = box.scrollHeight;
+    });
+
+    // Aplicar realce visual no resultado final
+    anUltimoResultado = resp.texto;
+    box.innerHTML = anRenderizarResultado(resp.texto);
     document.getElementById('an-status').textContent = '✓ Análise concluída · ' + (resp.uso || '');
     document.getElementById('an-btn-export').style.display = '';
     document.getElementById('an-btn-copy').style.display = '';
@@ -5783,50 +5790,123 @@ function anRenderChat() {
 }
 
 // ============================================================
-// Wrappers genéricos para chamada da IA (compatíveis com Claude/GPT)
-// Reutilizam a lógica existente do app
+// Wrappers genéricos para chamada da IA — usam streaming
+// Compatíveis com o mesmo mecanismo de gerarMinuta/gerarResumoCaso
 // ============================================================
-async function chamarIAGenerica(modelo, sysPrompt, usrPrompt, apiKey) {
-  // Reutilizar a infraestrutura existente: chamada direta à API
-  var modelos = {
-    'gpt4o': { url: 'https://api.openai.com/v1/chat/completions', headers: {'Authorization':'Bearer '+apiKey,'Content-Type':'application/json'}, body: function(s,u){return JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:s},{role:'user',content:u}]});}, extract: function(d){return {texto: d.choices[0].message.content, uso: 'tokens: '+(d.usage?(d.usage.prompt_tokens+'+'+d.usage.completion_tokens):'?')};} },
-    'claude-sonnet': { url: 'https://api.anthropic.com/v1/messages', headers: {'x-api-key':apiKey,'anthropic-version':'2023-06-01','Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'}, body: function(s,u){return JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:8192,system:s,messages:[{role:'user',content:u}]});}, extract: function(d){return {texto: d.content[0].text, uso: 'tokens: '+(d.usage?(d.usage.input_tokens+'+'+d.usage.output_tokens):'?')};} },
-    'claude-opus': { url: 'https://api.anthropic.com/v1/messages', headers: {'x-api-key':apiKey,'anthropic-version':'2023-06-01','Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'}, body: function(s,u){return JSON.stringify({model:'claude-opus-4-20250514',max_tokens:8192,system:s,messages:[{role:'user',content:u}]});}, extract: function(d){return {texto: d.content[0].text, uso: 'tokens: '+(d.usage?(d.usage.input_tokens+'+'+d.usage.output_tokens):'?')};} }
-  };
-  var m = modelos[modelo] || modelos['claude-sonnet'];
-  var resp = await fetch(m.url, { method: 'POST', headers: m.headers, body: m.body(sysPrompt, usrPrompt) });
-  if (!resp.ok) {
-    var errTxt = await resp.text();
-    throw new Error('API retornou ' + resp.status + ': ' + errTxt.substring(0, 200));
+async function chamarIAGenerica(modelo, sysPrompt, usrPrompt, apiKey, onChunk) {
+  var texto = '';
+  var uso = '';
+
+  if (modelo === 'gpt4o') {
+    var res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
+      body: JSON.stringify({model:'gpt-4o', messages:[{role:'system',content:sysPrompt},{role:'user',content:usrPrompt}], temperature:0.2, max_tokens:8000, stream:true, stream_options:{include_usage:true}})
+    });
+    if (!res.ok) { var er = await res.json(); throw new Error(er.error?er.error.message:'Erro OpenAI '+res.status); }
+    var rd = res.body.getReader(), dc = new TextDecoder();
+    var tokIn = 0, tokOut = 0;
+    while (true) {
+      var rv = await rd.read(); if (rv.done) break;
+      dc.decode(rv.value).split('\n').forEach(function(ln) {
+        if (ln.startsWith('data: ') && ln !== 'data: [DONE]') {
+          try {
+            var parsed = JSON.parse(ln.slice(6));
+            if (parsed.usage) { tokIn = parsed.usage.prompt_tokens||0; tokOut = parsed.usage.completion_tokens||0; }
+            if (parsed.choices && parsed.choices[0] && parsed.choices[0].delta && parsed.choices[0].delta.content) {
+              var chunk = parsed.choices[0].delta.content;
+              texto += chunk;
+              if (typeof onChunk === 'function') onChunk(chunk);
+            }
+          } catch(e) {}
+        }
+      });
+    }
+    uso = tokIn + '+' + tokOut + ' tokens';
+  } else {
+    var modelStr = modelo === 'claude-opus' ? 'claude-opus-4-5' : 'claude-sonnet-4-5';
+    var res2 = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model:modelStr, max_tokens:8000, system:sysPrompt, messages:[{role:'user',content:usrPrompt}], stream:true})
+    });
+    if (!res2.ok) { var er2 = await res2.json(); throw new Error(er2.error?er2.error.message:'Erro Anthropic '+res2.status); }
+    var rd2 = res2.body.getReader(), dc2 = new TextDecoder();
+    var tokIn2 = 0, tokOut2 = 0;
+    while (true) {
+      var rv2 = await rd2.read(); if (rv2.done) break;
+      dc2.decode(rv2.value).split('\n').forEach(function(ln) {
+        if (ln.startsWith('data: ')) {
+          try {
+            var ev = JSON.parse(ln.slice(6));
+            if (ev.type === 'message_start' && ev.message && ev.message.usage) tokIn2 = ev.message.usage.input_tokens||0;
+            if (ev.type === 'message_delta' && ev.usage) tokOut2 = ev.usage.output_tokens||0;
+            if (ev.type === 'content_block_delta' && ev.delta && ev.delta.text) {
+              var chunk2 = ev.delta.text;
+              texto += chunk2;
+              if (typeof onChunk === 'function') onChunk(chunk2);
+            }
+          } catch(e) {}
+        }
+      });
+    }
+    uso = tokIn2 + '+' + tokOut2 + ' tokens';
   }
-  var data = await resp.json();
-  return m.extract(data);
+
+  if (!texto) throw new Error('Resposta vazia da IA.');
+  return { texto: texto, uso: uso };
 }
 
 async function chamarIAChat(modelo, sysPrompt, mensagens, apiKey) {
-  // Versão para chat multi-turn
+  // Multi-turn: passa o histórico completo como messages
+  var texto = '';
+
   if (modelo === 'gpt4o') {
-    var msgsGpt = [{role:'system', content: sysPrompt}].concat(mensagens);
-    var resp = await fetch('https://api.openai.com/v1/chat/completions', {
+    var msgsGpt = [{role:'system',content:sysPrompt}].concat(mensagens);
+    var res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
-      headers: {'Authorization':'Bearer '+apiKey,'Content-Type':'application/json'},
-      body: JSON.stringify({model:'gpt-4o', messages: msgsGpt})
+      headers: {'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
+      body: JSON.stringify({model:'gpt-4o', messages:msgsGpt, temperature:0.2, max_tokens:4000, stream:true})
     });
-    if (!resp.ok) { var t = await resp.text(); throw new Error(resp.status + ': ' + t.substring(0,200)); }
-    var d = await resp.json();
-    return { texto: d.choices[0].message.content, uso: 'tokens: '+(d.usage?(d.usage.prompt_tokens+'+'+d.usage.completion_tokens):'?') };
+    if (!res.ok) { var er = await res.json(); throw new Error(er.error?er.error.message:'Erro OpenAI '+res.status); }
+    var rd = res.body.getReader(), dc = new TextDecoder();
+    while (true) {
+      var rv = await rd.read(); if (rv.done) break;
+      dc.decode(rv.value).split('\n').forEach(function(ln) {
+        if (ln.startsWith('data: ') && ln !== 'data: [DONE]') {
+          try {
+            var p = JSON.parse(ln.slice(6));
+            if (p.choices && p.choices[0] && p.choices[0].delta && p.choices[0].delta.content) texto += p.choices[0].delta.content;
+          } catch(e) {}
+        }
+      });
+    }
   } else {
-    var modelStr = modelo === 'claude-opus' ? 'claude-opus-4-20250514' : 'claude-sonnet-4-20250514';
-    var resp2 = await fetch('https://api.anthropic.com/v1/messages', {
+    var modelStr = modelo === 'claude-opus' ? 'claude-opus-4-5' : 'claude-sonnet-4-5';
+    var res2 = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {'x-api-key':apiKey,'anthropic-version':'2023-06-01','Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({model: modelStr, max_tokens: 4096, system: sysPrompt, messages: mensagens})
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model:modelStr, max_tokens:4000, system:sysPrompt, messages:mensagens, stream:true})
     });
-    if (!resp2.ok) { var t2 = await resp2.text(); throw new Error(resp2.status + ': ' + t2.substring(0,200)); }
-    var d2 = await resp2.json();
-    return { texto: d2.content[0].text, uso: 'tokens: '+(d2.usage?(d2.usage.input_tokens+'+'+d2.usage.output_tokens):'?') };
+    if (!res2.ok) { var er2 = await res2.json(); throw new Error(er2.error?er2.error.message:'Erro Anthropic '+res2.status); }
+    var rd2 = res2.body.getReader(), dc2 = new TextDecoder();
+    while (true) {
+      var rv2 = await rd2.read(); if (rv2.done) break;
+      dc2.decode(rv2.value).split('\n').forEach(function(ln) {
+        if (ln.startsWith('data: ')) {
+          try {
+            var ev = JSON.parse(ln.slice(6));
+            if (ev.type === 'content_block_delta' && ev.delta && ev.delta.text) texto += ev.delta.text;
+          } catch(e) {}
+        }
+      });
+    }
   }
+
+  if (!texto) throw new Error('Resposta vazia.');
+  return { texto: texto, uso: '' };
 }
+
 
 // Inicializar lista vazia ao carregar
 document.addEventListener('DOMContentLoaded', function() {
