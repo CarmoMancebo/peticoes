@@ -175,6 +175,36 @@
 .semaforo-risco.vermelho { background: #FEE2E2; color: #991B1B; }
 .semaforo-risco.cinza { background: var(--bg2); color: var(--text2); }
 
+/* === MODAL "USAR NA PETIÇÃO" === */
+.modal-usar-peticao {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,.45); z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-usar-content {
+  background: var(--bg); border-radius: 10px; padding: 22px 24px;
+  max-width: 480px; width: 92%; box-shadow: 0 8px 32px rgba(0,0,0,.2);
+}
+.modal-usar-content h3 {
+  margin: 0 0 6px; font-size: 15px; color: var(--text);
+}
+.modal-usar-content p {
+  margin: 0 0 16px; font-size: 12px; color: var(--text2);
+}
+.modal-usar-opcoes {
+  display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px;
+}
+.modal-usar-opcao {
+  border: 2px solid var(--border); border-radius: 8px;
+  padding: 11px 14px; cursor: pointer; transition: all .15s;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.modal-usar-opcao:hover { border-color: var(--blue); background: rgba(24,95,165,.05); }
+.modal-usar-opcao.sel { border-color: var(--blue); background: rgba(24,95,165,.10); }
+.modal-usar-opcao strong { font-size: 13px; color: var(--text); }
+.modal-usar-opcao span { font-size: 11px; color: var(--text2); }
+.modal-usar-rodape { display: flex; justify-content: flex-end; gap: 8px; }
+
 /* === DESTAQUE DE CITAÇÕES (anti-alucinação) === */
 .cit-pendente {
   background: #FEF3C7;
@@ -673,7 +703,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="login-hint">
       <a href="#" onclick="resetarSenha();return false;" style="color:#185FA5;text-decoration:none">Esqueci minha senha</a>
     </div>
-    <div class="login-ver">versão 1.76</div>
+    <div class="login-ver">versão 1.77</div>
   </div>
 </div>
 
@@ -693,7 +723,7 @@ tbody tr.st-p td{background:#b3e5fc}
     </div>
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.76</span>
+    <span class="tb-meta" id="tb-versao">versão 1.77</span>
   </div>
 </div>
 
@@ -704,8 +734,8 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="nav-sep"></div>
     <div class="nav-item" onclick="go('ger')" id="nav-ger"><span class="nav-num">3</span> Gerar petição</div>
     <div class="nav-item" onclick="go('an')" id="nav-an" title="Analisar e resumir processos"><span class="nav-num">4</span> Análise de processo</div>
-    <div class="nav-item" onclick="go('dash')" id="nav-dash" title="Painel de métricas e uso"><span class="nav-num">5</span> Painel</div>
-    <div class="nav-item" onclick="go('res')" id="nav-res"><span class="nav-num">6</span> Resultado</div>
+    <div class="nav-item" onclick="go('res')" id="nav-res"><span class="nav-num">5</span> Resultado</div>
+    <div class="nav-item" onclick="go('dash')" id="nav-dash" title="Painel de métricas e uso"><span class="nav-num">6</span> Painel</div>
   </nav>
 
   <main class="main">
@@ -716,6 +746,21 @@ tbody tr.st-p td{background:#b3e5fc}
       <div class="panel-sub">Selecione peças de referência para uso como modelo de estilo e estrutura.</div>
 
 
+
+      <div class="card">
+        <div class="card-title">Modelo de IA</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Escolha o modelo que será usado em <strong>todas</strong> as funcionalidades do sistema (Gerar petição, Análise de processo, Resumo de caso).</p>
+        <div class="field">
+          <select id="sel-modelo-global" onchange="sincronizarModeloGlobal(this.value)">
+            <option value="claude-sonnet">Claude Sonnet 4.5 — recomendado (Anthropic)</option>
+            <option value="claude-opus">Claude Opus 4.5 — máxima precisão, mais caro (Anthropic)</option>
+            <option value="gpt4o">GPT-4o — alternativa OpenAI</option>
+          </select>
+        </div>
+        <div id="aviso-chave-modelo" style="display:none;margin-top:8px;padding:8px 10px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:6px;font-size:11px;color:#92400E">
+          ⚠ <strong>Atenção:</strong> o modelo selecionado requer uma chave de API que não está configurada. Adicione a chave correspondente nos campos acima ou escolha outro modelo.
+        </div>
+      </div>
 
       <div class="card">
         <div class="card-title">Timbrado do escritório</div>
@@ -983,7 +1028,7 @@ tbody tr.st-p td{background:#b3e5fc}
         <div class="row2">
           <div class="field">
             <label>Modelo</label>
-            <select id="sel-modelo" onchange="toggleApi()">
+            <select id="sel-modelo" onchange="sincronizarModeloGlobal(this.value)" onchange="toggleApi()">
               <option value="gpt4o" selected>GPT-4o (OpenAI) — peças simples e manifestações</option>
               <option value="claude-sonnet">Claude Sonnet (Anthropic) — peças complexas</option>
               <option value="claude-opus">Claude Opus (Anthropic) — máxima qualidade</option>
@@ -1335,6 +1380,13 @@ tbody tr.st-p td{background:#b3e5fc}
 
     <!-- DASHBOARD -->
     <div id="panel-dash" class="panel">
+      <div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px;color:#78350F;display:flex;gap:8px;align-items:flex-start">
+        <span style="font-size:16px;flex-shrink:0">⚠</span>
+        <div>
+          <strong>Painel em fase de testes — valores são estimativas</strong><br>
+          Os custos exibidos são calculados com base em médias de mercado e não correspondem às quantias efetivamente cobradas pela Anthropic ou OpenAI. Os totais de tokens e peças geradas são aproximados. Para conferir o consumo real, acesse o painel oficial: <a href="https://console.anthropic.com" target="_blank" style="color:#92400E">console.anthropic.com</a> ou <a href="https://platform.openai.com/usage" target="_blank" style="color:#92400E">platform.openai.com/usage</a>.
+        </div>
+      </div>
       <div class="panel-title">📊 Dashboard de Uso</div>
       <div id="dash-content" style="padding:8px 0"></div>
       <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
@@ -1411,16 +1463,7 @@ tbody tr.st-p td{background:#b3e5fc}
 
       <div class="card">
         <div class="card-title">3. Configuração</div>
-        <div class="row2">
-          <div class="field">
-            <label style="font-size:12px">Modelo de IA</label>
-            <select id="an-modelo" style="width:100%">
-              <option value="claude-sonnet">Claude Sonnet (recomendado — análise mais precisa)</option>
-              <option value="gpt4o">GPT-4o (mais barato para resumos)</option>
-              <option value="claude-opus">Claude Opus (máxima precisão — mais caro)</option>
-            </select>
-          </div>
-          <div class="field">
+        <div class="field">
             <label style="font-size:12px">Nível de detalhe</label>
             <select id="an-detalhe" style="width:100%">
               <option value="executivo">Executivo (resposta concisa)</option>
@@ -1428,7 +1471,12 @@ tbody tr.st-p td{background:#b3e5fc}
               <option value="detalhado">Detalhado (análise extensa)</option>
             </select>
           </div>
-        </div>
+          <p style="font-size:11px;color:var(--text3);margin-top:6px">Modelo de IA: configurado globalmente em <a href="#" onclick="go('cfg');return false;" style="color:var(--blue)">Configuração</a>.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Instruções adicionais (opcional)</div>
+        <textarea id="an-instrucoes" style="min-height:70px;width:100%" placeholder="Ex.: focar na questão da DLP, verificar se há contradição com a contestação anterior, identificar fundamentos para o agravo..."></textarea>
       </div>
 
       <div class="an-toolbar">
@@ -1436,6 +1484,7 @@ tbody tr.st-p td{background:#b3e5fc}
         <button class="btn btn-s" onclick="anLimparTudo()" id="an-btn-limpar">🗑 Limpar</button>
         <button class="btn btn-s" onclick="anExportarMd()" id="an-btn-export" style="display:none">📥 Exportar (.md)</button>
         <button class="btn btn-s" onclick="anCopiarResultado()" id="an-btn-copy" style="display:none">📋 Copiar</button>
+        <button class="btn btn-s" onclick="abrirModalUsarPeticao()" id="an-btn-usar" style="display:none;background:rgba(24,95,165,.12);border-color:var(--blue);color:var(--blue);font-weight:600" title="Aproveitar o resultado desta análise na aba Gerar petição">→ Usar na petição</button>
       </div>
 
       <div id="an-status" class="an-status"></div>
@@ -1849,6 +1898,23 @@ function go(id) {
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active')});
   document.getElementById('panel-'+id).classList.add('active');
   document.getElementById('nav-'+id).classList.add('active');
+}
+
+function sincronizarModeloGlobal(val) {
+  // Propaga a escolha global para o seletor legado (sel-modelo) e vice-versa
+  var legacy = document.getElementById('sel-modelo');
+  if (legacy && legacy.value !== val) legacy.value = val;
+  // Verificar se a chave correspondente está preenchida
+  var aviso = document.getElementById('aviso-chave-modelo');
+  if (aviso) {
+    var key = getKey ? getKey() : '';
+    var precisaAnthropic = (val === 'claude-sonnet' || val === 'claude-opus');
+    var precisaOpenAI = (val === 'gpt4o');
+    var keyAnthropic = (document.getElementById('f-key-anthropic') || {}).value || '';
+    var keyOpenAI = (document.getElementById('f-key') || {}).value || '';
+    var semChave = (precisaAnthropic && !keyAnthropic && !key) || (precisaOpenAI && !keyOpenAI && !key);
+    aviso.style.display = semChave ? 'block' : 'none';
+  }
 }
 
 function toggleClienteModo() {
@@ -5594,6 +5660,7 @@ function anLimparTudo() {
   document.getElementById('an-status').textContent = '';
   document.getElementById('an-btn-export').style.display = 'none';
   document.getElementById('an-btn-copy').style.display = 'none';
+  document.getElementById('an-btn-usar').style.display = 'none';
   document.getElementById('an-chat-area').style.display = 'none';
   document.getElementById('an-chat-msgs').innerHTML = '';
 }
@@ -5614,8 +5681,24 @@ async function executarAnalise() {
   }
 
   var detalhe = document.getElementById('an-detalhe').value || 'medio';
-  var modelo = document.getElementById('an-modelo').value || 'claude-sonnet';
+  var instrAd = (document.getElementById('an-instrucoes') || {}).value || '';
+  instrAd = instrAd.trim();
+  var modelo = (document.getElementById('sel-modelo-global') || {}).value || document.getElementById('sel-modelo') && document.getElementById('sel-modelo').value || 'claude-sonnet';
   var nomeModelo = modelo === 'gpt4o' ? 'GPT-4o' : modelo === 'claude-opus' ? 'Claude Opus' : 'Claude Sonnet';
+  // Validação de chave antes de chamar
+  var keyVerif = getKey ? getKey() : '';
+  if (!keyVerif) {
+    alert('Nenhuma chave de API configurada. Acesse a aba Configuração e insira sua chave Anthropic ou OpenAI.');
+    return;
+  }
+  var precisaAnthropic = (modelo === 'claude-sonnet' || modelo === 'claude-opus');
+  var precisaOpenAI = (modelo === 'gpt4o');
+  if (precisaOpenAI && keyVerif.indexOf('sk-ant-') === 0) {
+    if (!confirm('Atenção: o modelo selecionado é GPT-4o (OpenAI), mas a chave configurada parece ser Anthropic (Claude). Deseja continuar mesmo assim?')) return;
+  }
+  if (precisaAnthropic && keyVerif.indexOf('sk-ant-') === -1 && keyVerif.indexOf('sk-') === 0) {
+    if (!confirm('Atenção: o modelo selecionado é Claude (Anthropic), mas a chave configurada parece ser OpenAI. Deseja continuar mesmo assim?')) return;
+  }
 
   var btn = document.getElementById('an-btn-executar');
   btn.disabled = true;
@@ -5642,12 +5725,14 @@ async function executarAnalise() {
     '5) NÃO use marcadores de markdown (>, *, #, ---); use APENAS texto corrido em parágrafos normais; títulos em CAIXA ALTA.';
 
   // Construir mensagem do usuário
+  // Appendar instruções adicionais ao prompt do usuário se houver
   var usrPrompt = '';
+  var instrAdBloco = instrAd ? '\n\nINSTRUÇÕES ADICIONAIS DO USUÁRIO (priorizar):\n' + instrAd : '';
   if (modo === 'personalizado') {
-    usrPrompt = 'PERGUNTA: ' + perguntaLivre + '\n\n=== DOCUMENTOS DO PROCESSO ===\n\n' + contextoDocs +
+    usrPrompt = 'PERGUNTA: ' + perguntaLivre + instrAdBloco + '\n\n=== DOCUMENTOS DO PROCESSO ===\n\n' + contextoDocs +
       '\n\nResponda à pergunta com base APENAS nos documentos acima. Cite trechos relevantes entre aspas, indicando a fonte (documento + evento/id/fls. quando disponível). Se a resposta não constar dos documentos, diga "essa informação não consta nos documentos analisados".';
   } else {
-    usrPrompt = '=== DOCUMENTOS DO PROCESSO ===\n\n' + contextoDocs +
+    usrPrompt = '=== DOCUMENTOS DO PROCESSO ===\n\n' + contextoDocs + instrAdBloco +
       '\n\nProduza a análise solicitada (' + modoSpec.titulo + ') com base nos documentos acima, seguindo a estrutura definida nas instruções do sistema. Não invente fatos nem jurisprudência.';
   }
 
@@ -5671,6 +5756,7 @@ async function executarAnalise() {
     document.getElementById('an-status').textContent = '✓ Análise concluída · ' + (resp.uso || '');
     document.getElementById('an-btn-export').style.display = '';
     document.getElementById('an-btn-copy').style.display = '';
+    document.getElementById('an-btn-usar').style.display = '';
 
     // Iniciar chat de continuação (só faz sentido após primeira análise)
     document.getElementById('an-chat-area').style.display = 'block';
@@ -5755,7 +5841,7 @@ async function anChatEnviar() {
   anRenderChat();
   input.value = '';
 
-  var modelo = document.getElementById('an-modelo').value || 'claude-sonnet';
+  var modelo = (document.getElementById('sel-modelo-global') || {}).value || 'claude-sonnet';
 
   try {
     // Construir prompt: system + histórico simplificado
@@ -5907,6 +5993,112 @@ async function chamarIAChat(modelo, sysPrompt, mensagens, apiKey) {
   return { texto: texto, uso: '' };
 }
 
+
+// ── MODAL "USAR NA PETIÇÃO" ──────────────────────────────────────────────────
+
+var _modalUsarOpcaoSel = 'andamento'; // padrão
+
+function abrirModalUsarPeticao() {
+  if (!anUltimoResultado) { alert('Gere uma análise antes de usar na petição.'); return; }
+  _modalUsarOpcaoSel = 'andamento';
+
+  var modal = document.createElement('div');
+  modal.className = 'modal-usar-peticao';
+  modal.id = 'modal-usar-peticao';
+  modal.onclick = function(e) { if (e.target === modal) fecharModalUsarPeticao(); };
+
+  var tipoAnalise = (typeof anModoAtual !== 'undefined' && AN_MODOS[anModoAtual])
+    ? AN_MODOS[anModoAtual].titulo : 'Análise';
+
+  modal.innerHTML = [
+    '<div class="modal-usar-content">',
+      '<h3>→ Usar resultado na petição</h3>',
+      '<p>Escolha como aproveitar o resultado da análise "<strong>' + tipoAnalise + '</strong>" na aba Gerar petição:</p>',
+      '<div class="modal-usar-opcoes">',
+
+        '<div class="modal-usar-opcao sel" id="mup-opt-and" onclick="selecionarOpcaoModal(&apos;andamento&apos;)">',
+          '<strong>📋 Como andamento / contexto do processo</strong>',
+          '<span>O resultado será colado no campo "Andamento / decisão". Ideal para resumos executivos, linha do tempo e dados estruturados.</span>',
+        '</div>',
+
+        '<div class="modal-usar-opcao" id="mup-opt-inst" onclick="selecionarOpcaoModal(&apos;instrucao&apos;)">',
+          '<strong>🎯 Como instrução adicional / orientação estratégica</strong>',
+          '<span>O resultado será colado no campo "Instruções adicionais / teses". Ideal para pontos críticos, análise de risco e mapa de teses.</span>',
+        '</div>',
+
+        '<div class="modal-usar-opcao" id="mup-opt-amb" onclick="selecionarOpcaoModal(&apos;ambos&apos;)">',
+          '<strong>📋 + 🎯 Ambos</strong>',
+          '<span>O resultado completo vai para o andamento; um resumo estratégico vai para as instruções.</span>',
+        '</div>',
+
+      '</div>',
+      '<div class="modal-usar-rodape">',
+        '<button class="btn btn-s" onclick="fecharModalUsarPeticao()">Cancelar</button>',
+        '<button class="btn btn-p" onclick="confirmarUsarPeticao()">Confirmar e ir para Gerar petição →</button>',
+      '</div>',
+    '</div>'
+  ].join('');
+
+  document.body.appendChild(modal);
+}
+
+function selecionarOpcaoModal(opcao) {
+  _modalUsarOpcaoSel = opcao;
+  ['andamento','instrucao','ambos'].forEach(function(o) {
+    var el = document.getElementById('mup-opt-' + (o === 'instrucao' ? 'inst' : o === 'andamento' ? 'and' : 'amb'));
+    if (el) el.classList.toggle('sel', o === opcao);
+  });
+}
+
+function fecharModalUsarPeticao() {
+  var m = document.getElementById('modal-usar-peticao');
+  if (m) m.remove();
+}
+
+function confirmarUsarPeticao() {
+  if (!anUltimoResultado) { fecharModalUsarPeticao(); return; }
+
+  var tipoAnalise = (typeof anModoAtual !== 'undefined' && AN_MODOS[anModoAtual])
+    ? AN_MODOS[anModoAtual].titulo : 'Análise de processo';
+  var cabecalho = '=== RESULTADO DA ANÁLISE: ' + tipoAnalise.toUpperCase() + ' ===\n';
+  var texto = cabecalho + anUltimoResultado;
+
+  var fAnd = document.getElementById('f-and');
+  var fInst = document.getElementById('f-inst');
+
+  if (_modalUsarOpcaoSel === 'andamento' || _modalUsarOpcaoSel === 'ambos') {
+    if (fAnd) {
+      var atual = (fAnd.value || '').trim();
+      fAnd.value = atual ? atual + '\n\n' + texto : texto;
+    }
+  }
+
+  if (_modalUsarOpcaoSel === 'instrucao' || _modalUsarOpcaoSel === 'ambos') {
+    if (fInst) {
+      // Para instrução, usar versão mais concisa (primeiras 1200 chars + aviso)
+      var resumoEstrategico = anUltimoResultado.length > 1200
+        ? '=== BASE ESTRATÉGICA (' + tipoAnalise + ') ===\n' + anUltimoResultado.slice(0, 1200) + '\n[... ver análise completa na aba Análise de processo]'
+        : texto;
+      var atualInst = (fInst.value || '').trim();
+      fInst.value = atualInst ? atualInst + '\n\n' + resumoEstrategico : resumoEstrategico;
+    }
+  }
+
+  fecharModalUsarPeticao();
+
+  // Redirecionar para aba Gerar petição
+  if (typeof go === 'function') go('ger');
+
+  // Feedback visual: destacar brevemente o campo preenchido
+  setTimeout(function() {
+    var alvo = (_modalUsarOpcaoSel === 'instrucao') ? fInst : fAnd;
+    if (alvo) {
+      alvo.style.outline = '2px solid var(--blue)';
+      alvo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(function() { alvo.style.outline = ''; }, 2000);
+    }
+  }, 300);
+}
 
 // Inicializar lista vazia ao carregar
 document.addEventListener('DOMContentLoaded', function() {
