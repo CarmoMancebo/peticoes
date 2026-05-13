@@ -768,7 +768,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="login-hint">
       <a href="#" onclick="resetarSenha();return false;" style="color:#185FA5;text-decoration:none">Esqueci minha senha</a>
     </div>
-    <div class="login-ver">versão 1.78</div>
+    <div class="login-ver">versão 1.78.1</div>
   </div>
 </div>
 
@@ -791,7 +791,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Sonnet</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.78.1</span>
+    <span class="tb-meta" id="tb-versao">versão 1.78.1.1</span>
   </div>
 </div>
 
@@ -1449,6 +1449,7 @@ tbody tr.st-p td{background:#b3e5fc}
           Os custos exibidos são calculados com base em médias de mercado e não correspondem às quantias efetivamente cobradas pela Anthropic ou OpenAI. Os totais de tokens e peças geradas são aproximados. Para conferir o consumo real, acesse o painel oficial: <a href="https://console.anthropic.com" target="_blank" style="color:#92400E">console.anthropic.com</a> ou <a href="https://platform.openai.com/usage" target="_blank" style="color:#92400E">platform.openai.com/usage</a>.
         </div>
       </div>
+      <div id="storage-status-badge" style="margin-bottom:12px"></div>
       <div class="panel-title">📊 Dashboard de Uso</div>
       <div id="dash-content" style="padding:8px 0"></div>
       <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
@@ -1583,12 +1584,34 @@ tbody tr.st-p td{background:#b3e5fc}
         </div>
         <div class="out" id="res-txt"></div>
         <div id="seg-opiniao-result"></div>
-        <div id="contradicao-result"></div>
+        <!-- D4: painel de verificação de contradição -->
+      <div id="contradicao-painel" style="display:none;margin-top:12px;border:1px solid var(--border);border-radius:8px;padding:14px 16px;background:var(--bg2)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <strong style="font-size:13px">⚖ Verificar contradição com peças anteriores</strong>
+          <button onclick="document.getElementById('contradicao-painel').style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px" title="Fechar">×</button>
+        </div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Carregue as peças já protocoladas no processo (contestação, manifestações, recursos anteriores). A IA verificará se a peça recém-gerada contradiz posições já assumidas.</p>
+        <div style="margin-bottom:10px">
+          <input type="file" id="d4-files" multiple accept=".pdf,.txt,.docx" style="font-size:12px" onchange="d4CarregarArquivos(this.files)">
+          <details style="margin-top:8px">
+            <summary style="cursor:pointer;font-size:12px;color:var(--text2)">📋 Ou cole o texto de peças anteriores</summary>
+            <textarea id="d4-texto-colado" placeholder="Cole aqui o texto da peça anterior..." style="margin-top:6px;min-height:90px;width:100%;font-size:12px"></textarea>
+            <button class="btn btn-s btn-sm" onclick="d4AddTexto()" style="margin-top:4px">+ Adicionar</button>
+          </details>
+        </div>
+        <div id="d4-lista" style="margin-bottom:10px;display:flex;flex-direction:column;gap:4px"></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-p" onclick="d4Executar()" id="d4-btn-executar" style="font-size:12px">⚖ Verificar agora</button>
+          <button class="btn btn-s" onclick="d4Limpar()" style="font-size:12px">Limpar</button>
+          <span id="d4-status" style="font-size:11px;color:var(--text2);font-style:italic"></span>
+        </div>
+        <div id="contradicao-result" style="margin-top:12px"></div>
+      </div>
         <textarea id="res-edit" style="display:none;width:100%;min-height:400px;padding:14px;font-family:Georgia,serif;font-size:14px;line-height:1.7;border:1px solid var(--border2);border-radius:var(--rsm);background:#fffef8;"></textarea>
         <div class="btn-row">
           <button class="btn btn-p" onclick="baixarDocx()">📥 Baixar .docx</button>
           <button class="btn btn-s btn-sm" id="btn-segunda-opiniao" onclick="executarSegundaOpiniao()" style="display:none" title="A IA revisa criticamente a peça gerada e aponta fragilidades">🔍 Segunda opinião</button>
-          <button class="btn btn-s btn-sm" id="btn-verificar-contradicao" onclick="executarVerificacaoContradicao()" style="display:none" title="Verifica se esta peça contradiz posições assumidas em peças anteriores do mesmo processo">⚖ Verificar contradição</button>
+          <button class="btn btn-s btn-sm" id="btn-verificar-contradicao" onclick="d4AbrirPainel()" style="display:none" title="Verifica se esta peça contradiz posições assumidas em peças anteriores do processo">⚖ Verificar contradição</button>
           <button class="btn btn-s btn-sm" onclick="copiarTextoMinuta()" title="Copiar texto puro para a área de transferência">📋 Copiar texto</button>
           <button class="btn btn-s btn-sm" onclick="verificarQualidade()" title="Verificar uso de termos proibidos, § vs parágrafo, ordem dos tópicos etc.">✔ Verificar</button>
           <button class="btn btn-s btn-sm" onclick="abrirHistoricoMinutas()" title="Ver minutas anteriores">🗂 Histórico</button>
@@ -1662,6 +1685,136 @@ tbody tr.st-p td{background:#b3e5fc}
 <div id="tpov" onclick="fecharTP()"></div>
 
 <script>
+
+// ════════════════════════════════════════════════════════════════════════════
+// GP STORAGE LAYER — abstração de persistência
+// ════════════════════════════════════════════════════════════════════════════
+// Hoje: localStorage (offline, por sessão de navegador)
+// Futuro: Supabase (online, persistente, multi-dispositivo)
+//
+// Para migrar para Supabase:
+//   1. Criar projeto em supabase.com, obter URL e anon key
+//   2. Criar tabela "gp_storage" com colunas: user_id, key, value, updated_at
+//   3. Substituir GPStorage.backend = 'local' por 'supabase'
+//   4. Preencher GPStorage.supabaseUrl e GPStorage.supabaseKey
+//   5. Implementar GPStorage._supaGet / _supaSet / _supaDel abaixo
+//
+// Mapa de chaves utilizadas:
+//   gp_rascunho      — rascunho automático do formulário
+//   gp_minutas       — histórico de minutas geradas
+//   gp_prec          — peças de referência carregadas
+//   gp_teses         — banco de teses salvas
+//   gp_favs          — processos favoritos
+//   gp_hist_*        — histórico por processo (sufixo = nº processo)
+//   gp_feriados_custom — feriados personalizados
+//   gp_cidades_fer   — feriados por cidade
+//   gp_uso           — dados de uso (tokens, custo estimado)
+//   gp_tema          — tema claro/escuro
+//   gp_prazos_off    — colorização de prazos ativa/inativa
+//   gp_notif         — permissão de notificações push
+// ────────────────────────────────────────────────────────────────────────────
+
+var GPStorage = {
+
+  // ── Configuração ──────────────────────────────────────────────────────────
+  backend: 'local', // 'local' | 'supabase'
+  supabaseUrl: '',  // ex: 'https://xyzxyz.supabase.co'
+  supabaseKey: '',  // anon/public key do projeto
+
+  // userId: será preenchido após autenticação (login futuro)
+  userId: null,
+
+  // ── API pública (idêntica independente do backend) ────────────────────────
+
+  get: function(key, defaultVal) {
+    if (this.backend === 'supabase' && this.userId) {
+      // Placeholder: retorna do cache local enquanto Supabase não está conectado
+      console.warn('[GPStorage] Supabase não configurado — usando localStorage como fallback');
+    }
+    try {
+      var raw = localStorage.getItem(key);
+      if (raw === null) return (defaultVal !== undefined ? defaultVal : null);
+      return JSON.parse(raw);
+    } catch(e) { return (defaultVal !== undefined ? defaultVal : null); }
+  },
+
+  set: function(key, value) {
+    if (this.backend === 'supabase' && this.userId) {
+      // Placeholder: sincronizar com Supabase quando disponível
+      // this._supaSet(key, value);
+    }
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      return true;
+    } catch(e) { console.error('[GPStorage] set falhou:', key, e); return false; }
+  },
+
+  remove: function(key) {
+    if (this.backend === 'supabase' && this.userId) {
+      // this._supaDel(key);
+    }
+    try { localStorage.removeItem(key); return true; } catch(e) { return false; }
+  },
+
+  // ── Métodos de conveniência ───────────────────────────────────────────────
+
+  getStr: function(key, def) {
+    try { return localStorage.getItem(key) || (def !== undefined ? def : ''); } catch(e) { return def || ''; }
+  },
+
+  setStr: function(key, value) {
+    try { localStorage.setItem(key, value); return true; } catch(e) { return false; }
+  },
+
+  // Verificar se o usuário está autenticado (sempre false por enquanto)
+  isAuthenticated: function() { return !!(this.backend === 'supabase' && this.userId); },
+
+  // Status para exibição na UI
+  getStatus: function() {
+    if (this.backend === 'supabase' && this.userId) {
+      return { tipo: 'online', label: '☁ Online — dados sincronizados', cor: '#059669' };
+    }
+    return { tipo: 'local', label: '💾 Local — dados salvos neste navegador', cor: '#D97706' };
+  },
+
+  // ── Placeholders para Supabase (implementar quando migrar) ───────────────
+
+  _supaGet: async function(key) {
+    // var resp = await fetch(this.supabaseUrl + '/rest/v1/gp_storage?key=eq.' + key + '&user_id=eq.' + this.userId, {
+    //   headers: { 'apikey': this.supabaseKey, 'Authorization': 'Bearer ' + this.supabaseKey }
+    // });
+    // var data = await resp.json();
+    // return data.length ? JSON.parse(data[0].value) : null;
+  },
+
+  _supaSet: async function(key, value) {
+    // await fetch(this.supabaseUrl + '/rest/v1/gp_storage', {
+    //   method: 'POST',
+    //   headers: { 'apikey': this.supabaseKey, 'Authorization': 'Bearer ' + this.supabaseKey,
+    //              'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
+    //   body: JSON.stringify({ user_id: this.userId, key: key, value: JSON.stringify(value), updated_at: new Date().toISOString() })
+    // });
+  },
+
+  _supaDel: async function(key) {
+    // await fetch(this.supabaseUrl + '/rest/v1/gp_storage?key=eq.' + key + '&user_id=eq.' + this.userId, {
+    //   method: 'DELETE',
+    //   headers: { 'apikey': this.supabaseKey, 'Authorization': 'Bearer ' + this.supabaseKey }
+    // });
+  }
+};
+
+// ── Indicador de status de persistência na UI ─────────────────────────────
+// Exibido no Painel (dashboard) para informar o usuário sobre onde os dados estão salvos
+function renderizarStatusPersistencia() {
+  var el = document.getElementById('storage-status-badge');
+  if (!el) return;
+  var st = GPStorage.getStatus();
+  el.innerHTML = '<span style="font-size:11px;padding:3px 10px;border-radius:10px;background:' +
+    (st.tipo === 'online' ? 'rgba(5,150,105,.1)' : 'rgba(217,119,6,.1)') +
+    ';color:' + st.cor + ';border:1px solid ' + st.cor + '20">' + st.label + '</span>';
+}
+
 var procs = [], refs = [], minuta = '', nomeArq = '', tpIdx = -1, filtro = 'todos';
 var sortCol = null, sortAsc = true;
 var sortCol2 = null, sortAsc2 = true; // ordenação secundária (Shift+clique)
@@ -6364,84 +6517,161 @@ function renderizarSegundaOpiniao(texto) {
 // D4 — DETECÇÃO DE CONTRADIÇÃO COM PEÇA ANTERIOR
 // ════════════════════════════════════════════════════════════════════════════
 
-async function executarVerificacaoContradicao() {
+// ── D4: ESTADO ──────────────────────────────────────────────────────────────
+var d4Docs = []; // {nome, conteudo}
+
+function d4AbrirPainel() {
+  var painel = document.getElementById('contradicao-painel');
+  if (!painel) return;
+  painel.style.display = painel.style.display === 'none' ? 'block' : 'none';
+  if (painel.style.display === 'block') {
+    painel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function d4CarregarArquivos(files) {
+  if (!files || !files.length) return;
+  Array.from(files).forEach(function(f) {
+    var rd = new FileReader();
+    rd.onload = function(e) {
+      d4Docs.push({ nome: f.name, conteudo: e.target.result });
+      d4RenderLista();
+    };
+    rd.readAsText(f);
+  });
+  document.getElementById('d4-files').value = '';
+}
+
+function d4AddTexto() {
+  var ta = document.getElementById('d4-texto-colado');
+  var txt = (ta.value || '').trim();
+  if (!txt) { alert('Cole o texto antes de adicionar.'); return; }
+  d4Docs.push({ nome: 'Texto colado (' + new Date().toLocaleTimeString('pt-BR') + ')', conteudo: txt });
+  ta.value = '';
+  d4RenderLista();
+}
+
+function d4RenderLista() {
+  var box = document.getElementById('d4-lista');
+  if (!box) return;
+  if (!d4Docs.length) { box.innerHTML = ''; return; }
+  box.innerHTML = d4Docs.map(function(d, i) {
+    return '<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--bg);border:1px solid var(--border);border-radius:5px;font-size:11px">' +
+      '<span>📄</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.nome.replace(/</g,'&lt;') + '</span>' +
+      '<span style="color:var(--text3)">' + Math.round(d.conteudo.length/1000) + ' KB</span>' +
+      '<button onclick="d4RemoverDoc(' + i + ')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px" title="Remover">×</button>' +
+      '</div>';
+  }).join('');
+}
+
+function d4RemoverDoc(i) {
+  d4Docs.splice(i, 1);
+  d4RenderLista();
+}
+
+function d4Limpar() {
+  d4Docs = [];
+  d4RenderLista();
+  var r = document.getElementById('contradicao-result');
+  if (r) r.innerHTML = '';
+  var s = document.getElementById('d4-status');
+  if (s) s.textContent = '';
+}
+
+async function d4Executar() {
+  // Texto da peça gerada
   var textoMinuta = (typeof minuta !== 'undefined' ? minuta : '') ||
-                   (document.getElementById('res-txt') || {}).innerText || '';
+                    (document.getElementById('res-txt') || {}).innerText || '';
   if (!textoMinuta || textoMinuta.length < 200) {
     alert('Gere uma peça antes de verificar contradições.');
     return;
   }
 
-  // Buscar peças anteriores do mesmo processo no histórico
-  var proc = (document.getElementById('f-proc') || {}).value || '';
-  var pasta = (document.getElementById('f-pasta') || {}).value || '';
-  var pecasAnteriores = [];
+  // Também incluir contexto já carregado nos campos de andamento (Caminho 1 como complemento)
+  var andamento = (document.getElementById('f-and') || {}).value || '';
+  var ctxDocs = (typeof montarContextoAdicional === 'function') ? montarContextoAdicional() : '';
 
-  if (typeof historico !== 'undefined' && historico.length) {
-    pecasAnteriores = historico.filter(function(h) {
-      return h.proc && proc && h.proc === proc && h.texto && h.texto !== textoMinuta;
-    }).slice(0, 3); // máximo 3 peças anteriores para não estourar tokens
-  }
+  // Exigir pelo menos uma fonte de peças anteriores
+  var temUpload = d4Docs.length > 0;
+  var temContexto = andamento.length > 200 || ctxDocs.length > 200;
 
-  if (!pecasAnteriores.length) {
-    var resultado = document.getElementById('contradicao-result');
-    if (resultado) {
-      resultado.innerHTML = '<div class="contradicao-detalhe" style="border-color:#E5E7EB;background:var(--bg2)">' +
-        '<h4 style="color:var(--text2)">⚖ Verificação de contradição</h4>' +
-        '<p style="font-size:12px;color:var(--text2)">Não foram encontradas peças anteriores no histórico para o processo ' +
-        (proc || pasta ? (proc || pasta) : 'atual') + '. ' +
-        'A verificação de contradição compara a peça atual com peças anteriores do mesmo processo salvas no histórico.</p>' +
-        '</div>';
-      resultado.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+  if (!temUpload && !temContexto) {
+    alert('Carregue ao menos uma peça anterior (PDF ou texto) ou certifique-se de ter preenchido o campo de andamento com o histórico do processo.');
     return;
   }
 
   var key = getKey();
   if (!key) { alert('Chave de API não configurada.'); return; }
 
-  var btn = document.getElementById('btn-verificar-contradicao');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Verificando...'; }
-
+  var btn = document.getElementById('d4-btn-executar');
+  var status = document.getElementById('d4-status');
   var resultado = document.getElementById('contradicao-result');
-  if (resultado) resultado.innerHTML = '<div class="contradicao-detalhe"><h4>⚖ Verificando contradições...</h4></div>';
+
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Verificando...'; }
+  if (status) status.textContent = 'Enviando para análise...';
+  if (resultado) resultado.innerHTML = '';
 
   var modelo = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'claude-sonnet';
 
-  var contextoAnteriores = pecasAnteriores.map(function(p, i) {
-    return '=== PEÇA ANTERIOR ' + (i+1) + ' (' + (p.tipo||'peça') + ' — ' + (p.data||'data não consta') + ') ===\n' + p.texto.slice(0, 3000);
-  }).join('\n\n');
+  // Montar contexto das peças anteriores
+  var blocosPecas = [];
 
-  var sysContr = 'Você é um advogado especialista em consistência processual. Sua tarefa é comparar uma peça nova com peças anteriores do mesmo processo e identificar CONTRADIÇÕES PROCESSUAIS — ou seja, situações em que a peça nova assume posição incompatível com a já assumida anteriormente pela mesma parte.\n\nNÃO é contradição: complementar um argumento, adicionar novo fundamento, adaptar a tese à fase processual.\n\nÉ contradição: negar fato anteriormente admitido, assumir posição jurídica oposta sobre o mesmo tema, qualificar um documento ou fato de modo incompatível com qualificação anterior.\n\nPRODUZA:\n1. CONTRADIÇÕES IDENTIFICADAS (se houver) — para cada uma: descrição objetiva, trecho da peça nova, trecho da peça anterior que conflita, gravidade (ALTA/MÉDIA/BAIXA) e sugestão de alinhamento.\n2. CONSISTÊNCIAS VERIFICADAS — lista das principais teses que estão alinhadas entre as peças.\n3. PARECER FINAL — a peça nova é consistente com o histórico do processo? (SIM / ATENÇÃO / NÃO — com justificativa breve).\n\nSeja objetivo. Se não houver contradições, diga claramente. NÃO INVENTE contradições onde não há.';
+  if (d4Docs.length) {
+    d4Docs.forEach(function(d, i) {
+      blocosPecas.push('=== PEÇA ANTERIOR ' + (i+1) + ': ' + d.nome + ' ===\n' + d.conteudo.slice(0, 4000));
+    });
+  }
 
-  var usrContr = '=== PEÇA NOVA (a ser verificada) ===\n' + textoMinuta.slice(0, 6000) +
-    '\n\n=== PEÇAS ANTERIORES DO MESMO PROCESSO ===\n' + contextoAnteriores;
+  if (andamento.length > 200) {
+    blocosPecas.push('=== ANDAMENTO / HISTÓRICO DO PROCESSO (campo carregado na sessão) ===\n' + andamento.slice(0, 3000));
+  }
+
+  if (ctxDocs.length > 200) {
+    blocosPecas.push('=== DOCUMENTOS DE REFERÊNCIA CARREGADOS NA SESSÃO ===\n' + ctxDocs.slice(0, 3000));
+  }
+
+  var sysContr = 'Você é um advogado especialista em consistência processual. Compare a peça nova com as peças anteriores e o histórico do processo fornecidos, identificando CONTRADIÇÕES PROCESSUAIS — posições assumidas pela mesma parte que sejam logicamente incompatíveis entre si.\n\nNÃO é contradição: complementar argumento, adicionar fundamento novo, adaptar tese à fase processual.\nÉ contradição: negar fato anteriormente admitido, assumir posição jurídica oposta sobre o MESMO tema, qualificar documento ou fato de modo incompatível.\n\nESTRUTURA DA RESPOSTA:\n\n1 — CONTRADIÇÕES IDENTIFICADAS\nPara cada contradição encontrada:\n  Gravidade: ALTA / MÉDIA / BAIXA\n  Descrição: [o que conflita]\n  Na peça nova: "[trecho da peça nova, máx 25 palavras]"\n  Na(s) peça(s) anterior(es): "[trecho conflitante, máx 25 palavras]" (fonte: [nome do documento])\n  Sugestão de alinhamento: [como resolver]\n\n2 — CONSISTÊNCIAS VERIFICADAS\nLista das teses e posições que estão alinhadas entre a peça nova e as anteriores.\n\n3 — PARECER FINAL\nA peça nova é consistente com os autos disponíveis? SIM / ATENÇÃO / NÃO — justificativa em 2-3 linhas.\n\nSe não houver contradições, diga claramente na seção 1: "Nenhuma contradição identificada."\nNÃO INVENTE contradições. JAMAIS invente jurisprudência. Use apenas precedentes da lista branca (ADI 7265, Temas STJ 990/952/106/1036/988/1076/610) ou [CITAÇÃO_PENDENTE].\nSempre que referenciar trecho de documento, indique o nome do arquivo ou campo de origem.';
+
+  var usrContr = '=== PEÇA NOVA (gerada agora, a ser verificada) ===\n' + textoMinuta.slice(0, 5000) +
+    '\n\n' + blocosPecas.join('\n\n');
 
   try {
     var textoContr = '';
-    await chamarIAGenerica(modelo, sysContr, usrContr, key, function(chunk) { textoContr += chunk; });
+    await chamarIAGenerica(modelo, sysContr, usrContr, key, function(chunk) {
+      textoContr += chunk;
+      if (resultado) {
+        resultado.innerHTML = '<div class="contradicao-detalhe" style="border-color:var(--border);background:var(--bg2)">' +
+          '<div style="font-size:12px;white-space:pre-wrap;color:var(--text)">' +
+          textoContr.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div></div>';
+      }
+    });
 
-    var temContradicao = /CONTRADIÇÕES IDENTIFICADAS[\s\S]{0,200}(?:ALTA|MÉDIA|BAIXA)/i.test(textoContr) &&
-                         !/sem contradições|não foram identificadas|não há contradições/i.test(textoContr.slice(0,500));
+    // Colorir resultado final
+    var temContradicao = /ALTA|MÉDIA|MÉDIA/i.test(textoContr) &&
+      !/nenhuma contradição identificada/i.test(textoContr.slice(0, 600));
+    var corBorda = temContradicao ? '#FECACA' : '#BBF7D0';
+    var corBg    = temContradicao ? '#FEF2F2' : '#F0FDF4';
+    var corTit   = temContradicao ? '#7F1D1D' : '#14532D';
+    var icone    = temContradicao ? '⚠' : '✓';
 
     if (resultado) {
-      var corBorda = temContradicao ? '#FECACA' : '#BBF7D0';
-      var corBg = temContradicao ? '#FEF2F2' : '#F0FDF4';
-      var corTit = temContradicao ? '#7F1D1D' : '#14532D';
-      var icone = temContradicao ? '⚠' : '✓';
       resultado.innerHTML = '<div class="contradicao-detalhe" style="border-color:' + corBorda + ';background:' + corBg + '">' +
-        '<h4 style="color:' + corTit + '">' + icone + ' Verificação de contradição processual</h4>' +
-        '<div style="font-size:12px;color:var(--text);white-space:pre-wrap">' +
-        textoContr.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') +
-        '</div></div>';
-      resultado.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        '<h4 style="color:' + corTit + ';margin:0 0 8px">' + icone + ' Verificação de contradição processual</h4>' +
+        '<div style="font-size:12px;white-space:pre-wrap;color:var(--text)">' +
+        textoContr.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div></div>';
+      resultado.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
-  } catch (e) {
+    if (status) status.textContent = '✓ Verificação concluída';
+  } catch(e) {
     if (resultado) resultado.innerHTML = '<div class="contradicao-detalhe" style="color:var(--red)">✗ Erro: ' + e.message + '</div>';
+    if (status) status.textContent = '';
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '⚖ Verificar contradição'; }
+    if (btn) { btn.disabled = false; btn.textContent = '⚖ Verificar agora'; }
   }
 }
+
+// Stub mantido para compatibilidade (não mais usado diretamente)
+async function executarVerificacaoContradicao() { d4AbrirPainel(); }
 
 // Inicializar lista vazia ao carregar
 document.addEventListener('DOMContentLoaded', function() {
@@ -7923,6 +8153,7 @@ function _modalKeyHandler(e) {
   carregarPrazosColoracao();
   if (typeof toggleProcModo === 'function') toggleProcModo();
   if (typeof atualizarIndicadorModelo === 'function') atualizarIndicadorModelo();
+  if (typeof renderizarStatusPersistencia === 'function') renderizarStatusPersistencia();
   // Verificar prazos e notificar se permissão já foi concedida
   if (localStorage.getItem("gp_notif") === "1") {
     setTimeout(verificarPrazosENotificar, 2000);
