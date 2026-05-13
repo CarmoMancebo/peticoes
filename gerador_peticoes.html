@@ -606,6 +606,71 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
 .tb-title{font-size:15px;font-weight:600;color:var(--blue)}
 .tb-meta{font-size:12px;color:var(--text3)}
+.tb-modelo-ok{border-color:rgba(5,150,105,.4)!important;color:var(--green)!important}
+.tb-modelo-ok:hover{border-color:var(--green)!important}
+.tb-modelo-warn{border-color:rgba(245,158,11,.5)!important;color:#92400E!important}
+
+/* === D2 — SEGUNDA OPINIÃO === */
+.seg-opiniao-painel {
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-top: 14px;
+  background: var(--bg2);
+}
+.seg-opiniao-painel .so-titulo {
+  font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px;
+}
+.so-item {
+  display: flex; gap: 10px; padding: 8px 0;
+  border-bottom: 1px solid var(--border); font-size: 12px;
+}
+.so-item:last-child { border-bottom: 0; }
+.so-item .so-sev {
+  width: 68px; flex-shrink: 0; font-weight: 700; font-size: 11px; padding-top: 1px;
+}
+.so-sev.alta { color: #DC2626; }
+.so-sev.media { color: #D97706; }
+.so-sev.baixa { color: #059669; }
+.so-item .so-txt { flex: 1; color: var(--text); line-height: 1.4; }
+
+/* === D4 — CONTRADIÇÃO COM PEÇA ANTERIOR === */
+.contradicao-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #FEE2E2; border: 1px solid #FECACA;
+  color: #991B1B; border-radius: 6px;
+  font-size: 11px; font-weight: 600; padding: 3px 8px; cursor: pointer;
+}
+.contradicao-detalhe {
+  background: #FEF2F2; border: 1px solid #FECACA;
+  border-radius: 8px; padding: 12px 14px; margin-top: 10px; font-size: 12px;
+}
+.contradicao-detalhe h4 { margin: 0 0 8px; color: #7F1D1D; font-size: 12px; }
+.contradicao-item {
+  padding: 7px 0; border-bottom: 1px solid #FEE2E2; line-height: 1.45;
+}
+.contradicao-item:last-child { border-bottom: 0; }
+
+/* === G1 — MAPA DE TESES POR TIPO === */
+.g1-sugestao-wrap {
+  margin-top: 8px; padding: 8px 10px;
+  background: rgba(24,95,165,.05);
+  border: 1px solid rgba(24,95,165,.15);
+  border-radius: 6px; font-size: 11px;
+}
+.g1-sugestao-wrap strong { color: var(--blue); }
+.g1-tese-sugerida {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; padding: 2px 8px; border-radius: 10px;
+  background: rgba(24,95,165,.10); border: 1px solid rgba(24,95,165,.2);
+  color: var(--blue); cursor: pointer; margin: 2px 2px 0 0;
+  transition: background .15s;
+}
+.g1-tese-sugerida:hover { background: rgba(24,95,165,.2); }
+.g1-tese-sugerida.ja-ativa {
+  background: rgba(5,150,105,.10); border-color: rgba(5,150,105,.25);
+  color: #065f46; cursor: default;
+}
 .layout{display:flex;min-height:calc(100vh - 64px)}
 .sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:1.5rem 0;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto}
 .nav-item{display:flex;align-items:center;gap:10px;padding:9px 1.5rem;cursor:pointer;font-size:13px;color:var(--text2);border-left:2px solid transparent;transition:all .12s}
@@ -703,7 +768,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="login-hint">
       <a href="#" onclick="resetarSenha();return false;" style="color:#185FA5;text-decoration:none">Esqueci minha senha</a>
     </div>
-    <div class="login-ver">versão 1.77</div>
+    <div class="login-ver">versão 1.78</div>
   </div>
 </div>
 
@@ -722,8 +787,11 @@ tbody tr.st-p td{background:#b3e5fc}
       <div id="res-busca-global-toolbar" style="display:none;position:absolute;top:32px;right:0;width:320px;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
     </div>
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
+    <button id="tb-modelo-btn" onclick="go('cfg')" title="Modelo de IA ativo — clique para configurar" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
+      <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Sonnet</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
+    </button>
     <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.77</span>
+    <span class="tb-meta" id="tb-versao">versão 1.78.1</span>
   </div>
 </div>
 
@@ -748,18 +816,33 @@ tbody tr.st-p td{background:#b3e5fc}
 
 
       <div class="card">
-        <div class="card-title">Modelo de IA</div>
-        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Escolha o modelo que será usado em <strong>todas</strong> as funcionalidades do sistema (Gerar petição, Análise de processo, Resumo de caso).</p>
-        <div class="field">
-          <select id="sel-modelo-global" onchange="sincronizarModeloGlobal(this.value)">
-            <option value="claude-sonnet">Claude Sonnet 4.5 — recomendado (Anthropic)</option>
-            <option value="claude-opus">Claude Opus 4.5 — máxima precisão, mais caro (Anthropic)</option>
-            <option value="gpt4o">GPT-4o — alternativa OpenAI</option>
+        <div class="card-title">IA e chave de API</div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Configure o modelo e a chave de API uma única vez. A escolha vale para <strong>todas</strong> as funcionalidades: Gerar petição, Análise de processo e Resumo de caso.</p>
+        <div class="field" style="margin-bottom:10px">
+          <label>Modelo de IA</label>
+          <select id="sel-modelo-global" onchange="sincronizarModeloGlobal(this.value)" style="width:100%">
+            <option value="claude-sonnet">Claude Sonnet 4.5 — recomendado · Anthropic</option>
+            <option value="claude-opus">Claude Opus 4.5 — máxima precisão, mais caro · Anthropic</option>
+            <option value="gpt4o">GPT-4o — alternativa · OpenAI</option>
           </select>
         </div>
-        <div id="aviso-chave-modelo" style="display:none;margin-top:8px;padding:8px 10px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:6px;font-size:11px;color:#92400E">
-          ⚠ <strong>Atenção:</strong> o modelo selecionado requer uma chave de API que não está configurada. Adicione a chave correspondente nos campos acima ou escolha outro modelo.
+        <div id="div-anthropic-cfg" class="field" style="margin-bottom:6px">
+          <label>Chave de API — Anthropic</label>
+          <div style="display:flex;gap:8px">
+            <input type="password" id="key-anthropic" placeholder="sk-ant-api03-..." style="flex:1" oninput="atualizarIndicadorModelo()" />
+            <button class="btn btn-s btn-sm" onclick="saveKey('anthropic')">Salvar</button>
+          </div>
+          <div id="st-anthropic" class="tip"></div>
         </div>
+        <div id="div-openai-cfg" class="field" style="display:none;margin-bottom:6px">
+          <label>Chave de API — OpenAI</label>
+          <div style="display:flex;gap:8px">
+            <input type="password" id="key-openai" placeholder="sk-..." style="flex:1" oninput="atualizarIndicadorModelo()" />
+            <button class="btn btn-s btn-sm" onclick="saveKey('openai')">Salvar</button>
+          </div>
+          <div id="st-openai" class="tip"></div>
+        </div>
+        <div id="cfg-modelo-status" style="margin-top:8px;padding:7px 10px;border-radius:6px;font-size:11px;display:none"></div>
       </div>
 
       <div class="card">
@@ -1023,35 +1106,12 @@ tbody tr.st-p td{background:#b3e5fc}
       <div class="panel-title">Gerar petição</div>
       <div class="panel-sub">Preencha os dados, informe o andamento e gere a minuta.</div>
 
-      <div class="card">
-        <div class="card-title">Modelo de IA e API</div>
-        <div class="row2">
-          <div class="field">
-            <label>Modelo</label>
-            <select id="sel-modelo" onchange="sincronizarModeloGlobal(this.value)" onchange="toggleApi()">
-              <option value="gpt4o" selected>GPT-4o (OpenAI) — peças simples e manifestações</option>
-              <option value="claude-sonnet">Claude Sonnet (Anthropic) — peças complexas</option>
-              <option value="claude-opus">Claude Opus (Anthropic) — máxima qualidade</option>
-            </select>
-          </div>
-          <div id="div-openai" class="field">
-            <label>Chave de API — OpenAI</label>
-            <div style="display:flex;gap:8px">
-              <input type="password" id="key-openai" placeholder="sk-..." style="flex:1" />
-              <button class="btn btn-s btn-sm" onclick="saveKey('openai')">Salvar</button>
-            </div>
-            <div id="st-openai" class="tip"></div>
-          </div>
-          <div id="div-anthropic" class="field fhide">
-            <label>Chave de API — Anthropic</label>
-            <div style="display:flex;gap:8px">
-              <input type="password" id="key-anthropic" placeholder="sk-ant-..." style="flex:1" />
-              <button class="btn btn-s btn-sm" onclick="saveKey('anthropic')">Salvar</button>
-            </div>
-            <div id="st-anthropic" class="tip"></div>
-          </div>
-        </div>
-      </div>
+      <!-- sel-modelo (oculto) sincronizado com sel-modelo-global na Configuração -->
+      <select id="sel-modelo" style="display:none" onchange="sincronizarModeloGlobal(this.value)">
+        <option value="gpt4o">GPT-4o</option>
+        <option value="claude-sonnet">Claude Sonnet 4.5</option>
+        <option value="claude-opus">Claude Opus 4.5</option>
+      </select>
 
       <div class="card">
         <div class="card-title">Dados do processo</div>
@@ -1206,7 +1266,8 @@ tbody tr.st-p td{background:#b3e5fc}
         </div>
         <div class="field">
           <label>Tipo de peça</label>
-          <select id="f-tipo" onchange="onTipoChange()">
+          <select id="f-tipo" onchange="onTipoChange();g1SugerirTeses(this.value)">
+
             <option value="auto" selected>Identificar automaticamente pelo andamento</option>
             <optgroup label="── Revisão ──">
               <option value="roteiro de audiência">🎤 Roteiro de audiência</option>
@@ -1248,6 +1309,7 @@ tbody tr.st-p td{background:#b3e5fc}
             </optgroup>
           </select>
           <div id="tipo-hint" style="font-size:11px;color:var(--blue);margin-top:3px;min-height:14px"></div>
+          <div id="g1-sugestoes" class="g1-sugestao-wrap" style="display:none"></div>
             <input type="text" id="f-tipo-manual" placeholder="Descreva o tipo de peça (ex: Nota de expediente, Contrarrazões ao AREsp...)" style="display:none;margin-top:6px;width:100%;box-sizing:border-box" />
         </div>
         <div class="row2">
@@ -1520,9 +1582,13 @@ tbody tr.st-p td{background:#b3e5fc}
           <span style="margin-left:auto" class="tip" id="res-char-count"></span>
         </div>
         <div class="out" id="res-txt"></div>
+        <div id="seg-opiniao-result"></div>
+        <div id="contradicao-result"></div>
         <textarea id="res-edit" style="display:none;width:100%;min-height:400px;padding:14px;font-family:Georgia,serif;font-size:14px;line-height:1.7;border:1px solid var(--border2);border-radius:var(--rsm);background:#fffef8;"></textarea>
         <div class="btn-row">
           <button class="btn btn-p" onclick="baixarDocx()">📥 Baixar .docx</button>
+          <button class="btn btn-s btn-sm" id="btn-segunda-opiniao" onclick="executarSegundaOpiniao()" style="display:none" title="A IA revisa criticamente a peça gerada e aponta fragilidades">🔍 Segunda opinião</button>
+          <button class="btn btn-s btn-sm" id="btn-verificar-contradicao" onclick="executarVerificacaoContradicao()" style="display:none" title="Verifica se esta peça contradiz posições assumidas em peças anteriores do mesmo processo">⚖ Verificar contradição</button>
           <button class="btn btn-s btn-sm" onclick="copiarTextoMinuta()" title="Copiar texto puro para a área de transferência">📋 Copiar texto</button>
           <button class="btn btn-s btn-sm" onclick="verificarQualidade()" title="Verificar uso de termos proibidos, § vs parágrafo, ordem dos tópicos etc.">✔ Verificar</button>
           <button class="btn btn-s btn-sm" onclick="abrirHistoricoMinutas()" title="Ver minutas anteriores">🗂 Histórico</button>
@@ -1901,19 +1967,68 @@ function go(id) {
 }
 
 function sincronizarModeloGlobal(val) {
-  // Propaga a escolha global para o seletor legado (sel-modelo) e vice-versa
-  var legacy = document.getElementById('sel-modelo');
-  if (legacy && legacy.value !== val) legacy.value = val;
-  // Verificar se a chave correspondente está preenchida
-  var aviso = document.getElementById('aviso-chave-modelo');
-  if (aviso) {
-    var key = getKey ? getKey() : '';
-    var precisaAnthropic = (val === 'claude-sonnet' || val === 'claude-opus');
-    var precisaOpenAI = (val === 'gpt4o');
-    var keyAnthropic = (document.getElementById('f-key-anthropic') || {}).value || '';
-    var keyOpenAI = (document.getElementById('f-key') || {}).value || '';
-    var semChave = (precisaAnthropic && !keyAnthropic && !key) || (precisaOpenAI && !keyOpenAI && !key);
-    aviso.style.display = semChave ? 'block' : 'none';
+  if (!val) return;
+  // Sincronizar todos os seletores
+  ['sel-modelo', 'sel-modelo-global'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && el.value !== val) el.value = val;
+  });
+  // Mostrar/ocultar campos de chave no card unificado
+  var divAnt = document.getElementById('div-anthropic-cfg');
+  var divOai = document.getElementById('div-openai-cfg');
+  var isAnt = (val === 'claude-sonnet' || val === 'claude-opus');
+  if (divAnt) divAnt.style.display = isAnt ? '' : 'none';
+  if (divOai) divOai.style.display = isAnt ? 'none' : '';
+  // Atualizar indicador da toolbar
+  atualizarIndicadorModelo();
+}
+
+function atualizarIndicadorModelo() {
+  var val = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'claude-sonnet';
+  var isAnt = (val === 'claude-sonnet' || val === 'claude-opus');
+
+  // Labels e ícones por modelo
+  var labels = { 'claude-sonnet': 'Sonnet', 'claude-opus': 'Opus', 'gpt4o': 'GPT-4o' };
+  var icons  = { 'claude-sonnet': '⚡', 'claude-opus': '🔶', 'gpt4o': '🟢' };
+
+  var iconEl  = document.getElementById('tb-modelo-icon');
+  var labelEl = document.getElementById('tb-modelo-label');
+  var chaveEl = document.getElementById('tb-modelo-chave');
+  var btn     = document.getElementById('tb-modelo-btn');
+  var statusEl = document.getElementById('cfg-modelo-status');
+
+  if (iconEl)  iconEl.textContent  = icons[val]  || '⚡';
+  if (labelEl) labelEl.textContent = labels[val] || val;
+
+  // Verificar se chave está preenchida
+  var keyAnt = (document.getElementById('key-anthropic') || {}).value || sessionStorage.getItem('ant') || '';
+  var keyOai = (document.getElementById('key-openai') || {}).value || sessionStorage.getItem('oai') || '';
+  var temChave = isAnt ? !!keyAnt : !!keyOai;
+
+  if (chaveEl) chaveEl.textContent = temChave ? '✓' : '⚠';
+  if (btn) {
+    btn.classList.toggle('tb-modelo-ok', temChave);
+    btn.classList.toggle('tb-modelo-warn', !temChave);
+    btn.title = temChave
+      ? 'Modelo ativo: ' + (labels[val]||val) + ' · Chave configurada — clique para editar'
+      : 'Modelo ativo: ' + (labels[val]||val) + ' · ⚠ Chave não configurada — clique para configurar';
+  }
+
+  // Status inline no card da Configuração
+  if (statusEl) {
+    if (temChave) {
+      statusEl.style.display = 'block';
+      statusEl.style.background = 'rgba(5,150,105,.08)';
+      statusEl.style.border = '1px solid rgba(5,150,105,.25)';
+      statusEl.style.color = '#065f46';
+      statusEl.innerHTML = '✓ Configurado: <strong>' + (labels[val]||val) + '</strong> · Chave ' + (isAnt ? 'Anthropic' : 'OpenAI') + ' salva.';
+    } else {
+      statusEl.style.display = 'block';
+      statusEl.style.background = '#FEF3C7';
+      statusEl.style.border = '1px solid #F59E0B';
+      statusEl.style.color = '#78350F';
+      statusEl.innerHTML = '⚠ Chave ' + (isAnt ? 'Anthropic' : 'OpenAI') + ' não configurada. Insira a chave acima e clique em Salvar.';
+    }
   }
 }
 
@@ -1979,9 +2094,8 @@ function toggleParteModo() {
 }
 
 function toggleApi() {
-  var isAnt = document.getElementById('sel-modelo').value.startsWith('claude');
-  document.getElementById('div-openai').classList.toggle('fhide', isAnt);
-  document.getElementById('div-anthropic').classList.toggle('fhide', !isAnt);
+  var val = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'claude-sonnet';
+  sincronizarModeloGlobal(val);
   checkBtn();
 }
 
@@ -6100,6 +6214,235 @@ function confirmarUsarPeticao() {
   }, 300);
 }
 
+
+// ════════════════════════════════════════════════════════════════════════════
+// G1 — MAPA DE TESES POR TIPO DE PEÇA
+// ════════════════════════════════════════════════════════════════════════════
+
+var G1_TESES_POR_TIPO = {
+  'contestação': ['rol','adi7265','14454','inversao-onus','dano-moral','natjus','dlp','cdc'],
+  'apelação': ['adi7265','rol','14454','dano-moral','honor-11','astreintes','inversao-onus'],
+  'agravo de instrumento': ['tutela-urgencia','adi7265','rol','inversao-onus','honor-11'],
+  'agravo interno': ['adi7265','rol','tutela-urgencia','honor-11'],
+  'embargos de declaração': ['adi7265','rol'],
+  'recurso especial': ['adi7265','rol','14454','honor-11','tema990'],
+  'impugnação ao cumprimento de sentença': ['astreintes','redistribuicao','honor-11'],
+  'manifestação a despacho': ['adi7265','rol'],
+  'contrarrazões': ['adi7265','rol','14454','dano-moral','honor-11','inversao-onus'],
+  'exceção de pré-executividade': ['prescricao','redistribuicao'],
+  'especificação de provas': ['natjus','inversao-onus'],
+  'contestação — terapias / tea': ['horas-tea','rol','adi7265','natjus','dano-moral','inversao-onus'],
+  'contestação — cobertura fora do rol': ['rol','adi7265','14454','conitec','subst-terap','natjus'],
+  'contestação — home care': ['home-care','rol','adi7265','inversao-onus','dano-moral'],
+  'contestação — medicamento off-label': ['off-label','rol','adi7265','14454','conitec'],
+  'contestação — reajuste': ['reaj-faixa','reaj-sinistr','ato-juridico','cdc'],
+  'contestação — rescisão': ['rescisao-col','inadimplencia','art-30-31','ato-juridico'],
+};
+
+function g1SugerirTeses(tipo) {
+  var wrap = document.getElementById('g1-sugestoes');
+  if (!wrap) return;
+  if (!tipo || tipo === 'auto') { wrap.style.display = 'none'; return; }
+
+  var chaves = G1_TESES_POR_TIPO[tipo] || [];
+  if (!chaves.length) { wrap.style.display = 'none'; return; }
+
+  var nomesLabels = {
+    'rol':'Rol ANS','adi7265':'ADI 7265','14454':'Lei 14.454','inversao-onus':'Inversão ônus',
+    'dano-moral':'Dano moral','natjus':'NATJUS','dlp':'DLP','cdc':'CDC subsid.',
+    'honor-11':'Honor. §11','astreintes':'Astreintes','tutela-urgencia':'Tutela urgência',
+    'tema990':'Tema 990','conitec':'CONITEC','subst-terap':'Subst. terap.',
+    'horas-tea':'Horas TEA','home-care':'Home care','off-label':'Off-label',
+    'reaj-faixa':'Reaj. faixa','reaj-sinistr':'Reaj. sinistr.','ato-juridico':'Ato jur. perfeito',
+    'rescisao-col':'Rescisão col.','inadimplencia':'Inadimpl. 60d','art-30-31':'Art. 30/31',
+    'prescricao':'Prescrição 3a','redistribuicao':'Redistrib. prévia','14454':'Lei 14.454'
+  };
+
+  var html = '<strong>💡 Teses sugeridas para ' + tipo + ':</strong><div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">';
+  chaves.forEach(function(c) {
+    var jaAtiva = typeof TESES_ATIVAS !== 'undefined' && TESES_ATIVAS.indexOf(c) >= 0;
+    var label = nomesLabels[c] || c;
+    if (jaAtiva) {
+      html += '<span class="g1-tese-sugerida ja-ativa" title="Já aplicada">✓ ' + label + '</span>';
+    } else {
+      html += '<span class="g1-tese-sugerida" onclick="g1AplicarTese(\'' + c + '\')" title="Clique para aplicar">+ ' + label + '</span>';
+    }
+  });
+  html += '</div>';
+  html += '<div style="margin-top:6px;font-size:10px;color:var(--text3)">Clique em uma tese para adicioná-la. As teses já ativas aparecem em verde.</div>';
+  wrap.innerHTML = html;
+  wrap.style.display = 'block';
+}
+
+function g1AplicarTese(chave) {
+  if (typeof toggleTese === 'function') toggleTese(chave);
+  // Re-renderizar sugestões para marcar como ativa
+  var tipo = (document.getElementById('f-tipo') || {}).value || '';
+  g1SugerirTeses(tipo);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// D2 — SEGUNDA OPINIÃO
+// ════════════════════════════════════════════════════════════════════════════
+
+async function executarSegundaOpiniao() {
+  var textoMinuta = (typeof minuta !== 'undefined' ? minuta : '') ||
+                   (document.getElementById('res-txt') || {}).innerText || '';
+  if (!textoMinuta || textoMinuta.length < 200) {
+    alert('Gere uma peça antes de solicitar a segunda opinião.');
+    return;
+  }
+  var key = getKey();
+  if (!key) { alert('Chave de API não configurada.'); return; }
+
+  var btn = document.getElementById('btn-segunda-opiniao');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Revisando...'; }
+
+  var resultado = document.getElementById('seg-opiniao-result');
+  if (resultado) {
+    resultado.innerHTML = '<div class="seg-opiniao-painel"><div class="so-titulo">🔍 Segunda opinião — aguarde...</div></div>';
+  }
+
+  var modelo = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'claude-sonnet';
+
+  var sysSegOp = 'Você é um advogado revisor sênior especializado em saúde suplementar, com visão crítica e independente. Você recebeu uma peça processual elaborada por colega e deve revisá-la criticamente, identificando pontos que podem ser explorados pelo lado contrário ou que enfraquecem a defesa da operadora.\n\nPRODUZA UMA ANÁLISE CRÍTICA EM 5 CATEGORIAS:\n\n1. INCONSISTÊNCIAS ARGUMENTATIVAS — trechos em que a argumentação é circular, contraditória ou logicamente frágil.\n2. TESES JURIDICAMENTE FRÁGEIS — fundamentos que têm baixa chance de êxito ou que a jurisprudência atual tende a rejeitar (citar apenas precedentes da lista branca: ADI 7265, Temas STJ 990/952/106/1036).\n3. AUSÊNCIA DE FUNDAMENTOS RELEVANTES — argumentos importantes que deveriam constar mas estão ausentes.\n4. PROBLEMAS DE CITAÇÃO OU REFERÊNCIA — citações sem fonte, sem evento/ID/fls., com [CITAÇÃO_PENDENTE] não resolvidos ou com [REF_DOC] não preenchidos.\n5. OBSERVAÇÕES ESTRUTURAIS — problemas de endereçamento, ordem dos pedidos, ausência de alínea de intimações, ausência de quebra de página em recursos, etc.\n\nPara cada item identificado, indique:\n- Severidade: ALTA / MÉDIA / BAIXA\n- Trecho problemático (cite o início do trecho entre aspas, max 20 palavras)\n- Explicação objetiva do problema\n- Sugestão de correção\n\nSe a peça estiver sem problemas relevantes em alguma categoria, escreva "Sem ressalvas" nessa categoria.\nNÃO INVENTE JURISPRUDÊNCIA. Use apenas a lista branca de precedentes ou [CITAÇÃO_PENDENTE].';
+
+  var usrSegOp = 'PEÇA A REVISAR:\n\n' + textoMinuta.slice(0, 12000) +
+    (textoMinuta.length > 12000 ? '\n\n[texto truncado para análise — ' + Math.round(textoMinuta.length/1000) + ' KB total]' : '');
+
+  try {
+    var textoSO = '';
+    await chamarIAGenerica(modelo, sysSegOp, usrSegOp, key, function(chunk) {
+      textoSO += chunk;
+    });
+
+    if (resultado) {
+      resultado.innerHTML = '<div class="seg-opiniao-painel">' +
+        '<div class="so-titulo">🔍 Segunda opinião — revisão crítica da peça</div>' +
+        renderizarSegundaOpiniao(textoSO) +
+        '</div>';
+      resultado.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  } catch (e) {
+    if (resultado) resultado.innerHTML = '<div class="seg-opiniao-painel" style="color:var(--red)">✗ Erro: ' + e.message + '</div>';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🔍 Segunda opinião'; }
+  }
+}
+
+function renderizarSegundaOpiniao(texto) {
+  if (!texto) return '<p style="color:var(--text2)">Sem resultado.</p>';
+  // Processar o texto em itens, detectando severidade
+  var linhas = texto.split('\n');
+  var html = '';
+  linhas.forEach(function(ln) {
+    ln = ln.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    // Detectar linhas de severidade
+    if (/ALTA|MÉDIA|MEDIA|BAIXA/i.test(ln) && ln.length < 80) {
+      var sev = /ALTA/i.test(ln) ? 'alta' : /MÉDIA|MEDIA/i.test(ln) ? 'media' : 'baixa';
+      html += '<div class="so-item"><span class="so-sev ' + sev + '">' + ln.trim() + '</span><span class="so-txt">';
+    } else if (ln.trim() === '') {
+      html += '</span></div>';
+    } else if (/^\d\.\s+[A-ZÁÉÍÓÚ]/.test(ln.trim())) {
+      // Cabeçalho de categoria
+      html += '<div style="font-weight:700;font-size:12px;color:var(--text);margin:12px 0 4px;padding-top:8px;border-top:1px solid var(--border)">' + ln.trim() + '</div>';
+    } else {
+      html += ln + ' ';
+    }
+  });
+  // Realçar [CITAÇÃO_PENDENTE] e [REF_DOC] também aqui
+  html = html.replace(/\[CITA[ÇC][ÃA]O_PENDENTE[^\]]*\]/gi, function(m) {
+    return '<span class="cit-pendente">' + m + '</span>';
+  });
+  html = html.replace(/\[REF_DOC[^\]]*\]/gi, function(m) {
+    return '<span style="background:#DBEAFE;border-bottom:2px solid #2563EB;padding:1px 4px;border-radius:3px;color:#1E40AF;font-weight:600">' + m + '</span>';
+  });
+  return html;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// D4 — DETECÇÃO DE CONTRADIÇÃO COM PEÇA ANTERIOR
+// ════════════════════════════════════════════════════════════════════════════
+
+async function executarVerificacaoContradicao() {
+  var textoMinuta = (typeof minuta !== 'undefined' ? minuta : '') ||
+                   (document.getElementById('res-txt') || {}).innerText || '';
+  if (!textoMinuta || textoMinuta.length < 200) {
+    alert('Gere uma peça antes de verificar contradições.');
+    return;
+  }
+
+  // Buscar peças anteriores do mesmo processo no histórico
+  var proc = (document.getElementById('f-proc') || {}).value || '';
+  var pasta = (document.getElementById('f-pasta') || {}).value || '';
+  var pecasAnteriores = [];
+
+  if (typeof historico !== 'undefined' && historico.length) {
+    pecasAnteriores = historico.filter(function(h) {
+      return h.proc && proc && h.proc === proc && h.texto && h.texto !== textoMinuta;
+    }).slice(0, 3); // máximo 3 peças anteriores para não estourar tokens
+  }
+
+  if (!pecasAnteriores.length) {
+    var resultado = document.getElementById('contradicao-result');
+    if (resultado) {
+      resultado.innerHTML = '<div class="contradicao-detalhe" style="border-color:#E5E7EB;background:var(--bg2)">' +
+        '<h4 style="color:var(--text2)">⚖ Verificação de contradição</h4>' +
+        '<p style="font-size:12px;color:var(--text2)">Não foram encontradas peças anteriores no histórico para o processo ' +
+        (proc || pasta ? (proc || pasta) : 'atual') + '. ' +
+        'A verificação de contradição compara a peça atual com peças anteriores do mesmo processo salvas no histórico.</p>' +
+        '</div>';
+      resultado.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    return;
+  }
+
+  var key = getKey();
+  if (!key) { alert('Chave de API não configurada.'); return; }
+
+  var btn = document.getElementById('btn-verificar-contradicao');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Verificando...'; }
+
+  var resultado = document.getElementById('contradicao-result');
+  if (resultado) resultado.innerHTML = '<div class="contradicao-detalhe"><h4>⚖ Verificando contradições...</h4></div>';
+
+  var modelo = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'claude-sonnet';
+
+  var contextoAnteriores = pecasAnteriores.map(function(p, i) {
+    return '=== PEÇA ANTERIOR ' + (i+1) + ' (' + (p.tipo||'peça') + ' — ' + (p.data||'data não consta') + ') ===\n' + p.texto.slice(0, 3000);
+  }).join('\n\n');
+
+  var sysContr = 'Você é um advogado especialista em consistência processual. Sua tarefa é comparar uma peça nova com peças anteriores do mesmo processo e identificar CONTRADIÇÕES PROCESSUAIS — ou seja, situações em que a peça nova assume posição incompatível com a já assumida anteriormente pela mesma parte.\n\nNÃO é contradição: complementar um argumento, adicionar novo fundamento, adaptar a tese à fase processual.\n\nÉ contradição: negar fato anteriormente admitido, assumir posição jurídica oposta sobre o mesmo tema, qualificar um documento ou fato de modo incompatível com qualificação anterior.\n\nPRODUZA:\n1. CONTRADIÇÕES IDENTIFICADAS (se houver) — para cada uma: descrição objetiva, trecho da peça nova, trecho da peça anterior que conflita, gravidade (ALTA/MÉDIA/BAIXA) e sugestão de alinhamento.\n2. CONSISTÊNCIAS VERIFICADAS — lista das principais teses que estão alinhadas entre as peças.\n3. PARECER FINAL — a peça nova é consistente com o histórico do processo? (SIM / ATENÇÃO / NÃO — com justificativa breve).\n\nSeja objetivo. Se não houver contradições, diga claramente. NÃO INVENTE contradições onde não há.';
+
+  var usrContr = '=== PEÇA NOVA (a ser verificada) ===\n' + textoMinuta.slice(0, 6000) +
+    '\n\n=== PEÇAS ANTERIORES DO MESMO PROCESSO ===\n' + contextoAnteriores;
+
+  try {
+    var textoContr = '';
+    await chamarIAGenerica(modelo, sysContr, usrContr, key, function(chunk) { textoContr += chunk; });
+
+    var temContradicao = /CONTRADIÇÕES IDENTIFICADAS[\s\S]{0,200}(?:ALTA|MÉDIA|BAIXA)/i.test(textoContr) &&
+                         !/sem contradições|não foram identificadas|não há contradições/i.test(textoContr.slice(0,500));
+
+    if (resultado) {
+      var corBorda = temContradicao ? '#FECACA' : '#BBF7D0';
+      var corBg = temContradicao ? '#FEF2F2' : '#F0FDF4';
+      var corTit = temContradicao ? '#7F1D1D' : '#14532D';
+      var icone = temContradicao ? '⚠' : '✓';
+      resultado.innerHTML = '<div class="contradicao-detalhe" style="border-color:' + corBorda + ';background:' + corBg + '">' +
+        '<h4 style="color:' + corTit + '">' + icone + ' Verificação de contradição processual</h4>' +
+        '<div style="font-size:12px;color:var(--text);white-space:pre-wrap">' +
+        textoContr.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') +
+        '</div></div>';
+      resultado.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  } catch (e) {
+    if (resultado) resultado.innerHTML = '<div class="contradicao-detalhe" style="color:var(--red)">✗ Erro: ' + e.message + '</div>';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '⚖ Verificar contradição'; }
+  }
+}
+
 // Inicializar lista vazia ao carregar
 document.addEventListener('DOMContentLoaded', function() {
   if (typeof anRenderListaDocs === 'function') anRenderListaDocs();
@@ -6285,6 +6628,8 @@ async function gerarMinuta() {
     nomeArq=(pasta?pasta+' - ':'')+nomePeca+' - GeradoPorIA';
     document.getElementById('res-nome').textContent='Arquivo: '+nomeArq+'.docx  ·  Modelo: '+nomeModelo;
     setSt2('res-st','ok','Minuta gerada com sucesso. Revise antes de protocolar.');
+    var btnSO = document.getElementById('btn-segunda-opiniao'); if(btnSO) btnSO.style.display='';
+    var btnContr = document.getElementById('btn-verificar-contradicao'); if(btnContr) btnContr.style.display='';
   } catch(e){setSt2('res-st','err','Erro: '+e.message);}
   btn.disabled=false; btn.textContent='Gerar minuta'; esconderBarra();
 }
@@ -7577,6 +7922,7 @@ function _modalKeyHandler(e) {
   carregarTema();
   carregarPrazosColoracao();
   if (typeof toggleProcModo === 'function') toggleProcModo();
+  if (typeof atualizarIndicadorModelo === 'function') atualizarIndicadorModelo();
   // Verificar prazos e notificar se permissão já foi concedida
   if (localStorage.getItem("gp_notif") === "1") {
     setTimeout(verificarPrazosENotificar, 2000);
