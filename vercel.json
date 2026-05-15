@@ -1,6 +1,25 @@
 {
+  "version": 2,
+  "builds": [
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "gerador_peticoes.html", "use": "@vercel/static" }
+  ],
   "routes": [
-    { "src": "/geradordepeticoes(.*)", "dest": "/geradordepeticoes$1" },
-    { "src": "/", "dest": "/index.html" }
+    {
+      "src": "/geradordepeticoes",
+      "dest": "/gerador_peticoes.html"
+    },
+    {
+      "src": "/geradordepeticoes/(.*)",
+      "dest": "/gerador_peticoes.html"
+    },
+    {
+      "src": "/gerador_peticoes.html",
+      "dest": "/gerador_peticoes.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
   ]
 }
