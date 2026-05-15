@@ -761,13 +761,13 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="login-sub">Carmo Mancebo | Advogado</div>
 
     <!-- Abas Entrar / Criar conta -->
-    <div style="display:flex;border-bottom:2px solid rgba(255,255,255,.15);margin:16px 0 18px">
+    <div style="display:flex;border-bottom:2px solid #E2E8F0;margin:16px 0 18px">
       <button id="tab-entrar" onclick="trocarAbaLogin('entrar')"
-        style="flex:1;background:none;border:none;color:white;font-size:13px;font-weight:700;padding:8px 0;cursor:pointer;border-bottom:2px solid white;margin-bottom:-2px;opacity:1">
+        style="flex:1;background:none;border:none;color:#0C2E5B;font-size:13px;font-weight:700;padding:8px 0;cursor:pointer;border-bottom:2px solid #185FA5;margin-bottom:-2px;opacity:1">
         Entrar
       </button>
       <button id="tab-cadastro" onclick="trocarAbaLogin('cadastro')"
-        style="flex:1;background:none;border:none;color:white;font-size:13px;padding:8px 0;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;opacity:.6">
+        style="flex:1;background:none;border:none;color:#64748B;font-size:13px;padding:8px 0;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;opacity:1">
         Criar conta
       </button>
     </div>
@@ -788,7 +788,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <div id="login-err" class="login-err"></div>
       <div class="login-hint">
         <a href="#" onclick="recuperarSenhaEmail();return false;"
-          style="color:rgba(255,255,255,.75);text-decoration:none;font-size:12px">
+          style="color:#185FA5;text-decoration:none;font-size:12px">
           Esqueci minha senha
         </a>
       </div>
@@ -819,12 +819,12 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
       <button class="login-btn" onclick="fazerCadastro()" id="btn-fazer-cadastro">Criar conta</button>
       <div id="cad-err" class="login-err"></div>
-      <div id="cad-ok" style="display:none;margin-top:10px;padding:10px;background:rgba(255,255,255,.15);border-radius:8px;font-size:12px;color:white;text-align:center">
+      <div id="cad-ok" style="display:none;margin-top:10px;padding:10px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;font-size:12px;color:#166534;text-align:center">
         ✓ Conta criada! Verifique seu e-mail para confirmar o cadastro.
       </div>
     </div>
 
-    <div class="login-ver">versão 1.79</div>
+    <div class="login-ver">versão 1.79.1</div>
   </div>
 </div>
 
@@ -847,8 +847,8 @@ tbody tr.st-p td{background:#b3e5fc}
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Sonnet</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
-    <span class="tb-meta" id="tb-versao">versão 1.79</span>
     <span class="tb-meta" id="tb-versao">versão 1.79.1</span>
+    <span class="tb-meta" id="tb-versao">versão 1.79.1.1</span>
   </div>
 </div>
 
@@ -2073,11 +2073,10 @@ function trocarAbaLogin(aba) {
   var ocultar = aba === 'entrar' ? 'painel-cadastro' : 'painel-entrar';
   document.getElementById(mostrar).style.display = 'block';
   document.getElementById(ocultar).style.display = 'none';
-  // Atualizar estilo das abas
-  var tabAtiva  = document.getElementById('tab-' + aba);
+  var tabAtiva   = document.getElementById('tab-' + aba);
   var tabInativa = document.getElementById(aba === 'entrar' ? 'tab-cadastro' : 'tab-entrar');
-  if (tabAtiva)  { tabAtiva.style.borderBottomColor = 'white'; tabAtiva.style.opacity = '1'; tabAtiva.style.fontWeight = '700'; }
-  if (tabInativa) { tabInativa.style.borderBottomColor = 'transparent'; tabInativa.style.opacity = '.6'; tabInativa.style.fontWeight = '400'; }
+  if (tabAtiva)   { tabAtiva.style.color = '#0C2E5B'; tabAtiva.style.fontWeight = '700'; tabAtiva.style.borderBottomColor = '#185FA5'; }
+  if (tabInativa) { tabInativa.style.color = '#64748B'; tabInativa.style.fontWeight = '400'; tabInativa.style.borderBottomColor = 'transparent'; }
 }
 
 async function fazerLogin() {
