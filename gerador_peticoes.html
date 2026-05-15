@@ -879,7 +879,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 1.80.1</div>
+    <div class="login-ver">versão 1.81</div>
   </div>
 </div>
 
@@ -904,7 +904,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Sonnet</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
-    <span class="tb-meta" id="tb-versao">versão 1.80.1</span>
+    <span class="tb-meta" id="tb-versao">versão 1.81</span>
   </div>
 </div>
 
@@ -946,7 +946,10 @@ tbody tr.st-p td{background:#b3e5fc}
 
       <div class="card">
         <div class="card-title">IA e chave de API</div>
-        <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Configure o modelo e a chave de API uma única vez. A escolha vale para <strong>todas</strong> as funcionalidades: Gerar petição, Análise de processo e Resumo de caso.</p>
+        <div style="padding:8px 12px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:6px;font-size:11px;color:#166534;margin-bottom:12px">
+          ✓ <strong>A chave de API está configurada no servidor</strong> — você não precisa inserir sua própria chave para usar a ferramenta. Os campos abaixo são opcionais e permitem usar sua chave pessoal caso prefira.
+        </div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Modelo de IA em uso. A chave de API é gerenciada pelo servidor — configure abaixo apenas se quiser usar sua própria chave.</p>
         <div class="field" style="margin-bottom:10px">
           <label>Modelo de IA</label>
           <select id="sel-modelo-global" onchange="sincronizarModeloGlobal(this.value)" style="width:100%">
@@ -2759,10 +2762,14 @@ function onProcInput() {
 function checkBtn() {
   var btn = document.getElementById('btn-ger');
   var statusEl = document.getElementById('btn-ger-status');
+  // Com o proxy, a chave é opcional — basta estar logado e ter o processo
   var mc = getModeloEChave();
-  var temChave = !!mc.key;
-  var temProc = !!(document.getElementById('f-proc') || {}).value && document.getElementById('f-proc').value.trim().length > 0;
-  var habilitado = temChave && temProc;
+  var estaLogado = !!(GPStorage.userId); // proxy disponível se logado
+  var temChaveLocal = !!mc.key;
+  var temAcesso = estaLogado || temChaveLocal; // proxy OU chave local
+  var temProc = !!(document.getElementById('f-proc') || {}).value &&
+    document.getElementById('f-proc').value.trim().length > 0;
+  var habilitado = temAcesso && temProc;
 
   if (btn) btn.disabled = !habilitado;
   var bPartes = document.getElementById('btn-partes'); if(bPartes) bPartes.disabled = !habilitado;
@@ -2773,11 +2780,8 @@ function checkBtn() {
       statusEl.textContent = '';
     } else {
       var faltando = [];
-      if (!temChave) {
-        var nomeMod = mc.modelo === 'gpt4o' ? 'OpenAI' : 'Anthropic';
-        faltando.push('chave de API ' + nomeMod + ' (aba Configuração → IA e chave de API)');
-      }
-      if (!temProc) faltando.push('número do processo');
+      if (!temAcesso) faltando.push('login (faça login para usar a ferramenta)');
+      if (!temProc)   faltando.push('número do processo');
       statusEl.innerHTML = '⚠ Falta preencher: <strong>' + faltando.join('</strong> e <strong>') + '</strong>';
     }
   }
@@ -6475,6 +6479,14 @@ function anRenderChat() {
 // Compatíveis com o mesmo mecanismo de gerarMinuta/gerarResumoCaso
 // ============================================================
 async function chamarIAGenerica(modelo, sysPrompt, usrPrompt, apiKey, onChunk) {
+  // Se há chave local configurada E o usuário optou por usar a própria, usar diretamente
+  // Caso contrário, usar o proxy do servidor (Edge Function)
+  var usarProxy = !apiKey || apiKey.length < 10;
+  if (usarProxy) {
+    return await chamarIAViaProxy(modelo, sysPrompt, [{role:'user', content:usrPrompt}], onChunk);
+  }
+  // fallback: chamada direta com chave do usuário (compatibilidade)
+
   var texto = '';
   var uso = '';
 
@@ -6539,9 +6551,12 @@ async function chamarIAGenerica(modelo, sysPrompt, usrPrompt, apiKey, onChunk) {
 }
 
 async function chamarIAChat(modelo, sysPrompt, mensagens, apiKey) {
-  // Multi-turn: passa o histórico completo como messages
+  // Usar proxy se não há chave local
+  if (!apiKey || apiKey.length < 10) {
+    return await chamarIAViaProxy(modelo, sysPrompt, mensagens, null);
+  }
+  // fallback com chave local
   var texto = '';
-
   if (modelo === 'gpt4o') {
     var msgsGpt = [{role:'system',content:sysPrompt}].concat(mensagens);
     var res = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -7003,6 +7018,102 @@ async function executarVerificacaoContradicao() { d4AbrirPainel(); }
 
 
 // ════════════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════════════
+// CHAMADA VIA PROXY (Edge Function Supabase) — chave segura no servidor
+// ════════════════════════════════════════════════════════════════════════════
+
+async function chamarIAViaProxy(modelo, sysPrompt, messages, onChunk) {
+  var supa = getSupa();
+  var session = supa ? await supa.auth.getSession() : null;
+  var token   = session && session.data && session.data.session
+    ? session.data.session.access_token : null;
+
+  if (!token) {
+    throw new Error('Sessão expirada. Faça login novamente.');
+  }
+
+  var texto = '';
+  var uso   = '';
+
+  var resp = await fetch('https://qlpqybumoaxndzppddyk.supabase.co/functions/v1/ai-proxy', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token,
+    },
+    body: JSON.stringify({
+      modelo: modelo,
+      system: sysPrompt,
+      messages: messages,
+      max_tokens: 8000,
+      stream: true,
+    }),
+  });
+
+  if (!resp.ok) {
+    var errData = {};
+    try { errData = await resp.json(); } catch(e) {}
+    var msg = errData.error || ('Erro ' + resp.status + ' no servidor.');
+    if (resp.status === 429 && errData.codigo === 'LIMITE_PLANO') {
+      mostrarModalLimitePlano(msg);
+      throw new Error(msg);
+    }
+    if (resp.status === 401) { mostrarLogin(); throw new Error('Sessão expirada.'); }
+    throw new Error(msg);
+  }
+
+  var isAnthropic = modelo.startsWith('claude');
+  var rd = resp.body.getReader();
+  var dc = new TextDecoder();
+
+  while (true) {
+    var rv = await rd.read();
+    if (rv.done) break;
+    dc.decode(rv.value).split('\n').forEach(function(ln) {
+      if (!ln.startsWith('data: ')) return;
+      try {
+        var ev = JSON.parse(ln.slice(6));
+        if (isAnthropic) {
+          if (ev.type === 'message_start' && ev.message && ev.message.usage)
+            uso = ev.message.usage.input_tokens + '+?';
+          if (ev.type === 'message_delta' && ev.usage)
+            uso = uso.split('+')[0] + '+' + ev.usage.output_tokens + ' tokens';
+          if (ev.type === 'content_block_delta' && ev.delta && ev.delta.text) {
+            texto += ev.delta.text;
+            if (typeof onChunk === 'function') onChunk(ev.delta.text);
+          }
+        } else {
+          if (ln === 'data: [DONE]') return;
+          if (ev.usage) uso = ev.usage.prompt_tokens + '+' + ev.usage.completion_tokens + ' tokens';
+          if (ev.choices && ev.choices[0] && ev.choices[0].delta && ev.choices[0].delta.content) {
+            var chunk = ev.choices[0].delta.content;
+            texto += chunk;
+            if (typeof onChunk === 'function') onChunk(chunk);
+          }
+        }
+      } catch(e) {}
+    });
+  }
+
+  if (!texto) throw new Error('Resposta vazia do servidor.');
+  return { texto: texto, uso: uso };
+}
+
+function mostrarModalLimitePlano(msg) {
+  var m = document.createElement('div');
+  m.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+  m.innerHTML = '<div style="background:var(--bg);border-radius:12px;padding:24px 28px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2)">' +
+    '<h3 style="margin:0 0 8px;font-size:16px;color:var(--text)">Limite do plano atingido</h3>' +
+    '<p style="font-size:13px;color:var(--text2);margin:0 0 16px">' + (msg||'Você atingiu o limite de peças do seu plano este mês.') + '</p>' +
+    '<p style="font-size:12px;color:var(--text2);margin:0 0 16px">Interesse em plano com mais peças:<br>' +
+    '<a href="mailto:carmo.mancebo@adv.oabsp.org.br" style="color:var(--blue)">carmo.mancebo@adv.oabsp.org.br</a></p>' +
+    '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+    '<button onclick="go(\'cfg\')" style="background:none;border:1px solid var(--border);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Ver plano</button>' +
+    '<button onclick="this.closest(\'[style*=fixed]\').remove()" style="background:var(--blue);color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Fechar</button>' +
+    '</div></div>';
+  document.body.appendChild(m);
+}
+
 // ANTI-PROMPT INJECTION — Detector de tentativas de manipulação de IA
 // Caso de referência: TRT-8, 3ª Vara Parauapebas-PA — Processo 0001062-55.2025.5.08.0130
 // Advogadas multadas em R$ 84.250,08 por inserir comando oculto em petição
