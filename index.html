@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carmo Mancebo — Advogado | Saúde Suplementar</title>
+<meta name="description" content="Advogado especializado em contencioso de saúde suplementar. Gerador de Petições com IA para defesa de operadoras de planos de saúde.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --azul: #185FA5;
+    --azul-escuro: #0C2E5B;
+    --azul-claro: #E8F1FB;
+    --azul-medio: #4A8FD4;
+    --ouro: #C49A3C;
+    --ouro-claro: #F5E9CC;
+    --cinza: #F7F8FA;
+    --cinza-borda: #E2E6ED;
+    --texto: #1A2332;
+    --texto-suave: #4A5568;
+    --branco: #FFFFFF;
+    --radius: 12px;
+    --radius-lg: 20px;
+    --sombra: 0 4px 24px rgba(12,46,91,0.08);
+    --sombra-hover: 0 8px 40px rgba(12,46,91,0.15);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--texto);
+    background: var(--branco);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--cinza-borda);
+    padding: 0 2rem;
+  }
+
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 68px;
+  }
+
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--azul-escuro);
+    text-decoration: none;
+    letter-spacing: 0.01em;
+  }
+
+  .nav-logo span {
+    color: var(--ouro);
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--texto-suave);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--azul); }
+
+  .btn-nav {
+    background: var(--azul);
+    color: var(--branco) !important;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 500 !important;
+    transition: background 0.2s, transform 0.15s !important;
+  }
+
+  .btn-nav:hover {
+    background: var(--azul-escuro) !important;
+    transform: translateY(-1px);
+  }
+
+  .nav-hamburger {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    flex-direction: column;
+    gap: 5px;
+    padding: 4px;
+  }
+
+  .nav-hamburger span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--azul-escuro);
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, var(--azul-escuro) 0%, #1A4A8A 50%, var(--azul) 100%);
+    position: relative;
+    overflow: hidden;
+    padding: 100px 2rem 60px;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -20%;
+    width: 700px;
+    height: 700px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .hero-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(196,154,60,0.15);
+    border: 1px solid rgba(196,154,60,0.3);
+    color: #F0C96A;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.4rem 1rem;
+    border-radius: 100px;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #F0C96A;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    color: var(--branco);
+    line-height: 1.2;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.01em;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: #F0C96A;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 2rem;
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--ouro);
+    color: var(--azul-escuro);
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.875rem 1.75rem;
+    border-radius: 10px;
+    text-decoration: none;
+    letter-spacing: 0.01em;
+    transition: all 0.2s;
+  }
+
+  .btn-primary:hover {
+    background: #D4AA4A;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(196,154,60,0.35);
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255,255,255,0.1);
+    color: var(--branco);
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 0.875rem 1.75rem;
+    border-radius: 10px;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255,255,255,0.18);
+    transform: translateY(-2px);
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .hero-stat strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: var(--branco);
+  }
+
+  .hero-stat span {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.04em;
+  }
+
+  /* Hero card */
+  .hero-card {
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+  }
+
+  .hero-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .hero-card-dots {
+    display: flex;
+    gap: 5px;
+  }
+
+  .hero-card-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+  }
+
+  .hero-card-title {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.05em;
+  }
+
+  .demo-item {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .demo-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(196,154,60,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.9rem;
+  }
+
+  .demo-item-text {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.5;
+  }
+
+  .demo-item-text strong {
+    display: block;
+    color: rgba(255,255,255,0.95);
+    font-weight: 500;
+    margin-bottom: 2px;
+    font-size: 0.85rem;
+  }
+
+  .demo-generating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    color: #F0C96A;
+    margin-top: 0.75rem;
+  }
+
+  .pulse {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #F0C96A;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 6rem 2rem;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--azul);
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 700;
+    color: var(--azul-escuro);
+    line-height: 1.25;
+    margin-bottom: 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  .section-sub {
+    font-size: 1rem;
+    color: var(--texto-suave);
+    max-width: 540px;
+    line-height: 1.8;
+  }
+
+  /* SOBRE */
+  .sobre {
+    background: var(--cinza);
+  }
+
+  .sobre-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 5rem;
+    align-items: center;
+  }
+
+  .sobre-foto {
+    position: relative;
+  }
+
+  .foto-placeholder {
+    width: 100%;
+    aspect-ratio: 3/4;
+    max-width: 340px;
+    background: linear-gradient(145deg, var(--azul-claro), #C8D9EF);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    border: 2px dashed var(--cinza-borda);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .foto-placeholder::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(to top, rgba(12,46,91,0.15), transparent);
+  }
+
+  .foto-icon {
+    font-size: 3rem;
+    opacity: 0.3;
+  }
+
+  .foto-placeholder p {
+    font-size: 0.8rem;
+    color: var(--azul);
+    opacity: 0.6;
+    font-weight: 500;
+  }
+
+  .sobre-badge {
+    position: absolute;
+    bottom: -1rem;
+    right: -1rem;
+    background: var(--branco);
+    border: 1px solid var(--cinza-borda);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    box-shadow: var(--sombra);
+  }
+
+  .sobre-badge strong {
+    display: block;
+    font-size: 1.3rem;
+    font-family: 'Playfair Display', serif;
+    color: var(--azul-escuro);
+  }
+
+  .sobre-badge span {
+    font-size: 0.75rem;
+    color: var(--texto-suave);
+  }
+
+  .credencial {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    background: var(--branco);
+    border: 1px solid var(--cinza-borda);
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+    transition: box-shadow 0.2s;
+  }
+
+  .credencial:hover { box-shadow: var(--sombra); }
+
+  .cred-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--azul-claro);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--azul);
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .cred-text strong {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--texto);
+  }
+
+  .cred-text span {
+    font-size: 0.78rem;
+    color: var(--texto-suave);
+  }
+
+  /* PRODUTO */
+  .produto {
+    background: var(--branco);
+  }
+
+  .produto-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .produto-header .section-sub {
+    margin: 0 auto;
+  }
+
+  /* FEATURES */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .feature-card {
+    background: var(--cinza);
+    border: 1px solid var(--cinza-borda);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--azul);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+
+  .feature-card:hover {
+    box-shadow: var(--sombra-hover);
+    transform: translateY(-3px);
+    border-color: var(--azul-claro);
+  }
+
+  .feature-card:hover::before { transform: scaleX(1); }
+
+  .feature-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--azul), var(--azul-escuro));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+    font-size: 1.1rem;
+  }
+
+  .feature-card h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--azul-escuro);
+    margin-bottom: 0.5rem;
+  }
+
+  .feature-card p {
+    font-size: 0.85rem;
+    color: var(--texto-suave);
+    line-height: 1.7;
+  }
+
+  /* PLANOS */
+  .planos {
+    background: var(--cinza);
+  }
+
+  .planos-header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+  }
+
+  .planos-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    align-items: start;
+  }
+
+  .plano-card {
+    background: var(--branco);
+    border: 1px solid var(--cinza-borda);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    transition: all 0.25s;
+    position: relative;
+  }
+
+  .plano-card:hover {
+    box-shadow: var(--sombra-hover);
+    transform: translateY(-3px);
+  }
+
+  .plano-card.destaque {
+    border-color: var(--azul);
+    border-width: 2px;
+    box-shadow: 0 0 0 4px rgba(24,95,165,0.08);
+  }
+
+  .plano-badge-top {
+    position: absolute;
+    top: -13px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--azul);
+    color: var(--branco);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.875rem;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+
+  .plano-nome {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--azul);
+    margin-bottom: 0.5rem;
+  }
+
+  .plano-preco {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--azul-escuro);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .plano-preco sup {
+    font-size: 1rem;
+    vertical-align: top;
+    margin-top: 0.4rem;
+    display: inline-block;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+  }
+
+  .plano-per {
+    font-size: 0.78rem;
+    color: var(--texto-suave);
+    margin-bottom: 1.25rem;
+  }
+
+  .plano-desc {
+    font-size: 0.82rem;
+    color: var(--texto-suave);
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--cinza-borda);
+  }
+
+  .plano-features {
+    list-style: none;
+    margin-bottom: 1.5rem;
+  }
+
+  .plano-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--texto);
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+  }
+
+  .plano-features li::before {
+    content: '✓';
+    color: var(--azul);
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .btn-plano {
+    display: block;
+    text-align: center;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1.5px solid var(--azul);
+    color: var(--azul);
+  }
+
+  .btn-plano:hover {
+    background: var(--azul);
+    color: var(--branco);
+  }
+
+  .btn-plano.solid {
+    background: var(--azul);
+    color: var(--branco);
+  }
+
+  .btn-plano.solid:hover {
+    background: var(--azul-escuro);
+    border-color: var(--azul-escuro);
+    transform: translateY(-1px);
+  }
+
+  /* DEPOIMENTOS */
+  .depoimentos {
+    background: var(--branco);
+  }
+
+  .depoimentos-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .depo-placeholder {
+    border: 2px dashed var(--cinza-borda);
+    border-radius: var(--radius-lg);
+    padding: 4rem 2rem;
+    text-align: center;
+    color: var(--texto-suave);
+  }
+
+  .depo-placeholder p {
+    font-size: 0.9rem;
+    opacity: 0.6;
+    margin-top: 0.5rem;
+  }
+
+  /* CTA FINAL */
+  .cta-final {
+    background: linear-gradient(135deg, var(--azul-escuro) 0%, var(--azul) 100%);
+    padding: 6rem 2rem;
+    text-align: center;
+  }
+
+  .cta-final h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    color: var(--branco);
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+
+  .cta-final p {
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 2.5rem;
+    font-size: 1rem;
+    font-weight: 300;
+  }
+
+  .form-cadastro {
+    max-width: 520px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 0.375rem;
+    letter-spacing: 0.03em;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--branco);
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color 0.2s, background 0.2s;
+    outline: none;
+  }
+
+  .form-group input::placeholder { color: rgba(255,255,255,0.35); }
+
+  .form-group input:focus {
+    border-color: rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.15);
+  }
+
+  .btn-form {
+    width: 100%;
+    padding: 0.875rem;
+    background: var(--ouro);
+    color: var(--azul-escuro);
+    font-weight: 700;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.01em;
+    transition: all 0.2s;
+    margin-top: 0.5rem;
+  }
+
+  .btn-form:hover {
+    background: #D4AA4A;
+    transform: translateY(-1px);
+  }
+
+  .form-note {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.4);
+    margin-top: 0.875rem;
+    text-align: center;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--azul-escuro);
+    padding: 2.5rem 2rem;
+  }
+
+  .footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+    text-decoration: none;
+  }
+
+  .footer-logo span { color: var(--ouro); }
+
+  .footer-info {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.4);
+    margin-top: 0.25rem;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-links a {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.5);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: rgba(255,255,255,0.9); }
+
+  /* ANIMATIONS */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    nav { padding: 0 1.25rem; }
+    .nav-links { display: none; }
+    .nav-hamburger { display: flex; }
+    .nav-links.open {
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 68px;
+      left: 0;
+      right: 0;
+      background: var(--branco);
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--cinza-borda);
+      gap: 1.25rem;
+    }
+
+    .hero { padding: 90px 1.25rem 50px; }
+    .hero-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+    .hero-card { display: none; }
+    .hero h1 { font-size: 2rem; }
+    .hero-stats { gap: 1.5rem; }
+
+    section { padding: 4rem 1.25rem; }
+
+    .sobre-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .foto-placeholder { max-width: 100%; aspect-ratio: 4/3; }
+
+    .features-grid { grid-template-columns: 1fr; }
+    .planos-grid { grid-template-columns: 1fr; }
+
+    .footer-inner { flex-direction: column; text-align: center; }
+    .footer-links { justify-content: center; }
+  }
+
+  @media (max-width: 900px) {
+    .features-grid { grid-template-columns: repeat(2, 1fr); }
+    .planos-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Carmo<span>.</span>Mancebo</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#sobre">Sobre</a></li>
+      <li><a href="#produto">O Produto</a></li>
+      <li><a href="#planos">Planos</a></li>
+      <li><a href="#cadastro">Contato</a></li>
+      <li><a href="/geradordepeticoes" class="btn-nav">Acessar Gerador →</a></li>
+    </ul>
+    <button class="nav-hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge">Saúde Suplementar · IA Jurídica</div>
+      <h1>Petições em saúde suplementar com <em>inteligência artificial</em></h1>
+      <p class="hero-sub">Ferramenta especializada na defesa de operadoras de planos de saúde. Gere contestações, recursos e manifestações com fundamentação jurídica automatizada.</p>
+      <div class="hero-ctas">
+        <a href="/geradordepeticoes" class="btn-primary">Experimentar grátis →</a>
+        <a href="#produto" class="btn-secondary">Saiba mais</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <strong>36</strong>
+          <span>Teses estruturadas</span>
+        </div>
+        <div class="hero-stat">
+          <strong>7</strong>
+          <span>Modos especializados</span>
+        </div>
+        <div class="hero-stat">
+          <strong>10</strong>
+          <span>Peças grátis/mês</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-card-header">
+        <div class="hero-card-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <span class="hero-card-title">gerador de petições · modo contestação</span>
+      </div>
+      <div class="demo-item">
+        <div class="demo-icon">⚖️</div>
+        <div class="demo-item-text">
+          <strong>Cobertura assistencial negada</strong>
+          Tese: Rol ANS (RN 465/2021) — procedimento não previsto. Lei 14.454/2022 aplicada com critério científico.
+        </div>
+      </div>
+      <div class="demo-item">
+        <div class="demo-icon">📋</div>
+        <div class="demo-item-text">
+          <strong>Prescrição médica questionada</strong>
+          Análise de quantidade de sessões e ausência de indicação clínica objetiva. Prestação de contas requerida.
+        </div>
+      </div>
+      <div class="demo-item">
+        <div class="demo-icon">🛡️</div>
+        <div class="demo-item-text">
+          <strong>ADI 7265 — caráter exemplificativo</strong>
+          Fundamentação constitucional automática para demandas envolvendo o rol da ANS.
+        </div>
+      </div>
+      <div class="demo-generating">
+        <div class="pulse"></div>
+        Gerando fundamentação jurídica...
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOBRE -->
+<section class="sobre" id="sobre">
+  <div class="container">
+    <div class="sobre-grid">
+      <div class="sobre-foto fade-up">
+        <div class="foto-placeholder">
+          <div class="foto-icon">👤</div>
+          <p>Foto do profissional</p>
+        </div>
+        <div class="sobre-badge">
+          <strong>OAB/SP</strong>
+          <span>274.575</span>
+        </div>
+      </div>
+      <div class="fade-up">
+        <span class="section-label">Sobre o profissional</span>
+        <h2 class="section-title">Carmo Mancebo</h2>
+        <p class="section-sub" style="margin-bottom: 1.75rem;">
+          Advogado especializado em contencioso de saúde suplementar, com experiência na defesa de operadoras de planos de saúde em grandes escritórios do segmento. Atuação estratégica em litígios complexos, análise de cobertura assistencial e interpretação da legislação da ANS.
+        </p>
+        <p style="font-size: 0.95rem; color: var(--texto-suave); margin-bottom: 2rem; line-height: 1.8;">
+          Combina profundo conhecimento técnico em direito sanitário com tecnologia de ponta para otimizar a produção e a qualidade das peças processuais na defesa de operadoras.
+        </p>
+        <div>
+          <div class="credencial">
+            <div class="cred-icon">⚖️</div>
+            <div class="cred-text">
+              <strong>OAB/SP 274.575</strong>
+              <span>Advogado inscrito na Ordem dos Advogados do Brasil — São Paulo</span>
+            </div>
+          </div>
+          <div class="credencial">
+            <div class="cred-icon">🏥</div>
+            <div class="cred-text">
+              <strong>Contencioso em Saúde Suplementar</strong>
+              <span>Defesa de operadoras · Lei 9.656/98 · ANS · CDC · Código Civil</span>
+            </div>
+          </div>
+          <div class="credencial">
+            <div class="cred-icon">🏛️</div>
+            <div class="cred-text">
+              <strong>Experiência em grandes escritórios</strong>
+              <span>Saúde suplementar, seguros e contencioso estratégico — São Paulo, SP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUTO -->
+<section class="produto" id="produto">
+  <div class="container">
+    <div class="produto-header fade-up">
+      <span class="section-label">O produto</span>
+      <h2 class="section-title">Gerador de Petições</h2>
+      <p class="section-sub">
+        Ferramenta de inteligência artificial especializada na defesa de operadoras de saúde suplementar. Gera peças processuais com fundamentação jurídica automatizada, orientada às melhores teses defensivas.
+      </p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card fade-up">
+        <div class="feature-icon">📝</div>
+        <h3>7 modos especializados</h3>
+        <p>Contestações, apelações, embargos de declaração, manifestações, impugnações e outros tipos de peças processuais em saúde suplementar.</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-icon">⚡</div>
+        <h3>36 teses com 1 clique</h3>
+        <p>Teses estruturadas prontas para uso imediato: rol ANS, Lei 14.454/2022, ADI 7265, ausência de cobertura, questões procedimentais e mais.</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-icon">🔍</div>
+        <h3>Análise automática de processos</h3>
+        <p>Análise estruturada cobrindo identificação do caso, resumo dos fatos, decisões relevantes, título executivo, fase processual e risco jurídico.</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-icon">⚖️</div>
+        <h3>Fundamentação normativa completa</h3>
+        <p>Lei 9.656/98, RN da ANS, CDC, Código Civil, CPC e Constituição da República — citados automaticamente conforme a tese defensiva adotada.</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-icon">🛡️</div>
+        <h3>Detector anti-prompt injection</h3>
+        <p>Proteção avançada contra tentativas de manipulação de documentos processuais e instrução indevida da ferramenta por conteúdo adversarial.</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-icon">🎯</div>
+        <h3>Focado em defesa de operadoras</h3>
+        <p>Desenvolvido exclusivamente para a perspectiva defensiva de operadoras de planos de saúde, com teses e argumentação orientadas para esse fim.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANOS -->
+<section class="planos" id="planos">
+  <div class="container">
+    <div class="planos-header fade-up">
+      <span class="section-label">Planos e preços</span>
+      <h2 class="section-title">Escolha o plano ideal</h2>
+      <p class="section-sub" style="margin: 0 auto;">
+        Comece gratuitamente e expanda conforme sua demanda. Sem fidelidade.
+      </p>
+    </div>
+
+    <div class="planos-grid">
+      <!-- Trial -->
+      <div class="plano-card fade-up">
+        <p class="plano-nome">Trial</p>
+        <div class="plano-preco">Grátis</div>
+        <p class="plano-per">para sempre</p>
+        <p class="plano-desc">Ideal para conhecer a ferramenta e validar a qualidade das peças geradas.</p>
+        <ul class="plano-features">
+          <li>10 peças por mês</li>
+          <li>Todos os tipos de peça</li>
+          <li>Teses estruturadas</li>
+          <li>Acesso à análise de processos</li>
+        </ul>
+        <a href="/geradordepeticoes" class="btn-plano">Começar grátis</a>
+      </div>
+
+      <!-- Solo -->
+      <div class="plano-card fade-up">
+        <p class="plano-nome">Solo</p>
+        <div class="plano-preco"><sup>R$</sup>–</div>
+        <p class="plano-per">por mês</p>
+        <p class="plano-desc">Para o advogado autônomo com volume regular de demandas em saúde suplementar.</p>
+        <ul class="plano-features">
+          <li>Peças ilimitadas</li>
+          <li>7 modos especializados</li>
+          <li>36 teses estruturadas</li>
+          <li>Suporte por e-mail</li>
+        </ul>
+        <a href="#cadastro" class="btn-plano">Quero saber mais</a>
+      </div>
+
+      <!-- Pro -->
+      <div class="plano-card destaque fade-up">
+        <div class="plano-badge-top">Mais popular</div>
+        <p class="plano-nome">Pro</p>
+        <div class="plano-preco"><sup>R$</sup>–</div>
+        <p class="plano-per">por mês</p>
+        <p class="plano-desc">Para profissionais com alta demanda que precisam de máxima produtividade e precisão.</p>
+        <ul class="plano-features">
+          <li>Tudo do Solo</li>
+          <li>Detector anti-injection</li>
+          <li>Análise avançada de processos</li>
+          <li>Prioridade no suporte</li>
+          <li>Acesso antecipado a novas features</li>
+        </ul>
+        <a href="#cadastro" class="btn-plano solid">Quero o Pro</a>
+      </div>
+
+      <!-- Escritório -->
+      <div class="plano-card fade-up">
+        <p class="plano-nome">Escritório</p>
+        <div class="plano-preco" style="font-size: 1.4rem;">Sob consulta</div>
+        <p class="plano-per">para equipes</p>
+        <p class="plano-desc">Solução completa para escritórios com múltiplos advogados atuando em saúde suplementar.</p>
+        <ul class="plano-features">
+          <li>Múltiplos usuários</li>
+          <li>Tudo do Pro</li>
+          <li>Customizações por escritório</li>
+          <li>Gestão centralizada</li>
+          <li>Suporte dedicado</li>
+        </ul>
+        <a href="#cadastro" class="btn-plano">Falar com a equipe</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEPOIMENTOS -->
+<section class="depoimentos">
+  <div class="container">
+    <div class="depoimentos-header fade-up">
+      <span class="section-label">Depoimentos</span>
+      <h2 class="section-title">O que dizem nossos usuários</h2>
+    </div>
+    <div class="depo-placeholder fade-up">
+      <div style="font-size: 2rem; opacity: 0.3;">💬</div>
+      <p>Depoimentos em breve — estamos coletando feedbacks dos primeiros usuários.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final" id="cadastro">
+  <div class="container">
+    <h2>Comece a usar hoje, gratuitamente</h2>
+    <p>Acesse o Gerador de Petições e produza peças em saúde suplementar com qualidade e velocidade.</p>
+    <div class="form-cadastro">
+      <div class="form-group">
+        <label for="nome">Nome completo</label>
+        <input type="text" id="nome" placeholder="Dr. Fulano de Tal">
+      </div>
+      <div class="form-group">
+        <label for="email">E-mail profissional</label>
+        <input type="email" id="email" placeholder="fulano@adv.oabsp.org.br">
+      </div>
+      <div class="form-group">
+        <label for="oab">OAB</label>
+        <input type="text" id="oab" placeholder="OAB/SP 000.000">
+      </div>
+      <button class="btn-form" onclick="handleCadastro()">Criar conta gratuita →</button>
+      <p class="form-note">Ao continuar, você será direcionado ao Gerador de Petições. Sem cartão de crédito.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <a href="/" class="footer-logo">Carmo<span>.</span>Mancebo</a>
+      <p class="footer-info">OAB/SP 274.575 · São Paulo, SP · carmo.mancebo@adv.oabsp.org.br</p>
+    </div>
+    <div class="footer-links">
+      <a href="#">Política de privacidade</a>
+      <a href="#">Termos de uso</a>
+      <a href="mailto:carmo.mancebo@adv.oabsp.org.br">Contato</a>
+      <a href="/geradordepeticoes">Gerador de Petições</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Mobile menu
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('navLinks');
+  hamburger.addEventListener('click', () => {
+    navLinks.classList.toggle('open');
+  });
+
+  // Close menu on link click
+  navLinks.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => navLinks.classList.remove('open'));
+  });
+
+  // Intersection Observer for fade-up
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Form
+  function handleCadastro() {
+    const nome = document.getElementById('nome').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const oab = document.getElementById('oab').value.trim();
+    if (!nome || !email) {
+      alert('Por favor, preencha nome e e-mail.');
+      return;
+    }
+    window.location.href = '/geradordepeticoes';
+  }
+
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
