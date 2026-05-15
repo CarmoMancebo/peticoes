@@ -611,6 +611,61 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .tb-modelo-ok:hover{border-color:var(--green)!important}
 .tb-modelo-warn{border-color:rgba(245,158,11,.5)!important;color:#92400E!important}
 
+/* === ANTI-PROMPT INJECTION === */
+.inj-alerta {
+  background: #FEF2F2;
+  border: 2px solid #DC2626;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 10px 0;
+}
+.inj-alerta-titulo {
+  font-size: 13px;
+  font-weight: 700;
+  color: #7F1D1D;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.inj-alerta-item {
+  font-size: 11px;
+  color: #991B1B;
+  padding: 3px 0;
+  border-bottom: 1px solid #FEE2E2;
+}
+.inj-alerta-item:last-child { border-bottom: 0; }
+.inj-alerta-rodape {
+  margin-top: 8px;
+  font-size: 10px;
+  color: #B91C1C;
+  font-style: italic;
+}
+
+/* === CONTROLE DE PLANOS === */
+.plano-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  margin-left: 6px;
+}
+.plano-trial { background: #FEF3C7; color: #92400E; border: 1px solid #F59E0B; }
+.plano-solo  { background: #DBEAFE; color: #1E40AF; border: 1px solid #3B82F6; }
+.plano-pro   { background: #D1FAE5; color: #065F46; border: 1px solid #10B981; }
+.plano-escr  { background: #EDE9FE; color: #4C1D95; border: 1px solid #8B5CF6; }
+
+.pecas-contador {
+  font-size: 10px;
+  color: var(--text3);
+  margin-left: 4px;
+}
+.pecas-contador.aviso { color: #D97706; font-weight: 600; }
+.pecas-contador.limite { color: #DC2626; font-weight: 700; }
+
 /* === D2 — SEGUNDA OPINIÃO === */
 .seg-opiniao-painel {
   border: 2px dashed var(--border);
@@ -824,7 +879,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 1.79.1</div>
+    <div class="login-ver">versão 1.80</div>
   </div>
 </div>
 
@@ -843,12 +898,13 @@ tbody tr.st-p td{background:#b3e5fc}
       <div id="res-busca-global-toolbar" style="display:none;position:absolute;top:32px;right:0;width:320px;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
     </div>
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
+    <span id="tb-plano-badge" class="plano-badge plano-trial" title="Clique para ver seu plano" onclick="go('cfg')" style="cursor:pointer">trial</span>
+    <span id="tb-pecas-contador" class="pecas-contador" title="Peças geradas este mês"></span>
     <button id="tb-modelo-btn" onclick="go('cfg')" title="Modelo de IA ativo — clique para configurar" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Sonnet</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
-    <span class="tb-meta" id="tb-versao">versão 1.79.1</span>
-    <span class="tb-meta" id="tb-versao">versão 1.79.1.1</span>
+    <span class="tb-meta" id="tb-versao">versão 1.80</span>
   </div>
 </div>
 
@@ -871,6 +927,22 @@ tbody tr.st-p td{background:#b3e5fc}
       <div class="panel-sub">Selecione peças de referência para uso como modelo de estilo e estrutura.</div>
 
 
+
+      <div class="card">
+        <div class="card-title">Meu plano</div>
+        <div id="cfg-plano-info" style="font-size:12px;color:var(--text2);margin-bottom:8px">
+          Carregando informações do plano...
+        </div>
+        <div id="cfg-pecas-barra" style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:6px">
+          <div id="cfg-pecas-preenchida" style="height:100%;background:var(--blue);border-radius:3px;transition:width .3s;width:0%"></div>
+        </div>
+        <div id="cfg-pecas-texto" style="font-size:11px;color:var(--text3);margin-bottom:10px"></div>
+        <div style="font-size:11px;color:var(--text2);padding:8px 10px;background:var(--bg2);border-radius:6px">
+          🎁 <strong>Período de testes gratuito:</strong> 10 peças/mês no plano trial.
+          Em breve: planos Solo (100 peças/mês) e Pro (ilimitado).<br>
+          <span style="color:var(--text3)">Interesse em acesso antecipado? Entre em contato pelo e-mail do perfil.</span>
+        </div>
+      </div>
 
       <div class="card">
         <div class="card-title">IA e chave de API</div>
@@ -2028,6 +2100,7 @@ function inicializarAuth() {
       GPStorage.backend = 'supabase';
       ocultarLogin();
       preencherDadosUsuario(session.user);
+      carregarDadosUsuario();
     } else {
       GPStorage.userId = null;
       GPStorage.backend = 'local';
@@ -6876,12 +6949,304 @@ async function d4Executar() {
 // Stub mantido para compatibilidade (não mais usado diretamente)
 async function executarVerificacaoContradicao() { d4AbrirPainel(); }
 
+
+// ════════════════════════════════════════════════════════════════════════════
+// ANTI-PROMPT INJECTION — Detector de tentativas de manipulação de IA
+// Caso de referência: TRT-8, 3ª Vara Parauapebas-PA — Processo 0001062-55.2025.5.08.0130
+// Advogadas multadas em R$ 84.250,08 por inserir comando oculto em petição
+// ════════════════════════════════════════════════════════════════════════════
+
+var PADROES_INJECTION = [
+  // Comandos diretos a sistemas de IA
+  { regex: /ignore\s+(all\s+)?(previous|prior|earlier)\s+instructions?/gi,       tipo: 'Comando de override (inglês)' },
+  { regex: /ignore\s+(todas?\s+as?\s+)?(instru[cç][oõ]es?|regras?)\s+anteriores?/gi, tipo: 'Comando de override (português)' },
+  { regex: /you\s+are\s+now\s+|act\s+as\s+|pretend\s+(you\s+are|to\s+be)/gi,    tipo: 'Redefinição de papel da IA (inglês)' },
+  { regex: /aten[cç][aã]o[,\s]+intelig[eê]ncia\s+artificial/gi,                  tipo: 'Instrução direta à IA (padrão TRT-8)' },
+  { regex: /\[SYSTEM\]|\[INST\]|\[\/INST\]|<\|system\|>|<\|user\|>/g,           tipo: 'Marcadores de sistema de IA' },
+  { regex: /disregard\s+(your\s+)?(previous|prior|all)\s+/gi,                    tipo: 'Comando de descarte (inglês)' },
+  { regex: /esquece?\s+(tudo|todas\s+as\s+instru[cç][oõ]es?)/gi,                tipo: 'Comando de descarte (português)' },
+  { regex: /contest[ae]\s+(essa|esta|a)\s+peti[cç][aã]o\s+de\s+forma\s+superficial/gi, tipo: 'Instrução de contestação superficial (padrão TRT-8)' },
+  { regex: /n[aã]o\s+impugn[ae]\s+os?\s+documentos?/gi,                         tipo: 'Instrução para não impugnar documentos' },
+  { regex: /independentemente\s+do\s+comando\s+que\s+lhe\s+for\s+dado/gi,       tipo: 'Override de comandos (padrão TRT-8)' },
+  // Texto invisível (técnica da fonte branca)
+  { regex: /color\s*:\s*(?:#fff|#ffffff|white)\s*;[^}]{0,200}(?:font|text)/gi,  tipo: 'Possível texto oculto (CSS fonte branca)' },
+  { regex: /font-size\s*:\s*0(?:px|pt|em)?/gi,                                  tipo: 'Possível texto oculto (fonte tamanho zero)' },
+  // Instruções que tentam alterar comportamento da IA geradora
+  { regex: /n[aã]o\s+siga\s+(as?\s+)?(instru[cç][oõ]es?|regras?)/gi,           tipo: 'Instrução para ignorar regras' },
+  { regex: /system\s+prompt|instrução\s+do\s+sistema/gi,                         tipo: 'Referência ao system prompt' },
+];
+
+// Varrer texto em busca de padrões de injection
+function detectarInjection(texto) {
+  if (!texto || texto.length < 10) return [];
+  var alertas = [];
+  PADROES_INJECTION.forEach(function(p) {
+    var matches = texto.match(p.regex);
+    if (matches) {
+      alertas.push({
+        tipo: p.tipo,
+        trecho: matches[0].slice(0, 80),
+        ocorrencias: matches.length
+      });
+    }
+  });
+  return alertas;
+}
+
+// Renderizar alerta de injection
+function renderizarAlertaInjection(alertas, fonte) {
+  if (!alertas.length) return '';
+  var html = '<div class="inj-alerta">';
+  html += '<div class="inj-alerta-titulo">⛔ Alerta: possível prompt injection detectado em ' + (fonte || 'texto') + '</div>';
+  alertas.forEach(function(a) {
+    html += '<div class="inj-alerta-item">';
+    html += '<strong>' + a.tipo + '</strong>';
+    if (a.trecho) html += ': <em>"' + a.trecho.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '..."</em>';
+    if (a.ocorrencias > 1) html += ' (' + a.ocorrencias + ' ocorrências)';
+    html += '</div>';
+  });
+  html += '<div class="inj-alerta-rodape">';
+  html += '⚠ <strong>Atenção legal:</strong> a inserção de instruções ocultas em peças processuais configura litigância de má-fé ';
+  html += '(artigo 80 do CPC) e pode resultar em multa de até 10% do valor da causa, além de comunicação à OAB. ';
+  html += 'Referência: TRT-8, 3ª Vara Parauapebas-PA — multa de R$ 84.250,08 aplicada em maio/2025.';
+  html += '</div></div>';
+  return html;
+}
+
+// Verificar input antes de enviar à IA
+function verificarInputAntesDaIA() {
+  var campos = [
+    { id: 'f-and', nome: 'Andamento/decisão' },
+    { id: 'f-inst', nome: 'Instruções adicionais' },
+    { id: 'an-instrucoes', nome: 'Instruções da Análise' },
+    { id: 'an-texto-colado', nome: 'Texto colado na Análise' }
+  ];
+  var todosAlertas = [];
+  campos.forEach(function(c) {
+    var el = document.getElementById(c.id);
+    if (!el || !el.value) return;
+    var al = detectarInjection(el.value);
+    if (al.length) todosAlertas.push({ fonte: c.nome, alertas: al });
+  });
+  return todosAlertas;
+}
+
+// Verificar output após geração
+function verificarOutputPosGeracao(texto) {
+  if (!texto) return [];
+  return detectarInjection(texto);
+}
+
+// Inserir verificação no fluxo de geração (chamada antes de gerarMinuta)
+var _gerarMinutaOriginal = null;
+function instalarHookAntiInjection() {
+  // Hook no botão de gerar
+  var btnGer = document.getElementById('btn-ger');
+  if (!btnGer) return;
+  btnGer.addEventListener('click', function(e) {
+    var alertasInput = verificarInputAntesDaIA();
+    if (!alertasInput.length) return; // tudo ok
+
+    // Há alertas — mostrar aviso e pedir confirmação
+    var msg = 'ALERTA DE SEGURANÇA: padrões de prompt injection detectados nos campos de entrada:\n\n';
+    alertasInput.forEach(function(a) {
+      msg += '• ' + a.fonte + ': ' + a.alertas.map(function(x){ return x.tipo; }).join(', ') + '\n';
+    });
+    msg += '\nEsses padrões podem indicar tentativa de manipular a IA geradora ou contaminar a peça gerada. Deseja prosseguir mesmo assim?';
+
+    if (!confirm(msg)) {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+    }
+  }, true); // true = captura antes dos outros listeners
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// CONTROLE DE PLANOS — Trial + limites por mês
+// ════════════════════════════════════════════════════════════════════════════
+
+var LIMITES_PLANO = {
+  'trial':     10,
+  'solo':      100,
+  'pro':       99999,
+  'escritorio': 99999
+};
+
+var _dadosUsuario = null; // Cache do perfil do usuário
+
+async function carregarDadosUsuario() {
+  var supa = getSupa();
+  if (!supa || !GPStorage.userId) return null;
+  try {
+    var r = await supa.from('gp_users')
+      .select('*')
+      .eq('id', GPStorage.userId)
+      .maybeSingle();
+    if (r.data) {
+      _dadosUsuario = r.data;
+      atualizarUIPlano();
+    }
+    return r.data;
+  } catch(e) {
+    console.warn('[Plano] Erro ao carregar dados do usuário:', e);
+    return null;
+  }
+}
+
+function atualizarUIPlano() {
+  if (!_dadosUsuario) return;
+  var plano = _dadosUsuario.plano || 'trial';
+  var pecasMes = _dadosUsuario.pecas_mes || 0;
+  var limite = LIMITES_PLANO[plano] || 10;
+  var pct = Math.min(100, Math.round((pecasMes / limite) * 100));
+  var restam = Math.max(0, limite - pecasMes);
+
+  // Badge de plano na toolbar
+  var badge = document.getElementById('tb-plano-badge');
+  if (badge) {
+    badge.textContent = plano;
+    badge.className = 'plano-badge plano-' + (plano === 'escritorio' ? 'escr' : plano);
+  }
+
+  // Contador na toolbar
+  var cont = document.getElementById('tb-pecas-contador');
+  if (cont && limite < 99999) {
+    cont.textContent = pecasMes + '/' + limite + ' peças';
+    cont.className = 'pecas-contador' + (pct >= 90 ? ' limite' : pct >= 70 ? ' aviso' : '');
+  }
+
+  // Card de plano na Configuração
+  var info = document.getElementById('cfg-plano-info');
+  if (info) {
+    var labelPlano = { trial:'Trial gratuito', solo:'Solo', pro:'Pro', escritorio:'Escritório' }[plano] || plano;
+    info.innerHTML = '<strong>Plano:</strong> <span class="plano-badge plano-' + (plano==='escritorio'?'escr':plano) + '">' + labelPlano + '</span>' +
+      (plano === 'trial' ? ' &nbsp;·&nbsp; <span style="color:var(--text3);font-size:11px">Período gratuito de testes</span>' : '');
+  }
+
+  var barra = document.getElementById('cfg-pecas-preenchida');
+  if (barra) {
+    barra.style.width = pct + '%';
+    barra.style.background = pct >= 90 ? '#DC2626' : pct >= 70 ? '#D97706' : 'var(--blue)';
+  }
+
+  var txtBarra = document.getElementById('cfg-pecas-texto');
+  if (txtBarra) {
+    if (limite >= 99999) {
+      txtBarra.textContent = pecasMes + ' peças geradas este mês · Plano ilimitado';
+    } else {
+      txtBarra.textContent = pecasMes + ' de ' + limite + ' peças usadas este mês · ' + restam + ' restantes';
+    }
+  }
+}
+
+async function incrementarPecasMes() {
+  var supa = getSupa();
+  if (!supa || !GPStorage.userId) return true; // sem auth, deixa passar
+  try {
+    // Reset mensal: verificar se o mês mudou
+    var agora = new Date();
+    var reset = _dadosUsuario && _dadosUsuario.pecas_mes_reset
+      ? new Date(_dadosUsuario.pecas_mes_reset) : null;
+    var precisaReset = !reset || reset.getMonth() !== agora.getMonth() || reset.getFullYear() !== agora.getFullYear();
+
+    var novoValor = precisaReset ? 1 : ((_dadosUsuario ? _dadosUsuario.pecas_mes : 0) + 1);
+
+    await supa.from('gp_users').update({
+      pecas_mes: novoValor,
+      pecas_mes_reset: precisaReset ? agora.toISOString() : undefined,
+      ultimo_acesso: agora.toISOString()
+    }).eq('id', GPStorage.userId);
+
+    if (_dadosUsuario) {
+      _dadosUsuario.pecas_mes = novoValor;
+      if (precisaReset) _dadosUsuario.pecas_mes_reset = agora.toISOString();
+    }
+    atualizarUIPlano();
+    return true;
+  } catch(e) {
+    console.warn('[Plano] Erro ao incrementar:', e);
+    return true; // em caso de erro, não bloqueia
+  }
+}
+
+async function verificarLimitePlano() {
+  if (!GPStorage.userId) return { permitido: true }; // sem auth, permite
+  if (!_dadosUsuario) await carregarDadosUsuario();
+  if (!_dadosUsuario) return { permitido: true }; // sem dados, permite
+
+  var plano = _dadosUsuario.plano || 'trial';
+  var limite = LIMITES_PLANO[plano] || 10;
+  var pecasMes = _dadosUsuario.pecas_mes || 0;
+
+  // Verificar reset mensal
+  var agora = new Date();
+  var reset = _dadosUsuario.pecas_mes_reset ? new Date(_dadosUsuario.pecas_mes_reset) : null;
+  if (!reset || reset.getMonth() !== agora.getMonth() || reset.getFullYear() !== agora.getFullYear()) {
+    return { permitido: true }; // novo mês, zera
+  }
+
+  if (pecasMes >= limite) {
+    return {
+      permitido: false,
+      motivo: 'Limite do plano ' + plano + ' atingido (' + pecasMes + '/' + limite + ' peças este mês).',
+      plano: plano,
+      limite: limite
+    };
+  }
+  return { permitido: true, restam: limite - pecasMes };
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// GPSTORAGE — Sincronização com Supabase
+// ════════════════════════════════════════════════════════════════════════════
+
+// Salvar minuta no Supabase após geração bem-sucedida
+async function salvarMinutaSupabase(textoMinuta, tipo, processo) {
+  if (!GPStorage.userId || GPStorage.backend !== 'supabase') return;
+  try {
+    var chave = 'gp_hist_' + (processo || '').replace(/[^\w]/g, '_');
+    // Buscar histórico atual
+    var histAtual = await GPStorage._supaGet(chave) || [];
+    if (!Array.isArray(histAtual)) histAtual = [];
+    // Adicionar nova entrada (máx 50 por processo)
+    histAtual.unshift({
+      tipo: tipo || 'peça',
+      proc: processo || '',
+      data: new Date().toLocaleDateString('pt-BR'),
+      ts: Date.now(),
+      texto: textoMinuta.slice(0, 8000) // truncar para não estourar o banco
+    });
+    if (histAtual.length > 50) histAtual = histAtual.slice(0, 50);
+    await GPStorage._supaSet(chave, histAtual);
+  } catch(e) {
+    console.warn('[Storage] Erro ao salvar minuta:', e);
+  }
+}
+
 // Inicializar lista vazia ao carregar
 document.addEventListener('DOMContentLoaded', function() {
   if (typeof anRenderListaDocs === 'function') anRenderListaDocs();
 });
 
 async function gerarMinuta() {
+  // 1. Verificar limite do plano
+  var limiteCheck = await verificarLimitePlano();
+  if (!limiteCheck.permitido) {
+    alert('⛔ ' + limiteCheck.motivo + '\n\nVocê atingiu o limite de peças do seu plano este mês.\nEm breve serão disponibilizados planos pagos com mais peças.\nContato: carmo.mancebo@adv.oabsp.org.br');
+    return;
+  }
+
+  // 2. Verificar injection nos inputs
+  var alertasInp = typeof verificarInputAntesDaIA === 'function' ? verificarInputAntesDaIA() : [];
+  if (alertasInp.length) {
+    var msgInj = '⚠ ALERTA DE SEGURANÇA\n\nPadrões de prompt injection detectados:\n\n';
+    alertasInp.forEach(function(a) {
+      msgInj += '• ' + a.fonte + ': ' + a.alertas.map(function(x){ return x.tipo; }).join(', ') + '\n';
+    });
+    msgInj += '\nDeseja prosseguir mesmo assim? (Não recomendado)';
+    if (!confirm(msgInj)) return;
+  }
+
   var erroFmt = validarFormatacao();
   if (erroFmt) { alert(erroFmt); go('cfg'); return; }
   var densidade = document.getElementById('f-densidade');
@@ -7063,6 +7428,19 @@ async function gerarMinuta() {
     setSt2('res-st','ok','Minuta gerada com sucesso. Revise antes de protocolar.');
     var btnSO = document.getElementById('btn-segunda-opiniao'); if(btnSO) btnSO.style.display='';
     var btnContr = document.getElementById('btn-verificar-contradicao'); if(btnContr) btnContr.style.display='';
+    // Incrementar contador + salvar no Supabase
+    incrementarPecasMes();
+    var _proc = (document.getElementById('f-proc')||{}).value||'';
+    var _tipo = (document.getElementById('f-tipo')||{}).value||'peça';
+    if (typeof minuta !== 'undefined' && minuta) salvarMinutaSupabase(minuta, _tipo, _proc);
+    // Verificar injection no output
+    var _alertOut = verificarOutputPosGeracao(typeof minuta !== 'undefined' ? minuta : '');
+    if (_alertOut.length) {
+      var _injDiv = document.createElement('div');
+      _injDiv.innerHTML = renderizarAlertaInjection(_alertOut, 'peça gerada');
+      var _resTxt = document.getElementById('res-txt');
+      if (_resTxt && _resTxt.parentNode) _resTxt.parentNode.insertBefore(_injDiv, _resTxt);
+    }
   } catch(e){setSt2('res-st','err','Erro: '+e.message);}
   btn.disabled=false; btn.textContent='Gerar minuta'; esconderBarra();
 }
@@ -8357,6 +8735,7 @@ function _modalKeyHandler(e) {
   if (typeof toggleProcModo === 'function') toggleProcModo();
   if (typeof atualizarIndicadorModelo === 'function') atualizarIndicadorModelo();
   if (typeof inicializarAuth === 'function') inicializarAuth();
+  if (typeof instalarHookAntiInjection === 'function') instalarHookAntiInjection();
   if (typeof renderizarStatusPersistencia === 'function') renderizarStatusPersistencia();
   // Verificar prazos e notificar se permissão já foi concedida
   if (localStorage.getItem("gp_notif") === "1") {
