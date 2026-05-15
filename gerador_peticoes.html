@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <title>Gerador de Petições — Carmo Mancebo</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -754,21 +755,76 @@ tbody tr.st-p td{background:#b3e5fc}
 <body>
 
 <!-- Login overlay (proteção local cosmética) -->
-<div id="login-overlay" class="login-overlay" style="display:none">
-  <div class="login-card">
+<div id="login-overlay" class="login-overlay" style="display:flex">
+  <div class="login-card" style="max-width:380px;width:100%">
     <div class="login-logo">Gerador de Petições</div>
     <div class="login-sub">Carmo Mancebo | Advogado</div>
-    <div class="login-oab">OAB/SP 274.575</div>
-    <div class="login-field">
-      <label>Senha de acesso</label>
-      <input type="password" id="login-pwd" autocomplete="off" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')fazerLogin()" />
+
+    <!-- Abas Entrar / Criar conta -->
+    <div style="display:flex;border-bottom:2px solid rgba(255,255,255,.15);margin:16px 0 18px">
+      <button id="tab-entrar" onclick="trocarAbaLogin('entrar')"
+        style="flex:1;background:none;border:none;color:white;font-size:13px;font-weight:700;padding:8px 0;cursor:pointer;border-bottom:2px solid white;margin-bottom:-2px;opacity:1">
+        Entrar
+      </button>
+      <button id="tab-cadastro" onclick="trocarAbaLogin('cadastro')"
+        style="flex:1;background:none;border:none;color:white;font-size:13px;padding:8px 0;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;opacity:.6">
+        Criar conta
+      </button>
     </div>
-    <button class="login-btn" onclick="fazerLogin()">Entrar</button>
-    <div id="login-err" class="login-err"></div>
-    <div class="login-hint">
-      <a href="#" onclick="resetarSenha();return false;" style="color:#185FA5;text-decoration:none">Esqueci minha senha</a>
+
+    <!-- Painel: Entrar -->
+    <div id="painel-entrar">
+      <div class="login-field">
+        <label>E-mail</label>
+        <input type="email" id="login-email" autocomplete="email" placeholder="seu@email.com.br"
+          onkeydown="if(event.key==='Enter')document.getElementById('login-pwd').focus()" />
+      </div>
+      <div class="login-field">
+        <label>Senha</label>
+        <input type="password" id="login-pwd" autocomplete="current-password" placeholder="Sua senha"
+          onkeydown="if(event.key==='Enter')fazerLogin()" />
+      </div>
+      <button class="login-btn" onclick="fazerLogin()" id="btn-fazer-login">Entrar</button>
+      <div id="login-err" class="login-err"></div>
+      <div class="login-hint">
+        <a href="#" onclick="recuperarSenhaEmail();return false;"
+          style="color:rgba(255,255,255,.75);text-decoration:none;font-size:12px">
+          Esqueci minha senha
+        </a>
+      </div>
     </div>
-    <div class="login-ver">versão 1.78.1</div>
+
+    <!-- Painel: Criar conta -->
+    <div id="painel-cadastro" style="display:none">
+      <div class="login-field">
+        <label>Nome completo</label>
+        <input type="text" id="cad-nome" placeholder="Carmo Mancebo" />
+      </div>
+      <div class="login-field">
+        <label>E-mail</label>
+        <input type="email" id="cad-email" placeholder="seu@email.com.br" />
+      </div>
+      <div class="login-field">
+        <label>OAB (opcional)</label>
+        <input type="text" id="cad-oab" placeholder="SP 274.575" />
+      </div>
+      <div class="login-field">
+        <label>Senha (mínimo 6 caracteres)</label>
+        <input type="password" id="cad-senha" placeholder="Escolha uma senha segura" />
+      </div>
+      <div class="login-field">
+        <label>Confirmar senha</label>
+        <input type="password" id="cad-senha2" placeholder="Repita a senha"
+          onkeydown="if(event.key==='Enter')fazerCadastro()" />
+      </div>
+      <button class="login-btn" onclick="fazerCadastro()" id="btn-fazer-cadastro">Criar conta</button>
+      <div id="cad-err" class="login-err"></div>
+      <div id="cad-ok" style="display:none;margin-top:10px;padding:10px;background:rgba(255,255,255,.15);border-radius:8px;font-size:12px;color:white;text-align:center">
+        ✓ Conta criada! Verifique seu e-mail para confirmar o cadastro.
+      </div>
+    </div>
+
+    <div class="login-ver">versão 1.79</div>
   </div>
 </div>
 
@@ -778,8 +834,8 @@ tbody tr.st-p td{background:#b3e5fc}
     <span class="tb-title">Gerador de Petições</span>
   </div>
   <div class="tb-center">
-    <div class="tb-name">Carmo Mancebo | Advogado</div>
-    <div class="tb-oab">OAB/SP 274.575</div>
+    <div class="tb-name" id="tb-user-nome">Carmo Mancebo | Advogado</div>
+    <div class="tb-oab" id="tb-user-oab">OAB/SP 274.575</div>
   </div>
   <div class="tb-right">
     <div style="position:relative;margin-right:12px">
@@ -790,8 +846,9 @@ tbody tr.st-p td{background:#b3e5fc}
     <button id="tb-modelo-btn" onclick="go('cfg')" title="Modelo de IA ativo — clique para configurar" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Sonnet</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
-    <button class="btn btn-s btn-sm" onclick="bloquearAcesso()" title="Bloquear acesso (pede senha)" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Bloquear</button>
-    <span class="tb-meta" id="tb-versao">versão 1.78.1.1</span>
+    <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
+    <span class="tb-meta" id="tb-versao">versão 1.79</span>
+    <span class="tb-meta" id="tb-versao">versão 1.79.1</span>
   </div>
 </div>
 
@@ -1717,9 +1774,9 @@ tbody tr.st-p td{background:#b3e5fc}
 var GPStorage = {
 
   // ── Configuração ──────────────────────────────────────────────────────────
-  backend: 'local', // 'local' | 'supabase'
-  supabaseUrl: '',  // ex: 'https://xyzxyz.supabase.co'
-  supabaseKey: '',  // anon/public key do projeto
+  backend: 'supabase',
+  supabaseUrl: 'https://qlpqybumoaxndzppddyk.supabase.co',
+  supabaseKey: 'sb_publishable_4jCX4bv9-Di7XA1oAOHPIw_sSREyHeL',
 
   // userId: será preenchido após autenticação (login futuro)
   userId: null,
@@ -1780,27 +1837,29 @@ var GPStorage = {
   // ── Placeholders para Supabase (implementar quando migrar) ───────────────
 
   _supaGet: async function(key) {
-    // var resp = await fetch(this.supabaseUrl + '/rest/v1/gp_storage?key=eq.' + key + '&user_id=eq.' + this.userId, {
-    //   headers: { 'apikey': this.supabaseKey, 'Authorization': 'Bearer ' + this.supabaseKey }
-    // });
-    // var data = await resp.json();
-    // return data.length ? JSON.parse(data[0].value) : null;
+    try {
+      var supa = getSupa(); if (!supa || !this.userId) return null;
+      var r = await supa.from('gp_storage').select('value').eq('user_id', this.userId).eq('key', key).maybeSingle();
+      return r.data ? JSON.parse(r.data.value) : null;
+    } catch(e) { return null; }
   },
 
   _supaSet: async function(key, value) {
-    // await fetch(this.supabaseUrl + '/rest/v1/gp_storage', {
-    //   method: 'POST',
-    //   headers: { 'apikey': this.supabaseKey, 'Authorization': 'Bearer ' + this.supabaseKey,
-    //              'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
-    //   body: JSON.stringify({ user_id: this.userId, key: key, value: JSON.stringify(value), updated_at: new Date().toISOString() })
-    // });
+    try {
+      var supa = getSupa(); if (!supa || !this.userId) return;
+      await supa.from('gp_storage').upsert({
+        user_id: this.userId, key: key,
+        value: JSON.stringify(value),
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id,key' });
+    } catch(e) { console.warn('[GPStorage] supaSet error:', e); }
   },
 
   _supaDel: async function(key) {
-    // await fetch(this.supabaseUrl + '/rest/v1/gp_storage?key=eq.' + key + '&user_id=eq.' + this.userId, {
-    //   method: 'DELETE',
-    //   headers: { 'apikey': this.supabaseKey, 'Authorization': 'Bearer ' + this.supabaseKey }
-    // });
+    try {
+      var supa = getSupa(); if (!supa || !this.userId) return;
+      await supa.from('gp_storage').delete().eq('user_id', this.userId).eq('key', key);
+    } catch(e) { console.warn('[GPStorage] supaDel error:', e); }
   }
 };
 
@@ -1945,23 +2004,168 @@ function resetarSenha() {
   document.getElementById('login-pwd').focus();
 }
 
-function verificarLogin() {
-  var stored = localStorage.getItem(LOGIN_KEY);
-  var auth = sessionStorage.getItem(LOGIN_SESSION_KEY);
-  // Se não há senha cadastrada E o usuário não quer cadastrar agora, deixa passar
-  // Se há senha cadastrada, precisa autenticar
-  if (stored && !auth) {
-    document.getElementById('login-overlay').style.display = 'flex';
-    setTimeout(function(){ document.getElementById('login-pwd').focus(); }, 100);
+// ── SUPABASE CLIENT ─────────────────────────────────────────────────────────
+var _supa = null;
+function getSupa() {
+  if (!_supa && window.supabase) {
+    _supa = window.supabase.createClient(
+      'https://qlpqybumoaxndzppddyk.supabase.co',
+      'sb_publishable_4jCX4bv9-Di7XA1oAOHPIw_sSREyHeL'
+    );
+  }
+  return _supa;
+}
+
+// ── INICIALIZAÇÃO DE AUTH ─────────────────────────────────────────────────
+function inicializarAuth() {
+  var supa = getSupa();
+  if (!supa) { console.error('[Auth] SDK Supabase não carregado'); return; }
+
+  // Observar mudanças de sessão (login/logout/refresh)
+  supa.auth.onAuthStateChange(function(event, session) {
+    if (session && session.user) {
+      GPStorage.userId = session.user.id;
+      GPStorage.backend = 'supabase';
+      ocultarLogin();
+      preencherDadosUsuario(session.user);
+    } else {
+      GPStorage.userId = null;
+      GPStorage.backend = 'local';
+      mostrarLogin();
+    }
+  });
+
+  // Verificar sessão existente ao carregar
+  supa.auth.getSession().then(function(result) {
+    if (!result.data.session) {
+      mostrarLogin();
+    }
+  });
+}
+
+function mostrarLogin() {
+  var ov = document.getElementById('login-overlay');
+  if (ov) { ov.style.display = 'flex'; }
+  setTimeout(function() {
+    var el = document.getElementById('login-email');
+    if (el) el.focus();
+  }, 100);
+}
+
+function ocultarLogin() {
+  var ov = document.getElementById('login-overlay');
+  if (ov) ov.style.display = 'none';
+}
+
+function preencherDadosUsuario(user) {
+  var meta = user.user_metadata || {};
+  var nome = meta.nome || user.email || 'Usuário';
+  var oab = meta.oab || '';
+  var nomeEl = document.getElementById('tb-user-nome');
+  var oabEl = document.getElementById('tb-user-oab');
+  if (nomeEl) nomeEl.textContent = nome + ' | Advogado';
+  if (oabEl) oabEl.textContent = oab ? 'OAB ' + oab : user.email;
+  if (typeof atualizarIndicadorModelo === 'function') atualizarIndicadorModelo();
+}
+
+function trocarAbaLogin(aba) {
+  var mostrar = aba === 'entrar' ? 'painel-entrar' : 'painel-cadastro';
+  var ocultar = aba === 'entrar' ? 'painel-cadastro' : 'painel-entrar';
+  document.getElementById(mostrar).style.display = 'block';
+  document.getElementById(ocultar).style.display = 'none';
+  // Atualizar estilo das abas
+  var tabAtiva  = document.getElementById('tab-' + aba);
+  var tabInativa = document.getElementById(aba === 'entrar' ? 'tab-cadastro' : 'tab-entrar');
+  if (tabAtiva)  { tabAtiva.style.borderBottomColor = 'white'; tabAtiva.style.opacity = '1'; tabAtiva.style.fontWeight = '700'; }
+  if (tabInativa) { tabInativa.style.borderBottomColor = 'transparent'; tabInativa.style.opacity = '.6'; tabInativa.style.fontWeight = '400'; }
+}
+
+async function fazerLogin() {
+  var email = (document.getElementById('login-email').value || '').trim();
+  var senha = (document.getElementById('login-pwd').value || '').trim();
+  var err = document.getElementById('login-err');
+  var btn = document.getElementById('btn-fazer-login');
+
+  if (!email || !senha) { err.textContent = 'Preencha o e-mail e a senha.'; return; }
+  if (!email.includes('@')) { err.textContent = 'E-mail inválido.'; return; }
+
+  btn.disabled = true; btn.textContent = 'Entrando...';
+  err.textContent = '';
+
+  var supa = getSupa();
+  var result = await supa.auth.signInWithPassword({ email: email, password: senha });
+
+  if (result.error) {
+    var msg = result.error.message;
+    if (msg.includes('Invalid login')) msg = 'E-mail ou senha incorretos.';
+    else if (msg.includes('Email not confirmed')) msg = 'Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada.';
+    err.textContent = msg;
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+  // Se sucesso: onAuthStateChange cuida de ocultar o login
+}
+
+async function fazerCadastro() {
+  var nome  = (document.getElementById('cad-nome').value || '').trim();
+  var email = (document.getElementById('cad-email').value || '').trim();
+  var oab   = (document.getElementById('cad-oab').value || '').trim();
+  var senha = (document.getElementById('cad-senha').value || '').trim();
+  var senha2 = (document.getElementById('cad-senha2').value || '').trim();
+  var err = document.getElementById('cad-err');
+  var btn = document.getElementById('btn-fazer-cadastro');
+
+  if (!nome)  { err.textContent = 'Informe seu nome.'; return; }
+  if (!email || !email.includes('@')) { err.textContent = 'E-mail inválido.'; return; }
+  if (senha.length < 6) { err.textContent = 'A senha deve ter pelo menos 6 caracteres.'; return; }
+  if (senha !== senha2) { err.textContent = 'As senhas não coincidem.'; return; }
+
+  btn.disabled = true; btn.textContent = 'Criando conta...';
+  err.textContent = '';
+
+  var supa = getSupa();
+  var result = await supa.auth.signUp({
+    email: email,
+    password: senha,
+    options: { data: { nome: nome, oab: oab } }
+  });
+
+  if (result.error) {
+    err.textContent = result.error.message;
+    btn.disabled = false; btn.textContent = 'Criar conta';
+  } else {
+    btn.style.display = 'none';
+    document.getElementById('cad-ok').style.display = 'block';
   }
 }
 
-function bloquearAcesso() {
-  sessionStorage.removeItem(LOGIN_SESSION_KEY);
-  document.getElementById('login-overlay').style.display = 'flex';
-  document.getElementById('login-pwd').value = '';
-  setTimeout(function(){ document.getElementById('login-pwd').focus(); }, 100);
+async function recuperarSenhaEmail() {
+  var email = (document.getElementById('login-email').value || '').trim();
+  if (!email || !email.includes('@')) {
+    alert('Digite seu e-mail no campo acima antes de clicar em "Esqueci minha senha".');
+    return;
+  }
+  var supa = getSupa();
+  var result = await supa.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://carmomancebo.com.br'
+  });
+  if (result.error) {
+    alert('Erro: ' + result.error.message);
+  } else {
+    alert('✓ E-mail de recuperação enviado para ' + email + '. Verifique sua caixa de entrada.');
+  }
 }
+
+async function fazerLogout() {
+  if (!confirm('Deseja sair da sua conta?')) return;
+  var supa = getSupa();
+  await supa.auth.signOut();
+  // onAuthStateChange cuida de mostrar o login
+}
+
+// Stub de compatibilidade (não mais usado)
+function verificarLogin() { inicializarAuth(); }
+function bloquearAcesso() { fazerLogout(); }
+function resetarSenha() { recuperarSenhaEmail(); }
 
 function trocarSenha() {
   var atual = prompt('Digite a senha atual (deixe em branco para cadastrar sem senha anterior):');
@@ -8153,6 +8357,7 @@ function _modalKeyHandler(e) {
   carregarPrazosColoracao();
   if (typeof toggleProcModo === 'function') toggleProcModo();
   if (typeof atualizarIndicadorModelo === 'function') atualizarIndicadorModelo();
+  if (typeof inicializarAuth === 'function') inicializarAuth();
   if (typeof renderizarStatusPersistencia === 'function') renderizarStatusPersistencia();
   // Verificar prazos e notificar se permissão já foi concedida
   if (localStorage.getItem("gp_notif") === "1") {
