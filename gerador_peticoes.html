@@ -879,7 +879,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 1.80</div>
+    <div class="login-ver">versão 1.80.1</div>
   </div>
 </div>
 
@@ -904,7 +904,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Sonnet</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
-    <span class="tb-meta" id="tb-versao">versão 1.80</span>
+    <span class="tb-meta" id="tb-versao">versão 1.80.1</span>
   </div>
 </div>
 
@@ -1559,6 +1559,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <div id="draft-st" style="font-size:10px;color:var(--text3);min-height:14px;margin-bottom:4px;text-align:right"></div>
       <div class="btn-row">
         <button class="btn btn-p" id="btn-ger" onclick="gerarMinuta()" disabled>Gerar minuta</button>
+        <div id="btn-ger-status" style="font-size:11px;color:var(--text3);margin-top:6px;min-height:14px"></div>
         <button class="btn btn-s" id="btn-comparar" onclick="compararModelos()" disabled title="Gera simultaneamente com GPT-4o e Claude e exibe lado a lado">⚡ Comparar</button>
         <button class="btn btn-s" onclick="gerarResumoCaso()" title="Gera um resumo estruturado do caso a partir do andamento e contextos carregados">📝 Resumir caso</button>
         <button class="btn btn-s" onclick="abrirVerificadorRN()" title="Consultar a RN ANS vigente para o tema da controvérsia">📋 Verificar RN ANS</button>
@@ -1595,12 +1596,16 @@ tbody tr.st-p td{background:#b3e5fc}
         <div class="card-title">1. Documentos do processo</div>
         <p style="font-size:12px;color:var(--text2);margin-bottom:8px">Faça upload de PDFs, .txt ou cole o texto. Quanto mais completo, melhor a análise. Tipos sugeridos: petição inicial, contestação, decisões, laudos, contratos.</p>
 
+        <div style="padding:8px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;font-size:11px;color:#1E40AF;margin-bottom:8px">
+          💡 <strong>Dica de custo:</strong> envie apenas as <strong>peças principais</strong> do processo — não o processo inteiro. Cada página consome ~500-800 tokens. Prefira <strong>.txt</strong> ou compacte os PDFs antes (ilovepdf.com). Processos com 500+ páginas podem exceder o limite do plano.
+        </div>
         <input type="file" id="an-files" multiple accept=".pdf,.txt,.docx" style="margin-bottom:8px" onchange="anCarregarArquivos(this.files)">
         <div id="an-doc-list" class="an-doc-list"></div>
 
         <details style="margin-top:10px">
           <summary style="cursor:pointer;font-size:12px;color:var(--text2)">📋 Ou cole o texto aqui (clique para expandir)</summary>
-          <textarea id="an-texto-colado" placeholder="Cole aqui o texto do andamento, decisão, peça ou trecho relevante..." style="margin-top:6px;min-height:120px;width:100%"></textarea>
+          <div style="font-size:11px;color:#92400E;margin:4px 0 2px">⚠ Cole apenas os trechos mais relevantes para evitar consumo excessivo de tokens.</div>
+          <textarea id="an-texto-colado" placeholder="Cole aqui o texto do andamento, decisão, peça ou trecho relevante..." style="margin-top:2px;min-height:120px;width:100%"></textarea>
           <button class="btn btn-s btn-sm" onclick="anAddTextoColado()" style="margin-top:6px">+ Adicionar texto como documento</button>
         </details>
 
@@ -1609,8 +1614,11 @@ tbody tr.st-p td{background:#b3e5fc}
 
       <div class="card">
         <div class="card-title">2. Tipo de análise</div>
+        <div id="an-modo-aviso" style="padding:8px 10px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:6px;font-size:11px;color:#92400E;margin-bottom:10px">
+          👆 <strong>Selecione o tipo de análise</strong> que deseja realizar antes de clicar em Analisar.
+        </div>
         <div class="modo-analise-grid" id="an-modos">
-          <div class="modo-card selected" data-modo="executivo" onclick="anSelecionarModo('executivo')">
+          <div class="modo-card" data-modo="executivo" onclick="anSelecionarModo('executivo')">
             <span class="modo-icon">📋</span>
             <span class="modo-titulo">Resumo executivo</span>
             <span class="modo-desc">Visão geral do caso em até 1 página: fatos, pedidos, estado atual e próximo passo.</span>
@@ -2538,10 +2546,28 @@ function saveKey(p) {
 }
 
 function getKey() {
-  var m = document.getElementById('sel-modelo').value;
-  return m.startsWith('claude')
-    ? (sessionStorage.getItem('ant') || document.getElementById('key-anthropic').value.trim())
-    : (sessionStorage.getItem('oai') || document.getElementById('key-openai').value.trim());
+  // Sempre ler o seletor global primeiro (evita dessincronização)
+  var globalSel = document.getElementById('sel-modelo-global');
+  var localSel  = document.getElementById('sel-modelo');
+  var m = (globalSel && globalSel.value) || (localSel && localSel.value) || 'claude-sonnet';
+  // Sincronizar o seletor oculto para manter compatibilidade
+  if (localSel && localSel.value !== m) localSel.value = m;
+  var isAnthropic = m.startsWith('claude');
+  var keyAnt = sessionStorage.getItem('ant') || (document.getElementById('key-anthropic') || {}).value || '';
+  var keyOai = sessionStorage.getItem('oai') || (document.getElementById('key-openai') || {}).value || '';
+  return isAnthropic ? keyAnt.trim() : keyOai.trim();
+}
+
+// Retorna modelo e chave sem misturar provedores
+function getModeloEChave() {
+  var globalSel = document.getElementById('sel-modelo-global');
+  var localSel  = document.getElementById('sel-modelo');
+  var modelo = (globalSel && globalSel.value) || (localSel && localSel.value) || 'claude-sonnet';
+  var isAnthropic = modelo.startsWith('claude');
+  var keyAnt = sessionStorage.getItem('ant') || (document.getElementById('key-anthropic') || {}).value || '';
+  var keyOai = sessionStorage.getItem('oai') || (document.getElementById('key-openai') || {}).value || '';
+  var key = isAnthropic ? keyAnt.trim() : keyOai.trim();
+  return { modelo: modelo, key: key, isAnthropic: isAnthropic };
 }
 
 // URLs de consulta dos tribunais — abrem o site com o número pré-preenchido
@@ -2732,9 +2758,29 @@ function onProcInput() {
 
 function checkBtn() {
   var btn = document.getElementById('btn-ger');
-  if (btn) btn.disabled = !(getKey() && document.getElementById('f-proc').value.trim());
-  var bPartes=document.getElementById('btn-partes'); if(bPartes) bPartes.disabled=btn?btn.disabled:true;
-  var bComp=document.getElementById('btn-comparar'); if(bComp) bComp.disabled=btn?btn.disabled:true;
+  var statusEl = document.getElementById('btn-ger-status');
+  var mc = getModeloEChave();
+  var temChave = !!mc.key;
+  var temProc = !!(document.getElementById('f-proc') || {}).value && document.getElementById('f-proc').value.trim().length > 0;
+  var habilitado = temChave && temProc;
+
+  if (btn) btn.disabled = !habilitado;
+  var bPartes = document.getElementById('btn-partes'); if(bPartes) bPartes.disabled = !habilitado;
+  var bComp   = document.getElementById('btn-comparar'); if(bComp) bComp.disabled = !habilitado;
+
+  if (statusEl) {
+    if (habilitado) {
+      statusEl.textContent = '';
+    } else {
+      var faltando = [];
+      if (!temChave) {
+        var nomeMod = mc.modelo === 'gpt4o' ? 'OpenAI' : 'Anthropic';
+        faltando.push('chave de API ' + nomeMod + ' (aba Configuração → IA e chave de API)');
+      }
+      if (!temProc) faltando.push('número do processo');
+      statusEl.innerHTML = '⚠ Falta preencher: <strong>' + faltando.join('</strong> e <strong>') + '</strong>';
+    }
+  }
 }
 
 // REFS
@@ -4852,7 +4898,7 @@ async function compararModelos() {
     var [resGpt, resClaude] = await Promise.all([
       fetch("https://api.openai.com/v1/chat/completions",{
         method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+keyOai},
-        body:JSON.stringify({model:"gpt-4o",messages:[{role:"system",content:sysBase},{role:"user",content:usrBase}],max_tokens:4000})
+        body:JSON.stringify({model:(document.getElementById('sel-modelo-global')||document.getElementById('sel-modelo')||{value:'claude-sonnet'}).value==='gpt4o'?'gpt-4o':'claude-sonnet-4-5',messages:[{role:"system",content:sysBase},{role:"user",content:usrBase}],max_tokens:4000})
       }).then(function(r){return r.json();}),
       fetch("https://api.anthropic.com/v1/messages",{
         method:"POST",headers:{"Content-Type":"application/json","x-api-key":keyAnt,"anthropic-version":"2023-06-01"},
@@ -6051,7 +6097,7 @@ function mostrarRN(tema) {
 
 // Estado global da aba
 var anDocs = []; // {nome, tipo, conteudo, tamanho}
-var anModoAtual = 'executivo';
+var anModoAtual = null; // nenhum pré-selecionado
 var anUltimoResultado = '';
 var anHistoricoChat = []; // mensagens do chat de continuação
 
@@ -6099,6 +6145,8 @@ function anSelecionarModo(modo) {
   document.querySelectorAll('.modo-card').forEach(function(c) {
     c.classList.toggle('selected', c.dataset.modo === modo);
   });
+  var av = document.getElementById('an-modo-aviso');
+  if (av) av.style.display = 'none';
   // Mostrar/ocultar área de pergunta personalizada
   var wrap = document.getElementById('an-personalizado-wrap');
   if (wrap) wrap.style.display = (modo === 'personalizado') ? 'block' : 'none';
@@ -6218,6 +6266,10 @@ async function executarAnalise() {
   if (!modoSpec) { alert('Modo inválido.'); return; }
 
   var perguntaLivre = '';
+  if (!modo) {
+    alert('Selecione o tipo de análise antes de continuar (cards acima).');
+    return;
+  }
   if (modo === 'personalizado') {
     perguntaLivre = (document.getElementById('an-pergunta-livre').value || '').trim();
     if (!perguntaLivre) { alert('Digite sua pergunta antes de analisar.'); return; }
