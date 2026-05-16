@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="version" content="1.13">
+<meta name="version" content="1.15">
 <title>Carmo Martins Mancebo Segundo — Advogado</title>
 <meta name="description" content="Advogado com mais de 15 anos de experiência em contencioso estratégico — saúde suplementar, seguros e direito civil. OAB/SP 274.575.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -217,12 +217,60 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
   .hero-stats{gap:1.5rem}
 }
 
-/* Card de contato na seção CONTATO — maior e proporcional */
-#contato .footer-contact{width:240px;padding:20px;border-radius:var(--radius);align-self:flex-start}
-#contato .footer-qr{width:200px;height:200px;border-radius:6px}
-#contato .footer-phone{margin-top:8px}
-#contato .footer-phone-label{font-size:10px;letter-spacing:.1em}
-#contato .footer-phone-num{font-size:14px;margin-top:4px;letter-spacing:.02em}
+/* Card de contato na seção CONTATO — proporcional */
+#contato .footer-contact{width:160px;padding:12px;border-radius:var(--radius);align-self:flex-start}
+#contato .footer-qr{width:130px;height:130px;border-radius:5px}
+#contato .footer-phone{margin-top:4px}
+#contato .footer-phone-label{font-size:9px;letter-spacing:.09em}
+#contato .footer-phone-num{font-size:11px;margin-top:3px;letter-spacing:.01em}
+
+.btn-plano-disabled{display:block;text-align:center;padding:8px;border-radius:var(--rsm);font-size:11.5px;font-weight:500;border:1.5px dashed var(--border2);color:var(--text3);background:transparent;font-family:inherit;cursor:not-allowed;margin-top:auto;letter-spacing:.03em}
+.plano-emdev{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-top:.5rem}
+
+/* === MOBILE refinado === */
+@media(max-width:760px){
+  #topbar{height:60px;grid-template-columns:auto 1fr auto;padding:0 .875rem}
+  #hero{padding-top:60px}
+  .hero-inner{padding:3rem 1.25rem !important}
+  .hero-title{font-size:2.2rem !important}
+  .hero-bio{font-size:14px}
+  .hero-stats{flex-wrap:wrap;gap:1.25rem;padding-top:1.75rem}
+  .stat-num{font-size:1.8rem}
+  .container{padding:0 1.25rem !important}
+  .sec{padding:3.5rem 0 !important}
+  .sec-title{font-size:1.6rem !important}
+  .sobre-grid{grid-template-columns:1fr !important;gap:1.5rem}
+  .sobre-img{width:180px !important;height:240px !important;margin:0 auto}
+  .traj-grid{grid-template-columns:1fr !important;border:1px solid var(--border);border-radius:var(--rsm)}
+  .traj-item{border-right:none !important;border-bottom:1px solid var(--border)}
+  .traj-item:last-child{border-bottom:none}
+  .publico-grid{grid-template-columns:1fr !important}
+  .atu-grid{grid-template-columns:1fr !important}
+  .produto-grid{grid-template-columns:1fr !important;gap:2rem}
+  .mockup-body{padding:1rem !important;font-size:11px}
+  .features-grid{grid-template-columns:1fr !important}
+  .planos-grid{grid-template-columns:1fr !important;gap:.875rem}
+  .plano{padding:1.25rem}
+  .contato-grid{grid-template-columns:1fr !important;gap:2rem}
+  #contato .footer-contact{width:140px}
+  #contato .footer-qr{width:110px;height:110px}
+  .cta-grid{grid-template-columns:1fr !important;gap:2rem}
+  footer{padding:1.5rem 1rem !important;flex-direction:column;text-align:center}
+  .footer-inner{flex-direction:column;text-align:center;gap:.75rem}
+  .tb-nav{display:none}
+  .tb-name{font-size:13px}
+  .tb-oab{font-size:10px}
+  .btn-tb{padding:6px 12px;font-size:11px}
+}
+@media(max-width:420px){
+  .hero-title{font-size:1.9rem !important}
+  .hero-btns{flex-direction:column;align-items:stretch}
+  .hero-btns a{justify-content:center}
+  .stat-num{font-size:1.6rem}
+  .stat-label{font-size:10px}
+  .sec-title{font-size:1.4rem !important}
+  .sobre-img{width:160px !important;height:210px !important}
+}
 </style>
 </head>
 <body>
@@ -251,18 +299,11 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
 <section id="hero">
   <div class="hero-inner">
     <div class="hero-eyebrow">Advogado · São Paulo</div>
-    <h1 class="hero-title">Carmo Mancebo <em>| Advogado</em></h1>
+    <h1 class="hero-title">Carmo <em>Mancebo</em></h1>
     <p class="hero-bio">
-      Advogado com mais de <strong>15 anos de experiência em contencioso estratégico</strong>. Atuação consolidada em <strong>saúde suplementar e seguros</strong>, com sólida bagagem em análise técnica de processos judiciais e administrativos de elevada complexidade. Atendimento também em <strong>diversas áreas do direito civil</strong>, com a mesma profundidade técnica e estratégia processual consistente — para operadoras, seguradoras e pessoas físicas.
+      Mais de <strong>15 anos de prática jurídica</strong>, com ênfase recente em <strong>contencioso estratégico</strong> nos segmentos de saúde suplementar e seguros. Atuação ampla em <strong>direito cível</strong> — incluindo demandas civis e empresariais — com profundidade técnica em análise documental, interpretação normativa e estruturação de teses jurídicas.
     </p>
-    <div class="hero-tags">
-      <span class="hero-tag">Saúde Suplementar</span>
-      <span class="hero-tag">Seguros</span>
-      <span class="hero-tag">Contencioso Estratégico</span>
-      <span class="hero-tag">Análise Técnica</span>
-      <span class="hero-tag">Cumprimento de Sentença</span>
-      <span class="hero-tag">Recursos</span>
-    </div>
+    
     <div class="hero-btns">
       <a href="/geradordepeticoes" class="btn-p">Acessar o Gerador de Petições →</a>
       <a href="#sobre" class="btn-s">Sobre o profissional</a>
@@ -284,12 +325,12 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
       </div>
       <div class="rev" style="transition-delay:.1s">
         <div class="eyebrow">Sobre o profissional</div>
-        <h2 class="sec-title">Mais de 15 anos em <em>contencioso estratégico</em></h2>
+        <h2 class="sec-title">Trajetória sólida com <em>foco em contencioso</em></h2>
         <p class="sobre-bio">
-          <strong>Carmo Martins Mancebo Segundo</strong> é advogado com atuação desde 2008, acumulando ampla experiência na análise técnica de processos judiciais e administrativos, com trajetória consolidada em ambientes de elevada complexidade e volume.
+          <strong>Carmo Martins Mancebo Segundo</strong> exerce a advocacia desde 2008, acumulando ampla experiência na análise técnica de processos judiciais e administrativos, com trajetória consolidada em ambientes de elevada complexidade e volume. A ênfase em contencioso estratégico é parte mais recente dessa trajetória, somando-se à prática regular em demandas cíveis diversas ao longo dos anos.
         </p>
         <p class="sobre-bio">
-          Sua atuação profissional está estruturada na análise documental, interpretação normativa e desenvolvimento de soluções jurídicas em contextos estratégicos, com experiência relevante nos segmentos securitário e de saúde suplementar — incluindo a condução e revisão técnica de demandas envolvendo contratos de seguro e planos de saúde, análise de risco, estruturação de teses jurídicas e padronização de peças processuais. Possui, ainda, amplo conhecimento em diversas áreas do <strong>direito civil</strong>, atendendo demandas contratuais, obrigacionais, de responsabilidade civil e de família.
+          Sua atuação está estruturada na análise documental, interpretação normativa e desenvolvimento de soluções jurídicas em contextos estratégicos, com experiência relevante nos segmentos securitário e de saúde suplementar — incluindo a condução e revisão técnica de demandas, análise de risco, estruturação de teses jurídicas e padronização de peças processuais. Possui, ainda, amplo conhecimento em diversas áreas do <strong>direito cível</strong> (civil e empresarial), atendendo demandas contratuais, obrigacionais, de responsabilidade civil, societárias e de família.
         </p>
         <p class="sobre-bio">
           Possui sólido domínio da legislação setorial — resoluções normativas da ANS, normas SUSEP, CDC, Código Civil e CPC — e acompanha de forma contínua a jurisprudência do STJ e do TJSP. Sua experiência inclui, ainda, atuação em controladoria jurídica, coordenação de equipes e participação em processos administrativos perante órgãos regulatórios e conselhos de classe.
@@ -343,33 +384,36 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
   <div class="container">
     <div class="rev">
       <div class="eyebrow">Público atendido</div>
-      <h2 class="sec-title">Atuação para <em>empresas e pessoas físicas</em></h2>
+      <h2 class="sec-title">Para <em>empresas e pessoas físicas</em></h2>
       <p class="sec-lead" style="max-width:620px">
-        Atendimento a clientes corporativos — operadoras de planos de saúde, seguradoras e escritórios parceiros — e também a pessoas físicas em demandas relacionadas aos mesmos segmentos.
+        Atendimento a empresas de diversos segmentos e a pessoas físicas — com profundidade técnica em saúde suplementar e seguros, e abertura para demandas cíveis e empresariais de outras áreas.
       </p>
     </div>
     <div class="publico-grid">
       <div class="pub-card rev">
-        <div class="pub-titulo">Operadoras e seguradoras</div>
+        <div class="pub-titulo">Empresas e instituições</div>
         <p class="pub-desc">
-          Defesa estratégica de operadoras de planos de saúde e seguradoras em demandas judiciais de alta complexidade — análise técnica aprofundada, estruturação de teses, padronização de peças e revisão técnica de manifestações processuais. Atuação em cumprimento de sentença e em todas as fases do contencioso.
+          Assessoria jurídica e defesa estratégica de empresas em demandas judiciais de média e alta complexidade — análise técnica aprofundada, estruturação de teses, padronização de peças e revisão técnica de manifestações processuais. Experiência consolidada em operadoras de planos de saúde e seguradoras, e atuação aberta a empresas de outros segmentos com demandas cíveis, contratuais e empresariais.
         </p>
         <div class="pub-tags">
-          <span class="pub-tag">Planos de Saúde</span>
-          <span class="pub-tag">Seguros de Vida</span>
-          <span class="pub-tag">RCF</span>
-          <span class="pub-tag">DFI / SFH</span>
+          <span class="pub-tag">Saúde Suplementar</span>
+          <span class="pub-tag">Seguros</span>
+          <span class="pub-tag">Cível e Empresarial</span>
+          <span class="pub-tag">Contratos</span>
+          <span class="pub-tag">Contencioso Estratégico</span>
         </div>
       </div>
       <div class="pub-card rev" style="transition-delay:.08s">
         <div class="pub-titulo">Pessoas físicas</div>
         <p class="pub-desc">
-          Atendimento a pessoas físicas em demandas envolvendo contratos de seguro e planos de saúde — análise contratual, orientação sobre direitos e cabimento de medidas judiciais, e condução de ações com a mesma profundidade técnica aplicada ao contencioso estratégico corporativo.
+          Atendimento a pessoas físicas em demandas cíveis variadas — contratos, responsabilidade civil, família e relações de consumo — incluindo questões envolvendo seguros e planos de saúde, com a mesma profundidade técnica aplicada ao contencioso corporativo.
         </p>
         <div class="pub-tags">
-          <span class="pub-tag">Análise contratual</span>
-          <span class="pub-tag">Consultoria</span>
-          <span class="pub-tag">Demandas judiciais</span>
+          <span class="pub-tag">Cível</span>
+          <span class="pub-tag">Contratos</span>
+          <span class="pub-tag">Responsabilidade Civil</span>
+          <span class="pub-tag">Família</span>
+          <span class="pub-tag">Consumidor</span>
         </div>
       </div>
     </div>
@@ -382,7 +426,7 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
     <div class="rev">
       <div class="eyebrow">Áreas de atuação</div>
       <h2 class="sec-title">O que faço <em>na prática</em></h2>
-      <p class="sec-lead" style="max-width:620px">A atuação em saúde suplementar e seguros exige domínio técnico da regulação setorial, da jurisprudência atualizada e de estratégias processuais adequadas a cada fase do litígio.</p>
+      <p class="sec-lead" style="max-width:620px">Atuação ampla em direito cível, com profundidade técnica em segmentos regulados como saúde suplementar e seguros, e cobertura para demandas contratuais, empresariais e de responsabilidade civil em outros setores.</p>
     </div>
     <div class="atu-grid">
       <div class="atu-card rev">
@@ -410,12 +454,24 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
         <p class="atu-desc">Análise de apólices e disputas envolvendo Responsabilidade Civil Facultativa (RCF) em todas as modalidades — property, medmal, veicular, vida, viagem e empresarial — e seguros vinculados ao SFH (DFI).</p>
       </div>
       <div class="atu-card rev">
+        <div class="atu-titulo">Direito contratual</div>
+        <p class="atu-desc">Análise, revisão e elaboração de contratos cíveis e empresariais — prestação de serviços, fornecimento, distribuição, parceria e demais instrumentos. Atuação em demandas de revisão, cumprimento, resolução e responsabilização contratual.</p>
+      </div>
+      <div class="atu-card rev" style="transition-delay:.05s">
+        <div class="atu-titulo">Responsabilidade civil</div>
+        <p class="atu-desc">Atuação em demandas indenizatórias por danos materiais, morais e estéticos — em contextos contratuais e extracontratuais. Análise de nexo causal, dever de indenizar e quantificação do dano com base em jurisprudência consolidada.</p>
+      </div>
+      <div class="atu-card rev" style="transition-delay:.1s">
+        <div class="atu-titulo">Direito empresarial</div>
+        <p class="atu-desc">Apoio a empresas em demandas societárias, contratuais e regulatórias — com análise técnica de documentação, definição de estratégia processual e atuação em todas as fases do contencioso empresarial.</p>
+      </div>
+      <div class="atu-card rev">
         <div class="atu-titulo">Análise técnica de processos</div>
-        <p class="atu-desc">Análise documental aprofundada, interpretação de pareceres jurídicos, identificação de inconsistências e elaboração de pareceres técnicos para subsidiar a tomada de decisão estratégica.</p>
+        <p class="atu-desc">Análise documental aprofundada, interpretação de pareceres jurídicos, identificação de inconsistências e elaboração de pareceres técnicos para subsidiar a tomada de decisão estratégica em demandas de qualquer natureza.</p>
       </div>
       <div class="atu-card rev" style="transition-delay:.05s">
         <div class="atu-titulo">Processos administrativos</div>
-        <p class="atu-desc">Atuação em processos administrativos perante órgãos de classe e entidades regulatórias — Tribunal de Ética e Disciplina da OAB/SP, Conselhos Regionais de Medicina e Fisioterapia — com análise normativa e acompanhamento.</p>
+        <p class="atu-desc">Atuação em processos administrativos perante órgãos de classe e entidades regulatórias — Tribunal de Ética e Disciplina da OAB/SP, Conselhos Regionais de Medicina e Fisioterapia — com análise normativa.</p>
       </div>
       <div class="atu-card rev" style="transition-delay:.1s">
         <div class="atu-titulo">Controladoria jurídica</div>
@@ -485,7 +541,7 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
     <div class="rev" style="text-align:center;margin-bottom:2.5rem">
       <div class="eyebrow center">Planos de acesso</div>
       <h2 class="sec-title" style="text-align:center">Escolha o plano <em>ideal</em></h2>
-      <p class="sec-lead" style="text-align:center;max-width:500px;margin:0 auto">A ferramenta está em fase de validação. O acesso é gratuito durante esse período — em breve os planos pagos serão disponibilizados.</p>
+      <p class="sec-lead" style="text-align:center;max-width:500px;margin:0 auto">A ferramenta está em fase de validação, com acesso gratuito no plano Trial. Os demais planos estão em desenvolvimento e serão disponibilizados em etapa posterior, após a conclusão dos painéis administrativos e estrutura de cobrança.</p>
     </div>
     <div class="planos-grid">
       <div class="plano rev" style="display:flex;flex-direction:column">
@@ -496,21 +552,21 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
       </div>
       <div class="plano rev" style="transition-delay:.06s;display:flex;flex-direction:column">
         <div class="plano-nome">Solo</div><div class="plano-embreve">Em breve</div>
-        <div class="plano-periodo">Em validação — acesso gratuito</div><div class="plano-sep"></div>
+        <div class="plano-periodo">Em desenvolvimento</div><div class="plano-sep"></div>
         <ul class="plano-items"><li>Peças ilimitadas</li><li>36 teses estruturadas</li><li>7 modos de geração</li><li>Análise de processos</li></ul>
-        <button class="btn-plano" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Solicitar acesso</button>
+        <button class="btn-plano-disabled" disabled>Em desenvolvimento</button>
       </div>
       <div class="plano destaque rev" style="transition-delay:.12s;display:flex;flex-direction:column">
         <div class="plano-nome">Pro</div><div class="plano-embreve">Em breve</div>
-        <div class="plano-periodo">Em validação — acesso gratuito</div><div class="plano-sep"></div>
+        <div class="plano-periodo">Em desenvolvimento</div><div class="plano-sep"></div>
         <ul class="plano-items"><li>Tudo do Solo</li><li>Detector anti-injection</li><li>Modelos premium</li><li>Suporte prioritário</li></ul>
-        <button class="btn-plano solid" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Solicitar acesso</button>
+        <button class="btn-plano-disabled" disabled>Em desenvolvimento</button>
       </div>
       <div class="plano rev" style="transition-delay:.18s;display:flex;flex-direction:column">
         <div class="plano-nome">Escritório</div><div class="plano-embreve">Em breve</div>
-        <div class="plano-periodo">Em validação — acesso gratuito</div><div class="plano-sep"></div>
+        <div class="plano-periodo">Em desenvolvimento</div><div class="plano-sep"></div>
         <ul class="plano-items"><li>Múltiplos usuários</li><li>Personalização de teses</li><li>Integração e onboarding</li><li>Contrato customizado</li></ul>
-        <button class="btn-plano" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Falar com a equipe</button>
+        <button class="btn-plano-disabled" disabled>Em desenvolvimento</button>
       </div>
     </div>
   </div>
@@ -580,7 +636,7 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
   <div class="footer-inner">
     <div>
       <div class="footer-nome">Carmo Martins Mancebo Segundo</div>
-      <p class="footer-info">OAB/SP 274.575 · São Paulo, SP</p>
+      <p class="footer-info">OAB/SP 274.575</p>
     </div>
     <div class="footer-links">
       <a href="#">Política de Privacidade</a>
@@ -589,7 +645,7 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
     </div>
   </div>
 </footer>
-<div class="ver">index v1.13</div>
+<div class="ver">index v1.15</div>
 
 <script>
 const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);}});},{threshold:.08,rootMargin:'0px 0px -30px 0px'});
