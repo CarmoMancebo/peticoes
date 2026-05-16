@@ -919,7 +919,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 1.87</div>
+    <div class="login-ver">versão 1.88</div>
   </div>
 </div>
 
@@ -944,7 +944,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Demonstração</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
-    <span class="tb-meta" id="tb-versao">versão 1.87</span>
+    <span class="tb-meta" id="tb-versao">versão 1.88</span>
   </div>
 </div>
 
@@ -968,6 +968,9 @@ tbody tr.st-p td{background:#b3e5fc}
     <div id="panel-cfg" class="panel active">
       <div class="panel-title">Configuração</div>
       <div class="panel-sub">Selecione peças de referência para uso como modelo de estilo e estrutura.</div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+        <button class="btn btn-s btn-sm" onclick="go('ger')" style="font-size:12px;color:var(--blue)">Ir direto para Gerar petição →</button>
+      </div>
 
 
 
@@ -981,9 +984,9 @@ tbody tr.st-p td{background:#b3e5fc}
         </div>
         <div id="cfg-pecas-texto" style="font-size:11px;color:var(--text3);margin-bottom:10px"></div>
         <div style="font-size:11px;color:var(--text2);padding:8px 10px;background:var(--bg2);border-radius:6px">
-          🎁 <strong>Plano Degustação:</strong> 10 peças para explorar a ferramenta. Sem prazo de validade — use quando quiser.
-          Upgrade para o plano <strong>Degustação</strong> ou <strong>Avançado</strong> para uso contínuo.<br>
-          <span style="color:var(--text3)">Interesse em acesso antecipado? Entre em contato pelo e-mail do perfil.</span>
+          🎁 <strong>Plano Demonstração:</strong> 10 peças para explorar a ferramenta. Sem prazo de validade — use quando quiser.
+          Upgrade para o plano <strong>Demonstração</strong> ou <strong>Avançado</strong> para uso contínuo.<br>
+          <span style="color:var(--text3)">Acesse a seção de planos para conhecer as opções disponíveis.</span>
         </div>
       </div>
 
@@ -1173,6 +1176,20 @@ tbody tr.st-p td{background:#b3e5fc}
     <div id="panel-proc" class="panel">
       <div class="panel-title">Processos</div>
       <div class="panel-sub">Clique para selecionar · 📋 ficha · Duplo clique abre ficha · Shift+clique na coluna para ordenação secundária</div>
+      <div class="proc-instrucao" id="card-instrucao-proc">
+        <h3>Como usar esta aba</h3>
+        <p>Importe uma planilha com seus processos para gerenciá-los em lote. Ao clicar em um processo, os dados são carregados automaticamente na aba <strong>Gerar petição</strong>.</p>
+        <div class="proc-rotas">
+          <div class="proc-rota">
+            <strong>📋 Com planilha</strong>
+            <span>Importe o arquivo .xlsx do LegalOne ou outro sistema. Clique em qualquer processo para carregá-lo.</span>
+          </div>
+          <div class="proc-rota">
+            <strong>✏️ Sem planilha</strong>
+            <span>Esta aba é opcional. Vá direto para <a href="#" onclick="go('ger');return false" style="color:#166534;font-weight:500">Gerar petição</a> e insira os dados manualmente.</span>
+          </div>
+        </div>
+      </div>
 
       <div class="card" id="card-xlsx">
         <div class="fzone" onclick="document.getElementById('inp-xlsx').click()">
@@ -1262,6 +1279,27 @@ tbody tr.st-p td{background:#b3e5fc}
 
     <!-- GERAR -->
     <div id="panel-ger" class="panel">
+      <div class="progress-bar-flow" id="barra-fluxo">
+      <div class="pf-step done" id="pf-cfg" onclick="go('cfg')" title="Ir para Configuração">
+        <div class="pf-dot">✓</div>
+        <span>Configuração</span>
+      </div>
+      <div class="pf-line"></div>
+      <div class="pf-step" id="pf-proc" onclick="go('proc')" title="Ir para Processos">
+        <div class="pf-dot">2</div>
+        <span>Processos</span>
+      </div>
+      <div class="pf-line"></div>
+      <div class="pf-step active" id="pf-ger" onclick="go('ger')" title="Ir para Gerar petição">
+        <div class="pf-dot">3</div>
+        <span>Gerar petição</span>
+      </div>
+      <div class="pf-line"></div>
+      <div class="pf-step" id="pf-res" onclick="go('res')" title="Ver resultado">
+        <div class="pf-dot">4</div>
+        <span>Resultado</span>
+      </div>
+    </div>
       <div class="panel-title">Gerar petição</div>
       <div class="panel-sub">Preencha os dados, informe o andamento e gere a minuta.</div>
 
@@ -1272,13 +1310,42 @@ tbody tr.st-p td{background:#b3e5fc}
         <option value="completo">Completo</option>
       </select>
 
+      <div class="card card-destaque" id="card-andamento">
+        <div class="card-title" style="display:flex;align-items:center;gap:8px">
+          Andamento do tribunal
+          <span id="badge-comece" style="display:inline-flex;align-items:center;gap:4px;background:#E6F1FB;color:#185FA5;font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;animation:pulse-badge 2s ease-in-out infinite">▶ Comece aqui</span>
+        </div>
+        <p id="hint-andamento" style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.6">Cole o texto do andamento copiado do tribunal (e-SAJ, PJe, TJSP, STJ etc.) ou carregue o arquivo abaixo. A IA identifica automaticamente as partes, o tipo de peça necessária e os fundamentos aplicáveis.</p>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-s btn-sm" onclick="document.getElementById('inp-and').click()">📎 Carregar arquivo (PDF, DOCX, TXT)</button>
+          <span id="and-nome" style="font-size:11px;color:var(--text3)"></span>
+          <button class="btn btn-s btn-sm fhide" id="btn-and-clear" onclick="clearAndamento()">× Limpar</button>
+        </div>
+        <input type="file" id="inp-and" accept=".pdf,.docx,.txt" style="display:none" onchange="loadAndamento(this)" />
+        <div id="and-st"></div>
+        <div class="field">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <label style="margin-bottom:0">Texto do andamento / decisão / despacho / sentença / acórdão</label>
+            <button class="btn btn-s btn-sm" onclick="analisarAndamento()" title="Detecta automaticamente: tipo de demanda, dados do processo, e sugere tipo de peça" style="font-size:11px;padding:3px 8px">🔍 Analisar andamento</button>
+          </div>
+          <textarea id="f-and" style="min-height:140px" placeholder="Cole aqui o texto do andamento processual copiado do tribunal (e-SAJ, PJe, TJSP, STJ etc.).
+
+Exemplo: "Vistos. Trata-se de ação de obrigação de fazer... Intime-se a parte ré para manifestação no prazo de 15 dias. São Paulo, 22 de abril de 2026."
+
+Quanto mais completo o andamento, mais precisa e fundamentada será a peça gerada. Você também pode carregar o arquivo PDF ou DOCX acima...."></textarea>
+          <div id="and-analise" style="display:none;margin-top:6px;padding:8px 10px;background:#EFF6FF;border:1px solid #93C5FD;border-radius:6px;font-size:11px;color:#1E3A8A"></div>
+          <div style="font-size:10px;color:var(--text3);text-align:right;margin-top:2px"><span id="cnt-and">0</span> chars · <span id="cnt-and-tk">0</span> tokens est.</div>
+          <div id="alerta-dlp" style="display:none;margin-top:6px;padding:8px 10px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:6px;font-size:11px;color:#92400E"></div>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-title">Dados do processo</div>
         <!-- Linha 1: Pasta + Número do processo (seletor auto/manual + input do número) -->
         <div class="row2" style="grid-template-columns:1fr 2fr;gap:12px;margin-bottom:14px">
-          <div class="field"><label>Pasta</label><input type="text" id="f-pasta" /></div>
+          <div class="field"><label style="display:inline-flex;align-items:center;gap:0">Pasta<span class="tooltip-wrap"><span class="tooltip-icon" tabindex="0">?</span><span class="tooltip-box">Opcional. Referência interna do escritório para identificar o processo na planilha.</span></span></label><input type="text" id="f-pasta" /></div>
           <div class="field field-required">
-            <label>Número do processo</label>
+            <label style="display:inline-flex;align-items:center;gap:0">Número do processo<span class="tooltip-wrap"><span class="tooltip-icon" tabindex="0">?</span><span class="tooltip-box">Cole o número CNJ (0000000-00.0000.0.00.0000). A IA consulta os dados do tribunal automaticamente.</span></span></label>
             <div style="display:flex;gap:6px;align-items:stretch;">
               <select id="f-proc-modo" style="max-width:180px;flex-shrink:0;" onchange="toggleProcModo()">
                 <option value="manual">Preencher manualmente</option>
@@ -1306,7 +1373,7 @@ tbody tr.st-p td{background:#b3e5fc}
         </div>
         <!-- Cliente e Parte contrária em linhas separadas (uma linha cada) -->
         <div class="field field-required" style="margin-bottom:14px">
-          <label>Cliente (executada / ré)</label>
+          <label style="display:inline-flex;align-items:center;gap:0">Cliente (executada / ré)<span class="tooltip-wrap"><span class="tooltip-icon" tabindex="0">?</span><span class="tooltip-box">Em "Automático", a IA identifica o nome da operadora no andamento. Selecione "Preencher manualmente" para informar diretamente.</span></span></label>
           <div style="display:flex;gap:6px;align-items:stretch;">
             <select id="f-cliente-modo" style="max-width:180px;flex-shrink:0;" onchange="toggleClienteModo()">
               <option value="auto" selected>Automático (IA identifica)</option>
@@ -1317,7 +1384,7 @@ tbody tr.st-p td{background:#b3e5fc}
           </div>
         </div>
         <div class="field field-required" style="margin-bottom:14px">
-          <label>Parte contrária</label>
+          <label style="display:inline-flex;align-items:center;gap:0">Parte contrária<span class="tooltip-wrap"><span class="tooltip-icon" tabindex="0">?</span><span class="tooltip-box">Nome do autor ou exequente. Em "Automático", a IA extrai do andamento carregado.</span></span></label>
           <div style="display:flex;gap:6px;align-items:stretch;">
             <select id="f-parte-modo" style="max-width:180px;flex-shrink:0;" onchange="toggleParteModo()">
               <option value="auto" selected>Automático (IA identifica)</option>
@@ -1326,28 +1393,7 @@ tbody tr.st-p td{background:#b3e5fc}
             <input type="text" id="f-parte" placeholder="(será identificado pela IA)" disabled style="flex:1;background:var(--surface2);" />
           </div>
         </div>
-        <div class="field"><label>Descrição da demanda (Tarefa)</label><input type="text" id="f-desc" /></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Andamento do tribunal</div>
-        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
-          <button class="btn btn-s btn-sm" onclick="document.getElementById('inp-and').click()">📎 Carregar arquivo (PDF, DOCX, TXT)</button>
-          <span id="and-nome" style="font-size:11px;color:var(--text3)"></span>
-          <button class="btn btn-s btn-sm fhide" id="btn-and-clear" onclick="clearAndamento()">× Limpar</button>
-        </div>
-        <input type="file" id="inp-and" accept=".pdf,.docx,.txt" style="display:none" onchange="loadAndamento(this)" />
-        <div id="and-st"></div>
-        <div class="field">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-            <label style="margin-bottom:0">Texto do andamento / decisão / despacho / sentença / acórdão</label>
-            <button class="btn btn-s btn-sm" onclick="analisarAndamento()" title="Detecta automaticamente: tipo de demanda, dados do processo, e sugere tipo de peça" style="font-size:11px;padding:3px 8px">🔍 Analisar andamento</button>
-          </div>
-          <textarea id="f-and" style="min-height:140px" placeholder="Cole o texto ou carregue um arquivo acima..."></textarea>
-          <div id="and-analise" style="display:none;margin-top:6px;padding:8px 10px;background:#EFF6FF;border:1px solid #93C5FD;border-radius:6px;font-size:11px;color:#1E3A8A"></div>
-          <div style="font-size:10px;color:var(--text3);text-align:right;margin-top:2px"><span id="cnt-and">0</span> chars · <span id="cnt-and-tk">0</span> tokens est.</div>
-          <div id="alerta-dlp" style="display:none;margin-top:6px;padding:8px 10px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:6px;font-size:11px;color:#92400E"></div>
-        </div>
+        <div class="field"><label style="display:inline-flex;align-items:center;gap:0">Descrição da demanda<span class="tooltip-wrap"><span class="tooltip-icon" tabindex="0">?</span><span class="tooltip-box">Opcional. Descreva brevemente a tarefa (ex.: "elaborar impugnação ao cumprimento de sentença"). Se deixado em branco, a IA identifica pelo andamento.</span></span></label><input type="text" id="f-desc" /></div>
       </div>
 
       <div class="card">
@@ -8861,6 +8907,67 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+
+// Onboarding — remover destaque do card de andamento após preenchimento
+(function() {
+  function checkAndamento() {
+    var ta = document.getElementById('f-and');
+    var card = document.getElementById('card-andamento');
+    var badge = document.getElementById('badge-comece');
+    var hint = document.getElementById('hint-andamento');
+    if (!ta || !card) return;
+    var preenchido = ta.value.trim().length > 30;
+    if (preenchido) {
+      card.classList.add('preenchido');
+      if (badge) badge.style.display = 'none';
+      if (hint) hint.style.display = 'none';
+    } else {
+      card.classList.remove('preenchido');
+      if (badge) badge.style.display = '';
+      if (hint) hint.style.display = '';
+    }
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    var ta = document.getElementById('f-and');
+    if (ta) {
+      ta.addEventListener('input', checkAndamento);
+      ta.addEventListener('change', checkAndamento);
+      checkAndamento();
+    }
+    // Atualizar barra de progresso ao navegar
+    var origGo = window.go;
+    if (origGo) {
+      window.go = function(id) {
+        origGo(id);
+        atualizarBarraFluxo(id);
+      };
+    }
+  });
+  window.atualizarBarraFluxo = function(id) {
+    var mapa = { cfg: 'pf-cfg', proc: 'pf-proc', ger: 'pf-ger', res: 'pf-res', an: null, dash: null };
+    var steps = ['pf-cfg','pf-proc','pf-ger','pf-res'];
+    var ativo = mapa[id];
+    if (!ativo) return;
+    var idxAtivo = steps.indexOf(ativo);
+    steps.forEach(function(sid, i) {
+      var el = document.getElementById(sid);
+      if (!el) return;
+      el.classList.remove('active','done');
+      if (sid === ativo) el.classList.add('active');
+      else if (i < idxAtivo) el.classList.add('done');
+    });
+    // Atualizar números/check dos dots
+    steps.forEach(function(sid, i) {
+      var el = document.getElementById(sid);
+      if (!el) return;
+      var dot = el.querySelector('.pf-dot');
+      if (!dot) return;
+      if (i < idxAtivo) dot.textContent = '✓';
+      else dot.textContent = String(i+1);
+    });
+  };
+})();
+
 </script>
 <div class="app-footer">
   <a href="https://wa.me/5511941261425" target="_blank" rel="noopener" class="footer-contact" title="Abrir WhatsApp">
@@ -8889,6 +8996,84 @@ document.addEventListener('DOMContentLoaded', function() {
 .custom-modal-btn-ok:hover{background:#0C2E5B}
 .custom-modal-btn-cancel{background:#F7F9FC;color:#4A5568;border:1px solid #CBD5E0}
 .custom-modal-btn-cancel:hover{background:#EDF2F7}
+
+.card-destaque {
+  border: 2px solid #85B7EB !important;
+  box-shadow: 0 0 0 3px rgba(55,138,221,0.08);
+  transition: border-color .4s, box-shadow .4s;
+}
+.card-destaque.preenchido {
+  border: 0.5px solid var(--border) !important;
+  box-shadow: none;
+}
+@keyframes pulse-badge {
+  0%,100% { opacity:1; }
+  50% { opacity:.55; }
+}
+.tooltip-wrap { position:relative; display:inline-flex; align-items:center; }
+.tooltip-icon {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:16px; height:16px; border-radius:50%;
+  background:var(--bg2); color:var(--text2);
+  font-size:10px; font-weight:600; cursor:help;
+  border:0.5px solid var(--border); margin-left:5px; flex-shrink:0;
+}
+.tooltip-box {
+  display:none; position:absolute; left:22px; top:-4px; z-index:100;
+  background:var(--bg); border:0.5px solid var(--border);
+  border-radius:8px; padding:8px 11px; font-size:12px; font-weight:400;
+  color:var(--text2); line-height:1.55; width:240px;
+  box-shadow:0 4px 12px rgba(0,0,0,.1);
+}
+.tooltip-wrap:hover .tooltip-box,
+.tooltip-wrap:focus-within .tooltip-box { display:block; }
+.progress-bar-flow {
+  display:flex; align-items:center; gap:0;
+  padding:10px 16px; margin-bottom:4px;
+  border-bottom:0.5px solid var(--border);
+  background:var(--bg);
+}
+.pf-step {
+  display:flex; align-items:center; gap:6px;
+  font-size:12px; color:var(--text3); cursor:pointer;
+}
+.pf-step.active { color:var(--blue); font-weight:500; }
+.pf-step.done { color:var(--text2); }
+.pf-dot {
+  width:22px; height:22px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:500; flex-shrink:0;
+  background:var(--bg2); color:var(--text3); border:0.5px solid var(--border);
+}
+.pf-step.active .pf-dot { background:#E6F1FB; color:#185FA5; border-color:#85B7EB; }
+.pf-step.done .pf-dot { background:#EAF3DE; color:#3B6D11; border-color:#97C459; }
+.pf-line { flex:1; height:1px; background:var(--border); margin:0 6px; }
+.onboard-card {
+  background:#EFF6FF; border:1px solid #93C5FD;
+  border-radius:10px; padding:14px 16px; margin-bottom:16px;
+}
+.onboard-card h3 { font-size:14px; font-weight:500; color:#1E40AF; margin-bottom:6px; }
+.onboard-card p { font-size:13px; color:#1E3A8A; line-height:1.65; margin-bottom:10px; }
+.proc-instrucao {
+  background:#F0FDF4; border:1px solid #86EFAC;
+  border-radius:10px; padding:14px 16px; margin-bottom:16px;
+}
+.proc-instrucao h3 { font-size:14px; font-weight:500; color:#166534; margin-bottom:6px; }
+.proc-instrucao p { font-size:13px; color:#14532D; line-height:1.65; }
+.proc-instrucao .proc-rotas { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
+.proc-instrucao .proc-rota {
+  flex:1; min-width:180px; background:#fff;
+  border:0.5px solid #86EFAC; border-radius:8px; padding:10px 12px;
+}
+.proc-instrucao .proc-rota strong { font-size:13px; color:#166534; display:block; margin-bottom:3px; }
+.proc-instrucao .proc-rota span { font-size:12px; color:#15803D; line-height:1.5; }
+.empty-state-proc {
+  text-align:center; padding:40px 20px; color:var(--text3);
+}
+.empty-state-proc .es-icon { font-size:32px; margin-bottom:12px; }
+.empty-state-proc h3 { font-size:15px; font-weight:500; color:var(--text2); margin-bottom:6px; }
+.empty-state-proc p { font-size:13px; line-height:1.6; margin-bottom:16px; }
+
 </style>
 
 <div id="custom-modal-overlay" class="custom-modal-overlay" style="display:none" onclick="if(event.target===this)_modalResolve(false)">
