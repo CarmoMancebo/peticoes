@@ -919,7 +919,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 1.85</div>
+    <div class="login-ver">versão 1.86</div>
   </div>
 </div>
 
@@ -944,7 +944,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Demonstração</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
-    <span class="tb-meta" id="tb-versao">versão 1.85</span>
+    <span class="tb-meta" id="tb-versao">versão 1.86</span>
   </div>
 </div>
 
@@ -996,7 +996,7 @@ tbody tr.st-p td{background:#b3e5fc}
         <div class="field" style="margin-bottom:10px">
           <label>Nível de geração</label>
           <select id="sel-modelo-global" onchange="sincronizarModeloGlobal(this.value)" style="width:100%">
-            <option value="essencial" selected>Essencial — respostas rápidas e diretas</option>
+            <option value="essencial" selected>Essencial — respostas ágeis e diretas</option>
             <option value="avancado" id="opt-avancado">Avançado — recomendado para a maioria das tarefas</option>
             <option value="completo" id="opt-completo" disabled>Completo — máxima precisão e profundidade (planos pagos)</option>
           </select>
@@ -3687,7 +3687,7 @@ function renderDashboard() {
       totUsd += (h.custoUsd||0);
       totBrl += (h.custoBrl||0);
       totTk  += (h.tokensIn||0)+(h.tokensOut||0);
-      var mLabel={'essencial':'Essencial','avancado':'Avançado','completo':'Completo','gpt-4o-mini':'Essencial','claude-sonnet-4-5':'Avançado','claude-opus-4-5':'Completo'}; var m=mLabel[h.modelo]||h.modelo||'?'; porModelo[m]=(porModelo[m]||0)+1;
+      var mLabel={'essencial':'Essencial','avancado':'Avançado','completo':'Completo','claude-haiku-3-5':'Essencial','claude-sonnet-4-5':'Avançado','claude-opus-4-5':'Completo'}; var m=mLabel[h.modelo]||h.modelo||'?'; porModelo[m]=(porModelo[m]||0)+1;
       var t=(h.tipoPeca||"?").substring(0,20); porTipo[t]=(porTipo[t]||0)+1;
     });
     var modelos = Object.entries(porModelo).sort(function(a,b){return b[1]-a[1];}).map(function(e){return e[0]+": "+e[1];}).join(" · ");
@@ -4744,7 +4744,7 @@ function base64ToArrayBuffer(b64) {
 
 // Preços das APIs (USD por 1M tokens) — atualizar conforme necessário
 var PRECOS_API = {
-  'essencial':  { in: 0.15, out: 0.60,  nome: 'Essencial' },
+  'essencial':  { in: 0.25, out: 1.25,  nome: 'Essencial' },
   'avancado':   { in: 3.00, out: 15.00, nome: 'Avançado' },
   'completo':   { in: 5.00, out: 25.00, nome: 'Completo' }
 };
@@ -6895,7 +6895,7 @@ async function executarVerificacaoContradicao() { d4AbrirPainel(); }
 async function chamarIAViaProxy(modelo, sysPrompt, messages, onChunk) {
   // Mapa proprietário → modelo real da API
   var MODELO_MAP = {
-    'essencial': 'gpt-4o-mini',
+    'essencial': 'claude-haiku-3-5',
     'avancado':  'claude-sonnet-4-5',
     'completo':  'claude-opus-4-5'
   };
