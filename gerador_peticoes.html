@@ -879,7 +879,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 1.81</div>
+    <div class="login-ver">versão 1.81.1</div>
   </div>
 </div>
 
@@ -900,11 +900,11 @@ tbody tr.st-p td{background:#b3e5fc}
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <span id="tb-plano-badge" class="plano-badge plano-trial" title="Clique para ver seu plano" onclick="go('cfg')" style="cursor:pointer">trial</span>
     <span id="tb-pecas-contador" class="pecas-contador" title="Peças geradas este mês"></span>
-    <button id="tb-modelo-btn" onclick="go('cfg')" title="Modelo de IA ativo — clique para configurar" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
+    <button id="tb-modelo-btn" onclick="go('cfg')" title="Modelo Claude ativo — proxy seguro" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Sonnet</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
-    <span class="tb-meta" id="tb-versao">versão 1.81</span>
+    <span class="tb-meta" id="tb-versao">versão 1.81.1</span>
   </div>
 </div>
 
@@ -947,32 +947,16 @@ tbody tr.st-p td{background:#b3e5fc}
       <div class="card">
         <div class="card-title">IA e chave de API</div>
         <div style="padding:8px 12px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:6px;font-size:11px;color:#166534;margin-bottom:12px">
-          ✓ <strong>A chave de API está configurada no servidor</strong> — você não precisa inserir sua própria chave para usar a ferramenta. Os campos abaixo são opcionais e permitem usar sua chave pessoal caso prefira.
+          ✓ <strong>A integração com a IA é realizada exclusivamente via proxy seguro do servidor.</strong> Nenhuma chave de API precisa ser informada pelo usuário.
         </div>
-        <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Modelo de IA em uso. A chave de API é gerenciada pelo servidor — configure abaixo apenas se quiser usar sua própria chave.</p>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Selecione o modelo Claude utilizado na geração das peças. O acesso é realizado exclusivamente pelo proxy seguro do servidor.</p>
         <div class="field" style="margin-bottom:10px">
           <label>Modelo de IA</label>
           <select id="sel-modelo-global" onchange="sincronizarModeloGlobal(this.value)" style="width:100%">
             <option value="claude-sonnet">Claude Sonnet 4.5 — recomendado · Anthropic</option>
             <option value="claude-opus">Claude Opus 4.5 — máxima precisão, mais caro · Anthropic</option>
-            <option value="gpt4o">GPT-4o — alternativa · OpenAI</option>
+            
           </select>
-        </div>
-        <div id="div-anthropic-cfg" class="field" style="margin-bottom:6px">
-          <label>Chave de API — Anthropic</label>
-          <div style="display:flex;gap:8px">
-            <input type="password" id="key-anthropic" placeholder="sk-ant-api03-..." style="flex:1" oninput="atualizarIndicadorModelo()" />
-            <button class="btn btn-s btn-sm" onclick="saveKey('anthropic')">Salvar</button>
-          </div>
-          <div id="st-anthropic" class="tip"></div>
-        </div>
-        <div id="div-openai-cfg" class="field" style="display:none;margin-bottom:6px">
-          <label>Chave de API — OpenAI</label>
-          <div style="display:flex;gap:8px">
-            <input type="password" id="key-openai" placeholder="sk-..." style="flex:1" oninput="atualizarIndicadorModelo()" />
-            <button class="btn btn-s btn-sm" onclick="saveKey('openai')">Salvar</button>
-          </div>
-          <div id="st-openai" class="tip"></div>
         </div>
         <div id="cfg-modelo-status" style="margin-top:8px;padding:7px 10px;border-radius:6px;font-size:11px;display:none"></div>
       </div>
@@ -1240,7 +1224,6 @@ tbody tr.st-p td{background:#b3e5fc}
 
       <!-- sel-modelo (oculto) sincronizado com sel-modelo-global na Configuração -->
       <select id="sel-modelo" style="display:none" onchange="sincronizarModeloGlobal(this.value)">
-        <option value="gpt4o">GPT-4o</option>
         <option value="claude-sonnet">Claude Sonnet 4.5</option>
         <option value="claude-opus">Claude Opus 4.5</option>
       </select>
@@ -1284,7 +1267,7 @@ tbody tr.st-p td{background:#b3e5fc}
             <select id="f-cliente-modo" style="max-width:180px;flex-shrink:0;" onchange="toggleClienteModo()">
               <option value="auto" selected>Automático (IA identifica)</option>
               <option value="manual">Preencher manualmente</option>
-              <option value="notre">Notre Dame Intermédica Saúde S/A</option>
+              
             </select>
             <input type="text" id="f-cliente" placeholder="(será identificado pela IA)" disabled style="flex:1;background:var(--surface2);" />
           </div>
@@ -1382,14 +1365,7 @@ tbody tr.st-p td{background:#b3e5fc}
         <div class="row2">
           <div class="field">
             <label>Área do direito</label>
-            <select id="f-area" onchange="atualizarSubareas()">
-              <option value="civel">Cível</option>
-              <option value="trabalhista">Trabalhista</option>
-              <option value="criminal">Criminal</option>
-              <option value="tributario">Tributário</option>
-              <option value="administrativo">Administrativo</option>
-              <option value="empresarial">Empresarial</option>
-            </select>
+            <select id="f-area" onchange="atualizarSubareas()"><option value="civel" selected>Saúde suplementar</option></select>
           </div>
           <div class="field">
             <label>Subárea / Especialização</label>
@@ -1449,7 +1425,7 @@ tbody tr.st-p td{background:#b3e5fc}
             <label>Advogado responsável</label>
             <select id="f-advogado" onchange="toggleAdvogadoMode()">
               <option value="auto">Automático (identificar pela petição/processo)</option>
-              <option value="carmo">Carmo Martins Mancebo Segundo — OAB/SP 274.575</option>
+              
               <option value="manual">Preencher manualmente (outro advogado)</option>
               <option value="nenhum">Não incluir bloco de assinatura</option>
             </select>
@@ -1563,7 +1539,6 @@ tbody tr.st-p td{background:#b3e5fc}
       <div class="btn-row">
         <button class="btn btn-p" id="btn-ger" onclick="gerarMinuta()" disabled>Gerar minuta</button>
         <div id="btn-ger-status" style="font-size:11px;color:var(--text3);margin-top:6px;min-height:14px"></div>
-        <button class="btn btn-s" id="btn-comparar" onclick="compararModelos()" disabled title="Gera simultaneamente com GPT-4o e Claude e exibe lado a lado">⚡ Comparar</button>
         <button class="btn btn-s" onclick="gerarResumoCaso()" title="Gera um resumo estruturado do caso a partir do andamento e contextos carregados">📝 Resumir caso</button>
         <button class="btn btn-s" onclick="abrirVerificadorRN()" title="Consultar a RN ANS vigente para o tema da controvérsia">📋 Verificar RN ANS</button>
         <button class="btn btn-s" onclick="limparForm()">Limpar</button>
@@ -1579,7 +1554,7 @@ tbody tr.st-p td{background:#b3e5fc}
         <span style="font-size:16px;flex-shrink:0">⚠</span>
         <div>
           <strong>Painel em fase de testes — valores são estimativas</strong><br>
-          Os custos exibidos são calculados com base em médias de mercado e não correspondem às quantias efetivamente cobradas pela Anthropic ou OpenAI. Os totais de tokens e peças geradas são aproximados. Para conferir o consumo real, acesse o painel oficial: <a href="https://console.anthropic.com" target="_blank" style="color:#92400E">console.anthropic.com</a> ou <a href="https://platform.openai.com/usage" target="_blank" style="color:#92400E">platform.openai.com/usage</a>.
+          Os custos exibidos são calculados com base em médias de mercado e não correspondem às quantias efetivamente cobradas pela Anthropic. Os totais de tokens e peças geradas são aproximados. Para conferir o consumo real, acesse o painel oficial: <a href="https://console.anthropic.com" target="_blank" style="color:#92400E">console.anthropic.com</a>.
         </div>
       </div>
       <div id="storage-status-badge" style="margin-bottom:12px"></div>
@@ -2112,10 +2087,12 @@ function inicializarAuth() {
       ocultarLogin();
       preencherDadosUsuario(session.user);
       carregarDadosUsuario();
+      if (typeof checkBtn === 'function') checkBtn();
     } else {
       GPStorage.userId = null;
       GPStorage.backend = 'local';
       mostrarLogin();
+      if (typeof checkBtn === 'function') checkBtn();
     }
   });
 
@@ -2277,112 +2254,13 @@ var LSP = 'gp_p', LSS = 'gp_s';
 // ── ENRIQUECIMENTO POR ÁREA DO DIREITO ────────────────────────
 var SUBAREAS = {
   civel: [
-    {v:'saude_suplementar', l:'Saúde suplementar (operadoras de planos de saúde)'},
-    {v:'consumidor', l:'Consumidor'},
-    {v:'familia', l:'Família e sucessões'},
-    {v:'contratos', l:'Contratos'},
-    {v:'responsabilidade', l:'Responsabilidade civil'},
-    {v:'imobiliario', l:'Imobiliário'},
-    {v:'bancario', l:'Bancário'},
-    {v:'securitario', l:'Securitário'},
-    {v:'geral', l:'Geral / Não especificada'}
-  ],
-  trabalhista: [
-    {v:'individual', l:'Direito individual do trabalho'},
-    {v:'coletivo', l:'Direito coletivo do trabalho'},
-    {v:'previdenciario', l:'Previdenciário trabalhista'},
-    {v:'geral', l:'Geral'}
-  ],
-  criminal: [
-    {v:'comum', l:'Crimes comuns (CP)'},
-    {v:'economico', l:'Crimes econômicos / lavagem'},
-    {v:'transito', l:'Crimes de trânsito'},
-    {v:'geral', l:'Geral'}
-  ],
-  tributario: [
-    {v:'federal', l:'Tributos federais'},
-    {v:'estadual', l:'Tributos estaduais (ICMS, IPVA)'},
-    {v:'municipal', l:'Tributos municipais (ISS, IPTU)'},
-    {v:'geral', l:'Geral'}
-  ],
-  administrativo: [
-    {v:'licitacoes', l:'Licitações e contratos administrativos'},
-    {v:'servidor', l:'Servidor público'},
-    {v:'regulatorio', l:'Regulatório'},
-    {v:'geral', l:'Geral'}
-  ],
-  empresarial: [
-    {v:'societario', l:'Societário'},
-    {v:'recuperacao', l:'Recuperação judicial e falência'},
-    {v:'titulos', l:'Títulos de crédito'},
-    {v:'concorrencial', l:'Concorrencial'},
-    {v:'geral', l:'Geral'}
+    {v:'saude_suplementar', l:'Saúde suplementar (operadoras de planos de saúde)'}
   ]
 };
 
-// Enriquecimentos do system prompt — fundamentação técnica por subárea
 var ENRIQUECIMENTOS = {
-  'civel:saude_suplementar': 'CONTEXTO ESPECIALIZADO — DEFESA DE OPERADORAS DE PLANOS DE SAÚDE:\n- Marco regulatório: Lei 9.656/98 (Lei dos Planos de Saúde), CDC (Lei 8.078/90), Código Civil, Constituição da República.\n- Resoluções Normativas da ANS aplicáveis: RN 465/2021 (rol de procedimentos), RN nº 565/2022 (cobertura assistencial — revogou a RN nº 566/2022 e RN nº 309/2012), RN 259/2011 (prazos máximos de atendimento), RN 412/2016 (cancelamento por inadimplência).\n- Lei 14.454/2022: alterou o artigo 10 da Lei 9.656/98 e estabeleceu critérios para cobertura de procedimentos fora do rol da ANS — exigindo eficácia comprovada cientificamente, recomendação CONITEC ou tratamento equivalente coberto.\n- ADI 7265 (STF): discute a constitucionalidade da Lei 14.454/2022, especialmente quanto ao caráter exemplificativo do rol da ANS — abordar quando pertinente.\n- Súmula 608 do STJ: contratos coletivos empresariais não se submetem ao CDC, salvo quando o consumidor for hipossuficiente.\n- Teses recorrentes em defesa: (i) taxatividade mitigada do rol da ANS conforme EREsp 1.886.929/SP do STJ; (ii) inexistência de cobertura contratual; (iii) ausência de prescrição médica fundamentada; (iv) inexistência de evidência científica do tratamento; (v) limites da cobertura conforme contrato e regulação.\n- Em ações sobre terapias multidisciplinares (ABA, fonoaudiologia, terapia ocupacional): questionar quantidade de horas prescritas, pertinência terapêutica, profissionais habilitados conforme RN ANS, e requerer prestação de contas das horas efetivamente realizadas.\n- Em ações sobre home care: distinguir entre internação domiciliar (coberta) e cuidador/atendimento domiciliar simples (não coberto).\n- Em ações sobre OPME (Órteses, Próteses e Materiais Especiais): aplicar Resolução Normativa específica e verificar se há indicação médica fundamentada com 3 marcas/modelos.\n- Sempre incluir tópico sobre cumprimento integral das obrigações contratuais e regulamentares pela operadora.',
-  
-  'civel:consumidor': 'CONTEXTO ESPECIALIZADO — DIREITO DO CONSUMIDOR:\n- Marco normativo: CDC (Lei 8.078/90), Código Civil, Constituição da República.\n- Verificar aplicação: distinguir relação de consumo de relação puramente civil/empresarial.\n- Súmula 297 STJ: aplicação do CDC às instituições financeiras.\n- Súmula 543 STJ: rescisão por culpa do fornecedor — devolução integral imediata.\n- Inversão do ônus da prova (artigo 6º, inciso VIII do CDC): requer hipossuficiência e verossimilhança.\n- Responsabilidade objetiva (artigos 12 e 14 do CDC) — cabe excludente: caso fortuito externo, culpa exclusiva do consumidor ou de terceiro.\n- Dano moral: STJ exige prova do dano in re ipsa apenas em situações específicas (inscrição indevida, falha grave de serviço).\n- Revisão contratual: artigos 6º, inciso V e 51 do CDC — vedar cláusulas abusivas; teoria da onerosidade excessiva.',
-  
-  'civel:familia': 'CONTEXTO ESPECIALIZADO — FAMÍLIA E SUCESSÕES:\n- Marco normativo: Código Civil (Livro IV — Direito de Família e Livro V — Direito das Sucessões), ECA (Lei 8.069/90), Estatuto do Idoso (Lei 10.741/03), Constituição da República.\n- Pensão alimentícia: binômio necessidade-possibilidade (artigo 1.694 do Código Civil); súmula 358 STJ (maioridade não extingue automaticamente); súmula 621 STJ (revisão por superveniência).\n- Guarda compartilhada como regra (artigo 1.584, § 2º do Código Civil), salvo prejuízo ao melhor interesse da criança.\n- Divórcio: EC 66/2010 — desnecessidade de prazo prévio; partilha pode ser posterior.\n- Inventário: artigos 610 a 673 do CPC — distinguir judicial (litigioso, incapazes) de extrajudicial.\n- Regime de bens: comunhão parcial (regra), comunhão universal, separação total, participação final nos aquestos.',
-  
-  'civel:contratos': 'CONTEXTO ESPECIALIZADO — DIREITO CONTRATUAL:\n- Marco normativo: Código Civil (artigos 421 a 480 e específicos da modalidade), CDC quando aplicável.\n- Princípios: autonomia da vontade (artigo 421), boa-fé objetiva (artigo 422), função social (artigo 421), pacta sunt servanda mitigado.\n- Teoria da imprevisão (artigo 478 do Código Civil) e onerosidade excessiva: requisitos cumulativos — fato extraordinário, imprevisível e que torne a prestação excessivamente onerosa para uma parte com extrema vantagem para outra.\n- Inadimplemento: mora (artigo 394) e inadimplemento absoluto (artigo 389); perdas e danos (artigo 402).\n- Cláusula penal: limites do artigo 412 (não pode exceder o valor da obrigação principal).\n- Resolução por inexecução (artigo 475): direito potestativo da parte inocente.',
-  
-  'civel:responsabilidade': 'CONTEXTO ESPECIALIZADO — RESPONSABILIDADE CIVIL:\n- Marco normativo: Código Civil (artigos 186, 187, 927 e seguintes), CDC quando aplicável, Constituição da República (artigo 37, § 6º para responsabilidade do Estado).\n- Pressupostos: conduta, dano, nexo causal e culpa (na responsabilidade subjetiva) — artigos 186 e 927 do Código Civil.\n- Responsabilidade objetiva: hipóteses do artigo 927, parágrafo único (atividade de risco) e leis específicas (CDC, CTB, ambiental).\n- Excludentes: caso fortuito/força maior, culpa exclusiva da vítima, fato de terceiro, legítima defesa, exercício regular de direito.\n- Dano moral: prova in re ipsa apenas em hipóteses específicas — STJ exige demonstração concreta do abalo na maioria dos casos.\n- Súmula 387 STJ: cumulação de danos materiais, morais e estéticos é possível.\n- Quantum: critérios da reparação integral (artigo 944) e proporcionalidade — evitar enriquecimento sem causa.',
-  
-  'civel:imobiliario': 'CONTEXTO ESPECIALIZADO — DIREITO IMOBILIÁRIO:\n- Marco normativo: Código Civil (Livro III — Direito das Coisas), Lei do Inquilinato (Lei 8.245/91), Lei de Registros Públicos (Lei 6.015/73), Lei do Condomínio (Lei 4.591/64), Lei do Distrato Imobiliário (Lei 13.786/18).\n- Compromisso de compra e venda: registro confere direito real à aquisição (artigo 1.225, inciso VII do Código Civil); Súmula 239 STJ.\n- Distrato: Lei 13.786/18 estabelece percentuais de retenção pela construtora (até 25% ou 50% se patrimônio de afetação).\n- Locação: distinguir residencial e não residencial; revisional (artigo 19), renovatória (artigo 51), despejo (artigo 59).\n- Condomínio: artigo 1.331 e seguintes do Código Civil; multa por descumprimento da convenção até 5x a contribuição mensal (artigo 1.336, § 1º).\n- Usucapião: requisitos por modalidade (extraordinária, ordinária, especial urbana, especial rural, familiar).',
-  
-  'civel:bancario': 'CONTEXTO ESPECIALIZADO — DIREITO BANCÁRIO:\n- Marco normativo: CDC (Súmula 297 STJ), Código Civil, Lei 4.595/64 (SFN), regulações do CMN e BACEN.\n- Súmula 596 STF: limitação de juros do Decreto 22.626/33 não se aplica a instituições financeiras.\n- Súmula 530 STJ: nas operações bancárias, não há limitação geral de juros — admite revisão por abusividade (taxa muito acima da média de mercado).\n- Capitalização de juros: permitida em contratos pós MP 2.170-36/2001, desde que pactuada de forma clara (Tema 247 do STJ).\n- Tarifas bancárias: legitimidade conforme regulamentação do BACEN; abusividade depende de demonstração específica.\n- Cédulas de crédito: títulos executivos — Lei 10.931/04 (cédula de crédito bancário).',
-  
-  'civel:securitario': 'CONTEXTO ESPECIALIZADO — DIREITO SECURITÁRIO:\n- Marco normativo: Código Civil (artigos 757 a 802), CDC quando consumidor final, Decreto-Lei 73/66, Resoluções CNSP e Circulares SUSEP.\n- Princípios: máxima boa-fé objetiva (artigo 765 do Código Civil), mutualismo, indenização limitada ao prejuízo.\n- Recusa de cobertura: deve ser expressa e fundamentada — Súmula 632 STJ (boa-fé na contratação).\n- Agravamento do risco: artigo 768 do Código Civil — perda do direito à indenização se intencional.\n- Prescrição: 1 ano em regra (artigo 206, § 1º, inciso II do Código Civil); termo inicial é a recusa formal da seguradora (Súmula 229 STJ).\n- Seguro DPVAT: Lei 6.194/74; STF declarou constitucional o pagamento por tabela (RE 631.240).\n- Distinguir seguro de pessoa (vida, acidentes) e seguro de dano (patrimoniais).',
-  
-  'civel:geral': 'CONTEXTO ESPECIALIZADO — DIREITO CIVIL GERAL:\n- Marco normativo: Código Civil (Lei 10.406/02), Código de Processo Civil (Lei 13.105/15), Constituição da República.\n- Aplicar princípios gerais: boa-fé objetiva, função social do contrato e da propriedade, vedação ao enriquecimento sem causa, dignidade da pessoa humana.\n- Verificar prescrição (artigos 205 e 206 do Código Civil) e decadência aplicáveis ao caso.',
-  
-  'trabalhista:individual': 'CONTEXTO ESPECIALIZADO — DIREITO INDIVIDUAL DO TRABALHO:\n- Marco normativo: CLT (Decreto-Lei nº 5.452/1943), Constituição da República (artigos 7º a 11), Reforma Trabalhista (Lei nº 13.467/2017), Lei nº 9.029/1995 (práticas discriminatórias).\n- VÍNCULO EMPREGATÍCIO: artigo 3º da CLT — pessoalidade, não eventualidade, onerosidade, subordinação jurídica. Artigo 442-B (pejotização): contrato de autônomo exclusivo afasta o vínculo desde que respeitada a autonomia real. Artigo 443 § 3º (teletrabalho): regulamentado pela Reforma, sem presunção de horas extras por controle de jornada.\n- JORNADA E HORAS EXTRAS: artigo 58 da CLT (8h diárias / 44h semanais). Artigo 59 (banco de horas — acordo individual ou coletivo). Artigo 74 (controle de ponto obrigatório para +10 empregados). Súmula 338 do TST (ônus do empregador de apresentar cartões). Súmula 437 do TST (intervalo intrajornada reduzido = horas extras).\n- RESCISÃO E VERBAS: artigo 477 da CLT (prazo de 10 dias corridos para pagamento). Artigo 467 (multa de 50% sobre verbas incontroversas não pagas). FGTS: Lei nº 8.036/1990 — multa de 40% (dispensa sem justa causa) ou 20% (acordo CLT art. 484-A). Aviso prévio proporcional: Lei nº 12.506/2011 (+ 3 dias por ano, até 90 dias).\n- DANO MORAL TRABALHISTA: artigo 223-A a 223-G da CLT (inseridos pela Reforma). Teto por natureza da ofensa: leve (3× o último salário), médio (5×), grave (20×), gravíssimo (50×). Súmula 37 do TST: cumulação de danos materiais e morais é possível.\n- PRESCRIÇÃO: artigo 7º, inciso XXIX da Constituição (5 anos no curso do contrato; 2 anos após a extinção). Súmula 308 do TST (FGTS prescreve em 30 anos — antes da EC 45) e OJ 344 (após EC 45: prescrição trintenária afastada para parcelas vencidas nos 5 anos anteriores à ação).\n- REFORMA TRABALHISTA (Lei nº 13.467/2017): negociado prevalece sobre o legislado (artigo 611-A); rol de matérias que NÃO podem ser negociadas (artigo 611-B). Trabalho intermitente (artigo 452-A). Homologação de acordo judicial (artigo 855-B a 855-E).\n- ESTRATÉGIA: verificar se há ACT/CCT aplicável antes de qualquer tese; invocar a prevalência do negociado nas matérias do artigo 611-A; checar prescrição bienal/quinquenal; exigir prova do dano moral (não é presumido automaticamente na CLT reformada).',
-  
-  'trabalhista:coletivo': 'CONTEXTO ESPECIALIZADO — DIREITO COLETIVO DO TRABALHO:\n- Marco normativo: CLT (artigos 511 a 625), Constituição da República (artigos 8º a 11), Lei nº 7.783/1989 (greve).\n- NEGOCIAÇÃO COLETIVA: artigo 611 da CLT — Convenção Coletiva (entre sindicatos) e Acordo Coletivo (entre empresa e sindicato dos empregados). Artigo 611-A: matérias em que o negociado prevalece (jornada 12×36, banco de horas, PLR, teletrabalho). Artigo 611-B: matérias irrenunciáveis (piso salarial, FGTS, seguro-desemprego etc.).\n- GREVE: Lei nº 7.783/1989 — direito assegurado (artigo 9º da Constituição). Serviços essenciais exigem manutenção mínima (artigo 11). Abusividade declarada pelo TRT competente. Lock-out é vedado (artigo 17).\n- DISSÍDIO COLETIVO: artigo 114, § 2º da Constituição (comum acordo para ajuizamento, salvo greve em serviço essencial). Poder normativo da Justiça do Trabalho restringido pela EC 45/2004.',
-  
-  'trabalhista:previdenciario': 'CONTEXTO ESPECIALIZADO — DIREITO PREVIDENCIÁRIO DO TRABALHO:\n- Marco normativo: Lei nº 8.213/1991 (benefícios), Lei nº 8.212/1991 (custeio), Decreto nº 3.048/1999 (RPS), Constituição da República (artigo 201).\n- BENEFÍCIOS: aposentadoria por incapacidade permanente (artigo 42), auxílio por incapacidade temporária (artigo 59 — carência de 12 contribuições), salário-maternidade (artigo 71), pensão por morte (artigo 74).\n- ACIDENTE DO TRABALHO: Lei nº 8.213/1991 (artigos 19 a 23). CAT — Comunicação de Acidente do Trabalho (artigo 22). Estabilidade acidentária: artigo 118 (12 meses após alta do INSS). Responsabilidade civil do empregador: Súmula 229 do STF e artigo 7º, inciso XXVIII da Constituição (dolo ou culpa).\n- NEXO TÉCNICO EPIDEMIOLÓGICO (NTEP): artigo 21-A da Lei nº 8.213/1991 — presunção de acidente do trabalho vinculada ao CNAE do empregador; ilidível por prova em contrário.\n- CONTRIBUIÇÕES: artigo 22 da Lei nº 8.212/1991 (20% sobre folha do empregador). RAT/FAP: alíquota variável conforme sinistralidade (0,5% a 6%). Responsabilidade subsidiária do tomador de serviços (Súmula 331 do TST).',
-  
-  'trabalhista:geral': 'CONTEXTO ESPECIALIZADO — TRABALHISTA GERAL:\n- Marco normativo: CLT, Constituição da República, Reforma Trabalhista (Lei 13.467/17).\n- Princípios: proteção, primazia da realidade, irrenunciabilidade, continuidade.',
-  
-  'criminal:comum': 'CONTEXTO ESPECIALIZADO — DIREITO PENAL E PROCESSUAL PENAL:\n- Marco normativo: Código Penal (Decreto-Lei nº 2.848/1940), CPP (Decreto-Lei nº 3.689/1941), LEP (Lei nº 7.210/1984), Constituição da República (artigo 5º, incisos XXXVII a LXVIII).\n- TIPICIDADE E CULPABILIDADE: artigo 1º do CP (legalidade estrita). Artigo 18 (dolo direto e eventual; culpa consciente e inconsciente). Artigo 20 (erro de tipo). Artigo 21 (erro de proibição). Artigo 26 (inimputabilidade). Artigo 28 (embriaguez voluntária não exclui imputabilidade, salvo fortuita/coação).\n- CAUSAS EXCLUDENTES: artigo 23 do CP — estado de necessidade, legítima defesa, estrito cumprimento do dever legal, exercício regular de direito. Artigo 24 (estado de necessidade: inevitabilidade + proporcionalidade). Artigo 25 (legítima defesa: agressão injusta, atual ou iminente, moderação).\n- PENAS E SUBSTITUIÇÃO: artigo 44 do CP (substituição por restritivas de direitos: crime sem violência + pena ≤ 4 anos + réu não reincidente + culpabilidade favorável). Artigo 59 (fixação da pena-base: 8 circunstâncias judiciais). Artigo 68 (sistema trifásico).\n- PRESCRIÇÃO: artigo 109 do CP (prescricional pela pena máxima abstrata). Artigo 110 (prescrição da pretensão executória). Artigo 115 (redução pela metade para menores de 21 ou maiores de 70). Súmula 497 do STF (prescrição da pena mais leve em concurso).\n- PROCESSO PENAL: artigo 41 do CPP (denúncia: fato, autoria, qualificação). Artigo 395 (rejeição liminar). Artigo 397 (absolvição sumária). Artigo 563 (princípio do prejuízo — nulidade só quando demonstrado). Artigo 617 (reformatio in pejus vedada). HC (artigo 647) e RHC.\n- EXECUÇÃO PENAL: LEP artigo 112 (progressão de regime: bom comportamento + cumprimento de fração). Lei nº 13.964/2019 (Pacote Anticrime): fração 40% para crimes hediondos sem resultado morte, 60% com morte, 70% para líderes de organização criminosa.\n- ESTRATÉGIA: verificar prescrição antes de qualquer mérito; analisar elementares do tipo com precisão técnica; buscar causas excludentes; nos crimes culposos, questionar o nexo causal e a previsibilidade.',
-  
-  'criminal:economico': 'CONTEXTO ESPECIALIZADO — CRIMES ECONÔMICOS:\n- Marco normativo: Lei 7.492/86 (crimes contra o sistema financeiro), Lei 8.137/90 (crimes contra a ordem tributária), Lei 9.613/98 (lavagem de dinheiro), Lei 12.846/13 (Lei Anticorrupção).\n- Princípio da insignificância: STF admite em hipóteses específicas (HC 84.412/SP).\n- Acordo de leniência e colaboração premiada: Lei 12.850/13.',
-  
-  'criminal:transito': 'CONTEXTO ESPECIALIZADO — CRIMES DE TRÂNSITO:\n- Marco normativo: Código de Trânsito Brasileiro (Lei 9.503/97), especialmente artigos 302 a 312.\n- Embriaguez ao volante: artigo 306 do CTB (Lei 12.760/12 dispensa prova pericial).\n- Homicídio culposo na direção: artigo 302 — penas qualificadas se sob efeito de álcool ou em transporte de passageiros.',
-  
-  'criminal:geral': 'CONTEXTO ESPECIALIZADO — CRIMINAL GERAL:\n- Marco normativo: Código Penal, Código de Processo Penal, Lei de Execução Penal, Constituição da República.\n- Garantias constitucionais devem nortear toda a manifestação.',
-  
-  'tributario:federal': 'CONTEXTO ESPECIALIZADO — TRIBUTOS FEDERAIS:\n- Marco normativo: CTN (Lei nº 5.172/1966), Constituição da República (artigos 145 a 162), legislação específica de cada tributo.\n- PRINCÍPIOS CONSTITUCIONAIS: legalidade estrita (artigo 150, inciso I), anterioridade anual e nonagesimal (artigo 150, inciso III, alíneas "b" e "c"), irretroatividade (artigo 150, inciso III, alínea "a"), isonomia tributária, capacidade contributiva (artigo 145, § 1º), vedação ao confisco (artigo 150, inciso IV).\n- TRIBUTOS PRINCIPAIS: IRPJ/CSLL — Lei nº 9.430/1996 e Decreto nº 9.580/2018 (RIR). PIS/COFINS — Leis nº 10.637/2002 e nº 10.833/2003 (não cumulatividade). IPI — Decreto nº 7.212/2010 (RIPI); seletividade e não cumulatividade (artigo 153, § 3º da Constituição). Contribuições previdenciárias — Lei nº 8.212/1991.\n- LANÇAMENTO E DECADÊNCIA: artigo 173 do CTN (5 anos para lançar de ofício). Artigo 150, § 4º (homologação: 5 anos da ocorrência do fato gerador). Artigo 168 (prescrição da repetição de indébito: 5 anos).\n- EXECUÇÃO FISCAL: Lei nº 6.830/1980 (LEF). CDA — presunção de certeza e liquidez (artigo 3º). Embargos à execução (artigo 16 — prazo de 30 dias). Exceção de pré-executividade (criação jurisprudencial — STJ, REsp 1.110.925).\n- PROCESSO ADMINISTRATIVO FISCAL: Decreto nº 70.235/1972 (PAF federal). CARF — Câmara de Recursos Fiscais; voto de qualidade (Lei nº 13.988/2020 — empate favorece o contribuinte). Contagem de prazo prescricional suspensa durante o PAF (Súmula 11 do CARF).\n- PLANEJAMENTO TRIBUTÁRIO: artigo 116, parágrafo único do CTN (norma antielisiva). Súmula 323 do STJ (apreensão de mercadorias como meio coercitivo para pagamento é ilegal). Tema 69 do STF (exclusão do ICMS da base do PIS/COFINS — repercussão geral).\n- ESTRATÉGIA: verificar decadência e prescrição como primeira linha; questionar a CDA (nulidade formal); invocar a anterioridade em cobranças retroativas; usar a norma antielisiva com cautela como argumento de risco.',
-  
-  'tributario:estadual': 'CONTEXTO ESPECIALIZADO — TRIBUTOS ESTADUAIS:\n- Marco normativo: Constituição da República (artigos 155 e 157), LC nº 87/1996 (Lei Kandir — ICMS), Código Tributário Estadual aplicável.\n- ICMS: não cumulatividade (artigo 155, § 2º, inciso I da Constituição). LC nº 87/1996: fato gerador, base de cálculo, creditamento. Guerra fiscal: benefícios fiscais dependem de convênio CONFAZ (artigo 155, § 2º, inciso XII, alínea "g"). Diferencial de alíquota (DIFAL) — EC 87/2015 e LC nº 190/2022.\n- IPVA: artigo 155, inciso III da Constituição. Competência do estado do licenciamento. Isenções e imunidades variam por lei estadual.\n- ITCMD: artigo 155, inciso I da Constituição. Base de cálculo: valor venal dos bens. LC pendente para heranças no exterior (aguardando regulamentação — ADI 309).\n- ESTRATÉGIA: questionar a constitucionalidade de benefícios fiscais concedidos sem convênio CONFAZ; verificar se o Estado está cobrando DIFAL nos termos da LC 190/2022; analisar creditamento de ICMS de forma minuciosa.',
-  
-  'tributario:municipal': 'CONTEXTO ESPECIALIZADO — TRIBUTOS MUNICIPAIS:\n- Marco normativo: CTN, Constituição da República, Lei Complementar 116/03 (ISS), legislações municipais.\n- ISS: lista de serviços anexa à LC 116/03 — taxatividade vertical com interpretação extensiva horizontal.\n- IPTU: progressividade fiscal (artigo 156, § 1º da Constituição da República, EC 29/00).',
-  
-  'tributario:geral': 'CONTEXTO ESPECIALIZADO — TRIBUTÁRIO GERAL:\n- Marco normativo: CTN, Constituição da República.\n- Princípios constitucionais tributários devem nortear toda a manifestação.',
-  
-  'administrativo:licitacoes': 'CONTEXTO ESPECIALIZADO — LICITAÇÕES E CONTRATOS ADMINISTRATIVOS:\n- Marco normativo: Lei nº 14.133/2021 (NLLC — aplica-se a contratos publicados a partir de 01/04/2023; anterior: Lei nº 8.666/1993 e Lei nº 10.520/2002 para pregão).\n- PRINCÍPIOS (artigo 5º da NLLC): legalidade, impessoalidade, moralidade, publicidade, eficiência, interesse público, isonomia, planejamento, transparência, eficácia, segregação de funções, motivação, vinculação ao edital, julgamento objetivo, segurança jurídica, razoabilidade, competitividade e proporcionalidade.\n- MODALIDADES (artigo 28): pregão (bens e serviços comuns), concorrência (obras, serviços especiais, concessões), concurso, leilão, diálogo competitivo.\n- INEXIGIBILIDADE (artigo 74): inviabilidade de competição — fornecedor exclusivo (inciso I), serviço técnico especializado de natureza predominantemente intelectual (inciso III), artistas (inciso II).\n- DISPENSA (artigo 75): valor (R$ 50k para obras, R$ 100k para bens/serviços — dobrado para consórcios), emergência (inciso VIII — prazo máximo 1 ano, vedada prorrogação), licitação deserta/fracassada.\n- CONTRATOS: artigo 92 (cláusulas necessárias). Artigo 104 (garantia: até 5% do valor; 10% para obras de risco). Artigo 124 (alterações unilaterais: até 25% para acréscimos/supressões; 50% para reforma de edifício). Artigo 137 (rescisão unilateral pela Administração).\n- SANÇÕES (artigo 156): advertência, multa, impedimento de licitar (até 3 anos), declaração de inidoneidade (3 a 6 anos). Artigo 159 (devido processo: contraditório e ampla defesa obrigatórios antes da sanção).\n- ESTRATÉGIA: verificar se o contrato é regido pela Lei nº 8.666/1993 ou pela NLLC (data da publicação do edital); nas sanções, sempre exigir contraditório e proporcionalidade; nas alterações contratuais, verificar os limites do artigo 124.',
-  
-  'administrativo:servidor': 'CONTEXTO ESPECIALIZADO — SERVIDOR PÚBLICO:\n- Marco normativo: Lei 8.112/90 (estatuto federal), Constituição da República (artigos 37 a 41), legislações estaduais e municipais.\n- Estabilidade: artigo 41 da Constituição da República — 3 anos de efetivo exercício após nomeação por concurso.\n- Processo administrativo disciplinar: contraditório, ampla defesa e devido processo legal.\n- Acumulação de cargos: regra geral é vedação (artigo 37, inciso XVI da Constituição da República), exceções taxativas.',
-  
-  'administrativo:regulatorio': 'CONTEXTO ESPECIALIZADO — REGULATÓRIO:\n- Marco normativo: leis das agências reguladoras específicas (ANATEL, ANEEL, ANS, ANP, ANTT, etc.), Lei 13.848/19 (Lei Geral das Agências), Constituição da República.\n- Poder normativo das agências: regulamentação técnica especializada — limites do princípio da legalidade.\n- Sanções regulatórias: contraditório e ampla defesa em processo administrativo sancionador.',
-  
-  'administrativo:geral': 'CONTEXTO ESPECIALIZADO — ADMINISTRATIVO GERAL:\n- Marco normativo: Lei 9.784/99 (processo administrativo federal), Constituição da República (artigos 37 a 41).\n- Princípios da Administração Pública: legalidade, impessoalidade, moralidade, publicidade, eficiência, supremacia do interesse público.',
-  
-  'empresarial:societario': 'CONTEXTO ESPECIALIZADO — DIREITO SOCIETÁRIO:\n- Marco normativo: Código Civil (artigos 966 a 1.195), Lei nº 6.404/1976 (LSA — S/A), Lei nº 11.101/2005 (recuperação e falência), Lei nº 13.874/2019 (Liberdade Econômica).\n- SOCIEDADE LIMITADA: artigo 1.052 do CC (responsabilidade limitada ao capital integralizado). Artigo 1.055 (quotas). Artigo 1.064 (administração). Artigo 1.072 (assembleia e deliberações). Quórum qualificado para alteração do contrato: 3/4 do capital (artigo 1.076, inciso I).\n- DESCONSIDERAÇÃO DA PERSONALIDADE JURÍDICA: artigo 50 do CC (desvio de finalidade OU confusão patrimonial — requisitos alternativos após o STJ — EREsp 1.306.553). Artigo 133 do CPC (incidente de desconsideração — contraditório obrigatório). Desconsideração inversa: Súmula 604 do STJ.\n- SOCIEDADE ANÔNIMA: LSA — artigo 116 (acionista controlador: poder de controle + uso efetivo + responsabilidade). Artigo 117 (abuso de poder de controle). Artigo 157 (dever de informar — insider trading). Artigo 158 (responsabilidade do administrador: dolo ou culpa, não pelo risco do negócio — business judgment rule).\n- RECUPERAÇÃO JUDICIAL: Lei nº 11.101/2005, artigos 47 a 72. Stay period de 180 dias (artigo 6º, § 4º). Plano deve ser aprovado pela AGC (artigo 45) ou via cram-down (artigo 58). Créditos extraconcursais (artigo 84) têm prioridade sobre concursais.\n- ESTRATÉGIA: na desconsideração, exigir prova de desvio de finalidade OU confusão patrimonial — não basta insolvência; na responsabilidade do administrador, invocar a business judgment rule para afastar culpa por decisões de risco; verificar quórum nas deliberações societárias.',
-  
-  'empresarial:recuperacao': 'CONTEXTO ESPECIALIZADO — RECUPERAÇÃO JUDICIAL E FALÊNCIA:\n- Marco normativo: Lei nº 11.101/2005 (LREF), Lei nº 14.112/2020 (reforma da LREF).\n- RECUPERAÇÃO JUDICIAL: artigo 48 (requisitos: exercício regular há +2 anos, sem falência anterior nos últimos 5 anos, sem condenação por crime falimentar). Artigo 49 (créditos sujeitos: constituídos antes do pedido). Exceções: créditos com garantia fiduciária, arrendamento mercantil, adiantamento de câmbio (artigo 49, §§ 3º e 4º).\n- PLANO: artigo 53 (conteúdo obrigatório). Artigo 54 (prazo máximo de 1 ano para pagamento de crédito trabalhista e acidentário). AGC: artigo 45 (aprovação por classes). Cram-down: artigo 58, § 1º (aprovação judicial mesmo sem AGC, em condições específicas).\n- FALÊNCIA: artigo 94 (hipóteses: impontualidade ≥ 40 salários mínimos, execução frustrada, atos de falência). Artigo 83 (ordem de classificação dos créditos). Artigo 129 (atos ineficazes de pleno direito — período suspeito). Artigo 130 (atos revogáveis — fraude contra credores).\n- ESTRATÉGIA: verificar se o crédito está sujeito à recuperação (artigo 49); nos contratos com garantia fiduciária, a alienação fiduciária não se submete ao plano; monitorar o stay period e os prazos do plano.',
-  
-  'empresarial:titulos': 'CONTEXTO ESPECIALIZADO — TÍTULOS DE CRÉDITO:\n- Marco normativo: Código Civil (artigos 887 a 926), Lei do Cheque (Lei 7.357/85), Lei Uniforme de Genebra (Decreto 57.663/66 — letra de câmbio e nota promissória), Lei de Duplicatas (Lei 5.474/68).\n- Princípios: cartularidade, literalidade, autonomia, abstração.\n- Endosso e aval: distinções e efeitos.\n- Prescrição: prazos específicos por tipo de título.',
-  
-  'empresarial:concorrencial': 'CONTEXTO ESPECIALIZADO — DIREITO CONCORRENCIAL:\n- Marco normativo: Lei 12.529/11 (SBDC e CADE), Constituição da República (artigo 170, inciso IV).\n- Infrações à ordem econômica: cartel, abuso de posição dominante, condutas anticompetitivas.\n- Atos de concentração: notificação obrigatória ao CADE quando atingidos os patamares legais.\n- Acordo de leniência e TCC.',
-  
-  'empresarial:geral': 'CONTEXTO ESPECIALIZADO — EMPRESARIAL GERAL:\n- Marco normativo: Código Civil (Livro II — Direito de Empresa), legislações específicas.\n- Princípios: livre iniciativa, função social da empresa, preservação da atividade empresarial.'
+  'civel:saude_suplementar': 'CONTEXTO ESPECIALIZADO — SAÚDE SUPLEMENTAR:\n- Atuação voltada à defesa de operadoras de planos de saúde.\n- Marco regulatório central: Lei nº 9.656/1998, Lei nº 14.454/2022, RN ANS nº 565/2022, RN nº 465/2021 e atualizações do rol.\n- Usar ADI 7265 e Temas STJ da lista branca sem inventar dados de julgamento.\n- Verificar contrato, segmentação, rol/DUT, carência, CPT/DLP, rede, prazos assistenciais e negativa fundamentada.\n- Quando houver procedimento fora do rol, aplicar os requisitos cumulativos do § 13 do artigo 10 da Lei nº 9.656/1998.'
 };
-
 function atualizarSubareas() {
   var area = document.getElementById('f-area').value;
   var subs = SUBAREAS[area] || [];
@@ -2425,11 +2303,8 @@ function sincronizarModeloGlobal(val) {
 
 function atualizarIndicadorModelo() {
   var val = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'claude-sonnet';
-  var isAnt = (val === 'claude-sonnet' || val === 'claude-opus');
-
-  // Labels e ícones por modelo
-  var labels = { 'claude-sonnet': 'Sonnet', 'claude-opus': 'Opus', 'gpt4o': 'GPT-4o' };
-  var icons  = { 'claude-sonnet': '⚡', 'claude-opus': '🔶', 'gpt4o': '🟢' };
+  var labels = { 'claude-sonnet': 'Sonnet', 'claude-opus': 'Opus' };
+  var icons  = { 'claude-sonnet': '⚡', 'claude-opus': '🔶' };
 
   var iconEl  = document.getElementById('tb-modelo-icon');
   var labelEl = document.getElementById('tb-modelo-label');
@@ -2437,38 +2312,27 @@ function atualizarIndicadorModelo() {
   var btn     = document.getElementById('tb-modelo-btn');
   var statusEl = document.getElementById('cfg-modelo-status');
 
-  if (iconEl)  iconEl.textContent  = icons[val]  || '⚡';
-  if (labelEl) labelEl.textContent = labels[val] || val;
+  if (iconEl)  iconEl.textContent  = icons[val] || '⚡';
+  if (labelEl) labelEl.textContent = labels[val] || 'Claude';
 
-  // Verificar se chave está preenchida
-  var keyAnt = (document.getElementById('key-anthropic') || {}).value || sessionStorage.getItem('ant') || '';
-  var keyOai = (document.getElementById('key-openai') || {}).value || sessionStorage.getItem('oai') || '';
-  var temChave = isAnt ? !!keyAnt : !!keyOai;
+  var proxyAtivo = !!GPStorage.userId;
 
-  if (chaveEl) chaveEl.textContent = temChave ? '✓' : '⚠';
+  if (chaveEl) chaveEl.textContent = '✓';
+
   if (btn) {
-    btn.classList.toggle('tb-modelo-ok', temChave);
-    btn.classList.toggle('tb-modelo-warn', !temChave);
-    btn.title = temChave
-      ? 'Modelo ativo: ' + (labels[val]||val) + ' · Chave configurada — clique para editar'
-      : 'Modelo ativo: ' + (labels[val]||val) + ' · ⚠ Chave não configurada — clique para configurar';
+    btn.classList.add('tb-modelo-ok');
+    btn.classList.remove('tb-modelo-warn');
+    btn.title = 'Modelo ativo: ' + (labels[val] || 'Claude') + ' · Proxy seguro ativo';
   }
 
-  // Status inline no card da Configuração
   if (statusEl) {
-    if (temChave) {
-      statusEl.style.display = 'block';
-      statusEl.style.background = 'rgba(5,150,105,.08)';
-      statusEl.style.border = '1px solid rgba(5,150,105,.25)';
-      statusEl.style.color = '#065f46';
-      statusEl.innerHTML = '✓ Configurado: <strong>' + (labels[val]||val) + '</strong> · Chave ' + (isAnt ? 'Anthropic' : 'OpenAI') + ' salva.';
-    } else {
-      statusEl.style.display = 'block';
-      statusEl.style.background = '#FEF3C7';
-      statusEl.style.border = '1px solid #F59E0B';
-      statusEl.style.color = '#78350F';
-      statusEl.innerHTML = '⚠ Chave ' + (isAnt ? 'Anthropic' : 'OpenAI') + ' não configurada. Insira a chave acima e clique em Salvar.';
-    }
+    statusEl.style.display = 'block';
+    statusEl.style.background = 'rgba(5,150,105,.08)';
+    statusEl.style.border = '1px solid rgba(5,150,105,.25)';
+    statusEl.style.color = '#065f46';
+    statusEl.innerHTML = proxyAtivo
+      ? '✓ Proxy seguro ativo · Modelo: <strong>' + (labels[val] || 'Claude') + '</strong>.'
+      : '✓ Modelo Claude configurado para uso via proxy seguro.';
   }
 }
 
@@ -2480,10 +2344,6 @@ function toggleClienteModo() {
     inp.placeholder = '(será identificado pela IA)';
     inp.disabled = true;
     inp.style.background = 'var(--surface2)';
-  } else if (m === 'notre') {
-    inp.value = 'Notre Dame Intermédica Saúde S/A';
-    inp.disabled = false;
-    inp.style.background = '';
   } else {
     // manual
     inp.value = '';
@@ -2548,29 +2408,23 @@ function saveKey(p) {
   checkBtn();
 }
 
-function getKey() {
-  // Sempre ler o seletor global primeiro (evita dessincronização)
-  var globalSel = document.getElementById('sel-modelo-global');
-  var localSel  = document.getElementById('sel-modelo');
-  var m = (globalSel && globalSel.value) || (localSel && localSel.value) || 'claude-sonnet';
-  // Sincronizar o seletor oculto para manter compatibilidade
-  if (localSel && localSel.value !== m) localSel.value = m;
-  var isAnthropic = m.startsWith('claude');
-  var keyAnt = sessionStorage.getItem('ant') || (document.getElementById('key-anthropic') || {}).value || '';
-  var keyOai = sessionStorage.getItem('oai') || (document.getElementById('key-openai') || {}).value || '';
-  return isAnthropic ? keyAnt.trim() : keyOai.trim();
-}
-
-// Retorna modelo e chave sem misturar provedores
-function getModeloEChave() {
+function getModeloSelecionado() {
   var globalSel = document.getElementById('sel-modelo-global');
   var localSel  = document.getElementById('sel-modelo');
   var modelo = (globalSel && globalSel.value) || (localSel && localSel.value) || 'claude-sonnet';
-  var isAnthropic = modelo.startsWith('claude');
-  var keyAnt = sessionStorage.getItem('ant') || (document.getElementById('key-anthropic') || {}).value || '';
-  var keyOai = sessionStorage.getItem('oai') || (document.getElementById('key-openai') || {}).value || '';
-  var key = isAnthropic ? keyAnt.trim() : keyOai.trim();
-  return { modelo: modelo, key: key, isAnthropic: isAnthropic };
+  if (modelo !== 'claude-opus') modelo = 'claude-sonnet';
+  if (globalSel && globalSel.value !== modelo) globalSel.value = modelo;
+  if (localSel && localSel.value !== modelo) localSel.value = modelo;
+  return modelo;
+}
+
+function getKey() {
+  getModeloSelecionado();
+  return '';
+}
+
+function getModeloEChave() {
+  return { modelo: getModeloSelecionado(), key: '', isAnthropic: true };
 }
 
 // URLs de consulta dos tribunais — abrem o site com o número pré-preenchido
@@ -2762,26 +2616,22 @@ function onProcInput() {
 function checkBtn() {
   var btn = document.getElementById('btn-ger');
   var statusEl = document.getElementById('btn-ger-status');
-  // Com o proxy, a chave é opcional — basta estar logado e ter o processo
-  var mc = getModeloEChave();
-  var estaLogado = !!(GPStorage.userId); // proxy disponível se logado
-  var temChaveLocal = !!mc.key;
-  var temAcesso = estaLogado || temChaveLocal; // proxy OU chave local
-  var temProc = !!(document.getElementById('f-proc') || {}).value &&
-    document.getElementById('f-proc').value.trim().length > 0;
-  var habilitado = temAcesso && temProc;
+  var estaLogado = !!(GPStorage && GPStorage.userId);
+  var procEl = document.getElementById('f-proc');
+  var temProc = !!(procEl && procEl.value && procEl.value.trim().length > 0);
+  var habilitado = estaLogado && temProc;
 
   if (btn) btn.disabled = !habilitado;
-  var bPartes = document.getElementById('btn-partes'); if(bPartes) bPartes.disabled = !habilitado;
-  var bComp   = document.getElementById('btn-comparar'); if(bComp) bComp.disabled = !habilitado;
+  var bPartes = document.getElementById('btn-partes'); if (bPartes) bPartes.disabled = !habilitado;
+  var bComp = document.getElementById('btn-comparar'); if (bComp) bComp.disabled = true;
 
   if (statusEl) {
     if (habilitado) {
       statusEl.textContent = '';
     } else {
       var faltando = [];
-      if (!temAcesso) faltando.push('login (faça login para usar a ferramenta)');
-      if (!temProc)   faltando.push('número do processo');
+      if (!estaLogado) faltando.push('login');
+      if (!temProc) faltando.push('número do processo');
       statusEl.innerHTML = '⚠ Falta preencher: <strong>' + faltando.join('</strong> e <strong>') + '</strong>';
     }
   }
@@ -2992,7 +2842,7 @@ function loadXLSX(inp) {
         pasta:    gc(r,['pasta']),
         proc:     numProc,
         tribunal: extrairTribunal(numProc),
-        cliente:  gc(r,['cliente principal','cliente'])||'Notre Dame Intermédica Saúde S/A',
+        cliente:  gc(r,['cliente principal','cliente'])||'',
         parte:    gc(r,['contrario principal','contrário principal','contrario','parte']),
         desc:     gc(r,['descrição','descricao']),
         prazo:    gc(r,['prazo fatal','prazo']),
@@ -3484,26 +3334,10 @@ async function executarBatch() {
 }
 
 async function chamarAPIBatch(sys, usr, modelo, key) {
-  if (modelo === "gpt4o") {
-    var res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method:"POST",
-      headers:{"Content-Type":"application/json","Authorization":"Bearer "+key},
-      body: JSON.stringify({model:"gpt-4o",messages:[{role:"system",content:sys},{role:"user",content:usr}],max_tokens:16000})
-    });
-    var d = await res.json();
-    if (!res.ok) throw new Error(d.error?d.error.message:"Erro OpenAI");
-    return d.choices[0].message.content;
-  } else {
-    var cm = modelo==="claude-sonnet"?"claude-sonnet-4-5-20251001":"claude-opus-4-20250514";
-    var res = await fetch("https://api.anthropic.com/v1/messages", {
-      method:"POST",
-      headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-      body: JSON.stringify({model:cm,max_tokens:16000,system:sys,messages:[{role:"user",content:usr}]})
-    });
-    var d = await res.json();
-    if (!res.ok) throw new Error(d.error?d.error.message:"Erro Anthropic");
-    return d.content[0].text;
-  }
+  if (!GPStorage.userId) throw new Error('Faça login para usar o proxy seguro.');
+  var resp = await chamarIAViaProxy(modelo || getModeloSelecionado(), sys, [{role:'user', content:usr}], null);
+  if (!resp || !resp.texto) throw new Error('Resposta vazia da IA.');
+  return resp.texto;
 }
 
 async function baixarBatchZip() {
@@ -4692,7 +4526,6 @@ function base64ToArrayBuffer(b64) {
 
 // Preços das APIs (USD por 1M tokens) — atualizar conforme necessário
 var PRECOS_API = {
-  'gpt4o':           { in: 2.50, out: 10.00, nome: 'GPT-4o' },
   'claude-sonnet':   { in: 3.00, out: 15.00, nome: 'Claude Sonnet 4.5' },
   'claude-sonnet46': { in: 3.00, out: 15.00, nome: 'Claude Sonnet 4.6' },
   'claude-opus':     { in: 5.00, out: 25.00, nome: 'Claude Opus 4.6' }
@@ -4778,7 +4611,7 @@ function exibirUsoNaUI(tokensIn, tokensOut, modelo, tipoPeca) {
 
   // Calcular custo em TODOS os modelos (comparativo para a op atual)
   var comparativo = [];
-  ['gpt4o','claude-sonnet','claude-sonnet46','claude-opus'].forEach(function(m){
+  ['claude-sonnet','claude-opus'].forEach(function(m){
     var c = calcularCusto(m, tokensIn, tokensOut);
     var marcadorAtual = (m === modelo) ? ' <strong style="color:var(--blue)">← usado</strong>' : '';
     comparativo.push(
@@ -4880,50 +4713,7 @@ function carregarFeriadosCustom() {
 }
 
 async function compararModelos() {
-  var keyOai = document.getElementById("key-openai")&&document.getElementById("key-openai").value.trim()||sessionStorage.getItem("oai")||"";
-  var keyAnt = document.getElementById("key-anthropic")&&document.getElementById("key-anthropic").value.trim()||sessionStorage.getItem("ant")||"";
-  if (!keyOai || !keyAnt) { alert("Para comparar modelos, informe as chaves de API do OpenAI e da Anthropic na aba Configuração."); return; }
-  var btnC = document.getElementById("btn-comparar");
-  var btnG = document.getElementById("btn-ger");
-  btnC.disabled=true; btnC.textContent="⏳ Comparando..."; btnG.disabled=true;
-  go("res");
-  var resDiv = document.getElementById("res-txt");
-  resDiv.textContent = "Gerando com os dois modelos em paralelo...";
-  mostrarBarra();
-  try {
-    // Usar o mesmo prompt que gerarMinuta usaria
-    var fmt=getFormatacao();
-    var enriq=getEnriquecimento();
-    var tipo=document.getElementById("f-tipo").value;
-    var andamento=document.getElementById("f-and").value.trim();
-    var inst=document.getElementById("f-inst").value.trim();
-    var sysBase='Você é um advogado experiente. Elabore a peça jurídica solicitada em português técnico.';
-    var usrBase='Tipo de peça: '+tipo+'\nAndamento:\n'+andamento+(inst?"\nInstruções: "+inst:"");
-    var [resGpt, resClaude] = await Promise.all([
-      fetch("https://api.openai.com/v1/chat/completions",{
-        method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+keyOai},
-        body:JSON.stringify({model:(document.getElementById('sel-modelo-global')||document.getElementById('sel-modelo')||{value:'claude-sonnet'}).value==='gpt4o'?'gpt-4o':'claude-sonnet-4-5',messages:[{role:"system",content:sysBase},{role:"user",content:usrBase}],max_tokens:4000})
-      }).then(function(r){return r.json();}),
-      fetch("https://api.anthropic.com/v1/messages",{
-        method:"POST",headers:{"Content-Type":"application/json","x-api-key":keyAnt,"anthropic-version":"2023-06-01"},
-        body:JSON.stringify({model:"claude-sonnet-4-5-20251001",max_tokens:4000,system:sysBase,messages:[{role:"user",content:usrBase}]})
-      }).then(function(r){return r.json();})
-    ]);
-    var txtGpt = resGpt.choices&&resGpt.choices[0]&&resGpt.choices[0].message&&resGpt.choices[0].message.content||"[Erro GPT-4o: "+(resGpt.error&&resGpt.error.message||"sem resposta")+"]";
-    var txtClaude = resClaude.content&&resClaude.content[0]&&resClaude.content[0].text||"[Erro Claude: "+(resClaude.error&&resClaude.error.message||"sem resposta")+"]";
-    // Exibir lado a lado
-    resDiv.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:12px">'+
-      '<div><strong style="color:var(--blue)">GPT-4o</strong><div style="white-space:pre-wrap;margin-top:8px;padding:10px;background:var(--bg2);border-radius:6px;max-height:600px;overflow-y:auto">'+txtGpt+'</div></div>'+
-      '<div><strong style="color:var(--blue)">Claude Sonnet</strong><div style="white-space:pre-wrap;margin-top:8px;padding:10px;background:var(--bg2);border-radius:6px;max-height:600px;overflow-y:auto">'+txtClaude+'</div></div>'+
-      '</div>';
-    document.getElementById("res-empty").style.display="none";
-    document.getElementById("res-content").style.display="block";
-  } catch(e) {
-    resDiv.textContent = "Erro na comparação: "+e.message;
-  } finally {
-    btnC.disabled=false; btnC.textContent="⚡ Comparar"; btnG.disabled=false;
-    esconderBarra();
-  }
+  alert('Comparação entre modelos foi removida. Use Claude Sonnet 4.5 ou Claude Opus 4.5 pelo proxy seguro.');
 }
 
 // ── VERIFICADOR DE QUALIDADE ────────────────────────────────────────────
@@ -5082,10 +4872,8 @@ function verificarQualidade() {
 
 // ── INDICADOR DE CONTEXTO ──────────────────────────────────────────────
 var LIMITES_CONTEXTO = {
-  "gpt4o":           200000,
-  "claude-sonnet":   200000,
-  "claude-sonnet46": 200000,
-  "claude-opus":     200000
+  "claude-sonnet": 200000,
+  "claude-opus": 200000
 };
 
 function atualizarIndicadorContexto() {
@@ -5257,16 +5045,16 @@ async function usarComoBase() {
 }
 
 async function gerarResumoCaso() {
-  var key = getKey();
-  if (!key) { alert('Informe a chave de API.'); return; }
-  var modelo = document.getElementById('sel-modelo').value;
+  if (!GPStorage.userId) { alert('Faça login para usar o proxy seguro.'); return; }
+  var key = ''
+  var modelo = getModeloSelecionado();
   var andamento = document.getElementById('f-and').value.trim();
   if (!andamento && !ctxDocs.principal && !ctxDocs.incidente) {
     alert('Carregue pelo menos o andamento, cópia do processo principal ou incidente para gerar o resumo.');
     return;
   }
 
-  var nomeModelo = modelo==='gpt4o'?'GPT-4o':modelo==='claude-sonnet'?'Claude Sonnet':'Claude Opus';
+  var nomeModelo = modelo==='claude-opus'?'Claude Opus':'Claude Sonnet';
 
   // Mudar para aba resultado
   go('res');
@@ -5307,26 +5095,21 @@ async function gerarResumoCaso() {
   ultimoSysPrompt = sysResumo;
   ultimoUsrPrompt = usrResumo;
   ultimoModelo = modelo;
-  ultimoKey = key;
+  ultimoKey = '';
 
   try {
     var full = '';
     var out = document.getElementById('res-txt');
     out.textContent = '';
     var usoTokensIn = 0, usoTokensOut = 0;
-
-    if (modelo === 'gpt4o') {
-      var res = await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sysResumo},{role:'user',content:usrResumo}],temperature:0.2,max_tokens:8000,stream:true,stream_options:{include_usage:true}})});
-      if (!res.ok) { var er = await res.json(); throw new Error(er.error?er.error.message:'Erro OpenAI'); }
-      var rd = res.body.getReader(), dc = new TextDecoder();
-      while(true){var rv=await rd.read();if(rv.done)break;dc.decode(rv.value).split('\n').forEach(function(ln){if(ln.startsWith('data: ')&&ln!=='data: [DONE]'){try{var parsed=JSON.parse(ln.slice(6));if(parsed.usage){usoTokensIn=parsed.usage.prompt_tokens||0;usoTokensOut=parsed.usage.completion_tokens||0;}if(parsed.choices&&parsed.choices[0]&&parsed.choices[0].delta){var d=parsed.choices[0].delta.content;if(d){full+=d;out.textContent=full;out.scrollTop=99999;}}}catch(e){}}});}
-    } else {
-      var cm = modelo==='claude-sonnet'?'claude-sonnet-4-5':'claude-opus-4-5';
-      var res = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:cm,max_tokens:8000,system:sysResumo,messages:[{role:'user',content:usrResumo}],stream:true})});
-      if (!res.ok) { var er = await res.json(); throw new Error(er.error?er.error.message:'Erro Anthropic'); }
-      var rd = res.body.getReader(), dc = new TextDecoder();
-      while(true){var rv=await rd.read();if(rv.done)break;dc.decode(rv.value).split('\n').forEach(function(ln){if(ln.startsWith('data: ')){try{var ev=JSON.parse(ln.slice(6));if(ev.type==='message_start'&&ev.message&&ev.message.usage){usoTokensIn=ev.message.usage.input_tokens||0;}if(ev.type==='message_delta'&&ev.usage){usoTokensOut=ev.usage.output_tokens||0;}if(ev.type==='content_block_delta'&&ev.delta&&ev.delta.text){full+=ev.delta.text;out.textContent=full;out.scrollTop=99999;}}catch(e){}}});}
-    }
+    var resp = await chamarIAGenerica(modelo, sysResumo, usrResumo, '', function(chunk){
+      full += chunk;
+      out.textContent = full;
+      out.scrollTop = 99999;
+    });
+    full = resp.texto || full;
+    var usoMatch = (resp.uso || '').match(/(\d+)\+(\d+)/);
+    if (usoMatch) { usoTokensIn = parseInt(usoMatch[1],10)||0; usoTokensOut = parseInt(usoMatch[2],10)||0; }
 
     minuta = full;
     salvarMinutaNoHistorico(full, 'resumo', proc);
@@ -5531,7 +5314,7 @@ var TESES_RAPIDAS = {
   '14454': 'Demonstrar o NÃO PREENCHIMENTO dos requisitos cumulativos do § 13 do artigo 10 da Lei nº 9.656/1998 (Lei nº 14.454/2022): (i) ausência de eficácia científica robusta + plano terapêutico formal; (ii) existência de substituto terapêutico no rol; (iii) ausência de recomendação CONITEC ou de órgão internacional aprovado para uso no Brasil. Ônus probatório do AUTOR (artigo 373, inciso I, do CPC).',
   'dlp': 'Arguir DOENÇA/LESÃO PREEXISTENTE (DLP) com fundamento na RN nº 162/2007 e artigo 11 da Lei nº 9.656/1998: (a) caracterização da preexistência mediante prontuários e exames anteriores ao contrato; (b) violação da boa-fé objetiva do beneficiário (artigo 422 do Código Civil); (c) aplicabilidade da CPT (Cobertura Parcial Temporária) por até 24 meses; (d) culpa exclusiva do consumidor (artigo 14, § 3º, inciso II, do CDC).',
   'cdc': 'Sustentar a APLICAÇÃO SUBSIDIÁRIA do CDC (artigo 35-G da Lei nº 9.656/1998): a Lei dos Planos de Saúde é lei especial e prevalece sobre o CDC nas questões de cobertura assistencial; a inversão do ônus da prova (artigo 6º, inciso VIII, do CDC) não é automática — exige hipossuficiência técnica real e verossimilhança demonstrada; a interpretação pro consumidor (artigo 47) só se aplica a cláusulas ambíguas.',
-  'astreintes': 'Requerer REDUÇÃO DAS ASTREINTES (artigos 536 e 537 do CPC) pela manifesta desproporção e excesso, com fundamento em: (a) artigo 537, § 1º, do CPC (modificabilidade); (b) artigo 413 do Código Civil (analogia — cláusula penal manifestamente excessiva); (c) princípios da razoabilidade e proporcionalidade (artigo 8º do CPC); (d) vedação ao enriquecimento sem causa (artigo 884 do Código Civil).',
+  'astreintes': 'Requerer REDUÇÃO DAS ASTREINTES (artigos 536 e 537 do CPC) pela manifesta desproporção e excesso, com fundamento em: (a) artigo 537, § 1º, do CPC (modificabilidade); (b) artigo 413 do Código Civil (analogia — cláusula  manifestamente excessiva); (c) princípios da razoabilidade e proporcionalidade (artigo 8º do CPC); (d) vedação ao enriquecimento sem causa (artigo 884 do Código Civil).',
   'horas-tea': 'Questionar a CARGA HORÁRIA de terapia multidisciplinar (TEA): (i) ausência de evidência científica de superioridade de cargas elevadas (>30h/semana); (ii) exigir relatórios trimestrais com instrumentos validados (VB-MAPP, ABLLS-R, PEP-3); (iii) prestação de contas das horas EFETIVAMENTE realizadas; (iv) avaliação de protocolos com carga moderada (Denver, ESDM); (v) requerer Nota Técnica do NATJUS; (vi) Tema 952 do STJ — dano moral NÃO presumido.',
   'dano-moral': 'Incluir DOIS tópicos sobre dano moral: (i) "DA IMPROCEDÊNCIA DA CONDENAÇÃO POR DANOS MORAIS" — recusa de cobertura legal e contratualmente amparada é EXERCÍCIO REGULAR DE DIREITO (artigo 188, inciso I, do Código Civil) — exclui ilicitude e afasta indenização; (ii) "DO PEDIDO SUBSIDIÁRIO DE REDUÇÃO DO QUANTUM" — artigo 944 do Código Civil (proporcionalidade), artigo 945 (culpa concorrente), vedação ao enriquecimento sem causa (artigo 884).',
   'prescricao': 'Arguir PRESCRIÇÃO TRIENAL (artigo 206, § 3º, inciso V, do Código Civil): a pretensão indenizatória em saúde suplementar tem natureza de REPARAÇÃO CIVIL — prescreve em 3 (três) anos, não 10 anos. Tema 610 do STJ. Estratégia preliminar útil em ações com pedido de indenização por danos morais ou materiais decorrentes de negativa administrativa.',
@@ -6079,7 +5862,7 @@ var RN_BASE_DADOS = {
   'atendimento': {atual:'RN nº 623/2024', detalhes:'Vigência 01/07/2025. Protocolo numérico rastreável; negativas por escrito; reanálise em ouvidoria (7 dias úteis).', revogadas:'Substitui regras anteriores de relacionamento.', obs:'Argumento defensivo: cumprimento do procedimento de comunicação escrita afasta ilegalidade.'},
   'rede': {atual:'RN nº 365/2015', detalhes:'Atualizada por RN nº 417/2016 e RN nº 585/2023 (vigência 31/12/2024).', revogadas:'—', obs:'Substituição de credenciado: equivalente + comunicação 30 dias antes (hospitais).'},
   'urgencia': {atual:'Resolução CONSU nº 13/1998', detalhes:'Define urgência e emergência. Cobertura desde o 1º dia (após 24h da contratação).', revogadas:'—', obs:'Verificar enquadramento no conceito regulatório.'},
-  'fiscalizacao': {atual:'RN nº 483/2022 + RN nº 489/2022', detalhes:'RN 483/22: rito de processo administrativo sancionador; RN 489/22: rol de infrações e sanções.', revogadas:'—', obs:'Verificar respeito ao contraditório e à ampla defesa no processo administrativo.'}
+  'fiscalizacao': {atual:'RN nº 483/2022 + RN nº 489/2022', detalhes:'RN 483/22: rito de processo  sancionador; RN 489/22: rol de infrações e sanções.', revogadas:'—', obs:'Verificar respeito ao contraditório e à ampla defesa no processo .'}
 };
 
 function mostrarRN(tema) {
@@ -6261,8 +6044,8 @@ function anLimparTudo() {
 }
 
 async function executarAnalise() {
-  var key = getKey();
-  if (!key) { alert('Informe a chave de API na aba Configuração.'); return; }
+  if (!GPStorage.userId) { alert('Faça login para usar o proxy seguro.'); return; }
+  var key = ''
   if (!anDocs.length) { alert('Carregue ao menos um documento ou cole um texto antes de analisar.'); return; }
 
   var modo = anModoAtual;
@@ -6283,23 +6066,7 @@ async function executarAnalise() {
   var instrAd = (document.getElementById('an-instrucoes') || {}).value || '';
   instrAd = instrAd.trim();
   var modelo = (document.getElementById('sel-modelo-global') || {}).value || document.getElementById('sel-modelo') && document.getElementById('sel-modelo').value || 'claude-sonnet';
-  var nomeModelo = modelo === 'gpt4o' ? 'GPT-4o' : modelo === 'claude-opus' ? 'Claude Opus' : 'Claude Sonnet';
-  // Validação de chave antes de chamar
-  var keyVerif = getKey ? getKey() : '';
-  if (!keyVerif) {
-    alert('Nenhuma chave de API configurada. Acesse a aba Configuração e insira sua chave Anthropic ou OpenAI.');
-    return;
-  }
-  var precisaAnthropic = (modelo === 'claude-sonnet' || modelo === 'claude-opus');
-  var precisaOpenAI = (modelo === 'gpt4o');
-  if (precisaOpenAI && keyVerif.indexOf('sk-ant-') === 0) {
-    if (!confirm('Atenção: o modelo selecionado é GPT-4o (OpenAI), mas a chave configurada parece ser Anthropic (Claude). Deseja continuar mesmo assim?')) return;
-  }
-  if (precisaAnthropic && keyVerif.indexOf('sk-ant-') === -1 && keyVerif.indexOf('sk-') === 0) {
-    if (!confirm('Atenção: o modelo selecionado é Claude (Anthropic), mas a chave configurada parece ser OpenAI. Deseja continuar mesmo assim?')) return;
-  }
-
-  var btn = document.getElementById('an-btn-executar');
+  var nomeModelo = modelo === 'claude-opus' ? 'Claude Opus' : 'Claude Sonnet';var btn = document.getElementById('an-btn-executar');
   btn.disabled = true;
   btn.textContent = '⏳ Analisando...';
   document.getElementById('an-status').textContent = 'Enviando documentos para ' + nomeModelo + '...';
@@ -6432,8 +6199,8 @@ async function anChatEnviar() {
     return;
   }
 
-  var key = getKey();
-  if (!key) { alert('Informe a chave de API.'); return; }
+  if (!GPStorage.userId) { alert('Faça login para usar o proxy seguro.'); return; }
+  var key = ''
 
   // Adicionar mensagem do usuário ao histórico e UI
   anHistoricoChat.push({ role: 'user', content: pergunta });
@@ -6479,128 +6246,13 @@ function anRenderChat() {
 // Compatíveis com o mesmo mecanismo de gerarMinuta/gerarResumoCaso
 // ============================================================
 async function chamarIAGenerica(modelo, sysPrompt, usrPrompt, apiKey, onChunk) {
-  // Se há chave local configurada E o usuário optou por usar a própria, usar diretamente
-  // Caso contrário, usar o proxy do servidor (Edge Function)
-  var usarProxy = !apiKey || apiKey.length < 10;
-  if (usarProxy) {
-    return await chamarIAViaProxy(modelo, sysPrompt, [{role:'user', content:usrPrompt}], onChunk);
-  }
-  // fallback: chamada direta com chave do usuário (compatibilidade)
-
-  var texto = '';
-  var uso = '';
-
-  if (modelo === 'gpt4o') {
-    var res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
-      body: JSON.stringify({model:'gpt-4o', messages:[{role:'system',content:sysPrompt},{role:'user',content:usrPrompt}], temperature:0.2, max_tokens:8000, stream:true, stream_options:{include_usage:true}})
-    });
-    if (!res.ok) { var er = await res.json(); throw new Error(er.error?er.error.message:'Erro OpenAI '+res.status); }
-    var rd = res.body.getReader(), dc = new TextDecoder();
-    var tokIn = 0, tokOut = 0;
-    while (true) {
-      var rv = await rd.read(); if (rv.done) break;
-      dc.decode(rv.value).split('\n').forEach(function(ln) {
-        if (ln.startsWith('data: ') && ln !== 'data: [DONE]') {
-          try {
-            var parsed = JSON.parse(ln.slice(6));
-            if (parsed.usage) { tokIn = parsed.usage.prompt_tokens||0; tokOut = parsed.usage.completion_tokens||0; }
-            if (parsed.choices && parsed.choices[0] && parsed.choices[0].delta && parsed.choices[0].delta.content) {
-              var chunk = parsed.choices[0].delta.content;
-              texto += chunk;
-              if (typeof onChunk === 'function') onChunk(chunk);
-            }
-          } catch(e) {}
-        }
-      });
-    }
-    uso = tokIn + '+' + tokOut + ' tokens';
-  } else {
-    var modelStr = modelo === 'claude-opus' ? 'claude-opus-4-5' : 'claude-sonnet-4-5';
-    var res2 = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({model:modelStr, max_tokens:8000, system:sysPrompt, messages:[{role:'user',content:usrPrompt}], stream:true})
-    });
-    if (!res2.ok) { var er2 = await res2.json(); throw new Error(er2.error?er2.error.message:'Erro Anthropic '+res2.status); }
-    var rd2 = res2.body.getReader(), dc2 = new TextDecoder();
-    var tokIn2 = 0, tokOut2 = 0;
-    while (true) {
-      var rv2 = await rd2.read(); if (rv2.done) break;
-      dc2.decode(rv2.value).split('\n').forEach(function(ln) {
-        if (ln.startsWith('data: ')) {
-          try {
-            var ev = JSON.parse(ln.slice(6));
-            if (ev.type === 'message_start' && ev.message && ev.message.usage) tokIn2 = ev.message.usage.input_tokens||0;
-            if (ev.type === 'message_delta' && ev.usage) tokOut2 = ev.usage.output_tokens||0;
-            if (ev.type === 'content_block_delta' && ev.delta && ev.delta.text) {
-              var chunk2 = ev.delta.text;
-              texto += chunk2;
-              if (typeof onChunk === 'function') onChunk(chunk2);
-            }
-          } catch(e) {}
-        }
-      });
-    }
-    uso = tokIn2 + '+' + tokOut2 + ' tokens';
-  }
-
-  if (!texto) throw new Error('Resposta vazia da IA.');
-  return { texto: texto, uso: uso };
+  if (!GPStorage.userId) throw new Error('Faça login para usar o proxy seguro.');
+  return await chamarIAViaProxy(modelo || getModeloSelecionado(), sysPrompt, [{role:'user', content:usrPrompt}], onChunk);
 }
 
 async function chamarIAChat(modelo, sysPrompt, mensagens, apiKey) {
-  // Usar proxy se não há chave local
-  if (!apiKey || apiKey.length < 10) {
-    return await chamarIAViaProxy(modelo, sysPrompt, mensagens, null);
-  }
-  // fallback com chave local
-  var texto = '';
-  if (modelo === 'gpt4o') {
-    var msgsGpt = [{role:'system',content:sysPrompt}].concat(mensagens);
-    var res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
-      body: JSON.stringify({model:'gpt-4o', messages:msgsGpt, temperature:0.2, max_tokens:4000, stream:true})
-    });
-    if (!res.ok) { var er = await res.json(); throw new Error(er.error?er.error.message:'Erro OpenAI '+res.status); }
-    var rd = res.body.getReader(), dc = new TextDecoder();
-    while (true) {
-      var rv = await rd.read(); if (rv.done) break;
-      dc.decode(rv.value).split('\n').forEach(function(ln) {
-        if (ln.startsWith('data: ') && ln !== 'data: [DONE]') {
-          try {
-            var p = JSON.parse(ln.slice(6));
-            if (p.choices && p.choices[0] && p.choices[0].delta && p.choices[0].delta.content) texto += p.choices[0].delta.content;
-          } catch(e) {}
-        }
-      });
-    }
-  } else {
-    var modelStr = modelo === 'claude-opus' ? 'claude-opus-4-5' : 'claude-sonnet-4-5';
-    var res2 = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({model:modelStr, max_tokens:4000, system:sysPrompt, messages:mensagens, stream:true})
-    });
-    if (!res2.ok) { var er2 = await res2.json(); throw new Error(er2.error?er2.error.message:'Erro Anthropic '+res2.status); }
-    var rd2 = res2.body.getReader(), dc2 = new TextDecoder();
-    while (true) {
-      var rv2 = await rd2.read(); if (rv2.done) break;
-      dc2.decode(rv2.value).split('\n').forEach(function(ln) {
-        if (ln.startsWith('data: ')) {
-          try {
-            var ev = JSON.parse(ln.slice(6));
-            if (ev.type === 'content_block_delta' && ev.delta && ev.delta.text) texto += ev.delta.text;
-          } catch(e) {}
-        }
-      });
-    }
-  }
-
-  if (!texto) throw new Error('Resposta vazia.');
-  return { texto: texto, uso: '' };
+  if (!GPStorage.userId) throw new Error('Faça login para usar o proxy seguro.');
+  return await chamarIAViaProxy(modelo || getModeloSelecionado(), sysPrompt, mensagens, null);
 }
 
 
@@ -7391,6 +7043,21 @@ document.addEventListener('DOMContentLoaded', function() {
   if (typeof anRenderListaDocs === 'function') anRenderListaDocs();
 });
 
+function montarSystemPromptPeticao(enriquecimento, tipo, inst, andamento) {
+  var blocos = [];
+  blocos.push('Você é advogado especializado em contencioso de saúde suplementar, atuando na defesa técnica de operadoras de planos de saúde. Redija peças em português jurídico formal, com precisão normativa, objetividade estratégica e aderência aos fatos fornecidos. A ferramenta é exclusivamente de saúde suplementar: não use contextos trabalhistas, penais, tributários, administrativos ou de outras áreas salvo se o usuário trouxer fato indispensável ao caso.');
+  if (enriquecimento) blocos.push('CONTEXTO ADICIONAL DO USUÁRIO:\n' + enriquecimento);
+  blocos.push('PROTOCOLO ANTI-ALUCINAÇÃO DE JURISPRUDÊNCIA: você não tem acesso à internet nem a bases jurisprudenciais em tempo real. Jamais invente número de processo, REsp, AREsp, relator, data, ementa ou trecho de julgado. Use livremente apenas estes precedentes por nome/tema, sem relator ou data: STF ADI 7265; STJ Temas 990, 952, 106, 1036, 988, 1076, 610, 297 e 940; Súmula Vinculante 7; Súmula Normativa ANS nº 27. A Súmula 102 do TJSP foi revogada em 10/09/2025 e não deve ser citada como vigente. Para qualquer precedente fora dessa lista, use [CITAÇÃO_PENDENTE: descreva o tema] para pesquisa posterior pelo advogado. Prefira fundamentação legal quando suficiente.');
+  blocos.push('PROTOCOLO DE REFERÊNCIA A DOCUMENTOS: sempre que mencionar petição, decisão, sentença, acórdão, laudo, parecer, nota técnica, contrato, procuração, comprovante, recurso, ofício, documento da ANS/NATJUS ou outro documento dos autos, indique evento, id., fls. ou doc. quando a informação constar do contexto. Se não constar, use [REF_DOC: descrição do documento]. Uma peça sem rastreabilidade documental é incompleta.');
+  blocos.push('REGRAS DE ESTILO: escreva artigo por extenso, nunca art.; use inciso por extenso; use § para parágrafos numerados e parágrafo único por extenso; use Constituição da República, nunca CF/88; evite Vossa Excelência e prefira esse juízo ou esse órgão julgador; nunca use a presente peça/demanda como muleta; títulos em CAIXA ALTA, sem markdown; pedidos com Ante ao exposto, requer-se: e alíneas a), b), c); datas em dd/mm/aaaa salvo instrução diversa; não use símbolos de markdown como **, #, > ou listas com hífen na peça final.');
+  blocos.push('NORMAS E TESES CENTRAIS DE SAÚDE SUPLEMENTAR: Lei nº 9.656/1998; Lei nº 14.454/2022, especialmente os critérios do § 13 do artigo 10 da Lei nº 9.656/1998; RN ANS nº 565/2022 como norma vigente de cobertura assistencial obrigatória, observando que revogou a RN nº 309/2012 e a RN nº 566/2022; RN nº 465/2021 e atualizações do rol; ADI 7265 como eixo constitucional; distinção entre obrigação contratual/regulatória da operadora e dever universal do Estado pelo SUS.');
+  blocos.push('CATÁLOGO ANS ESSENCIAL: RN nº 162/2007 para doença ou lesão preexistente e cobertura parcial temporária; RN nº 438/2018 para portabilidade; RN nº 63/2003 e RN nº 171/2008 para reajustes; RN nº 279/2011 para manutenção de ex-empregado/aposentado; RN nº 259/2011 para prazos assistenciais; RN nº 623/2024 para regras de atendimento e negativa fundamentada; RN nº 365/2015, RN nº 417/2016 e RN nº 585/2023 para rede assistencial; Resolução CONSU nº 13/1998 para urgência e emergência; RN nº 483/2022 e RN nº 489/2022 para fiscalização e sanções.');
+  blocos.push('FLUXO DE VERIFICAÇÃO REGULATÓRIA: identifique tipo de contrato e data; verifique segmentação; confira se o procedimento está no rol e se há DUT; se estiver fora do rol, aplique cumulativamente os critérios da Lei nº 14.454/2022; verifique carência, CPT/DLP, rede, prazos de atendimento e comunicação formal da negativa; diferencie prescrição médica de obrigação de cobertura. NATJUS elabora nota técnica, não laudo pericial.');
+  blocos.push('ESTRATÉGIA DEFENSIVA: quando houver procedimento fora do rol, estruturar tópico próprio sobre ausência de cobertura obrigatória com três camadas: inexistência no Anexo I/DUT aplicável; não preenchimento dos requisitos do § 13 do artigo 10 da Lei nº 9.656/1998; ausência de recomendação CONITEC ou de órgão internacional aprovado para uso no Brasil. O ônus de provar os requisitos legais é do autor, nos termos do artigo 373, inciso I, do Código de Processo Civil.');
+  blocos.push(getInstrucaoEstrutura(tipo === 'auto' ? inferir((inst || '') + ' ' + andamento) : tipo));
+  blocos.push(getInstrucaoDensidade());
+  return blocos.filter(Boolean).join('\n\n');
+}
 async function gerarMinuta() {
   // 1. Verificar limite do plano
   var limiteCheck = await verificarLimitePlano();
@@ -7444,7 +7111,7 @@ async function gerarMinuta() {
   if (tamContexto > 50000 && !jaUsouResumo) {
     var msg = 'O contexto carregado tem ' + tamContexto.toLocaleString('pt-BR') + ' caracteres (~' + tokensEstim.toLocaleString('pt-BR') + ' tokens de entrada), o que pode gerar custo elevado e risco de ultrapassar o limite do modelo.\n\n' +
       'Recomendamos primeiro gerar um "Resumo do caso" e usá-lo como base para a petição — isso reduz o consumo em até 90%.\n\n' +
-      'Dica: use o GPT-4o para o resumo (entrada mais barata: US$ 2,50/M tokens).';
+      'Dica: use o Claude Sonnet para resumos e análises rápidas.';
     var okResumo = await customConfirm(msg,
       { icon: '💡', title: 'Contexto grande — recomendamos resumir primeiro', ok: 'Gerar petição assim mesmo', cancel: 'Ir para Resumir caso' }
     );
@@ -7453,8 +7120,8 @@ async function gerarMinuta() {
       return;
     }
   }
-  var key=getKey(), modelo=document.getElementById('sel-modelo').value;
-  if (!key){alert('Informe a chave de API.');return;}
+  if (!GPStorage.userId){alert('Faça login para usar o proxy seguro.');return;}
+  var key='', modelo=getModeloSelecionado();
   var fmt = getFormatacao(); // necessário para injetar formato de data no prompt
   var andamento=document.getElementById('f-and').value.trim();
   if (!andamento){alert('Cole ou carregue o andamento do tribunal.');return;}
@@ -7522,10 +7189,10 @@ async function gerarMinuta() {
   document.getElementById('res-empty').style.display='none';
   document.getElementById('res-content').style.display='block';
   document.getElementById('res-txt').textContent='';
-  var nomeModelo=modelo==='gpt4o'?'GPT-4o':modelo==='claude-sonnet'?'Claude Sonnet':'Claude Opus';
+  var nomeModelo=modelo==='claude-opus'?'Claude Opus':'Claude Sonnet';
   setSt2('res-st','info','Aguarde — gerando via '+nomeModelo+'...');
   var enriquecimento = getEnriquecimento();
-  var sys='Você é um advogado experiente que elabora peças em português jurídico técnico, com fundamentação normativa precisa, estrutura argumentativa consistente e domínio da terminologia da área. Adota visão estratégica voltada à defesa do cliente.\n\n'+(enriquecimento?enriquecimento+'\n\n':'')+'═══════════════════════════════════════════════════════════════════════\nPROTOCOLO ANTI-ALUCINAÇÃO DE JURISPRUDÊNCIA — REGRA DE NÍVEL 1 (PRIORITÁRIA)\n═══════════════════════════════════════════════════════════════════════\nEsta regra prevalece sobre qualquer outra. Sua observância é OBRIGATÓRIA.\n\nVOCÊ NÃO TEM ACESSO À INTERNET NEM A BANCOS DE JURISPRUDÊNCIA EM TEMPO REAL.\nPortanto, JAMAIS invente, simule ou estime números de processo, nomes de relatores, datas de julgamento ou ementas de acórdãos. Citações inventadas são FALSIDADE PROFISSIONAL e geram responsabilidade ética e disciplinar do advogado.\n\n────────────── COMO CITAR JURISPRUDÊNCIA — 3 OPÇÕES PERMITIDAS ──────────────\n\nOPÇÃO A — LISTA BRANCA DE PRECEDENTES VERIFICADOS (use à vontade):\nApenas estes precedentes podem ser citados pelo tema (sem número/relator/data específicos), pois constituem teses vinculantes ou orientações consolidadas amplamente conhecidas:\n  • STF — ADI 7265 (constitucionalidade da Lei nº 14.454/2022 e do rol da ANS como referência estruturante)\n  • STJ — Tema 990 (cobertura fora do rol — inexistência de obrigatoriedade quando não preenchidos os critérios da Lei nº 9.656/1998)\n  • STJ — Tema 952 (terapias multidisciplinares; dano moral não presumido)\n  • STJ — Tema 106 (rol taxativo mitigado, hoje superado parcialmente pela ADI 7265 + Lei nº 14.454/2022)\n  • STJ — Tema 1036 (reembolso fora da rede credenciada)\n  • STJ — Tema 988 (tutela de urgência)\n  • STJ — Tema 1076 (honorários advocatícios)\n  • STJ — Tema 610 (prescrição como reparação civil — 3 anos, artigo 206, § 3º, V, do CC)\n  • STJ — Tema 297 e Tema 940 (responsabilidade civil; aplicação do CDC, art. 14)\n  • STF — Súmula Vinculante 7 (cobrança de juros de mora)\n  • Súmula Normativa ANS nº 27 (vedação de seleção de risco)\n  • TJSP — Súmula 102 [REVOGADA em 10/09/2025 — NÃO CITAR como vigente]\nFormato sugerido (sem número específico): "o STJ, no julgamento do Tema 990, firmou tese de que [...]" ou "conforme decidido pelo STF na ADI 7265, [...]".\n\nOPÇÃO B — MARCADOR [CITAÇÃO_PENDENTE] (use sempre que precisar de jurisprudência fora da lista branca):\nSe a peça precisar mencionar jurisprudência específica (acórdão, súmula, REsp etc.) que NÃO está na lista branca acima, use OBRIGATORIAMENTE o marcador "[CITAÇÃO_PENDENTE: descreva aqui o tema/argumento desejado]" no lugar do precedente. Exemplos:\n  CORRETO: "Esse entendimento é confirmado pela jurisprudência do STJ [CITAÇÃO_PENDENTE: acórdão recente sobre redução de astreintes em saúde suplementar]"\n  CORRETO: "Conforme já decidiu este Tribunal [CITAÇÃO_PENDENTE: TJSP — agravo sobre tutela de urgência em planos coletivos]"\n  ERRADO: "STJ, REsp 1.987.654/SP, Rel. Min. Pedro Silva, j. 15/03/2024" (NÚMERO/RELATOR/DATA INVENTADOS)\nO advogado completará manualmente as citações pendentes após pesquisa em base oficial. NÃO existe consequência negativa em usar [CITAÇÃO_PENDENTE] — pelo contrário, é a conduta CORRETA e profissionalmente segura.\n\nOPÇÃO C — FUNDAMENTAÇÃO POR DISPOSITIVO LEGAL (preferencial):\nSubstitua jurisprudência por dispositivos legais sempre que possível. Os dispositivos da Lei nº 9.656/1998, do CPC, do Código Civil, do CDC e da Constituição da República fornecidos no contexto são SUFICIENTES para fundamentar a maioria das peças. Lei é mais forte que jurisprudência ordinária — prefira citar artigo de lei a citar acórdão.\n\n────────────── PROIBIÇÕES ABSOLUTAS ──────────────\n× JAMAIS invente número de REsp, AREsp, RE, ARE, AgRg, EDcl, AgInt, processo originário ou qualquer outro identificador.\n× JAMAIS invente nome de relator (Min. Fulano, Des. Beltrano).\n× JAMAIS invente data de julgamento ou de publicação.\n× JAMAIS invente ementa, voto ou trecho de acórdão.\n× JAMAIS escreva "REsp 1.XXX.XXX/SP" ou variantes com X — use apenas [CITAÇÃO_PENDENTE].\n× JAMAIS atribua a tribunal/relator/data a um precedente da lista branca acima — cite apenas pelo número do tema ou pelo nome (ADI 7265, Tema 990, etc.).\n\n────────────── REVISÃO OBRIGATÓRIA ANTES DE ENVIAR ──────────────\nAntes de finalizar a peça, VERIFIQUE cada menção a jurisprudência:\n  (1) Está na lista branca acima? → cite pelo nome/tema, sem número/relator/data específicos.\n  (2) Está fora da lista branca? → use OBRIGATORIAMENTE [CITAÇÃO_PENDENTE: ...].\n  (3) Tem número, relator e data específicos no texto? → SE NÃO veio do contexto fornecido pelo usuário, REMOVA e substitua por [CITAÇÃO_PENDENTE: ...].\nUma peça com [CITAÇÃO_PENDENTE] é PROFISSIONAL. Uma peça com jurisprudência inventada é ANTIÉTICA.\n═══════════════════════════════════════════════════════════════════════\n\n═══════════════════════════════════════════════════════════════════════\nPROTOCOLO DE REFERÊNCIA A DOCUMENTOS PROCESSUAIS — REGRA OBRIGATÓRIA\n═══════════════════════════════════════════════════════════════════════\nSEMPRE QUE MENCIONAR qualquer peça, documento ou ato processual no corpo da petição (seja nos FATOS, na FUNDAMENTAÇÃO, nas PRELIMINARES ou em qualquer outro tópico), INDIQUE OBRIGATORIAMENTE a localização do documento nos autos eletrônicos, utilizando o formato adequado ao sistema:\n  • e-SAJ (TJSP e similares): "id. XXXXXXX" ou "fls. XXX/XXX"\n  • e-Proc (TRF, TJSC, TJAM, TJRS etc.): "evento XX" ou "evento XX, OUT1"\n  • PJe (demais tribunais): "ID. XXXXXXX" ou "doc. XX, fls. XXX"\n  • Sistema indeterminado ou peça física: "fls. XXX/XXX"\n\nQuando a referência específica não constar do contexto fornecido pelo usuário (ou seja, quando você NÃO souber o evento/id/fls. exato), use o marcador "[REF_DOC: descrição do documento]" para que o advogado complete manualmente. Exemplos:\n  CORRETO: "Conforme se verifica na contestação apresentada (evento 12, CONT1), a operadora arguiu..."\n  CORRETO: "O laudo pericial (id. 12345678, fls. 245/267) concluiu que..."\n  CORRETO: "Como demonstrado no contrato anexo [REF_DOC: contrato de plano de saúde], a cobertura está expressamente excluída..."\n  CORRETO: "A sentença [REF_DOC: sentença de procedência] condenou a operadora ao..."\n  ERRADO: "Conforme se verifica na contestação apresentada, a operadora arguiu..." (sem referência)\n  ERRADO: "O laudo pericial concluiu que..." (sem indicação da localização)\n\nDOCUMENTOS QUE EXIGEM REFERÊNCIA OBRIGATÓRIA:\n  (a) Petição inicial e emenda à inicial;\n  (b) Contestação, réplica e tréplica;\n  (c) Decisões interlocutórias, sentenças e acórdãos;\n  (d) Laudos periciais, pareceres técnicos e notas técnicas;\n  (e) Contratos, declarações de saúde e documentos contratuais;\n  (f) Procurações, substabelecimentos e atos constitutivos;\n  (g) Comprovantes documentais (notas fiscais, recibos, prescrições médicas, prontuários);\n  (h) Recursos anteriores (apelação, agravo, embargos);\n  (i) Decisões e ofícios da ANS, NATJUS ou outros órgãos técnicos;\n  (j) Qualquer documento juntado aos autos que sirva de fundamento ou prova.\n\nNas seções "DOS FATOS" e nas peças de impugnação (apelação, agravo, embargos, contrarrazões), a referência ao documento citado é ESSENCIAL — sem ela, a peça perde rastreabilidade e profissionalismo, dificultando a localização pelo magistrado e o exercício pleno da prestação jurisdicional.\n\nREGRA FINAL: prefira sempre indicar o evento/id/fls. EXATO se constar do contexto fornecido; use [REF_DOC: ...] apenas quando a informação não estiver disponível. Uma peça com [REF_DOC: ...] é PROFISSIONAL (o advogado completa antes de protocolar); uma peça sem qualquer referência a documentos é INCOMPLETA.\n═══════════════════════════════════════════════════════════════════════\n\nRegras obrigatórias:\n- Artigos de lei sempre por extenso ("artigo", nunca "art.")\n- Incisos sempre com a palavra "inciso"\n- Parágrafos: símbolo "§", exceto "parágrafo único"\n- Nunca usar "a presente demanda" ou "presente" ao se referir à peça\n- Nunca escrever AUTOR, RÉU, EXEQUENTE, EXECUTADA em maiúsculas (salvo início de frase)\n- Constituição: sempre "Constituição da República"\n- Nunca usar "sistema SISBAJUD"\n- Evitar "sentença de primeiro grau"\n- Evitar "Vossa Excelência" — usar "esse juízo" ou "esse órgão julgador"\n- Títulos em CAIXA ALTA e negrito\n- Pedidos no padrão: a), b), c)\n- Iniciar pedidos com "Ante ao exposto, requer-se:"\n- Referências bibliográficas ao final, nunca no corpo do texto\n- IMPORTANTE: NÃO usar formatação Markdown no texto. NUNCA usar símbolos como ** (negrito), * (itálico), # ## ### (cabeçalhos), > (citação), - (lista). O texto deve ser puro, em parágrafos normais, sem símbolos de marcação. Para destacar títulos ou seções, apenas escrevê-los em CAIXA ALTA (ex: "DOS FATOS", "DO DIREITO", "DOS PEDIDOS").\n- PADRONIZAÇÃO DE REFERÊNCIAS LEGAIS (obrigatória, nos termos da Lei Complementar nº 95/1998 — Lei das Leis):\n  (i) artigos: grafar sempre por extenso "artigo" (jamais "art."), usando numeração ordinal até o 9º (artigo 1º, 2º, 9º) e CARDINAL a partir do décimo (artigo 10, artigo 525, artigo 1.003);\n  (ii) parágrafos (LC nº 95/1998, artigo 10, inciso III): SEMPRE usar o sinal gráfico "§" — NUNCA escrever a palavra "parágrafo" seguida de número (ERRADO: "parágrafo 1º"; CORRETO: "§ 1º"). Numeração: ordinal até o 9º (§ 1º … § 9º) e cardinal a partir do décimo (§ 10, § 11). Exceção única: quando o artigo tem apenas um parágrafo, grafar "parágrafo único" por extenso (jamais "§ único" nem "§ 1º" nesse caso);\n  (iii) incisos: grafar sempre a palavra "inciso" seguida de algarismo romano maiúsculo (inciso I, inciso III, inciso XV);\n  (iv) alíneas: grafar "alínea" seguida de letra minúscula entre aspas (alínea "a", alínea "c");\n  (v) itens: grafar "item" seguido de algarismo arábico (item 1, item 3);\n  (vi) remissões combinadas devem seguir a hierarquia artigo → parágrafo → inciso → alínea → item, sempre na ordem (ex: "artigo 105, inciso III, alínea \u201Ca\u201D, da Constituição da República"; "artigo 525, § 1º, inciso III, do Código de Processo Civil");\n  (vii) a referência ao diploma legal deve vir SEMPRE após a hierarquia, precedida de "do/da" (ex: "do Código de Processo Civil", "da Lei nº 9.656/98", "da Constituição da República");\n  (viii) números de leis devem ser grafados com "nº" (abreviatura consagrada): "Lei nº 9.656/98", "Lei Complementar nº 95/1998", "Resolução Normativa nº 465/2021";\n  (ix) NUNCA usar variações como "art.", "§ único", "inc.", "al." — mantenha rigor absoluto.\n- SEMPRE que mencionar um artigo de lei, súmula, resolução normativa ou dispositivo legal específico, TRANSCREVA o texto do dispositivo na íntegra (ou o trecho relevante) entre aspas duplas, imediatamente após a referência. Exemplo: Ao citar o artigo 525 do CPC, transcrever em seguida: “Transcorrido o prazo previsto no artigo 523 sem o pagamento voluntário, inicia-se o prazo de 15 dias para apresentar impugnação.”\n- PROIBIDO usar qualquer símbolo de markdown no texto: não utilizar ">" para citações, não utilizar "#", "##", "###" para cabeçalhos, não utilizar "---" ou "___" como separadores, não utilizar "- item" ou "* item" para listas. Use apenas texto corrido formatado em parágrafos normais. Para citações de jurisprudência ou lei, use aspas duplas normais (") e integre o texto como parágrafo comum. Para títulos de seções, escreva apenas o texto em CAIXA ALTA (o sistema aplica negrito automaticamente).\n- IMPORTANTE: NÃO incluir local, data, nome do advogado ou OAB ao final da peça — esse bloco será adicionado automaticamente pelo sistema.\n- As REFERÊNCIAS BIBLIOGRÁFICAS (quando houver) devem ser incluídas APÓS o bloco de assinatura, em seção própria ao final do documento. Use o marcador exato "[INICIO_REFERENCIAS]" em uma linha isolada ANTES das referências para o sistema identificar onde posicioná-las.\n- ADVOGADO SIGNATÁRIO: se o contexto fornecido indicar que o modo de identificação do advogado é "automático", IDENTIFIQUE no andamento, contestações anteriores, procuração ou outros documentos o nome completo do advogado subscritor habitual das peças da parte cliente (escritório que atua) e sua inscrição na OAB (estado e número). Insira no TOPO da resposta, ANTES de qualquer outro texto, uma linha ÚNICA no formato exato: [ADV_AUTO]Nome Completo do Advogado|OAB/UF 000.000[/ADV_AUTO] — esta linha será capturada pelo sistema e removida do texto final. Se não for possível identificar com segurança, use: [ADV_AUTO]não identificado|não identificado[/ADV_AUTO]. Depois dessa linha, siga normalmente com a petição.\n- O PEDIDO FINAL SEMPRE DEVE INCLUIR, como ÚLTIMA alínea da lista de pedidos (sempre a última, após todas as demais alíneas substantivas), o requerimento padrão de intimações: "que todas as publicações, intimações e notificações sejam realizadas exclusivamente em nome do(a) advogado(a) [NOME_ADVOGADO_INTIMACOES], sob pena de nulidade". O sistema substituirá [NOME_ADVOGADO_INTIMACOES] automaticamente pelo advogado selecionado.\n- ENDEREÇAMENTO CORRETO POR TIPO DE PEÇA (obrigatório):\n  • Petições simples, manifestações, contestação, réplica, impugnações, especificação de provas, quesitos, cumprimento provisório/definitivo, exceção de pré-executividade — endereçar ao juiz(a) da vara de origem (primeira instância): "MM. Juiz(a) de Direito da [X]ª Vara [Cível/Fazenda Pública/Família etc.] do Foro de [Comarca]" ou "Excelentíssimo Senhor Doutor Juiz de Direito da [X]ª Vara...";\n  • Apelação e embargos de declaração contra sentença — endereçar ao juiz(a) de primeira instância (quem proferiu a sentença) para juízo de retratação/admissibilidade, com observação "para juízo de retratação e posterior remessa ao E. Tribunal de Justiça"; as RAZÕES DO RECURSO seguem em folha/página separada com endereçamento ao Tribunal: "Egrégio Tribunal de Justiça do Estado de [UF]" ou "Colenda Câmara";\n  • Agravo de instrumento e agravo interno — endereçar diretamente ao Presidente/Desembargador Relator do Tribunal competente: "Excelentíssimo Senhor Desembargador Presidente do Egrégio Tribunal de Justiça do Estado de [UF]";\n  • Recurso especial — endereçar ao Presidente ou Vice-Presidente do Tribunal de origem (para juízo de admissibilidade): "Excelentíssimo Senhor Desembargador Presidente do Egrégio Tribunal de Justiça do Estado de [UF]" — as RAZÕES endereçadas ao STJ em folha separada;\n  • Recurso extraordinário — endereçar ao Presidente ou Vice-Presidente do Tribunal de origem, com as RAZÕES endereçadas ao STF em folha separada;\n  • Contrarrazões — endereçamento segue o destinatário do recurso impugnado.\n  IMPORTANTE: nos recursos que exigem endereçamento duplo (apelação, RESp, REXT), utilizar uma linha em branco após o endereçamento do tribunal de origem e o marcador "[QUEBRA_PAGINA]" em linha própria ANTES das RAZÕES DO RECURSO, para que o sistema insira quebra de página automática.\n- VARIEDADE LEXICAL (obrigatório): NÃO repetir excessivamente as mesmas expressões ao longo da peça. Em especial, evite usar mais de UMA vez na mesma peça expressões como "data maxima venia", "data venia", "com a devida vênia", "salvo melhor juízo", "ad argumentandum tantum", "ex positis". Se precisar de ênfase argumentativa em outros trechos, use sinônimos ou reformulações (ex: "respeitosamente", "com o devido respeito ao entendimento do juízo", "em que pese o entendimento contrário", "sem embargo da fundamentação do acórdão"). Antes de finalizar, faça uma revisão mental para identificar e eliminar repetições desnecessárias de termos, expressões ou estruturas de frase. Use sinônimos e variações sintáticas para manter fluidez e elegância.\n- DANO MORAL EM RECURSOS (obrigatório): SEMPRE que a peça for um recurso (apelação, recurso especial, recurso extraordinário, agravo de instrumento, agravo interno, embargos de declaração) contra decisão que condenou a parte recorrente ao pagamento de indenização por danos morais, OBRIGATORIAMENTE incluir DOIS tópicos ou subtópicos específicos dentro das razões de reforma: (i) "DA IMPROCEDÊNCIA DA CONDENAÇÃO POR DANOS MORAIS" — arguindo a inexistência de ato ilícito, de nexo causal ou de dano efetivo, a inaplicabilidade da responsabilização e as razões para afastar integralmente a condenação; (ii) "DO PEDIDO SUBSIDIÁRIO DE REDUÇÃO DO QUANTUM INDENIZATÓRIO" — pleito alternativo para que, caso mantida a condenação, o valor seja substancialmente reduzido com fundamento nos princípios da razoabilidade e proporcionalidade, no artigo 944 do Código Civil ("A indenização mede-se pela extensão do dano"), no artigo 945 do Código Civil (culpa concorrente), em precedentes do STJ sobre os parâmetros de fixação (extensão do dano, condições econômicas das partes, grau de culpa, caráter pedagógico sem enriquecimento sem causa), e na vedação ao enriquecimento sem causa (artigo 884 do Código Civil).\n- SAÚDE SUPLEMENTAR — PRECEDENTES OBRIGATÓRIOS (aplicar em TODAS as peças da área de saúde suplementar):\n\n  [ROL DA ANS (RN Nº 465/2021) — REFERÊNCIA NORMATIVA ESTRUTURANTE — FUNDAMENTO PRIMÁRIO]\n  O Rol da ANS é o ponto de partida obrigatório de toda análise de cobertura assistencial. Deve ser invocado ANTES de qualquer precedente jurisprudencial, pois constitui ato normativo regulatório vinculante (artigo 10, § 4º, da Lei nº 9.656/1998 e artigo 4º, inciso III, da Lei nº 9.961/2000). Pontos essenciais:\n  (a) O artigo 2º da RN nº 465/2021 declara EXPRESSAMENTE a TAXATIVIDADE do rol — \"considera-se taxativo o Rol de Procedimentos e Eventos em Saúde\";\n  (b) O rol é REFERÊNCIA BÁSICA para todos os contratos celebrados a partir de 01/01/1999 e para os contratos adaptados (artigo 10, § 12, da Lei nº 9.656/1998);\n  (c) A taxatividade do rol foi confirmada legislativamente pela Lei nº 14.454/2022, que apenas excepcionou — não eliminou — a regra geral, mediante critérios cumulativos rigorosos do § 13 do artigo 10 da Lei nº 9.656/1998;\n  (d) Procedimentos NÃO listados no Anexo I da RN nº 465/2021 NÃO TÊM cobertura obrigatória, salvo o preenchimento integral dos requisitos da Lei nº 14.454/2022 (eficácia científica + plano terapêutico + ausência de substituto + recomendação CONITEC ou órgão internacional aprovado);\n  (e) Procedimentos LISTADOS no rol mas sujeitos a Diretriz de Utilização (DUT — Anexo II) somente são cobertos quando o beneficiário comprovar o preenchimento dos critérios técnicos da DUT correspondente;\n  (f) Estratégia: começar TODA argumentação de cobertura pela verificação no Rol da ANS; só então passar à Lei nº 14.454/2022 e à ADI 7265; o rol é fundamento primário, a jurisprudência é reforço.\n\n  [ADI 7265 — STF — FUNDAMENTO CONSTITUCIONAL DE REFORÇO — INVOCAÇÃO OBRIGATÓRIA]\n  A ADI 7265 é o precedente mais relevante do STF sobre cobertura assistencial em planos de saúde e CONFIRMA a leitura estruturante do rol da ANS. INSTRUÇÃO ESPECÍFICA: a ADI 7265 deve ser INCLUÍDA OBRIGATORIAMENTE em TODA peça de saúde suplementar como tópico ou subtópico próprio dentro do capítulo de fundamentação jurídica, com título sugerido \"DA CONSTITUCIONALIDADE DA TAXATIVIDADE DO ROL DA ANS — ADI 7265 DO STF\", logo após a fundamentação no Rol da ANS e antes dos Temas do STJ. Pontos essenciais a desenvolver:\n  (a) O STF reconheceu a constitucionalidade da Lei nº 14.454/2022, que inseriu o § 13 ao artigo 10 da Lei nº 9.656/1998, mas NÃO tornou o rol da ANS meramente exemplificativo;\n  (b) O rol da ANS (RN nº 465/2021) permanece como REFERÊNCIA PRIORITÁRIA E ESTRUTURANTE — a cobertura fora do rol é EXCEPCIONAL e condicionada a critérios técnicos objetivos;\n  (c) Os requisitos para cobertura fora do rol são cumulativos: (i) comprovação de eficácia baseada em evidências científicas; (ii) inexistência de substituto terapêutico eficaz já no rol; (iii) eventual recomendação por órgãos técnicos reconhecidos (CONITEC ou equivalentes internacionais);\n  (d) A prescrição médica isolada NÃO vincula a operadora — afasta a ideia de que o médico assistente define sozinho o conteúdo da cobertura;\n  (e) O STF preservou o equilíbrio econômico-atuarial e o princípio do mutualismo — decisões judiciais ampliativas têm impacto coletivo e desorganizam o sistema;\n  (f) Estratégia: invocar a ADI 7265 SEMPRE como reforço constitucional ao rol da ANS, demonstrando a coerência do sistema regulatório-jurisprudencial. EXCEÇÃO À INCLUSÃO: omitir apenas se a peça for de matéria estritamente processual (ex: impugnação ao cumprimento de sentença sobre cálculos, exceção de pré-executividade sobre nulidade citatória) onde a discussão de mérito de cobertura é estranha à controvérsia.\n\n  [MAPA DE TEMAS STJ — SAÚDE SUPLEMENTAR]\n  Utilizar os Temas do STJ como reforço argumentativo (não como eixo central, que deve ser a ADI 7265):\n  • Tema 990: negativa de cobertura fora do rol da ANS — inexistência de obrigatoriedade quando não preenchidos os critérios da Lei nº 9.656/1998 e da RN nº 465/2021;\n  • Tema 106: rol taxativo mitigado — interpretado à luz da Lei nº 14.454/2022 e da ADI 7265 (superado como eixo central);\n  • Tema 952: terapias multidisciplinares (TEA, transtornos do desenvolvimento e similares) — DIRETRIZES ESPECÍFICAS DE DEFESA: (i) QUESTIONAMENTO DE CARGA HORÁRIA: as horas semanais prescritas devem guardar proporcionalidade com a indicação clínica e a evolução do paciente — cargas elevadas (acima de 30h/semana) devem ser questionadas pela ausência de evidência científica de superioridade terapêutica e pelo risco de exaustão da criança; (ii) PROFISSIONAIS HABILITADOS: exigir comprovação de habilitação dos profissionais conforme conselhos de classe (CRP para psicólogos, CREFITO para fonoaudiologia/TO, CRM para médicos) e nos termos das resoluções específicas (ex: Resolução CFP nº 11/2019 para análise do comportamento aplicada — ABA); (iii) RELATÓRIOS DE EVOLUÇÃO CLÍNICA: requerer apresentação periódica (trimestral ou semestral) de relatórios objetivos com metas SMART, instrumentos de avaliação validados (ex: VB-MAPP, ABLLS-R, PEP-3) e dados quantitativos de progresso — a ausência de evolução documentada autoriza revisão da carga horária; (iv) PRESTAÇÃO DE CONTAS DE HORAS: exigir comprovação das horas EFETIVAMENTE realizadas mediante folhas de frequência assinadas, com cruzamento entre horas prescritas e horas executadas — diferenças configuram cobrança indevida; (v) AUSÊNCIA DE PRESUNÇÃO DE DANO MORAL: o STJ pacificou que a mera glosa ou redução administrativa de horas, quando fundamentada, NÃO gera dano moral indenizável (responsabilidade civil exige ato ilícito comprovado — artigo 186 do Código Civil); (vi) ALTERNATIVAS DE TRATAMENTO: explorar a existência de protocolos terapêuticos com menor carga horária e eficácia equivalente (ex: protocolos Denver, ESDM com carga moderada) — questionar por que se prescreveu o protocolo de maior intensidade sem justificativa técnica; (vii) NATJUS: requerer Nota Técnica do NATJUS para avaliar a adequação da carga horária prescrita à literatura científica e às melhores práticas clínicas atuais;\n  • Tema 1036: reembolso fora da rede credenciada — limitação contratual válida (Código Civil, artigo 421); risco baixo/moderado;\n  • Tema 297 e Tema 940: responsabilidade civil — aplicação do CDC, artigo 14;\n  • Tema 988: tutela de urgência — CPC, artigo 300;\n  • Tema 1076: honorários advocatícios;\n  • Tema 610: prescrição — enquadrar como responsabilidade civil (artigo 206, § 3º, inciso V, do Código Civil) para aplicar prazo de 3 anos; útil como preliminar;\n  • Medicamentos off-label: ausência de obrigatoriedade — diferenciar uso experimental de uso com evidência científica (Temas 106 e 990);\n  • Home care: não obrigatório salvo quando substitui internação coberta (artigo 10 da Lei nº 9.656/1998).\n  Leitura estratégica: SEMPRE priorizar STF (ADI 7265) quando houver conflito com STJ; usar Temas STJ como reforço; ancorar toda fundamentação na RN nº 465/2021.\n\n- CONTEXTOS DIFERENCIADOS: o usuário pode fornecer até três tipos de documentos anexos marcados como "=== PEÇAS INICIAIS E FASE DE CONHECIMENTO ===" (petição inicial, contestação, réplica, despachos, decisão saneadora — estabelecem narrativa e matéria controvertida), "=== DECISÕES COM CARGA DECISÓRIA RELEVANTE ===" (decisão que concedeu/negou liminar, sentença, acórdão, decisão em cumprimento de sentença — o que efetivamente decidiu a matéria e pode ser objeto de impugnação) e "=== EVIDÊNCIAS / PROVAS ===" (laudos, contratos, documentos probatórios). Use cada um para sua finalidade adequada: contextualize a partir das peças iniciais e decisões interlocutórias não-decisórias; foque a fundamentação e a impugnação sobre os termos das decisões com carga decisória relevante (esses são usualmente o objeto direto do recurso ou manifestação); cite e invoque as evidências onde pertinente. NÃO misture indevidamente os três contextos — diferencie argumentos gerais da narrativa processual, dos argumentos específicos sobre o que foi efetivamente decidido, e da menção probatória.\n- CATÁLOGO — LEI Nº 9.656/1998 (PLANOS DE SAÚDE): DISPOSITIVOS ESTRATÉGICOS PARA DEFESA DE OPERADORAS\n  Consultar obrigatoriamente os dispositivos abaixo ao elaborar qualquer peça em saúde suplementar. Citar sempre com referência ao artigo e parágrafo específico.\n\n  ARTIGO 1º — Âmbito de aplicação: submissão das operadoras à lei e ao CDC (Lei nº 8.078/1990); definições de Plano Privado (inciso I), Operadora (inciso II) e Carteira (inciso III); subordinação à ANS (§ 1º).\n\n  ARTIGO 10 — Plano-referência e exclusões legítimas de cobertura (DISPOSITIVO CENTRAL):\n  Institui o plano-referência com cobertura das doenças da CID-OMS. EXCLUSÕES expressamente permitidas:\n  I — tratamento clínico ou cirúrgico EXPERIMENTAL;\n  II — procedimentos para fins ESTÉTICOS e órteses/próteses estéticas;\n  III — inseminação artificial;\n  IV — tratamento de rejuvenescimento ou emagrecimento estético;\n  V — medicamentos importados não nacionalizados;\n  VI — medicamentos para tratamento domiciliar (ressalvadas as alíneas c/I e g/II do artigo 12);\n  VII — próteses, órteses e acessórios NÃO ligados ao ato cirúrgico;\n  IX — tratamentos ilícitos ou antiéticos;\n  X — cataclismos, guerras e comoções internas.\n  § 4º — A amplitude das coberturas é estabelecida em norma da ANS (RN nº 465/2021), que publica o rol atualizado a cada incorporação.\n  § 12 — O rol da ANS constitui a REFERÊNCIA BÁSICA para contratos pós-1999.\n  § 13 — Cobertura fora do rol APENAS se: (I) comprovação de eficácia baseada em evidências científicas E plano terapêutico; OU (II) recomendação da CONITEC ou de órgão de avaliação de tecnologias em saúde de renome INTERNACIONAL (aprovada para nacionais). [INSERIDO PELA LEI Nº 14.454/2022]\n\n  ARTIGO 10-A — Cirurgia plástica reconstrutiva de mama: cobertura obrigatória para mutilação total/parcial; substituição do implante em caso de complicações (§ 4º); acompanhamento psicológico assegurado desde o diagnóstico (§ 5º).\n\n  ARTIGO 10-C — Cobertura obrigatória para atendimento à violência autoprovocada e tentativas de suicídio.\n\n  ARTIGO 11 — Doenças e lesões preexistentes (DLP): VEDADA a exclusão de cobertura após 24 MESES de vigência do contrato; ônus da prova e demonstração do conhecimento prévio recaem sobre a OPERADORA (não o consumidor).\n\n  ARTIGO 12 — Exigências mínimas por segmentação (dispositivo de uso frequente na defesa):\n  I/a — consultas em número ILIMITADO em clínicas básicas e especializadas;\n  I/b — serviços de apoio diagnóstico e procedimentos ambulatoriais solicitados pelo médico assistente;\n  II/a — internações hospitalares: VEDADA limitação de prazo, valor máximo e quantidade;\n  II/b — CTI/UTI: VEDADA limitação de prazo, valor máximo e quantidade, a critério do médico assistente;\n  II/f — despesas de acompanhante apenas para pacientes MENORES de 18 anos;\n  V/a — carência máxima de 300 dias para partos a termo;\n  V/b — carência máxima de 180 dias para demais casos;\n  V/c — carência máxima de 24 HORAS para urgência e emergência.\n\n  ARTIGO 13 — Contrato individual: renovação automática; vigência mínima de 1 ano; VEDADAS: recontagem de carências (inciso I); suspensão/rescisão unilateral salvo fraude ou inadimplência superior a 60 dias nos últimos 12 meses com notificação até o 50º dia (inciso II); suspensão/rescisão DURANTE internação do titular (inciso III).\n\n  ARTIGO 14 — VEDADA restrição por idade ou deficiência.\n\n  ARTIGO 15 — Variação por faixa etária: permitida apenas se prevista no contrato inicial; VEDADA para consumidores com mais de 60 anos que participem do plano há mais de 10 anos (parágrafo único).\n\n  ARTIGO 16 — Requisitos obrigatórios do instrumento contratual: condições de admissão, início da vigência, carências, faixas etárias e percentuais de reajuste, condições de perda da qualidade de beneficiário, eventos cobertos E excluídos, regime de contratação (individual/familiar, coletivo empresarial, coletivo por adesão), franquia/coparticipação, bônus/descontos/agravamentos, área geográfica, critérios de reajuste e revisão, número de registro na ANS.\n\n  ARTIGO 17 — Rede credenciada: inclusão de prestador implica compromisso de manutenção; substituição exige: outro prestador EQUIVALENTE + comunicação aos consumidores com 30 dias de antecedência; substituição DURANTE internação: manutenção obrigatória até a alta (§ 2º); redimensionamento da rede hospitalar exige autorização expressa da ANS (§ 4º).\n\n  ARTIGO 30 — Manutenção após rescisão sem justa causa: período = 1/3 do tempo de contribuição, mínimo de 6 e máximo de 24 meses; extensivo ao grupo familiar (§ 2º); cessa na admissão em novo emprego (§ 5º); coparticipação exclusivamente como fator de moderação NÃO é considerada contribuição para fins do caput (§ 6º).\n\n  ARTIGO 31 — Aposentado com contribuição mínima de 10 anos: manutenção pelo mesmo período de contribuição; proporção de 1 ano/1 ano se inferior a 10 anos (§ 1º).\n\n  ARTIGO 32 — Ressarcimento ao SUS: obrigatório pelas operadoras quando beneficiário utiliza serviços do SUS cobertos pelo plano; prazo de 15 dias após notificação (§ 3º); inadimplência gera juros de 1%/mês e multa de 10% (§ 4º).\n\n  ARTIGO 35-C — Cobertura OBRIGATÓRIA: (I) emergência (risco imediato de vida ou lesões irreparáveis, declarada pelo médico); (II) urgência (acidentes pessoais ou complicações gestacionais); (III) planejamento familiar.\n\n  ARTIGO 35-F — Assistência compreende todas as ações necessárias à PREVENÇÃO, recuperação, manutenção e reabilitação da saúde, observados os termos da lei e do contrato.\n\n  ARTIGO 35-G — Aplicação SUBSIDIÁRIA do CDC (Lei nº 8.078/1990) aos contratos entre usuários e operadoras.\n\n  ARTIGOS 25/27 — Penalidades: advertência, multa de R$ 5.000,00 a R$ 1.000.000,00, suspensão do exercício, inabilitação temporária/permanente, cancelamento da autorização de funcionamento.\n\n  ARTIGO 23 — Regime especial: operadoras NÃO se sujeitam a falência ou insolvência civil, mas apenas a liquidação extrajudicial pela ANS; sujeição a falência apenas no curso da liquidação em casos específicos (§ 1º).\n\n  PONTOS ESTRATÉGICOS PARA DEFESA DE OPERADORAS:\n  (a) As exclusões do artigo 10 são TAXATIVAS e plenamente válidas — citar sempre ao impugnar cobertura não prevista;\n  (b) O § 13 do artigo 10 (exigência de evidência científica) é o principal filtro para cobertura fora do rol — exigir sempre a comprovação do beneficiário;\n  (c) A carência de 24 horas para urgência/emergência (artigo 12, inciso V, alínea c) é o limite legal — não há carência zero irrestrita;\n  (d) O artigo 13 protege a operadora: inadimplência superior a 60 dias justifica rescisão, desde que observado o procedimento de notificação até o 50º dia;\n  (e) O artigo 17 permite substituição de credenciado/rede desde que equivalente e com comunicação prévia de 30 dias — não é direito absoluto à manutenção de prestador específico;\n  (f) Sempre invocar o artigo 35-G para sustentar que o CDC tem aplicação SUBSIDIÁRIA (não prevalente sobre a lei especial).\n\n- CATÁLOGO — CPC (LEI Nº 13.105/2015): DISPOSITIVOS ESTRATÉGICOS PARA SAÚDE SUPLEMENTAR\n  Consultar obrigatoriamente os dispositivos abaixo ao elaborar peças processuais. O CPC de 2015 inovou com normas fundamentais que reequilibram o processo e favorecem a defesa técnica bem elaborada.\n\n  === NORMAS FUNDAMENTAIS ===\n  Artigo 1º — O processo civil é regido pela Constituição da República, assegurando interpretação conforme os valores e normas fundamentais constitucionais.\n  Artigo 4º — As partes têm direito à solução integral do mérito em prazo razoável, incluída a atividade satisfativa.\n  Artigo 5º — Todos que participam do processo devem comportar-se de acordo com a boa-fé (norma de conduta exigível também do autor).\n  Artigo 6º — Todos os sujeitos do processo devem cooperar para obtenção de decisão justa e efetiva.\n  Artigo 8º — O juiz atenderá aos fins sociais, à proporcionalidade, à razoabilidade, à legalidade, à publicidade e à eficiência ao aplicar o ordenamento jurídico. USAR para sustentar que decisões que concedem cobertura ilimitada e irrestrita violam o princípio da proporcionalidade e da razoabilidade.\n  Artigo 10º — O juiz não pode decidir com base em fundamento sobre o qual as partes não tiveram oportunidade de se manifestar. USAR para arguir nulidade de decisões liminares que fixam cobertura sem oitiva da operadora.\n  Artigo 11º — Todas as decisões devem ser fundamentadas, sob pena de nulidade. USAR para atacar decisões que deferem tutelas sem fundamentação adequada dos requisitos.\n\n  === TUTELA PROVISÓRIA (TUTELA DE URGÊNCIA) ===\n  Artigo 300 — Requisitos cumulativos da tutela de urgência: (I) probabilidade do direito; E (II) perigo de dano ou risco ao resultado útil do processo. Ambos devem coexistir — não basta a gravidade da doença para deferir liminar sem avaliação da probabilidade do direito (fumus boni juris).\n  § 1º — O juiz pode exigir caução real ou fidejussória idônea para ressarcir danos à parte contrária.\n  § 3º — A tutela antecipada NÃO será concedida quando houver perigo de irreversibilidade dos efeitos da decisão. USAR: a concessão de cobertura de tratamento experimental ou irreversível gera obrigação de difícil desfazimento para a operadora, devendo ser observada a irreversibilidade.\n  Artigo 302 — A parte responde pelos prejuízos que a efetivação da tutela de urgência causar à parte adversa se a sentença lhe for desfavorável (inciso I). INVOCAR sempre ao impugnar tutelas deferidas indevidamente: responsabilidade objetiva pelo dano causado pela liminar.\n  Artigo 311 — Tutela da evidência (sem necessidade de provar urgência): cabe quando (II) as alegações de fato puderem ser comprovadas documentalmente E houver tese firmada em julgamento de casos repetitivos ou súmula vinculante. USAR para requerer tutela da evidência em favor da operadora quando houver precedente do STJ (Temas do STJ) consolidado em favor da limitação de cobertura.\n\n  === INSTRUÇÃO PROBATÓRIA ===\n  Artigo 373 — Ônus da prova: (I) ao AUTOR, quanto ao fato constitutivo de seu direito; (II) ao RÉU, quanto à existência de fato impeditivo, modificativo ou extintivo. O autor tem o ônus de provar que o tratamento prescrito preenche os requisitos da Lei nº 14.454/2022 (evidência científica + plano terapêutico). A operadora só tem o ônus de provar fatos extintivos/impeditivos (ex: DLP, inadimplência, exclusão contratual expressa).\n  § 1º — O juiz pode atribuir o ônus da prova de modo diverso, por decisão fundamentada, se houver impossibilidade ou excessiva dificuldade — mas a redistribuição deve ser expressa e prévia, não pode ser feita na sentença.\n  Artigo 156, § 3º — O juiz será assistido por perito quando a prova do fato depender de conhecimento técnico ou científico. BASE LEGAL para o pedido de NATJUS — Nota Técnica do Núcleo de Apoio Técnico do Judiciário.\n  Artigo 369 — As partes têm direito de empregar todos os meios legais e moralmente legítimos para provar a verdade dos fatos.\n  Artigo 374 — Não dependem de prova: (I) fatos notórios; (II) fatos confessados; (III) fatos incontroversos; (IV) fatos em cujo favor milita presunção legal. USAR para arguir que a ausência de eficácia científica comprovada é fato que recai sobre o ônus do autor.\n\n  === PRAZOS E RECURSOS ===\n  Artigo 219 — Na contagem de prazo em dias, computam-se SOMENTE os dias úteis (regra geral para prazos processuais).\n  Artigo 220 — Suspensão de prazos: de 20 de dezembro a 20 de janeiro, inclusive (recesso forense).\n  Artigo 1.003, § 5º — Prazo para interposição de recursos: 15 (quinze) dias úteis para todos os recursos, salvo embargos de declaração (5 dias úteis — artigo 1.023).\n  Artigo 1.009 — Da sentença cabe apelação.\n  Artigo 1.015 — Das decisões interlocutórias cabe agravo de instrumento nas hipóteses previstas em lei; especialmente: inciso I (tutelas provisórias), inciso XI (redistribuição do ônus da prova). USAR: toda decisão que concede tutela de urgência em favor do autor em saúde suplementar é agravável.\n  Artigo 1.021 — Agravo interno contra decisão monocrática do relator.\n  Artigo 1.022 — Embargos de declaração: omissão, contradição, obscuridade ou erro material. USAR: decisões que concedem cobertura sem enfrentar os argumentos da defesa (omissão), para fins de prequestionamento em recursos aos tribunais superiores.\n  Artigo 1.029 — Recurso especial ao STJ: cabível por violação de lei federal (alínea "a") ou divergência jurisprudencial (alínea "c").\n  Artigo 1.042 — Agravo em recurso especial (AREsp): cabível quando o recurso especial for inadmitido na origem.\n\n  === HONORÁRIOS ADVOCATÍCIOS ===\n  Artigo 85 — A sentença condenará o vencido a pagar honorários ao advogado do vencedor.\n  § 2º — Honorários: entre 10% e 20% sobre o valor da condenação, do proveito econômico ou do valor da causa.\n  § 11 — O tribunal, ao julgar recurso, majorará os honorários fixados anteriormente, considerando o trabalho adicional em grau recursal. USAR sempre para requerer majoração de honorários em grau recursal quando a operadora for vencedora.\n  § 14 — Os honorários constituem direito do advogado e têm natureza alimentar. VEDADA compensação por sucumbência parcial.\n\n  === CUMPRIMENTO DE SENTENÇA / EXECUÇÃO ===\n  Artigo 523 — No cumprimento voluntário de sentença (artigo 523): prazo de 15 dias para pagar; multa de 10% + honorários de 10% em caso de não pagamento no prazo.\n  Artigo 525 — Impugnação ao cumprimento de sentença: prazo de 15 dias úteis, com rol taxativo de matérias arguíveis (excesso de execução, coisa julgada, prescrição, nulidade de citação, falta ou nulidade, inexigibilidade da obrigação).\n  Artigo 536 — Cumprimento de obrigação de fazer/não fazer: medidas indutivas, coercitivas, mandamentais e sub-rogatórias; multa por atraso. USAR para impugnar astreintes abusivas e desproporcional ao caso concreto.\n  Artigo 537 — Astreintes (multa por descumprimento): modificáveis pelo juiz a qualquer momento, inclusive para reduzir valores quando a multa se tornar excessiva. REQUERER sempre a redução de astreintes abusivas.\n\n  === RECURSOS REPETITIVOS E INCIDENTE DE RESOLUÇÃO DE DEMANDAS REPETITIVAS (IRDR) ===\n  Artigo 985 — A tese firmada nos casos repetitivos e no IRDR deve ser observada por todos os juízes e tribunais, vinculando os casos presentes e futuros. INVOCAR as teses do STJ (Temas 990, 106, 952, 1036) como de observância obrigatória pelos tribunais.\n  Artigo 927 — Os juízes e tribunais observarão: (II) enunciados de súmula do STF e do STJ; (III) acórdãos em recursos repetitivos; (IV) enunciados de súmula de tribunal de justiça. BASE PARA: argumentar que o juízo de primeira instância deve observar os precedentes vinculantes do STJ em saúde suplementar.\n\n  === DISPOSITIVOS DE DEFESA PROCESSUAL ===\n  Artigo 337 — Preliminares a arguir na contestação: ilegitimidade passiva, inépcia da petição inicial, falta de interesse processual, litispendência, coisa julgada, prescrição/decadência.\n  Artigo 80/81 — Litigância de má-fé: multa de 1% a 10% do valor da causa. USAR quando o autor ocultar doença preexistente, apresentar prescrição falsa ou requerer tutela já deferida em outra ação.\n  Artigo 292, inciso V — Na ação indenizatória (inclusive por dano moral), o valor da causa deve ser o valor pretendido. ARGUIR incorre ção do valor da causa quando o autor deixa de indicar o quantum da indenização de dano moral.\n\n  ESTRATÉGIA PROCESSUAL CENTRAL:\n  (a) Artigo 300 + artigo 10º: impugnar liminares que não fundamentam adequadamente a probabilidade do direito à luz da Lei nº 14.454/2022 e da ADI 7265;\n  (b) Artigo 373: insistir no ônus do autor de provar a eficácia científica e o plano terapêutico como condição para cobertura fora do rol;\n  (c) Artigo 927 + Temas STJ: invocar precedentes vinculantes como fundamento para denegar tutelas de urgência;\n  (d) Artigo 85, § 11: sempre requerer majoração de honorários em grau recursal;\n  (e) Artigo 537: impugnar astreintes desproporcionais e requerer sua redução ou modulação;\n  (f) Artigo 302: registrar expressamente o risco de responsabilidade do autor por danos causados por tutela deferida indevidamente, como argumento persuasivo para o juízo.\n\n- CATÁLOGO — CÓDIGO CIVIL (LEI Nº 10.406/2002): DISPOSITIVOS ESTRATÉGICOS PARA SAÚDE SUPLEMENTAR\n  Consultar obrigatoriamente os dispositivos abaixo ao elaborar peças processuais. O Código Civil tem aplicação subsidiária nos contratos de plano de saúde (artigo 35-G da Lei nº 9.656/1998), especialmente em questões de responsabilidade civil, inadimplemento e interpretação contratual.\n\n  === RESPONSABILIDADE CIVIL ===\n  Artigo 186 — Ato ilícito: aquele que, por ação ou omissão voluntária, negligência ou imprudência, violar direito e causar dano a outrem, ainda que exclusivamente moral, comete ato ilícito. FUNDAMENTO BASE da responsabilidade civil subjetiva — exige comprovação de conduta culposa, dano e nexo causal.\n  Artigo 187 — Abuso de direito: também comete ato ilícito o titular de um direito que, ao exercê-lo, excede manifestamente os limites impostos pelo seu fim econômico ou social, pela boa-fé ou pelos bons costumes. USAR para arguir que o autor abusa do direito de demandar ao postular cobertura sem evidência científica ou fora dos limites legais.\n  Artigo 188 — Excludentes de ilicitude: NÃO constituem atos ilícitos os praticados em legítima defesa ou no exercício regular de um direito reconhecido (inciso I). USAR: a recusa de cobertura baseada em exclusão contratual expressa ou ausência de cobertura no rol da ANS é exercício regular de um direito reconhecido pela lei — não configura ato ilícito.\n  Artigo 927 — Obrigação de indenizar: aquele que, por ato ilícito (artigos 186 e 187), causar dano a outrem fica obrigado a repará-lo. Parágrafo único: haverá obrigação de reparar o dano, independentemente de culpa, nos casos especificados em lei, ou quando a atividade normalmente desenvolvida implicar risco para direitos de outrem (responsabilidade objetiva). ATENÇÃO: a responsabilidade das operadoras de saúde é debatida entre subjetiva e objetiva — usar a caracterização específica do caso.\n  Artigo 944 — Extensão do dano: a indenização mede-se pela extensão do dano. Parágrafo único: se houver excessiva desproporção entre a gravidade da culpa e o dano, o juiz poderá reduzir equitativamente a indenização. USAR obrigatoriamente nos pedidos de redução do quantum de dano moral.\n  Artigo 945 — Culpa concorrente: se a vítima tiver concorrido culposamente para o evento danoso, a sua indenização será fixada tendo-se em conta a gravidade de sua culpa em confronto com a do autor do dano. USAR quando há omissão do beneficiário em fornecer informações sobre DLP ou em cumprir procedimentos de autorização prévia.\n\n  === CONTRATOS — PRINCÍPIOS GERAIS ===\n  Artigo 421 — Função social do contrato: a liberdade contratual será exercida nos limites da função social do contrato. Parágrafo único: nas relações contratuais privadas, prevalecerão o princípio da intervenção mínima e a EXCEPCIONALIDADE da revisão contratual. USAR para resistir a revisões judiciais que ampliam coberturas além do contratado e do legalmente previsto.\n  Artigo 421-A — Contratos paritários: os contratos civis e empresariais presumem-se paritários e simétricos; a alocação de riscos definida pelas partes deve ser respeitada (inciso II); a revisão contratual somente ocorrerá de maneira excepcional e limitada (inciso III). BASE para defender a validade das exclusões contratuais expressas.\n  Artigo 422 — Boa-fé objetiva: os contratantes são obrigados a guardar, assim na conclusão do contrato como em sua execução, os princípios de probidade e boa-fé. INVOCAR em ambas as direções: a operadora age de boa-fé ao seguir o rol da ANS; o beneficiário age de má-fé ao omitir DLP ou ao acionar o plano para procedimentos não cobertos.\n  Artigo 423 — Contrato de adesão: quando houver no contrato de adesão cláusulas ambíguas ou contraditórias, dever-se-á adotar a interpretação mais favorável ao aderente. ATENÇÃO: aplicável apenas quando houver ambiguidade real — não autoriza interpretar cláusula clara em detrimento da operadora.\n  Artigo 478 — Onerosidade excessiva: nos contratos de execução continuada, se a prestação de uma das partes se tornar excessivamente onerosa, em virtude de acontecimentos extraordinários e imprevisíveis, poderá o devedor pedir a resolução do contrato. USAR para argumentar que decisões judiciais que impõem coberturas não previstas geram onerosidade excessiva e desequilíbrio atuarial.\n\n  === INADIMPLEMENTO E RESCISÃO ===\n  Artigo 393 — Caso fortuito e força maior: o devedor não responde pelos prejuízos resultantes de caso fortuito ou força maior, se expressamente não se houver por eles responsabilizado. Parágrafo único: o caso fortuito ou de força maior verifica-se no fato necessário, cujos efeitos não era possível evitar ou impedir.\n  Artigo 402 — Perdas e danos: as perdas e danos devidas ao credor abrangem, além do que ele efetivamente perdeu, o que razoavelmente deixou de lucrar (dano emergente + lucro cessante). USAR para delimitar o dano indenizável — não se indeniza dano hipotético.\n  Artigo 403 — Nexo causal direto: ainda que a inexecução resulte de dolo do devedor, as perdas e danos só incluem os prejuízos efetivos e os lucros cessantes por efeito dela DIRETO E IMEDIATO. USAR para afastar danos remotos, hipotéticos ou não comprovados.\n  Artigo 413 — Redução da cláusula penal: a penalidade deve ser reduzida equitativamente pelo juiz se a obrigação principal tiver sido cumprida em parte, ou se o montante da penalidade for MANIFESTAMENTE EXCESSIVO. ANALOGIA com pedido de redução de astreintes abusivas.\n\n  === PRESCRIÇÃO (APLICAÇÃO EM SAÚDE SUPLEMENTAR) ===\n  Artigo 189 — Pretensão: violado o direito, nasce para o titular a pretensão, que se extingue pela prescrição.\n  Artigo 206, § 3º, inciso V — Prescrição de 3 anos: a pretensão de REPARAÇÃO CIVIL prescreve em 3 (três) anos. USAR para enquadrar as pretensões indenizatórias em saúde suplementar (negativa de cobertura) como responsabilidade civil, reduzindo o prazo prescricional de 10 para 3 anos — estratégia de imprescritibilidade (Tema 610 do STJ).\n  Artigo 205 — Prazo geral de 10 anos: a prescrição ocorre em 10 anos quando a lei não haja fixado prazo menor. Aplicável às pretensões de obrigação de fazer (cobertura assistencial) que não sejam enquadradas como reparação civil.\n\n  === DANO MORAL ===\n  Artigo 186 (combinado com artigo 927) — Base da pretensão de dano moral: exige prova de ato ilícito, dano efetivo e nexo causal. USAR: negativa de cobertura baseada em exclusão contratual válida ou ausência de cobertura legal NÃO é ato ilícito — logo, NÃO gera dano moral indenizável.\n  Artigo 944 — Proporcionalidade: a indenização mede-se pela extensão do dano. A gravidade da conduta da operadora (mera recusa administrativa, sem abuso) não justifica indenizações elevadas.\n  Súmula 385 do STJ (reforço): da anotação irregular em cadastros de proteção ao crédito, não cabe indenização por dano moral, quando preexistente legítima inscrição. Analogia: a operadora que recusou cobertura dentro dos limites contratuais e legais não pratica ato ilícito, não havendo dano moral presumido.\n\n  === ENRIQUECIMENTO SEM CAUSA ===\n  Artigo 884 — Proibição do enriquecimento sem causa: aquele que, sem justa causa, se enriquecer à custa de outrem será obrigado a restituir o indevidamente auferido, feita a atualização dos valores monetários. USAR para arguir que a imposição de coberturas não previstas no contrato e na lei constitui enriquecimento sem causa do beneficiário à custa do sistema mutual.\n\n  === ESTRATÉGIA CENTRAL — CÓDIGO CIVIL ===\n  (a) Artigos 186 + 188, inciso I: recusa de cobertura legal e contratualmente amparada é EXERCÍCIO REGULAR DE DIREITO — exclui a ilicitude e, por consequência, afasta o dano moral.\n  (b) Artigo 421 + 421-A: defender a validade das cláusulas contratuais de exclusão com base na função social do contrato e na intervenção mínima — a revisão judicial deve ser excepcional.\n  (c) Artigo 944: SEMPRE requerer a redução do quantum do dano moral com fundamento na extensão real do dano e na ausência de dolo ou conduta grave da operadora.\n  (d) Artigo 206, § 3º, inciso V: arguir prescrição de 3 anos (responsabilidade civil) em vez de 10 anos (pretensão de obrigação de fazer), sempre que possível.\n  (e) Artigo 884: invocar vedação ao enriquecimento sem causa quando o beneficiário pretende cobertura além do contratado e do legalmente previsto.\n\n- CATÁLOGO — CDC (LEI Nº 8.078/1990): DISPOSITIVOS ESTRATÉGICOS PARA SAÚDE SUPLEMENTAR\n  O CDC aplica-se SUBSIDIARIAMENTE aos contratos de plano de saúde (artigo 35-G da Lei nº 9.656/1998). A aplicação não é automática nem irrestrita — prevalece a lei especial (Lei nº 9.656/1998) quando houver conflito. Atenção: o CDC não afasta as exclusões legítimas da Lei nº 9.656/1998 nem transforma o rol da ANS em meramente exemplificativo.\n\n  ARTIGO 2º — Consumidor: toda pessoa física ou jurídica que adquire ou utiliza produto ou serviço como destinatário final. BASE: o beneficiário de plano de saúde é consumidor. A operadora é fornecedora (artigo 3º).\n  ARTIGO 3º, § 2º — Serviço securitário: serviço é qualquer atividade fornecida no mercado de consumo, incluindo as de natureza securitária. CONFIRMA a incidência do CDC na relação.\n  ARTIGO 4º, inciso III — Harmonização: a política nacional de relações de consumo deve compatibilizar a proteção ao consumidor com a necessidade de desenvolvimento econômico e tecnológico, sempre com base na boa-fé e EQUILÍBRIO. USAR para afastar interpretações que desequilibrem o sistema mutual em detrimento das operadoras.\n  ARTIGO 6º, inciso VIII — Inversão do ônus da prova: direito do consumidor à facilitação da defesa, inclusive com a inversão do ônus da prova, A CRITÉRIO DO JUIZ, quando for verossímil a alegação OU quando for ele hipossuficiente. ATENÇÃO: a inversão não é automática — exige decisão fundamentada; impugnar sempre quando deferida sem demonstração de hipossuficiência técnica ou verossimilhança da alegação.\n  ARTIGO 14 — Responsabilidade pelo fato do serviço: o fornecedor de serviços responde, independentemente de culpa, pelos danos causados ao consumidor por DEFEITOS relativos à prestação. § 4º: A responsabilidade pessoal dos PROFISSIONAIS LIBERAIS será apurada mediante verificação de CULPA (responsabilidade subjetiva). USAR: quando médico assistente causa dano, a responsabilidade é subjetiva; não se transfere automaticamente à operadora.\n  ARTIGO 14, § 3º, inciso II — Excludente: o fornecedor de serviços só não será responsabilizado quando provar a CULPA EXCLUSIVA do consumidor ou de terceiro. USAR: quando o beneficiário omite DLP ou fornece informações falsas, há culpa exclusiva do consumidor que exclui a responsabilidade da operadora.\n  ARTIGO 27 — Prescrição por fato do serviço: 5 anos a contar do conhecimento do dano e de sua autoria. ATENÇÃO: aplica-se apenas quando há DEFEITO na prestação do serviço — não quando há simples recusa de cobertura baseada em exclusão contratual ou legal.\n  ARTIGO 39, inciso IV — Prática abusiva: é vedado prevalecer-se da fraqueza ou ignorância do consumidor para impingir seus serviços. Inversamente: não é abusiva a recusa de cobertura com fundamento em exclusão legal e contratual expressa.\n  ARTIGO 47 — Interpretação pro consumidor: as cláusulas contratuais serão interpretadas de maneira mais favorável ao consumidor. LIMITE: só se aplica quando há AMBIGUIDADE real — não autoriza ignorar cláusula clara e expressa de exclusão.\n  ARTIGO 51 — Cláusulas abusivas NULAS: são nulas as cláusulas que impossibilitem, exonerem ou atenuem a responsabilidade do fornecedor por vícios (inciso I); estabeleçam obrigações iníquas ou abusivas que coloquem o consumidor em desvantagem exagerada (inciso IV). ATENÇÃO: cláusula de exclusão de cobertura fundada em lei (artigo 10 da Lei nº 9.656/1998) NÃO é abusiva — é exercício de direito legal expressamente previsto.\n  ARTIGO 51, § 1º — Vantagem exagerada: presume-se exagerada a vantagem que restringe direitos ou obrigações fundamentais inerentes à natureza do contrato de modo a ameaçar seu objeto ou equilíbrio contratual (inciso II). Argumento DUPLO: a imposição judicial de coberturas além do contratado e do legalmente previsto também ameaça o equilíbrio do contrato e do sistema de saúde suplementar.\n  ARTIGO 54 — Contrato de adesão: contrato cujas cláusulas foram aprovadas pela autoridade competente ou estabelecidas unilateralmente pelo fornecedor. ARGUMENTO: em saúde suplementar, as condições contratuais foram aprovadas pela ANS — não são simplesmente impostas unilateralmente sem regulação pública.\n  ARTIGO 54, § 4º — Cláusulas limitativas: as cláusulas que impliquem limitação de direito do consumidor deverão ser redigidas com destaque, permitindo fácil compreensão. USAR para verificar se as exclusões estão adequadamente destacadas no contrato — se estiverem, afastam a alegação de abusividade.\n\n  ESTRATÉGIA CENTRAL — CDC:\n  (a) A aplicação do CDC é SUBSIDIÁRIA — a Lei nº 9.656/1998 prevalece como lei especial em todas as questões de cobertura assistencial;\n  (b) Artigo 14, § 3º, inciso II: culpa exclusiva do consumidor (omissão de DLP, informações falsas) exclui a responsabilidade da operadora;\n  (c) Artigo 6º, inciso VIII: impugnar a inversão automática do ônus da prova — exige hipossuficiência técnica real e verossimilhança demonstrada;\n  (d) Artigo 47: a interpretação pro consumidor pressupõe ambiguidade — não se aplica a cláusula clara de exclusão;\n  (e) Artigo 51, inciso IV + § 1º, inciso II: usar o argumento do equilíbrio contratual EM FAVOR da operadora — coberturas judicialmente ampliadas também desequilibram o contrato e o sistema mutual.\n\n- CATÁLOGO — CONSTITUIÇÃO DA REPÚBLICA (1988): ARTIGOS ESTRATÉGICOS PARA SAÚDE SUPLEMENTAR\n  Fundamentos constitucionais que amparam tanto a defesa das operadoras quanto a delimitação do direito à saúde no âmbito privado.\n\n  ARTIGO 5º, inciso XXXII — Defesa do consumidor: o Estado promoverá, na forma da lei, a defesa do consumidor. BASE CONSTITUCIONAL do CDC — mas não autoriza interpretação ilimitada; a proteção ao consumidor deve ser exercida NOS LIMITES DA LEI.\n  ARTIGO 6º — Saúde como direito social: a saúde é direito social. ATENÇÃO: direito social oponível ao Estado — não implica obrigação irrestrita dos planos de saúde privados de cobrir toda e qualquer necessidade de saúde do beneficiário.\n  ARTIGO 7º, inciso IV — Salário mínimo (base de alguns cálculos de multas e referências legais).\n  ARTIGO 170 — Ordem econômica: a ordem econômica é fundada na valorização do trabalho humano e na livre iniciativa, tendo por fim assegurar a todos existência digna, conforme os ditames da justiça social, observados: inciso II (propriedade privada), inciso IV (livre concorrência), inciso V (defesa do consumidor), inciso VIII (busca do pleno emprego). BASE para defender que a operadora de plano de saúde exerce atividade econômica legítima, sujeita ao princípio da livre iniciativa e à preservação do equilíbrio econômico-financeiro.\n  ARTIGO 196 — Saúde como dever do Estado: a saúde é direito de todos e DEVER DO ESTADO, garantido mediante políticas sociais e econômicas. ARGUMENTO CENTRAL: o dever constitucional de prestação de saúde incumbe ao Estado — o plano de saúde privado tem obrigação definida pelo contrato e pela lei regulatória (Lei nº 9.656/1998), não pela amplitude irrestrita do artigo 196. A Constituição distingue claramente a saúde pública (dever do Estado) da saúde suplementar (regulada por lei).\n  ARTIGO 199 — Saúde suplementar: a assistência à saúde é livre à iniciativa privada (caput); as instituições privadas poderão participar de forma complementar do sistema único de saúde, seguindo diretrizes deste, mediante contrato de direito público (§ 1º). FUNDAMENTO CONSTITUCIONAL da saúde suplementar como setor autônomo, regulado por lei própria (Lei nº 9.656/1998 e ANS).\n  ARTIGO 5º, inciso XXXVI — Direito adquirido e ato jurídico perfeito: a lei não prejudicará o direito adquirido, o ato jurídico perfeito e a coisa julgada. BASE para defender a validade das cláusulas contratuais vigentes à época da contratação.\n  ARTIGO 5º, inciso LIV — Devido processo legal: ninguém será privado da liberdade ou de seus bens sem o devido processo legal. USAR: tutelas liminares que determinam coberturas sem contraditório adequado violam o devido processo legal.\n  ARTIGO 5º, inciso LV — Contraditório e ampla defesa: aos litigantes, em processo judicial ou administrativo, e aos acusados em geral são assegurados o contraditório e ampla defesa. BASE para arguir nulidade de liminares deferidas sem oitiva da operadora.\n  ARTIGO 93, inciso IX — Fundamentação das decisões: todas as decisões do Poder Judiciário serão fundamentadas, sob pena de nulidade. BASE para atacar liminares sem fundamentação adequada sobre probabilidade do direito e urgência (combinado com artigo 300 do CPC e artigo 11 do CPC).\n\n  ESTRATÉGIA CENTRAL — CONSTITUIÇÃO:\n  (a) Artigo 196 vs. artigo 199: o dever constitucional de saúde é do ESTADO, não do plano privado — o plano tem obrigação definida em lei e contrato, não ilimitada;\n  (b) Artigo 170: a atividade das operadoras é expressão da livre iniciativa e deve ter seu equilíbrio econômico preservado — argumento sistêmico contra decisões judiciais que impõem coberturas sem base legal;\n  (c) Artigos 5º, incisos LIV e LV + artigo 93, inciso IX: base constitucional para arguir nulidade de liminares sem fundamentação ou sem contraditório.\n\n- CATÁLOGO — LEI Nº 15.040/2024 (NOVA LEI DE SEGUROS — MARCO LEGAL): DISPOSITIVOS ESTRATÉGICOS\n  Vigência: 11 de dezembro de 2025. Aplica-se a contratos NOVOS celebrados a partir dessa data. Contratos anteriores permanecem regidos pelos artigos 757 a 802 do Código Civil (ora revogados para novos contratos) e pelo Decreto-Lei nº 73/1966. Relevância para saúde suplementar: embora regule seguros privados em geral, a lei tem interface direta com o SEGURO GARANTIA utilizado em cumprimentos de sentença e com os contratos securitários manejados por operadoras.\n\n  ARTIGO 9º — Exclusões: os riscos e os interesses excluídos devem ser descritos de forma clara e inequívoca. Em caso de divergência entre documentos, prevalece o texto mais favorável ao segurado. ARGUMENTO BILATERAL: cláusulas de exclusão claras e inequívocas são plenamente válidas — a lei não afasta exclusões; exige apenas que sejam transparentes.\n  ARTIGO 10 — Boa-fé obrigatória: o segurado deve prestar as informações necessárias à avaliação do risco e à execução do contrato, sob pena de perda do direito à indenização (§ 1º, inciso I). ANALOGIA com DLP em planos de saúde: omissão de informações pelo beneficiário gera perda ou redução de direitos.\n  ARTIGO 20 — Inadimplemento do prêmio: define prazo e procedimento para suspensão e resolução do contrato por inadimplemento. Aplicável como referência aos contratos de plano de saúde no que toca à rescisão por inadimplência (artigo 13 da Lei nº 9.656/1998).\n  ARTIGO 70 — Sinistro na vigência: a seguradora responde pelos efeitos do sinistro caracterizado na vigência do contrato, ainda que se manifestem ou perdurem após o término. LIMITE: o evento deve ter ocorrido durante a vigência — não alcança sinistros anteriores à contratação (DLP não declarada).\n  ARTIGOS 86/87 — Regulação de sinistros: prazo de 30 dias para a seguradora se manifestar sobre a cobertura; pode ser suspenso duas vezes por solicitação justificada de documentos; reconhecida a cobertura, 30 dias para pagamento. Referência para questionar atrasos excessivos em análises de cobertura.\n  ARTIGO 89/90 — Princípio indenizatório: a indenização não pode superar o prejuízo real sofrido nem o limite contratado. BASE para resistir a pedidos de cobertura que excedam o dano real ou o limite do contrato.\n  ARTIGO 133 — Revogação: revoga os artigos 757 a 802 do Código Civil (contrato de seguro) e dispositivos do Decreto-Lei nº 73/1966 para contratos novos.\n  ARTIGO 134 — Vigência: entra em vigor após um ano da publicação (11/12/2025). Contratos anteriores seguem a lei anterior.\n\n  ESTRATÉGIA CENTRAL — LEI Nº 15.040/2024:\n  (a) A lei ainda é muito nova (vigência: 11/12/2025) — aplicável apenas a contratos novos; a maioria dos contratos em litígio ainda segue as regras antigas (artigos 757/802 do CC);\n  (b) Artigo 9º: usar para reforçar que exclusões claras e inequívocas são válidas — a lei não elimina exclusões contratuais;\n  (c) Artigo 10: analogia com DLP — omissão de informações pelo segurado/beneficiário acarreta perda de direitos;\n  (d) Artigos 89/90: princípio indenizatório como limite máximo da obrigação — a cobertura não pode gerar lucro nem superar o prejuízo real;\n  (e) Artigos 86/87: prazo de 30 dias para análise — usar para demonstrar que análise dentro do prazo não configura demora abusiva.\n\n- CATÁLOGO — LEI Nº 9.961/2000 (LEI DA ANS): COMPETÊNCIAS REGULATÓRIAS ESTRATÉGICAS\n  A ANS é autarquia especial com autonomia técnica e poder normativo vinculante sobre toda a saúde suplementar. Seus atos normativos (Resoluções Normativas) têm força de lei regulatória e devem ser observados por operadoras e pelo Poder Judiciário.\n\n  ARTIGO 1º — Natureza jurídica: a ANS é autarquia sob regime especial, com autonomia administrativa, financeira, patrimonial e de gestão. Suas decisões técnicas são autônomas e seus dirigentes têm mandato fixo. ARGUMENTO: a ANS não é órgão de recomendação — é agência reguladora com poder normativo vinculante.\n  ARTIGO 3º — Finalidade institucional: promover a defesa do interesse público na assistência suplementar à saúde, regulando as operadoras setoriais, inclusive quanto às suas relações com prestadores e consumidores. USAR: a ANS regula o setor no interesse público — não apenas no interesse individual do consumidor. O equilíbrio sistêmico é parte da finalidade regulatória.\n  ARTIGO 4º — Competências da ANS (dispositivo central para defesa de operadoras):\n  Inciso III — Elaborar o rol de procedimentos e eventos em saúde, que constituirão REFERÊNCIA BÁSICA para os fins da Lei nº 9.656/1998, e suas excepcionalidades. BASE LEGAL EXPRESSA do rol da ANS — não é mera recomendação técnica, é competência legalmente atribuída, cujo exercício produz ato normativo vinculante.\n  Inciso VII — Estabelecer normas relativas à adoção e utilização, pelas operadoras, de mecanismos de regulação do uso dos serviços de saúde. AMPARA a exigência de Diretrizes de Utilização (DUT) como critério para cobertura.\n  Inciso IX — Normatizar os conceitos de doença e lesão preexistentes. AMPARA os regulamentos de DLP.\n  Inciso XVII — Autorizar reajustes e revisões das contraprestações pecuniárias. AMPARA os reajustes aprovados pela ANS como juridicamente válidos.\n  Inciso XXIII — Fiscalizar as atividades das operadoras e zelar pelo cumprimento das normas. Argumento sistêmico: a ANS já exerce controle regulatório — a intervenção judicial sobre matéria técnica regulada deve ser excepcional.\n  Inciso XXVI — Fiscalizar a atuação das operadoras e prestadores de serviços de saúde com relação à abrangência das coberturas. USAR: a fiscalização de coberturas é atribuição da ANS, não do Poder Judiciário — o controle judicial deve respeitar os limites da regulação técnica.\n  Inciso XXIX — Fiscalizar o cumprimento das disposições da Lei nº 9.656/1998 e de sua regulamentação. BASE para arguir que as operadoras que cumprem a RN nº 465/2021 agem dentro da legalidade.\n  Artigo 4º, § 4º — Subordinação ampla: estão subordinados às normas e à fiscalização da ANS quaisquer modalidades de plano, produto, serviço ou contrato que ofereçam garantia de prestação de serviço de saúde especializado. USAR: o plano de saúde integra sistema regulado — não pode ter suas coberturas ampliadas arbitrariamente pelo Judiciário sem considerar o impacto regulatório sistêmico.\n\n  ESTRATÉGIA CENTRAL — LEI Nº 9.961/2000:\n  (a) Artigo 4º, inciso III: o rol da ANS é elaborado no exercício de competência legal expressa — não é sugestão técnica, é ato normativo regulatório vinculante;\n  (b) Artigo 3º: a ANS defende o interesse PÚBLICO (sistêmico), não apenas o interesse individual do consumidor — argumento para afastar interpretações puramente individualistas;\n  (c) Artigo 4º, inciso VII: as DUTs (Diretrizes de Utilização) da RN 465/2021 são normas regulatórias — seu descumprimento pelo médico não obriga a operadora a cobrir o procedimento sem atendimento dos critérios técnicos;\n  (d) Artigos 4º, incisos XXIII e XXVI: a fiscalização de coberturas é atribuição técnica e regulatória da ANS — decisões judiciais que substituem essa regulação técnica comprometem a previsibilidade do sistema.\n\n- CATÁLOGO — RN Nº 465/2021 (ROL DE PROCEDIMENTOS E EVENTOS EM SAÚDE DA ANS): DISPOSITIVOS ESTRATÉGICOS\n  Vigência: a partir de 01/04/2021 (revogou a RN nº 428/2017). Fundamento legal: artigos 10, § 4º, e 35-C da Lei nº 9.656/1998 e artigo 4º, inciso III, da Lei nº 9.961/2000. APLICÁVEL a contratos celebrados a partir de 01/01/1999 e aos adaptados.\n\n  ARTIGO 1º — Objeto: atualiza o Rol de Procedimentos e Eventos em Saúde que estabelece a COBERTURA ASSISTENCIAL OBRIGATÓRIA a ser garantida nos planos privados de assistência à saúde.\n  ARTIGO 2º — Taxatividade: para fins de cobertura, considera-se TAXATIVO o Rol de Procedimentos e Eventos em Saúde disposto nesta Resolução Normativa e seus anexos, podendo as operadoras oferecer cobertura MAIOR do que a obrigatória, por sua iniciativa ou mediante expressa previsão contratual. DISPOSITIVO CENTRAL: a taxatividade do rol é afirmada expressamente pela própria ANS — o rol é o limite mínimo obrigatório, não o máximo.\n  ARTIGO 3º — Estrutura: a RN é composta de 4 Anexos: Anexo I (lista de procedimentos por segmentação), Anexo II (Diretrizes de Utilização — DUT: critérios para cobertura de procedimentos específicos), Anexo III (Diretrizes Clínicas — DC), Anexo IV (Procedimentos de Utilização).\n  ARTIGO 6º — Profissional habilitado: os procedimentos poderão ser executados por qualquer profissional de saúde habilitado, conforme legislação das profissões, respeitados os critérios de credenciamento, referenciamento, reembolso ou outra relação entre operadora e prestadores. § 1º: Os procedimentos listados serão de cobertura obrigatória quando realizados por profissional habilitado e indicados pelo profissional assistente. LIMITE: a indicação pelo médico assistente é condição necessária mas NÃO suficiente — o procedimento deve estar no rol E o beneficiário deve preencher os critérios da DUT correspondente.\n  ARTIGO 8º — Cobertura acessória: nos procedimentos previstos na RN e Anexos, se houver indicação do profissional assistente e o beneficiário preencher os critérios da DUT, estão asseguradas: equipe necessária (incluindo anestesia e instrumentação); taxas, materiais, contrastes, medicamentos e insumos necessários, desde que regularizados. LIMITE: a cobertura acessória depende da cobertura do procedimento principal — se o procedimento principal não tiver cobertura, os acessórios também não têm.\n  ARTIGO 11 — Complicações: as complicações decorrentes de procedimentos cobertos OU não cobertos têm cobertura obrigatória quando constarem do Rol. Parágrafo único: procedimentos vinculados à realização de um procedimento NÃO COBERTO são parte integrante do procedimento inicial — não há obrigatoriedade de cobertura pela operadora. ARGUMENTO IMPORTANTE: complicação de procedimento não coberto não gera cobertura obrigatória.\n  ARTIGO 12 — Tecnologias: procedimentos realizados por laser, radiofrequência, robótica, neuronavegação ou técnicas minimamente invasivas somente terão cobertura quando expressamente previstos no Rol. USAR para negar cobertura de variantes tecnológicas não previstas como equivalentes às técnicas tradicionais já cobertas.\n\n  DIRETRIZES DE UTILIZAÇÃO (DUT — Anexo II): Cada procedimento sujeito a DUT possui critérios técnicos obrigatórios (indicação clínica, exames prévios, falha de tratamentos anteriores etc.) que devem ser demonstrados pelo beneficiário para que a cobertura seja devida. Não preenchimento das condições da DUT = ausência de direito à cobertura naquele momento, mesmo que o procedimento esteja no rol. ESTRATÉGIA: sempre verificar se há DUT aplicável e se os critérios foram atendidos — a negativa por não atendimento da DUT é legítima e fundamentada na própria RN.\n\n  ESTRATÉGIA CENTRAL — RN Nº 465/2021:\n  (a) Artigo 2º: o rol é TAXATIVO — procedimentos não listados não têm cobertura obrigatória, salvo os critérios da Lei nº 14.454/2022;\n  (b) Artigo 6º, § 1º + Anexo II (DUT): a indicação médica é necessária mas insuficiente — os critérios técnicos da DUT devem ser atendidos;\n  (c) Artigo 11, parágrafo único: complicações de procedimentos não cobertos não geram obrigação de cobertura;\n  (d) Artigo 12: variantes tecnológicas não previstas no rol não têm cobertura automática;\n  (e) FLUXO DE ANÁLISE OBRIGATÓRIO EM TODA DEMANDA DE COBERTURA: (1) o procedimento está no rol? → se não, aplicar Lei nº 14.454/2022 (§ 13 do art. 10 da Lei nº 9.656/1998); (2) se está, há DUT? → verificar se os critérios foram atendidos; (3) houve indicação médica fundamentada + laudo técnico? → exigir sempre.\n\n- CATÁLOGO — LEI Nº 14.454/2022 (COBERTURA FORA DO ROL DA ANS): DISPOSITIVO CENTRAL\n  A Lei nº 14.454/2022 inseriu o § 13 ao artigo 10 da Lei nº 9.656/1998, definindo os critérios para cobertura de procedimentos FORA do rol da ANS. É o dispositivo mais arguido atualmente em saúde suplementar — dominar seus requisitos é essencial para a defesa de operadoras.\n\n  ARTIGO 10, § 13, DA LEI Nº 9.656/1998 (INSERIDO PELA LEI Nº 14.454/2022):\n  Cobertura de procedimento ou produto fora do rol da ANS SOMENTE é obrigatória nas seguintes hipóteses ALTERNATIVAS:\n  HIPÓTESE I (§ 13, inciso I): (a) comprovação de eficácia e segurança, baseada em evidências científicas e plano terapêutico; E (b) inexistência de substituto terapêutico com cobertura no rol da ANS; E (c) recomendação da CONITEC — Comissão Nacional de Incorporação de Tecnologias no SUS, OU de órgão de avaliação de tecnologias em saúde de renome internacional, desde que sejam aprovadas para uso no Brasil.\n  HIPÓTESE II (§ 13, inciso II): procedimento ou produto com indicação ou uso diverso do previsto na bula/manual, desde que: (a) haja recomendação da CONITEC ou órgão internacional de renome; E (b) inexista substituto terapêutico com cobertura no rol.\n\n  REQUISITOS CUMULATIVOS PARA CADA HIPÓTESE (aplicação prática):\n  Para a Hipótese I: O beneficiário/autor deve provar TODOS: (1) eficácia e segurança cientificamente comprovadas; (2) plano terapêutico elaborado pelo médico assistente; (3) ausência de substituto no rol; (4) recomendação da CONITEC OU de órgão internacional reconhecido para uso no Brasil. NÃO BASTA a prescrição médica isolada.\n  Para a Hipótese II (uso off-label): O autor deve provar: (1) uso diverso do previsto em bula; (2) recomendação da CONITEC ou órgão internacional; (3) ausência de substituto no rol.\n\n  ESTRATÉGIA DEFENSIVA — COMO USAR A LEI Nº 14.454/2022:\n  (a) ÔNUS DA PROVA: incumbe ao AUTOR (artigo 373, inciso I, do CPC) demonstrar o preenchimento de TODOS os requisitos cumulativos do § 13 — a prescrição médica isolada não os supre;\n  (b) CONITEC: verificar se há recomendação da CONITEC para o procedimento/produto. Se não houver, questionar qual órgão internacional foi invocado e se está efetivamente aprovado para uso no Brasil;\n  (c) SUBSTITUTO TERAPÊUTICO: identificar se há alternativa no rol que já cubra a finalidade terapêutica — se houver, a cobertura fora do rol não é obrigatória;\n  (d) EVIDÊNCIA CIENTÍFICA: questionar a qualidade das evidências apresentadas (grau de recomendação, nível de evidência) — laudos médicos opinativos não equivalem a evidência científica sistematizada;\n  (e) PLANO TERAPÊUTICO: exigir que o autor apresente plano terapêutico formal, com justificativa técnica para o procedimento específico solicitado — a simples prescrição em receita não constitui plano terapêutico;\n  (f) ADI 7265 + LEI Nº 14.454/2022 como EIXO CENTRAL: o STF (ADI 7265) confirmou a constitucionalidade do § 13 e reafirmou o caráter estruturante do rol da ANS — usar ambos como fundamento prioritário, antes de qualquer argumento do STJ.\n\n- TÓPICO OBRIGATÓRIO — AUSÊNCIA DE COBERTURA PELO ROL DA ANS (ESTRUTURAÇÃO EM 3 CAMADAS):\n  Quando a controvérsia envolver procedimento, medicamento, técnica cirúrgica, terapia ou material que NÃO conste do Anexo I da RN nº 465/2021, INCLUIR OBRIGATORIAMENTE um tópico próprio de fundamentação jurídica com título sugerido \"DA AUSÊNCIA DE COBERTURA OBRIGATÓRIA — INEXISTÊNCIA DOS REQUISITOS DA LEI Nº 14.454/2022\", estruturado em três camadas argumentativas sequenciais e cumulativas:\n  CAMADA 1 — INEXISTÊNCIA NO ANEXO I DA RN Nº 465/2021: demonstrar objetivamente que o procedimento não consta do rol vigente, citando a versão atualizada da RN (incluindo RNs 642 e 643/2025 quando pertinente). Sustentar que o artigo 2º da RN nº 465/2021 declara expressamente a TAXATIVIDADE do rol, e que o artigo 10, § 12, da Lei nº 9.656/1998 reafirma que o rol é REFERÊNCIA BÁSICA. Concluir: \"a ausência do procedimento no Anexo I é, por si só, fundamento jurídico suficiente para afastar a obrigatoriedade da cobertura, salvo o preenchimento integral dos requisitos legais de exceção\";\n  CAMADA 2 — NÃO PREENCHIMENTO DOS REQUISITOS DO § 13 DO ARTIGO 10 DA LEI Nº 9.656/1998: demonstrar a ausência dos requisitos cumulativos da Lei nº 14.454/2022. Examinar cada requisito separadamente: (i) AUSÊNCIA DE EVIDÊNCIA CIENTÍFICA E PLANO TERAPÊUTICO — questionar a qualidade técnica das evidências (artigos opinativos não equivalem a estudos randomizados, metanálises ou diretrizes oficiais); (ii) EXISTÊNCIA DE SUBSTITUTO TERAPÊUTICO NO ROL — identificar e nominar a alternativa coberta com finalidade equivalente; (iii) AUSÊNCIA DE PLANO TERAPÊUTICO FORMAL — distinguir prescrição médica simples de plano terapêutico estruturado, com metas, prazos, indicadores de progresso e revisões;\n  CAMADA 3 — AUSÊNCIA DE RECOMENDAÇÃO CONITEC OU DE ÓRGÃO INTERNACIONAL APROVADO PARA O BRASIL: verificar e fazer constar expressamente a inexistência de recomendação favorável da CONITEC (consultar histórico em http://conitec.gov.br); na ausência, exigir do autor a indicação de qual órgão internacional de avaliação de tecnologias em saúde recomendou o procedimento E a demonstração de que essa recomendação foi APROVADA PARA USO NO BRASIL — não basta indicação de órgão estrangeiro genérico (ex: FDA, EMA, NICE) sem comprovação de transposição regulatória ao ordenamento brasileiro. Concluir: \"o ônus da prova do preenchimento integral dos três requisitos legais é do autor (artigo 373, inciso I, do CPC); não suprido o ônus, impõe-se o reconhecimento da ausência de cobertura obrigatória\".\n  FECHAMENTO ESTRATÉGICO: encerrar o tópico articulando as três camadas com a fundamentação no Rol da ANS e na ADI 7265, demonstrando coerência sistêmica entre a regulação técnica (ANS), a legislação especial (Lei nº 9.656/1998 + Lei nº 14.454/2022) e a jurisprudência constitucional (STF, ADI 7265).\n\n- CATÁLOGO — RESOLUÇÕES NORMATIVAS DA ANS: MAPA ESTRATÉGICO POR TEMA\n  As RNs abaixo complementam a RN nº 465/2021 (rol) e a Lei nº 9.656/1998. Consultar o número da RN aplicável antes de redigir cada peça. As RNs são atos normativos da ANS com força vinculante (artigo 4º, inciso II, da Lei nº 9.961/2000).\n\n  === CARÊNCIA E DOENÇA PREEXISTENTE ===\n  RN Nº 162/2007 (Doença ou Lesão Preexistente — DLP): Define os conceitos de DLP e Cobertura Parcial Temporária (CPT). A DLP é aquela de que o beneficiário sabe ser portador ao contratar o plano. O ônus de demonstrar a preexistência e o conhecimento prévio pelo beneficiário incumbe à OPERADORA. A CPT é permitida por até 24 meses para procedimentos de alta complexidade relacionados à DLP; nunca para urgência/emergência. USAR: quando o beneficiário omite DLP na declaração de saúde — a operadora pode comprovar a fraude e rescindir o contrato ou negar cobertura específica.\n  Súmula Normativa ANS Nº 27 — Veda seleção de risco (recusa de contratação por doença preexistente). A recusa é ilegal — mas a aplicação de CPT é legítima e regulamentada.\n  Prazos máximos de carência (Lei nº 9.656/1998 + RN nº 162/2007): 24 horas (urgência/emergência); 30 dias (consultas); 180 dias (procedimentos gerais, internações); 24 meses (CPT para DLP em procedimentos de alta complexidade, leitos de alta tecnologia e cirurgias).\n\n  === PORTABILIDADE DE CARÊNCIAS ===\n  RN Nº 438/2018 (Portabilidade): Regulamenta o direito de migrar de plano sem cumprir novas carências. Requisitos para 1ª portabilidade: plano ativo e adimplente + mínimo 2 anos no plano de origem (ou 3 anos se cumpriu CPT). Plano de destino deve ter preço compatível (mesma faixa de preço definida pela ANS). A operadora de destino NÃO pode exigir nova declaração de saúde nem novos exames. ESTRATÉGIA: quando o autor alega portabilidade indevidamente negada, verificar (1) se os requisitos de permanência foram cumpridos; (2) se o plano de destino é compatível; (3) se havia inadimplência.\n\n  === REAJUSTES ===\n  RN Nº 63/2003 (Reajuste por Variação de Custos — Planos Coletivos): Define os critérios para aplicação de reajuste por sinistralidade nos planos coletivos. USAR: quando o autor questiona reajuste — demonstrar que foi aplicado dentro dos parâmetros regulatórios.\n  RN Nº 171/2008 (Reajuste por Faixa Etária): Regula a variação por mudança de faixa etária. Proibido reajuste por faixa etária após 59 anos de idade. As variações permitidas devem respeitar a proporção máxima de 6:1 entre menor e maior faixa. USAR: nas ações que questionam reajuste por faixa etária, demonstrar que o percentual aplicado está dentro da proporção permitida pela RN.\n  Nota: os percentuais máximos de reajuste para planos individuais/familiares são fixados anualmente pela ANS mediante resolução específica — verificar o percentual vigente no ano do litígio.\n\n  === RESCISÃO E MANUTENÇÃO DO PLANO ===\n  RN Nº 195/2009 (revogada pela RN nº 557/2022 — Planos Coletivos): Regula rescisão unilateral de planos coletivos. A rescisão por parte da operadora exige: notificação com prazo mínimo de 60 dias e manutenção da cobertura até a rescisão efetiva. Rescisão imotivada é vedada para planos com menos de 12 meses.\n  RN Nº 279/2011 (Manutenção do Plano por Ex-Empregado Demitido/Aposentado): Regulamenta os artigos 30 e 31 da Lei nº 9.656/1998 — direito do ex-empregado de manter o plano coletivo empresarial. Condições: (a) ex-empregado demitido sem justa causa: até 1/3 do período de permanência no plano (mínimo 6 meses, máximo 24 meses), desde que assuma integralmente o custeio; (b) aposentado com 10+ anos de empresa: por prazo indeterminado; com menos de 10 anos: 1 ano de manutenção por ano de empresa, com mínimo de 6 meses. USAR: verificar se o beneficiário cumpriu os requisitos e se está dentro do prazo antes de deferir manutenção por liminar.\n\n  === ATENDIMENTO E PRAZOS ASSISTENCIAIS ===\n  RN Nº 259/2011 (Prazos Máximos de Atendimento): Fixa os prazos máximos que as operadoras têm para garantir atendimento. Urgência/emergência: imediato (24 horas). Consultas básicas e especializadas: até 7 dias úteis. Consultas com especialistas: até 14 dias úteis. Serviços de apoio diagnóstico e terapia: até 10 dias úteis. Cirurgias eletivas: até 30 dias. Partos: conforme planejamento obstétrico. USAR: quando o autor alega demora no atendimento — verificar se os prazos foram extrapolados antes de reconhecer ilegalidade.\n  RN Nº 623/2024 (Regras de Atendimento aos Beneficiários — vigência 01/07/2025): Moderniza as regras de relacionamento operadora-beneficiário. Principais pontos: (a) obrigatoriedade de protocolo numérico rastreável para toda solicitação; (b) negativas de cobertura devem ser formalizadas por escrito com fundamento contratual ou normativo; (c) beneficiário pode solicitar reanálise à ouvidoria da operadora (prazo de 7 dias úteis para resposta); (d) atendimento telefônico 24h/7d para operadoras de grande porte; (e) metas de redução de reclamações vinculadas a indicadores de desempenho (IGR). ARGUMENTO DEFENSIVO: a RN nº 623/2024 reforça que a negativa deve ser fundamentada — se a operadora cumpriu o procedimento de comunicação escrita com fundamentação normativa, não há ilegalidade.\n\n  === REDE ASSISTENCIAL ===\n  RN Nº 365/2015 (atualizada pela RN nº 417/2016 e RN nº 585/2023 — Rede de Prestadores): Regula os critérios de credenciamento, descredenciamento e substituição de prestadores. A operadora pode descredenciar prestadores desde que: (a) notifique os beneficiários com antecedência mínima (30 dias para hospitais); (b) ofereça substituto equivalente na mesma área geográfica. USAR: quando o autor alega descredenciamento abusivo — verificar se o procedimento regulatório foi cumprido.\n  RN Nº 585/2023 (Alteração de Rede Hospitalar — vigência 31/12/2024): Reforça obrigações de comunicação prévia ao beneficiário sobre exclusão ou substituição de hospitais. Exige: notificação individual do beneficiário com ao menos 30 dias de antecedência ao término da prestação de serviços.\n\n  === URGÊNCIA E EMERGÊNCIA ===\n  Resolução CONSU Nº 13/1998: Define os conceitos de urgência e emergência para fins de cobertura pelos planos de saúde. Urgência: ocorrência imprevista de agravo à saúde com risco potencial à vida. Emergência: ocorrência com risco imediato de vida. A cobertura de urgência/emergência deve ser garantida DESDE O 1º DIA DO CONTRATO (24 horas após a contratação). USAR: quando o autor alega negativa de cobertura de urgência — verificar se o evento se enquadra nos conceitos regulatórios e se já havia transcorrido as 24 horas de carência.\n\n  === FISCALIZAÇÃO E SANÇÕES ===\n  RN Nº 483/2022 (Procedimentos de Fiscalização): Define o processo administrativo sancionador da ANS. USAR: quando a ANS autuou a operadora — verificar se o processo administrativo respeitou o rito legal e as garantias do contraditório.\n  RN Nº 489/2022 (Sanções Administrativas): Define o rol de infrações e sanções aplicáveis às operadoras. USAR: demonstrar que a operadora que segue as normas age dentro da legalidade e não pode ser responsabilizada civilmente por conduta regulatória regular.\n\n  === ATUALIZAÇÕES RECENTES DO ROL (2025) ===\n  RN Nº 642/2025 e RN Nº 643/2025 (vigência 01/09/2025): Atualizações pontuais da RN nº 465/2021. Novas coberturas incluídas (ex: Implante Subdérmico Hormonal para Contracepção — ampliação da DUT 170). ATENÇÃO: verificar sempre se o procedimento disputado foi incluído, excluído ou teve sua DUT alterada por RN posterior à RN nº 465/2021, pois o rol é atualizado periodicamente.\n\n    === ATUALIZAÇÕES NORMATIVAS CRÍTICAS ===\n  RN Nº 565/2022 (vigência 01/01/2023 — revogou a RN nº 309/2012 e a RN nº 566/2022): Atual norma sobre cobertura assistencial obrigatória. Consolidou as regras de cobertura, incorporou dispositivos da Lei nº 14.454/2022 ao regulamento e detalhou o fluxo de solicitação e resposta das operadoras. ATENÇÃO: referências à RN nº 309/2012 ou RN nº 566/2022 estão DESATUALIZADAS — citar sempre a RN nº 565/2022 como norma vigente de cobertura.\n  SÚMULA 102 DO TJSP — REVOGADA em 10/09/2025 pelo Órgão Especial do TJSP: A Súmula 102 ("É abusiva a negativa de plano de saúde em cobrir as despesas de procedimento médico ou cirúrgico necessário à saúde do segurado") foi cancelada porque divergia do entendimento do STJ sobre o rol taxativo mitigado da ANS (Lei nº 14.454/2022). ESTRATÉGIA: (a) NUNCA invocar a Súmula 102 do TJSP — foi revogada; (b) o entendimento dominante pós-revogação é o do STJ (rol taxativo mitigado com critérios cumulativos da Lei nº 14.454/2022); (c) usar ADI 7265 + Lei nº 14.454/2022 como fundamentos centrais, nunca a súmula revogada.\n\n  === LEI Nº 13.003/2014 (PLANOS COLETIVOS) ===\n  Introduziu obrigatoriedade de contrato escrito nos planos coletivos empresariais e por adesão. Principais dispositivos:\n  Artigo 1º — Contrato escrito obrigatório entre operadora e pessoa jurídica contratante. Prazo máximo de 12 meses para adequação dos contratos vigentes.\n  Artigo 2º — O contrato coletivo deve conter: prazo de vigência, condições de rescisão, portabilidade, reajustes e demais condições de cobertura.\n  ESTRATÉGIA: em planos coletivos, verificar se há contrato escrito formalizado; ausência de contrato escrito pode gerar discussão sobre condições de rescisão e reajuste. A rescisão unilateral pela operadora exige notificação prévia de 60 dias (RN nº 195/2009 e atualizações). Em planos coletivos com menos de 12 meses: rescisão imotivada é vedada.\n\n  === LEI Nº 8.080/1990 (LEI ORGÂNICA DA SAÚDE — SUS) ===\n  Define o Sistema Único de Saúde (SUS) como meio pelo qual o Estado cumpre sua obrigação constitucional de saúde (artigo 196 da Constituição).\n  Artigo 2º — A saúde é um direito fundamental do ser humano, devendo o ESTADO prover as condições indispensáveis ao seu pleno exercício.\n  Artigo 4º — O conjunto de ações e serviços de saúde prestados por órgãos e instituições públicas federais, estaduais e municipais constitui o Sistema Único de Saúde.\n  ARGUMENTO CENTRAL: a Lei nº 8.080/1990 confirma que o dever de prestação universal e integral de saúde é do ESTADO (por meio do SUS), NÃO dos planos privados. A operadora de plano de saúde tem obrigação definida pelo contrato e pela Lei nº 9.656/1998, não pela amplitude irrestrita do SUS. USAR para refutar o argumento de que o plano deve cobrir "tudo o que o SUS cobre" — o rol do SUS não vincula os planos privados; o que vincula é o rol da ANS (RN nº 465/2021).\n\n  === LEI Nº 12.842/2013 (LEI DO ATO MÉDICO) ===\n  Define o que é atividade privativa do médico e o que são atos de equipe.\n  Artigo 4º — São privativos do médico: diagnóstico nosológico (inciso I), indicação e execução de procedimentos terapêuticos de maior complexidade (inciso II), indicação de internação e alta hospitalar (inciso V).\n  Artigo 4º, § 1º — O médico pode desenvolver suas atividades em equipe multiprofissional, devendo cada profissional atuar dentro do seu campo de habilitação.\n  ARGUMENTO ESTRATÉGICO: a prescrição médica para procedimento ou tratamento é ato privativo do médico (artigo 4º) e deve ser respeitada como decisão clínica — MAS isso não significa que a operadora é obrigada a cobri-la. A obrigação de cobertura decorre do contrato e do rol da ANS (RN nº 465/2021 + Lei nº 14.454/2022), não da prescrição médica isolada. A Lei do Ato Médico não amplia os limites contratuais de cobertura. USAR: para demonstrar que a operadora pode questionar tecnicamente a indicação clínica (via NATJUS) sem invadir a competência médica — o questionamento é sobre a cobertura contratual/legal, não sobre o diagnóstico.\n\n  FLUXO DE VERIFICAÇÃO REGULATÓRIA EM TODA DEMANDA:\n  (1) Identificar o tipo de contrato (individual/coletivo) e data de contratação → aplica-se a Lei nº 9.656/1998?\n  (2) Verificar a segmentação contratada (ambulatorial, hospitalar, referência) → o procedimento está na segmentação coberta?\n  (3) Consultar se o procedimento está no Rol da ANS (RN nº 465/2021 e atualizações — RNs 642 e 643/2025) → se não está, aplicar Lei nº 14.454/2022;\n  (4) Se está no Rol, verificar se há DUT (Anexo II da RN nº 465/2021) e se os critérios foram atendidos;\n  (5) Verificar prazos de carência (RN nº 162/2007) e se houve CPT por DLP;\n  (6) Verificar prazos de atendimento (RN nº 259/2011) e se foram respeitados;\n  (7) Verificar se houve comunicação formal de negativa conforme RN nº 623/2024.\n\n- NATJUS (Núcleo de Apoio Técnico do Poder Judiciário) — DISTINÇÃO OBRIGATÓRIA: O NATJUS ELABORA NOTA TÉCNICA — NÃO LAUDO PERICIAL. O laudo pericial é elaborado pelo PERITO nomeado pelo juízo (artigo 156 do CPC). A Nota Técnica do NATJUS é documento de subsídio técnico-científico ao julgador, sem natureza de prova pericial. NUNCA confundir nas peças: (a) Nota Técnica = NATJUS; (b) Laudo = perito judicial nomeado. Quando elaborar ESPECIFICAÇÃO DE PROVAS em demanda de saúde suplementar: avaliar se a controvérsia envolve questão técnico-científica (procedimentos, medicamentos, terapias, eficácia). Se positivo: requerer nos pedidos a remessa ao NATJUS para elaboração de Nota Técnica prévia, com fundamento no artigo 156, § 3º do CPC e na Recomendação CNJ nº 31/2010. A Nota Técnica do NATJUS é valiosa para: questionar a indicação clínica, a eficácia científica do tratamento, o preenchimento das DUTs e a necessidade de alternativa terapêutica disponível no rol da ANS\n\n'+getInstrucaoEstrutura(tipo==='auto'?inferir((inst||'')+' '+andamento):tipo)+'\n\n'+getInstrucaoDensidade();
+  var sys = montarSystemPromptPeticao(enriquecimento, tipo, inst, andamento);
   var ctxExtra = montarContextoAdicional();
   var procModo = document.getElementById('f-proc-modo') ? document.getElementById('f-proc-modo').value : 'manual';
   var procInfo = procModo === 'auto' ? 'IDENTIFICAR AUTOMATICAMENTE no andamento' : (proc || 'não informado');
@@ -7541,8 +7208,6 @@ async function gerarMinuta() {
     var advNomeManual = (document.getElementById('f-adv-nome').value || '').trim();
     var advOabManual = (document.getElementById('f-adv-oab').value || '').trim();
     advInstrucao = '\n\nADVOGADO SIGNATÁRIO: ' + (advNomeManual || '(nome a preencher)') + ' — ' + (advOabManual || '(OAB a preencher)') + '. NÃO incluir marcador [ADV_AUTO].';
-  } else if (advSelValue === 'carmo') {
-    advInstrucao = '\n\nADVOGADO SIGNATÁRIO: Carmo Martins Mancebo Segundo — OAB/SP 274.575. NÃO incluir marcador [ADV_AUTO].';
   } else {
     advInstrucao = '\n\nSem bloco de assinatura. NÃO incluir marcador [ADV_AUTO].';
   }
@@ -7559,25 +7224,20 @@ async function gerarMinuta() {
   ultimoSysPrompt = sys;
   ultimoUsrPrompt = usr;
   ultimoModelo = modelo;
-  ultimoKey = key;
+  ultimoKey = '';
   try {
     var full='';
     var out=document.getElementById('res-txt');
     var usoTokensIn=0, usoTokensOut=0;
-    if (modelo==='gpt4o') {
-      var res=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.3,max_tokens:30000,stream:true,stream_options:{include_usage:true}})});
-      if (!res.ok){var er=await res.json();throw new Error(er.error?er.error.message:'Erro OpenAI');}
-      var rd=res.body.getReader(),dc=new TextDecoder();
-      setSt2('res-st','info','Recebendo resposta do GPT-4o...');
-      while(true){var rv=await rd.read();if(rv.done)break;dc.decode(rv.value).split('\n').forEach(function(ln){if(ln.startsWith('data: ')&&ln!=='data: [DONE]'){try{var parsed=JSON.parse(ln.slice(6));if(parsed.usage){usoTokensIn=parsed.usage.prompt_tokens||0;usoTokensOut=parsed.usage.completion_tokens||0;}if(parsed.choices&&parsed.choices[0]&&parsed.choices[0].delta){var d=parsed.choices[0].delta.content;if(d){full+=d;out.textContent=full;out.scrollTop=99999;}}}catch(e){}}});}
-    } else {
-      var cm=modelo==='claude-sonnet'?'claude-sonnet-4-5':'claude-opus-4-5';
-      var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:cm,max_tokens:30000,system:sys,messages:[{role:'user',content:usr}],stream:true})});
-      if (!res.ok){var er=await res.json();throw new Error(er.error?er.error.message:'Erro Anthropic');}
-      var rd=res.body.getReader(),dc=new TextDecoder();
-      setSt2('res-st','info','Recebendo resposta do '+nomeModelo+'...');
-      while(true){var rv=await rd.read();if(rv.done)break;dc.decode(rv.value).split('\n').forEach(function(ln){if(ln.startsWith('data: ')){try{var ev=JSON.parse(ln.slice(6));if(ev.type==='message_start'&&ev.message&&ev.message.usage){usoTokensIn=ev.message.usage.input_tokens||0;}if(ev.type==='message_delta'&&ev.usage){usoTokensOut=ev.usage.output_tokens||0;}if(ev.type==='content_block_delta'&&ev.delta&&ev.delta.text){full+=ev.delta.text;out.textContent=full;out.scrollTop=99999;}}catch(e){}}});}
-    }
+    setSt2('res-st','info','Recebendo resposta do '+nomeModelo+' via proxy seguro...');
+    var resp = await chamarIAGenerica(modelo, sys, usr, '', function(chunk){
+      full += chunk;
+      out.textContent = full;
+      out.scrollTop = 99999;
+    });
+    full = resp.texto || full;
+    var usoMatch = (resp.uso || '').match(/(\d+)\+(\d+)/);
+    if (usoMatch) { usoTokensIn = parseInt(usoMatch[1],10)||0; usoTokensOut = parseInt(usoMatch[2],10)||0; }
     minuta=full;
     salvarMinutaNoHistorico(full, tipo, proc);
     atualizarContagem();
@@ -8135,12 +7795,7 @@ function gerarBlocoAssinatura() {
     // No modo automático, a IA identificou o advogado e o nome virá da minuta
     // (substituído pelos placeholders [ADV_NOME_AUTO] e [ADV_OAB_AUTO] capturados do texto)
     nome = window.advNomeAutoDetectado || '[advogado identificado no processo]';
-    oab = window.advOABAutoDetectado || '[OAB identificada no processo]';
-  } else {
-    // 'carmo' (padrão explícito)
-    nome = 'Carmo Martins Mancebo Segundo';
-    oab = 'OAB/SP 274.575';
-  }
+    oab = window.advOABAutoDetectado || '[OAB identificada no processo]'; } else { return '';}
   var fmt = getFormatacao();
   var fr = '<w:rFonts w:ascii="'+fmt.fonte+'" w:hAnsi="'+fmt.fonte+'" w:cs="'+fmt.fonte+'"/>';
   var sz = '<w:sz w:val="'+fmt.sz+'"/><w:szCs w:val="'+fmt.sz+'"/>';
@@ -8183,7 +7838,6 @@ function gerarBlocoAssinatura() {
 
 function getNomeAdvogadoIntimacoes() {
   var adv = document.getElementById('f-advogado').value;
-  if (adv === 'carmo') return 'Carmo Martins Mancebo Segundo (OAB/SP 274.575)';
   if (adv === 'auto') {
     // Se a IA detectou na minuta, usa o detectado; senão mantém placeholder
     if (window.advNomeAutoDetectado) {
@@ -8571,63 +8225,28 @@ async function continuarMinuta() {
 }
 
 async function executarGeracao(sys, usr, isContinuacao) {
-  var key = ultimoKey || getKey();
-  var modelo = ultimoModelo || document.getElementById('sel-modelo').value;
-  var nomeModelo = modelo==='gpt4o'?'GPT-4o':modelo==='claude-sonnet'?'Claude Sonnet':'Claude Opus';
+  var modelo = ultimoModelo || getModeloSelecionado();
+  var nomeModelo = modelo === 'claude-opus' ? 'Claude Opus' : 'Claude Sonnet';
   setSt2('res-st','info','Aguarde — '+(isContinuacao?'continuando':'regerando')+' via '+nomeModelo+'...');
   var out = document.getElementById('res-txt');
   var full = isContinuacao ? minuta : '';
   out.textContent = full;
 
   try {
-    if (modelo === 'gpt4o') {
-      var res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-        body: JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:sys},{role:'user',content:usr}],temperature:0.3,max_tokens:30000,stream:true,stream_options:{include_usage:true}})
-      });
-      if (!res.ok) { var er=await res.json(); throw new Error(er.error?er.error.message:'Erro OpenAI'); }
-      var rd = res.body.getReader(), dc = new TextDecoder();
-      while(true) {
-        var rv = await rd.read(); if (rv.done) break;
-        dc.decode(rv.value).split('\n').forEach(function(ln){
-          if (ln.startsWith('data: ') && ln !== 'data: [DONE]') {
-            try { var d = JSON.parse(ln.slice(6)).choices[0].delta.content;
-              if (d) { full += d; out.textContent = full; out.scrollTop = 99999; }
-            } catch(e) {}
-          }
-        });
-      }
-    } else {
-      var cm = modelo==='claude-sonnet'?'claude-sonnet-4-5':'claude-opus-4-5';
-      var res = await fetch('https://api.anthropic.com/v1/messages', {
-        method:'POST',
-        headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-        body: JSON.stringify({model:cm,max_tokens:30000,system:sys,messages:[{role:'user',content:usr}],stream:true})
-      });
-      if (!res.ok) { var er=await res.json(); throw new Error(er.error?er.error.message:'Erro Anthropic'); }
-      var rd = res.body.getReader(), dc = new TextDecoder();
-      while(true) {
-        var rv = await rd.read(); if (rv.done) break;
-        dc.decode(rv.value).split('\n').forEach(function(ln){
-          if (ln.startsWith('data: ')) {
-            try { var ev = JSON.parse(ln.slice(6));
-              if (ev.type === 'content_block_delta' && ev.delta && ev.delta.text) {
-                full += ev.delta.text; out.textContent = full; out.scrollTop = 99999;
-              }
-            } catch(e) {}
-          }
-        });
-      }
-    }
-    minuta = full;
-    salvarMinutaNoHistorico(full, tipo, proc);
+    var resp = await chamarIAGenerica(modelo, sys, usr, '', function(chunk){
+      full += chunk;
+      out.textContent = full;
+      out.scrollTop = 99999;
+    });
+    minuta = resp.texto || full;
+    out.textContent = minuta;
     atualizarContagem();
     setSt2('res-st','ok',(isContinuacao?'Continuação concluída':'Nova versão gerada') + '. Revise antes de protocolar.');
   } catch(e) {
     setSt2('res-st','err','Erro: '+e.message);
   }
 }
+
 
 // ── DOWNLOAD PDF ──────────────────────────────────────────────
 async function baixarPdf() {
@@ -8679,7 +8298,7 @@ async function baixarPdf() {
 
 function copiar(){if(!minuta)return;navigator.clipboard.writeText(minuta).then(function(){setSt2('res-st','ok','Copiado para a área de transferência.');});}
 function descartar(){document.getElementById('res-content').style.display='none';document.getElementById('res-empty').style.display='block';minuta='';nomeArq='';}
-function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('f-cliente').value='Notre Dame Intermédica Saúde S/A';document.getElementById('f-tipo').value='auto';clearAndamento();checkBtn();}
+function limparForm(){['f-pasta','f-proc','f-parte','f-desc','f-and','f-inst'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('f-cliente').value='';document.getElementById('f-tipo').value='auto';clearAndamento();checkBtn();}
 
 // ── BACKUP E IMPORTAÇÃO ──────────────────────────────────────
 function exportarBackup() {
@@ -8845,10 +8464,7 @@ function _modalKeyHandler(e) {
   verificarLogin();
   // Carregar cotação USD→BRL salva
   try { var cot = localStorage.getItem('gp_cotacao'); if (cot) COTACAO_USD_BRL = parseFloat(cot); } catch(e){}
-  var oai=sessionStorage.getItem('oai'), ant=sessionStorage.getItem('ant');
-  if(oai){document.getElementById('key-openai').value=oai;document.getElementById('st-openai').textContent='Chave salva.';document.getElementById('nn-cfg').classList.add('ok');}
-  if(ant){document.getElementById('key-anthropic').value=ant;document.getElementById('st-anthropic').textContent='Chave salva.';document.getElementById('nn-cfg').classList.add('ok');}
-  try{
+    try{
     var saved=localStorage.getItem(LSP);
     if(saved){
       procs=JSON.parse(saved);
