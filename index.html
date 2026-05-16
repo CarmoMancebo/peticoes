@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="version" content="1.15">
+<meta name="version" content="1.16">
 <title>Carmo Martins Mancebo Segundo — Advogado</title>
 <meta name="description" content="Advogado com mais de 15 anos de experiência em contencioso estratégico — saúde suplementar, seguros e direito civil. OAB/SP 274.575.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -151,7 +151,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;color:var(--text);background:va
 .btn-plano.solid:hover{background:var(--blue-dark);border-color:var(--blue-dark)}
 
 /* ── CONTATO ── */
-.contato-grid{display:grid;grid-template-columns:1fr auto;gap:5rem;align-items:start}
+.contato-grid{display:flex;flex-direction:column;gap:2rem}
 .contato-lista{list-style:none;display:flex;flex-direction:column;gap:.5rem;margin:1rem 0 1.75rem}
 .contato-lista li{font-size:13px;color:var(--text2);display:flex;align-items:center;gap:.6rem}
 .contato-lista li::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--blue);flex-shrink:0}
@@ -159,7 +159,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;color:var(--text);background:va
 .btn-calendly:hover{opacity:.9;transform:translateY(-1px)}
 .footer-contact{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:8px;text-decoration:none;color:inherit;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:all .15s ease;width:112px}
 .footer-contact:hover{box-shadow:0 4px 14px rgba(0,0,0,.12);border-color:var(--blue-mid);transform:translateY(-1px)}
-.footer-qr{width:92px;height:92px;border-radius:4px;display:block}
+
 .footer-phone{text-align:center;margin-top:1px;width:100%}
 .footer-phone-label{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;line-height:1}
 .footer-phone-num{font-size:10px;color:var(--text);font-weight:600;margin-top:2px;letter-spacing:.01em;white-space:nowrap}
@@ -217,12 +217,12 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
   .hero-stats{gap:1.5rem}
 }
 
-/* Card de contato na seção CONTATO — proporcional */
-#contato .footer-contact{width:160px;padding:12px;border-radius:var(--radius);align-self:flex-start}
-#contato .footer-qr{width:130px;height:130px;border-radius:5px}
-#contato .footer-phone{margin-top:4px}
-#contato .footer-phone-label{font-size:9px;letter-spacing:.09em}
-#contato .footer-phone-num{font-size:11px;margin-top:3px;letter-spacing:.01em}
+
+
+
+
+
+
 
 .btn-plano-disabled{display:block;text-align:center;padding:8px;border-radius:var(--rsm);font-size:11.5px;font-weight:500;border:1.5px dashed var(--border2);color:var(--text3);background:transparent;font-family:inherit;cursor:not-allowed;margin-top:auto;letter-spacing:.03em}
 .plano-emdev{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-top:.5rem}
@@ -253,7 +253,7 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
   .plano{padding:1.25rem}
   .contato-grid{grid-template-columns:1fr !important;gap:2rem}
   #contato .footer-contact{width:140px}
-  #contato .footer-qr{width:110px;height:110px}
+  
   .cta-grid{grid-template-columns:1fr !important;gap:2rem}
   footer{padding:1.5rem 1rem !important;flex-direction:column;text-align:center}
   .footer-inner{flex-direction:column;text-align:center;gap:.75rem}
@@ -271,6 +271,15 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
   .sec-title{font-size:1.4rem !important}
   .sobre-img{width:160px !important;height:210px !important}
 }
+
+.hero .hero-eyebrow{letter-spacing:.18em;font-size:11.5px}
+.hero .hero-eyebrow::before{display:none}
+
+.contato-btns{display:flex;flex-wrap:wrap;gap:.875rem;margin-top:1.5rem}
+.btn-wpp{display:inline-flex;align-items:center;gap:.625rem;background:#25D366;color:#fff;padding:10px 20px;border-radius:var(--rsm);font-size:13px;font-weight:600;text-decoration:none;transition:opacity .15s,transform .12s}
+.btn-wpp:hover{opacity:.9;transform:translateY(-1px)}
+.btn-calendly{display:inline-flex;align-items:center;gap:.625rem;background:transparent;color:var(--blue-dark);padding:10px 20px;border-radius:var(--rsm);font-size:13px;font-weight:500;text-decoration:none;border:1.5px solid var(--border2);transition:background .15s,color .15s}
+.btn-calendly:hover{background:var(--bg)}
 </style>
 </head>
 <body>
@@ -298,8 +307,8 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
 <!-- HERO — sem foto -->
 <section id="hero">
   <div class="hero-inner">
-    <div class="hero-eyebrow">Advogado · São Paulo</div>
-    <h1 class="hero-title">Carmo <em>Mancebo</em></h1>
+    <div class="hero-eyebrow">OAB/SP 274.575</div>
+    <h1 class="hero-title">Carmo Mancebo <em>| Advogado</em></h1>
     <p class="hero-bio">
       Mais de <strong>15 anos de prática jurídica</strong>, com ênfase recente em <strong>contencioso estratégico</strong> nos segmentos de saúde suplementar e seguros. Atuação ampla em <strong>direito cível</strong> — incluindo demandas civis e empresariais — com profundidade técnica em análise documental, interpretação normativa e estruturação de teses jurídicas.
     </p>
@@ -430,52 +439,40 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
     </div>
     <div class="atu-grid">
       <div class="atu-card rev">
-        <div class="atu-titulo">Defesa em demandas de cobertura</div>
-        <p class="atu-desc">Contestação de ações que pleiteiam cobertura de procedimentos, tratamentos e medicamentos negados pela operadora. Análise do rol ANS (RN 465/2021), aplicação da Lei 14.454/2022, questionamento de prescrição médica e arguição da ADI 7265.</p>
+        <div class="atu-titulo">Saúde Suplementar</div>
+        <p class="atu-desc">Atuação em litígios envolvendo planos de saúde — cobertura assistencial, rol de procedimentos, reajustes de mensalidade, cancelamentos e demandas de alta complexidade. Experiência consolidada na defesa de operadoras e no atendimento a beneficiários.</p>
       </div>
       <div class="atu-card rev" style="transition-delay:.05s">
-        <div class="atu-titulo">Reajuste de mensalidades</div>
-        <p class="atu-desc">Defesa em ações que questionam reajustes por variação de sinistralidade, faixa etária ou recomposição atuarial. Demonstração da legalidade dos índices, análise contratual e contraposição a teses de abusividade.</p>
+        <div class="atu-titulo">Direito Securitário</div>
+        <p class="atu-desc">Análise de apólices e controvérsias envolvendo seguros de vida, saúde, responsabilidade civil, patrimonial e habitacional — com experiência em diversas modalidades de Responsabilidade Civil Facultativa (RCF) e seguros vinculados ao Sistema Financeiro da Habitação.</p>
       </div>
       <div class="atu-card rev" style="transition-delay:.1s">
-        <div class="atu-titulo">Cumprimento de sentença</div>
-        <p class="atu-desc">Impugnação ao cumprimento de sentença, questionamento de cálculos exequendos, defesa em penhoras e bloqueios, atuação em processos com seguro garantia e interposição de recursos.</p>
+        <div class="atu-titulo">Direito Cível</div>
+        <p class="atu-desc">Atuação em demandas cíveis variadas — obrigações, posse e propriedade, cobrança, revisão contratual e demais conflitos regulados pelo Código Civil. Domínio da legislação e da jurisprudência dos tribunais estaduais e superiores.</p>
       </div>
       <div class="atu-card rev">
-        <div class="atu-titulo">Tutelas de urgência</div>
-        <p class="atu-desc">Resposta a pedidos de tutela antecipada e medidas cautelares, com argumentação técnica sobre os requisitos do artigo 300 do CPC — fumus boni iuris, periculum in mora reverso e reversibilidade da medida.</p>
+        <div class="atu-titulo">Direito Empresarial</div>
+        <p class="atu-desc">Apoio jurídico a empresas de diferentes setores em conflitos societários, inadimplemento contratual, recuperação de crédito e disputas comerciais. Análise técnica orientada à proteção dos interesses empresariais e à minimização de riscos.</p>
       </div>
       <div class="atu-card rev" style="transition-delay:.05s">
-        <div class="atu-titulo">Recursos e contrarrazões</div>
-        <p class="atu-desc">Elaboração de apelações, agravos de instrumento, embargos de declaração e contrarrazões em todas as instâncias, com fundamentação doutrinária e jurisprudencial sólida — TJSP e STJ.</p>
+        <div class="atu-titulo">Direito Contratual</div>
+        <p class="atu-desc">Revisão, interpretação e discussão judicial de contratos cíveis e empresariais — prestação de serviços, fornecimento, locação, financiamento e demais instrumentos obrigacionais. Atuação na prevenção e na resolução de conflitos contratuais.</p>
       </div>
       <div class="atu-card rev" style="transition-delay:.1s">
-        <div class="atu-titulo">Contratos de seguro</div>
-        <p class="atu-desc">Análise de apólices e disputas envolvendo Responsabilidade Civil Facultativa (RCF) em todas as modalidades — property, medmal, veicular, vida, viagem e empresarial — e seguros vinculados ao SFH (DFI).</p>
+        <div class="atu-titulo">Responsabilidade Civil</div>
+        <p class="atu-desc">Demandas indenizatórias por danos materiais, morais e estéticos — em relações de consumo, contratos e situações extracontratuais. Análise de nexo causal, extensão do dano e jurisprudência consolidada nos tribunais estaduais e no STJ.</p>
       </div>
       <div class="atu-card rev">
-        <div class="atu-titulo">Direito contratual</div>
-        <p class="atu-desc">Análise, revisão e elaboração de contratos cíveis e empresariais — prestação de serviços, fornecimento, distribuição, parceria e demais instrumentos. Atuação em demandas de revisão, cumprimento, resolução e responsabilização contratual.</p>
+        <div class="atu-titulo">Direito do Consumidor</div>
+        <p class="atu-desc">Atuação em conflitos entre consumidores e fornecedores — práticas abusivas, vícios de produto ou serviço, cobranças indevidas e responsabilidade por dano. Aplicação do CDC em conjunto com as demais normas do ordenamento cível.</p>
       </div>
       <div class="atu-card rev" style="transition-delay:.05s">
-        <div class="atu-titulo">Responsabilidade civil</div>
-        <p class="atu-desc">Atuação em demandas indenizatórias por danos materiais, morais e estéticos — em contextos contratuais e extracontratuais. Análise de nexo causal, dever de indenizar e quantificação do dano com base em jurisprudência consolidada.</p>
+        <div class="atu-titulo">Direito de Família</div>
+        <p class="atu-desc">Orientação e representação em questões familiares — divórcio, guarda, alimentos, reconhecimento de paternidade e partilha de bens. Atuação com sensibilidade às particularidades humanas envolvidas e foco na solução mais equilibrada para todas as partes.</p>
       </div>
       <div class="atu-card rev" style="transition-delay:.1s">
-        <div class="atu-titulo">Direito empresarial</div>
-        <p class="atu-desc">Apoio a empresas em demandas societárias, contratuais e regulatórias — com análise técnica de documentação, definição de estratégia processual e atuação em todas as fases do contencioso empresarial.</p>
-      </div>
-      <div class="atu-card rev">
-        <div class="atu-titulo">Análise técnica de processos</div>
-        <p class="atu-desc">Análise documental aprofundada, interpretação de pareceres jurídicos, identificação de inconsistências e elaboração de pareceres técnicos para subsidiar a tomada de decisão estratégica em demandas de qualquer natureza.</p>
-      </div>
-      <div class="atu-card rev" style="transition-delay:.05s">
-        <div class="atu-titulo">Processos administrativos</div>
-        <p class="atu-desc">Atuação em processos administrativos perante órgãos de classe e entidades regulatórias — Tribunal de Ética e Disciplina da OAB/SP, Conselhos Regionais de Medicina e Fisioterapia — com análise normativa.</p>
-      </div>
-      <div class="atu-card rev" style="transition-delay:.1s">
-        <div class="atu-titulo">Controladoria jurídica</div>
-        <p class="atu-desc">Estruturação de rotinas operacionais, padronização de procedimentos internos, gestão de prazos e publicações, e administração de sistemas de gestão processual em escritórios e departamentos jurídicos.</p>
+        <div class="atu-titulo">Assessoria Estratégica</div>
+        <p class="atu-desc">Análise técnica aprofundada de processos, revisão e padronização de peças processuais, estruturação de teses jurídicas e parecer sobre risco. Suporte a escritórios, departamentos jurídicos e empresas que buscam consistência técnica e visão estratégica.</p>
       </div>
     </div>
   </div>
@@ -575,30 +572,33 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
 <!-- CONTATO -->
 <section id="contato" class="sec sec-surface">
   <div class="container">
+    <div class="rev">
+      <div class="eyebrow">Contato</div>
+      <h2 class="sec-title">Entre em <em>contato</em></h2>
+    </div>
     <div class="contato-grid">
-      <div class="rev">
-        <div class="eyebrow">Contato</div>
-        <h2 class="sec-title">Entre em <em>contato</em></h2>
-        <p class="sec-lead">Para consultas, agendamento ou dúvidas sobre a ferramenta, utilize os canais abaixo.</p>
+      <div class="rev" style="transition-delay:.08s">
+        <p class="sec-lead">Para consultas, agendamento ou dúvidas sobre a ferramenta, entre em contato pelos canais abaixo. O atendimento é realizado presencialmente em São Paulo e de forma remota em todo o território nacional.</p>
         <ul class="contato-lista">
           <li>carmo.mancebo@adv.oabsp.org.br</li>
           <li>São Paulo, SP — atendimento presencial e remoto</li>
           <li>Atuação em todo o território nacional</li>
         </ul>
-        <a href="https://calendly.com/carmo-mancebo/reuniao" target="_blank" class="btn-calendly">Agendar reunião pelo Calendly</a>
-      </div>
-      <div class="rev" style="transition-delay:.1s">
-        <a href="https://wa.me/5511941261425?text=Prezado%28a%29%2C%0AEspero%20que%20esteja%20bem.%0APara%20facilitar%20nosso%20encontro%2C%20por%20gentileza%20agende%20seu%20hor%C3%A1rio%20atrav%C3%A9s%20do%20link%20abaixo%3A%0Ahttps%3A//calendly.com/carmo-mancebo/reuniao%0AAgrade%C3%A7o%20desde%20j%C3%A1%21" target="_blank" rel="noopener" class="footer-contact" title="Abrir WhatsApp">
-          <img src="data:image/jpeg;base64,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" class="footer-qr" alt="QR WhatsApp">
-          <div class="footer-phone">
-            <div class="footer-phone-label">WhatsApp</div>
-            <div class="footer-phone-num">(11) 94126-1425</div>
-          </div>
-        </a>
+        <div class="contato-btns">
+          <a href="https://wa.me/5511941261425?text=Prezado%28a%29%2C%0AEspero%20que%20esteja%20bem.%0APara%20facilitar%20nosso%20encontro%2C%20por%20gentileza%20agende%20seu%20hor%C3%A1rio%20atrav%C3%A9s%20do%20link%20abaixo%3A%0Ahttps%3A//calendly.com/carmo-mancebo/reuniao%0AAgrade%C3%A7o%20desde%20j%C3%A1%21" target="_blank" rel="noopener" class="btn-wpp">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Enviar mensagem no WhatsApp
+          </a>
+          <a href="https://calendly.com/carmo-mancebo/reuniao" target="_blank" class="btn-calendly">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Agendar reunião pelo Calendly
+          </a>
+        </div>
       </div>
     </div>
   </div>
 </section>
+
 
 <!-- DEPOIMENTOS -->
 <section class="sec sec-alt" style="text-align:center">
@@ -645,7 +645,7 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
     </div>
   </div>
 </footer>
-<div class="ver">index v1.15</div>
+<div class="ver">index v1.16</div>
 
 <script>
 const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);}});},{threshold:.08,rootMargin:'0px 0px -30px 0px'});
