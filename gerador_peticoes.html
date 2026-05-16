@@ -919,7 +919,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 1.86</div>
+    <div class="login-ver">versão 1.87</div>
   </div>
 </div>
 
@@ -944,7 +944,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Demonstração</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
-    <span class="tb-meta" id="tb-versao">versão 1.86</span>
+    <span class="tb-meta" id="tb-versao">versão 1.87</span>
   </div>
 </div>
 
@@ -7114,21 +7114,21 @@ function instalarHookAntiInjection() {
 // ════════════════════════════════════════════════════════════════════════════
 
 var LIMITES_PLANO = {
-  'trial':         10,      // Demonstração: 10 peças/mês
-  'demonstracao':  10,      // alias
-  'solo':          600,     // Avançado: 20 peças/dia × 30 (teto mensal)
-  'avancado_plano':600,     // alias do plano Avançado
-  'pro':           99999,   // Completo: ilimitado
-  'completo':      99999,   // alias
-  'escritorio':    99999    // Escritório: ilimitado
+  'trial':         25,   // Demonstração: 25 peças/mês
+  'demonstracao':  25,   // alias
+  'solo':          150,  // Avançado: 150 peças/mês
+  'avancado_plano':150,  // alias
+  'pro':           300,  // Completo: 300 peças/mês
+  'completo':      300,  // alias
+  'escritorio':    300   // Escritório: igual ao Completo até definição
 };
 
-// Limite diário por plano (0 = sem limite diário)
+// Sem limites diários — controle apenas mensal
 var LIMITES_DIARIOS = {
-  'trial':         10,      // Demonstração: máx 10/mês (já controlado pelo mensal)
-  'demonstracao':  10,
-  'solo':          20,      // Avançado: 20 peças/dia
-  'avancado_plano':20,
+  'trial':         0,
+  'demonstracao':  0,
+  'solo':          0,
+  'avancado_plano':0,
   'pro':           0,
   'completo':      0,
   'escritorio':    0
@@ -7189,7 +7189,7 @@ function atualizarUIPlano() {
   // Badge de plano na toolbar
   var badge = document.getElementById('tb-plano-badge');
   if (badge) {
-    badge.textContent = plano;
+    badge.textContent = labelPlano || plano;
     badge.className = 'plano-badge plano-' + (plano === 'escritorio' ? 'escr' : plano);
   }
 
@@ -7203,7 +7203,7 @@ function atualizarUIPlano() {
   // Card de plano na Configuração
   var info = document.getElementById('cfg-plano-info');
   if (info) {
-    var labelPlano = { trial:'Demonstração', demonstracao:'Demonstração', avancado_plano:'Avançado', pro:'Completo', escritorio:'Escritório' }[plano] || plano;
+    var labelPlano = { trial:'Demonstração', demonstracao:'Demonstração', solo:'Avançado', avancado_plano:'Avançado', pro:'Completo', completo:'Completo', escritorio:'Escritório' }[plano] || plano;
     info.innerHTML = '<strong>Plano:</strong> <span class="plano-badge plano-' + (plano==='escritorio'?'escr':plano) + '">' + labelPlano + '</span>' +
       (plano === 'trial' ? ' &nbsp;·&nbsp; <span style="color:var(--text3);font-size:11px">Período de demonstração gratuito</span>' : '');
   }
