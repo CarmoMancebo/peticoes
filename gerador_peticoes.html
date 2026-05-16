@@ -804,7 +804,20 @@ tbody tr.st-p td{background:#b3e5fc}
 .tp-foot{padding:1rem 1.25rem;border-top:1px solid var(--border);display:flex;gap:8px}
 .tp-inf{font-size:11px;color:var(--text3);margin-bottom:1rem;padding-bottom:10px;border-bottom:1px solid var(--border);line-height:1.6}
 #tpov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:199}
-@media(max-width:680px){.sidebar{display:none}.main{padding:1rem}.row2,.row3{grid-template-columns:1fr}.tp{width:100%}}
+.mobile-menu-btn{display:none;background:none;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:18px;line-height:1;padding:6px 9px;margin-right:10px;cursor:pointer}
+.sidebar-backdrop{display:none}
+@media(max-width:680px){
+  .mobile-menu-btn{display:inline-flex;align-items:center;justify-content:center}
+  .topbar{height:auto;min-height:56px;gap:8px;padding:8px 10px;align-items:center}
+  .tb-left{min-width:0;display:flex;align-items:center}.tb-title{font-size:14px;white-space:nowrap}
+  .tb-center{display:none}.tb-right{gap:4px;margin-left:auto}.tb-right>div:first-child{display:none}.tb-meta{display:none}
+  .tb-pecas-contador,.pecas-contador{display:none}
+  .layout{display:block}.main{padding:1rem}.row2,.row3{grid-template-columns:1fr}.tp{width:100%}
+  .sidebar{display:block;position:fixed;top:56px;left:-280px;width:260px;max-width:82vw;height:calc(100vh - 56px);z-index:850;background:var(--surface);box-shadow:8px 0 24px rgba(15,23,42,.22);transition:left .18s ease;padding-top:1rem}
+  body.sidebar-open .sidebar{left:0}
+  body.sidebar-open .sidebar-backdrop{display:block;position:fixed;top:56px;left:0;right:0;bottom:0;background:rgba(15,23,42,.38);z-index:840}
+  .nav-item{padding:12px 18px}.card{padding:14px}.btn-row{gap:8px}.btn-row .btn{flex:1 1 auto;justify-content:center}
+}
 </style>
 </head>
 <body>
@@ -879,18 +892,18 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 1.81.1</div>
+    <div class="login-ver">versão 1.82 - ChatGPT</div>
   </div>
 </div>
 
 
 <div class="topbar">
   <div class="tb-left">
-    <span class="tb-title">Gerador de Petições</span>
+    <button id="btn-mobile-menu" class="mobile-menu-btn" onclick="toggleSidebarMobile()" title="Abrir menu">☰</button><span class="tb-title">Gerador de Petições</span>
   </div>
   <div class="tb-center">
-    <div class="tb-name" id="tb-user-nome">Carmo Mancebo | Advogado</div>
-    <div class="tb-oab" id="tb-user-oab">OAB/SP 274.575</div>
+    <div class="tb-name" id="tb-user-nome">Usuário | Advogado</div>
+    <div class="tb-oab" id="tb-user-oab">OAB</div>
   </div>
   <div class="tb-right">
     <div style="position:relative;margin-right:12px">
@@ -904,9 +917,11 @@ tbody tr.st-p td{background:#b3e5fc}
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Sonnet</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
-    <span class="tb-meta" id="tb-versao">versão 1.81.1</span>
+    <span class="tb-meta" id="tb-versao">versão 1.82 - ChatGPT</span>
   </div>
 </div>
+
+<div id="sidebar-backdrop" class="sidebar-backdrop" onclick="fecharSidebarMobile()"></div>
 
 <div class="layout">
   <nav class="sidebar">
@@ -945,7 +960,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
 
       <div class="card">
-        <div class="card-title">IA e chave de API</div>
+        <div class="card-title">IA via proxy seguro</div>
         <div style="padding:8px 12px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:6px;font-size:11px;color:#166534;margin-bottom:12px">
           ✓ <strong>A integração com a IA é realizada exclusivamente via proxy seguro do servidor.</strong> Nenhuma chave de API precisa ser informada pelo usuário.
         </div>
@@ -963,7 +978,7 @@ tbody tr.st-p td{background:#b3e5fc}
 
       <div class="card">
         <div class="card-title">Timbrado do escritório</div>
-        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Faça upload do arquivo .docx com o timbrado. O cabeçalho, rodapé e formatação serão aplicados a todas as petições geradas.</p>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:6px">Faça upload do arquivo .docx com o timbrado. O cabeçalho, rodapé e formatação serão aplicados a todas as petições geradas.</p><p style="font-size:11px;color:var(--text3);margin-bottom:10px">Podem ocorrer divergências no resultado do documento gerado.</p>
         <div class="fzone" id="fzone-timbrado" onclick="document.getElementById('inp-timbrado').click()">
           <p>Selecionar timbrado (.docx)</p>
           <small>Cabeçalho com logo + rodapé · Formatação preservada</small>
@@ -978,7 +993,7 @@ tbody tr.st-p td{background:#b3e5fc}
 
       <div class="card">
         <div class="card-title">Formatação do documento</div>
-        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Configure a formatação padrão aplicada a todas as petições geradas.</p>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:6px">Configure a formatação padrão aplicada a todas as petições geradas.</p><p style="font-size:11px;color:var(--text3);margin-bottom:10px">Podem ocorrer divergências no resultado do documento gerado.</p>
         <div class="row3">
           <div class="field">
             <label>Fonte</label>
@@ -1538,9 +1553,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <div id="draft-st" style="font-size:10px;color:var(--text3);min-height:14px;margin-bottom:4px;text-align:right"></div>
       <div class="btn-row">
         <button class="btn btn-p" id="btn-ger" onclick="gerarMinuta()" disabled>Gerar minuta</button>
-        <div id="btn-ger-status" style="font-size:11px;color:var(--text3);margin-top:6px;min-height:14px"></div>
-        <button class="btn btn-s" onclick="gerarResumoCaso()" title="Gera um resumo estruturado do caso a partir do andamento e contextos carregados">📝 Resumir caso</button>
-        <button class="btn btn-s" onclick="abrirVerificadorRN()" title="Consultar a RN ANS vigente para o tema da controvérsia">📋 Verificar RN ANS</button>
+        <div id="btn-ger-status" style="font-size:11px;color:var(--text3);margin-top:6px;min-height:14px"></div>        <button class="btn btn-s" onclick="abrirVerificadorRN()" title="Consultar a RN ANS vigente para o tema da controvérsia">📋 Verificar RN ANS</button>
         <button class="btn btn-s" onclick="limparForm()">Limpar</button>
       
         <button class="btn btn-s btn-sm" onclick="abrirBatch()" title="Gerar a mesma peça para múltiplos processos e baixar em ZIP">📑 Em série</button>
@@ -2074,6 +2087,94 @@ function getSupa() {
   return _supa;
 }
 
+var GP_SESSION_NONCE = null;
+var GP_SESSION_TIMER = null;
+
+function gpDeviceId() {
+  var id = localStorage.getItem('gp_device_id');
+  if (!id) {
+    id = (crypto && crypto.randomUUID) ? crypto.randomUUID() : ('dev-' + Date.now() + '-' + Math.random().toString(16).slice(2));
+    localStorage.setItem('gp_device_id', id);
+  }
+  return id;
+}
+
+function gpNovoNonce() {
+  return (crypto && crypto.randomUUID) ? crypto.randomUUID() : ('sess-' + Date.now() + '-' + Math.random().toString(16).slice(2));
+}
+
+function gpErroColunaSessao(e) {
+  var msg = ((e && (e.message || e.details || e.hint)) || '').toLowerCase();
+  return msg.indexOf('active_session') >= 0 || msg.indexOf('session_nonce') >= 0 || msg.indexOf('session_device') >= 0 || msg.indexOf('column') >= 0;
+}
+
+async function registrarSessaoAtiva(session) {
+  var supa = getSupa();
+  if (!supa || !session || !session.user) return;
+  GP_SESSION_NONCE = gpNovoNonce();
+  localStorage.setItem('gp_session_nonce', GP_SESSION_NONCE);
+  var payload = {
+    active_session_nonce: GP_SESSION_NONCE,
+    active_session_device: gpDeviceId(),
+    active_session_at: new Date().toISOString(),
+    ultimo_acesso: new Date().toISOString()
+  };
+  var r = await supa.from('gp_users').update(payload).eq('id', session.user.id);
+  if (r && r.error) {
+    if (gpErroColunaSessao(r.error)) {
+      console.warn('[Sessão única] Colunas ainda não existem em gp_users. Controle ficará inativo até aplicar a migração.', r.error.message);
+      return;
+    }
+    throw r.error;
+  }
+}
+
+async function validarSessaoAtiva(silencioso) {
+  var supa = getSupa();
+  if (!supa || !GPStorage.userId || !GP_SESSION_NONCE) return true;
+  var r = await supa.from('gp_users').select('active_session_nonce,active_session_device').eq('id', GPStorage.userId).maybeSingle();
+  if (r && r.error) {
+    if (gpErroColunaSessao(r.error)) return true;
+    console.warn('[Sessão única] Falha ao validar sessão:', r.error.message);
+    return true;
+  }
+  var ativo = r && r.data && r.data.active_session_nonce;
+  if (ativo && ativo !== GP_SESSION_NONCE) {
+    pararMonitorSessaoUnica();
+    GP_SESSION_NONCE = null;
+    localStorage.removeItem('gp_session_nonce');
+    try { await supa.auth.signOut(); } catch(e) {}
+    if (!silencioso) alert('Sua sessão foi encerrada porque houve login em outro dispositivo.');
+    return false;
+  }
+  return true;
+}
+
+function iniciarMonitorSessaoUnica() {
+  pararMonitorSessaoUnica();
+  GP_SESSION_TIMER = setInterval(function(){ validarSessaoAtiva(false); }, 45000);
+}
+
+function pararMonitorSessaoUnica() {
+  if (GP_SESSION_TIMER) clearInterval(GP_SESSION_TIMER);
+  GP_SESSION_TIMER = null;
+}
+
+async function limparSessaoAtiva() {
+  var supa = getSupa();
+  var nonce = GP_SESSION_NONCE || localStorage.getItem('gp_session_nonce');
+  if (supa && GPStorage.userId && nonce) {
+    try {
+      await supa.from('gp_users')
+        .update({ active_session_nonce: null, active_session_device: null, active_session_at: null })
+        .eq('id', GPStorage.userId)
+        .eq('active_session_nonce', nonce);
+    } catch(e) {}
+  }
+  pararMonitorSessaoUnica();
+  GP_SESSION_NONCE = null;
+  localStorage.removeItem('gp_session_nonce');
+}
 // ── INICIALIZAÇÃO DE AUTH ─────────────────────────────────────────────────
 function inicializarAuth() {
   var supa = getSupa();
@@ -2086,11 +2187,13 @@ function inicializarAuth() {
       GPStorage.backend = 'supabase';
       ocultarLogin();
       preencherDadosUsuario(session.user);
+      registrarSessaoAtiva(session).then(function(){ iniciarMonitorSessaoUnica(); validarSessaoAtiva(true); }).catch(function(e){ console.warn('[Sessão única] Falha ao registrar sessão:', e); });
       carregarDadosUsuario();
       if (typeof checkBtn === 'function') checkBtn();
     } else {
       GPStorage.userId = null;
       GPStorage.backend = 'local';
+      pararMonitorSessaoUnica();
       mostrarLogin();
       if (typeof checkBtn === 'function') checkBtn();
     }
@@ -2218,6 +2321,7 @@ async function recuperarSenhaEmail() {
 async function fazerLogout() {
   if (!confirm('Deseja sair da sua conta?')) return;
   var supa = getSupa();
+  await limparSessaoAtiva();
   await supa.auth.signOut();
   // onAuthStateChange cuida de mostrar o login
 }
@@ -2276,7 +2380,14 @@ function getEnriquecimento() {
   return ENRIQUECIMENTOS[area+':'+sub] || '';
 }
 
+function toggleSidebarMobile() {
+  document.body.classList.toggle('sidebar-open');
+}
+function fecharSidebarMobile() {
+  document.body.classList.remove('sidebar-open');
+}
 function go(id) {
+  fecharSidebarMobile();
   if (id === 'dash') setTimeout(renderDashboard, 50);
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active')});
@@ -2400,12 +2511,7 @@ function toggleApi() {
 }
 
 function saveKey(p) {
-  var k = document.getElementById('key-'+p).value.trim();
-  if (!k) return;
-  sessionStorage.setItem(p==='openai'?'oai':'ant', k);
-  document.getElementById('st-'+p).textContent = 'Chave salva para esta sessão.';
-  document.getElementById('nn-cfg').classList.add('ok');
-  checkBtn();
+  console.warn('Chaves locais foram desativadas; o uso da IA ocorre apenas pelo proxy seguro.');
 }
 
 function getModeloSelecionado() {
@@ -2820,54 +2926,114 @@ function clearAndamento() {
 }
 
 // PLANILHA
+function normalizarCabecalhoPlanilha(v) {
+  return String(v || '')
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[ºª°]/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+var XLSX_SINONIMOS = {
+  pasta: ['pasta','dossie','dossier','codigo interno','cod interno','referencia','referencia interna','caso','numero da pasta','n pasta','id caso'],
+  processo: ['processo','numero processo','n processo','n do processo','numero do processo','processo cnj','cnj','npu','numero unico','numero judicial'],
+  cliente: ['cliente principal','cliente','representado','representada','parte cliente','parte defendida','defendido','defendida','operadora','seguradora','empresa','reu','requerido','executado'],
+  parte: ['contrario principal','contraria principal','parte contraria','parte adversa','adverso','autor','autora','requerente','demandante','beneficiario','segurado','exequente'],
+  desc: ['descricao','descrição','tarefa','providencia','objeto','assunto','observacao','observações','resumo','nota','andamento','andamentos','ato'],
+  prazo: ['prazo fatal','prazo','vencimento','data fatal','data limite','data prazo','deadline','publicacao','intimacao'],
+  tipo: ['tipo subtipo','tipo - subtipo','tipo de peca','tipo peça','peca','peça','tipo','subtipo','providencia','classe tarefa','evento'],
+  resp: ['responsavel','responsável','resp','resp.','advogado responsavel','advogado responsável','adv responsavel','adv responsável','responsavel pelo caso','owner','executor'],
+  trat: ['tratativa','situacao','situação','status','andamento interno','providencia tomada'],
+  transf: ['transferido para','transferido','redistribuido','encaminhado para','delegado para'],
+  data: ['data','data tratativa','data tarefa','data de entrada','recebido em','entrada'],
+  just: ['justificativa','motivo','observacao tratativa','observação tratativa','comentario','comentário'],
+  conc: ['conclusao','conclusão','resultado','fechamento','desfecho']
+};
+
+function pontuarLinhaCabecalho(row) {
+  var score = 0;
+  var vals = row.map(normalizarCabecalhoPlanilha).filter(Boolean);
+  vals.forEach(function(v){
+    Object.keys(XLSX_SINONIMOS).forEach(function(campo){
+      XLSX_SINONIMOS[campo].forEach(function(s){
+        var ns = normalizarCabecalhoPlanilha(s);
+        if (v === ns) score += 4;
+        else if (v.indexOf(ns) >= 0 || ns.indexOf(v) >= 0) score += 1;
+      });
+    });
+  });
+  return score;
+}
+
+function sheetToObjectsAuto(ws) {
+  var rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:'', raw:false});
+  if (!rows.length) return [];
+  var bestIdx = 0, bestScore = -1;
+  for (var i=0; i<Math.min(rows.length, 12); i++) {
+    var sc = pontuarLinhaCabecalho(rows[i] || []);
+    if (sc > bestScore) { bestScore = sc; bestIdx = i; }
+  }
+  var headers = (rows[bestIdx] || []).map(function(h, i){
+    var txt = String(h || '').trim();
+    return txt || ('COLUNA_' + (i+1));
+  });
+  var out = [];
+  for (var r=bestIdx+1; r<rows.length; r++) {
+    var row = rows[r] || [];
+    var obj = {}, has = false;
+    headers.forEach(function(h, c){
+      var val = row[c] == null ? '' : row[c];
+      if (String(val).trim()) has = true;
+      obj[h] = val;
+    });
+    if (has) out.push(obj);
+  }
+  return out;
+}
+
 function loadXLSX(inp) {
   var f = inp.files[0]; if (!f) return;
   var rd = new FileReader();
   rd.onload = function(e) {
     var wb = XLSX.read(e.target.result,{type:'array'});
     var ws = wb.Sheets[wb.SheetNames[0]];
-    var data = XLSX.utils.sheet_to_json(ws,{defval:''});
-    // Auto-detecta se a primeira linha é apenas um título (gera chaves __EMPTY)
-    if (data.length > 0) {
-      var chaves = Object.keys(data[0]);
-      var temEmpty = chaves.some(function(k){ return k.indexOf('__EMPTY') === 0; });
-      if (temEmpty) {
-        // Re-lê usando a linha 2 como cabeçalho (pula linha 1)
-        data = XLSX.utils.sheet_to_json(ws,{defval:'', range:1});
-      }
-    }
+    var data = sheetToObjectsAuto(ws);
     procs = data.map(function(r){
-      var numProc = gc(r,['processo']);
+      var numProc = gc(r, XLSX_SINONIMOS.processo);
       return {
-        pasta:    gc(r,['pasta']),
+        pasta:    gc(r, XLSX_SINONIMOS.pasta),
         proc:     numProc,
         tribunal: extrairTribunal(numProc),
-        cliente:  gc(r,['cliente principal','cliente'])||'',
-        parte:    gc(r,['contrario principal','contrário principal','contrario','parte']),
-        desc:     gc(r,['descrição','descricao']),
-        prazo:    gc(r,['prazo fatal','prazo']),
-        tipo:     gc(r,['tipo - subtipo','tipo subtipo','tipo']),
-        resp:     gc(r,['responsável','responsavel','responsable','resp.','resp ','advogado responsável','advogado responsavel','adv. responsável','adv responsável','responsável pelo caso']),
-        _trat:    gc(r,['tratativa']),
-        _transf:  gc(r,['transferido para','transferido']),
-        _data:    gc(r,['data']),
-        _just:    gc(r,['justificativa']),
-        _conc:    gc(r,['conclusão','conclusao']),
+        cliente:  gc(r, XLSX_SINONIMOS.cliente) || '',
+        parte:    gc(r, XLSX_SINONIMOS.parte),
+        desc:     gc(r, XLSX_SINONIMOS.desc),
+        prazo:    gc(r, XLSX_SINONIMOS.prazo),
+        tipo:     gc(r, XLSX_SINONIMOS.tipo),
+        resp:     gc(r, XLSX_SINONIMOS.resp),
+        _trat:    gc(r, XLSX_SINONIMOS.trat),
+        _transf:  gc(r, XLSX_SINONIMOS.transf),
+        _data:    gc(r, XLSX_SINONIMOS.data),
+        _just:    gc(r, XLSX_SINONIMOS.just),
+        _conc:    gc(r, XLSX_SINONIMOS.conc),
         _raw:     r
       };
-    });
+    }).filter(function(p){ return p.proc || p.pasta || p.parte || p.desc; });
     try { localStorage.setItem(LSP, JSON.stringify(procs)); } catch(e){}
     document.getElementById('card-xlsx').style.display='none';
-    // Detectar se a coluna responsável foi encontrada
     var temResp = procs.some(function(p){ return p.resp && p.resp.trim(); });
+    var temProc = procs.some(function(p){ return p.proc && p.proc.trim(); });
     var infoXlsx = document.getElementById('xlsx-info');
-    if (infoXlsx) infoXlsx.textContent = temResp ? '✓ Coluna Responsável detectada automaticamente.' : '⚠ Coluna Responsável não encontrada — verifique o cabeçalho da planilha.';
+    if (infoXlsx) {
+      infoXlsx.textContent = (temProc ? '✓ Número do processo detectado. ' : '⚠ Número do processo não detectado. ') +
+        (temResp ? '✓ Responsável detectado.' : '⚠ Responsável não detectado.') +
+        ' Linhas importadas: ' + procs.length + '.';
+    }
     iniciarTabela();
   };
   rd.readAsArrayBuffer(f);
   inp.value='';
 }
-
 // Mapeamento de tribunais pelo padrão CNJ
 // Códigos oficiais CNJ (Resolução 65/2008) — J.TT
 // J=1:STF 2:CNJ 3:STJ 4:TRFs 5:TRTs 6:TREs 7:STM 8:Justiça Estadual 9:TJM
@@ -2942,10 +3108,18 @@ function detectarSistema(numProc) {
 }
 
 function gc(r, termos) {
-  for (var i=0; i<termos.length; i++) {
-    var t = termos[i];
-    var k = Object.keys(r).find(function(k){return k.toLowerCase().trim().indexOf(t)>=0;});
-    if (k) return String(r[k]).trim();
+  var keys = Object.keys(r || {});
+  var normKeys = keys.map(function(k){ return { raw:k, norm:normalizarCabecalhoPlanilha(k) }; });
+  var lista = (termos || []).map(normalizarCabecalhoPlanilha).filter(Boolean);
+  for (var i=0; i<lista.length; i++) {
+    var termo = lista[i];
+    var exact = normKeys.find(function(k){ return k.norm === termo; });
+    if (exact && String(r[exact.raw]).trim()) return String(r[exact.raw]).trim();
+  }
+  for (var j=0; j<lista.length; j++) {
+    var t = lista[j];
+    var parcial = normKeys.find(function(k){ return k.norm.indexOf(t) >= 0 || t.indexOf(k.norm) >= 0; });
+    if (parcial && String(r[parcial.raw]).trim()) return String(r[parcial.raw]).trim();
   }
   return '';
 }
@@ -3279,8 +3453,8 @@ function fecharBatch() {
 
 async function executarBatch() {
   if (_batchRunning) return;
-  var key = getKey();
-  if (!key) { alert("Informe a chave de API antes de executar."); return; }
+  if (!GPStorage.userId) { alert("Faça login para usar o proxy seguro."); return; }
+  var key = '';
   var checks = document.querySelectorAll("#batch-lista input[type=checkbox]:checked");
   if (!checks.length) { alert("Selecione ao menos um processo."); return; }
   var tipo = (document.getElementById("batch-tipo")||{}).value||"";
@@ -3292,7 +3466,7 @@ async function executarBatch() {
   _batchRunning = true;
   document.getElementById("btn-batch-run").disabled = true;
   document.getElementById("btn-batch-dl").style.display = "none";
-  var modelo = (document.getElementById("sel-modelo")||{}).value||"claude-sonnet";
+  var modelo = getModeloSelecionado();
   var enriq = getEnriquecimento ? getEnriquecimento() : "";
   var fmt = getFormatacao ? getFormatacao() : {};
   for (var idx = 0; idx < _batchProcs.length; idx++) {
@@ -4880,7 +5054,7 @@ function atualizarIndicadorContexto() {
   var bar = document.getElementById("ctx-bar");
   var lbl = document.getElementById("ctx-lbl");
   if (!bar || !lbl) return;
-  var modelo = (document.getElementById("sel-modelo")||{}).value||"claude-sonnet";
+  var modelo = getModeloSelecionado();
   var limite = LIMITES_CONTEXTO[modelo] || 128000;
 
   // Estimar tokens do prompt atual
@@ -6440,8 +6614,8 @@ async function executarSegundaOpiniao() {
     alert('Gere uma peça antes de solicitar a segunda opinião.');
     return;
   }
-  var key = getKey();
-  if (!key) { alert('Chave de API não configurada.'); return; }
+  if (!GPStorage.userId) { alert('Faça login para usar o proxy seguro.'); return; }
+  var key = '';
 
   var btn = document.getElementById('btn-segunda-opiniao');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Revisando...'; }
@@ -6451,7 +6625,7 @@ async function executarSegundaOpiniao() {
     resultado.innerHTML = '<div class="seg-opiniao-painel"><div class="so-titulo">🔍 Segunda opinião — aguarde...</div></div>';
   }
 
-  var modelo = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'claude-sonnet';
+  var modelo = getModeloSelecionado();
 
   var sysSegOp = 'Você é um advogado revisor sênior especializado em saúde suplementar, com visão crítica e independente. Você recebeu uma peça processual elaborada por colega e deve revisá-la criticamente, identificando pontos que podem ser explorados pelo lado contrário ou que enfraquecem a defesa da operadora.\n\nPRODUZA UMA ANÁLISE CRÍTICA EM 5 CATEGORIAS:\n\n1. INCONSISTÊNCIAS ARGUMENTATIVAS — trechos em que a argumentação é circular, contraditória ou logicamente frágil.\n2. TESES JURIDICAMENTE FRÁGEIS — fundamentos que têm baixa chance de êxito ou que a jurisprudência atual tende a rejeitar (citar apenas precedentes da lista branca: ADI 7265, Temas STJ 990/952/106/1036).\n3. AUSÊNCIA DE FUNDAMENTOS RELEVANTES — argumentos importantes que deveriam constar mas estão ausentes.\n4. PROBLEMAS DE CITAÇÃO OU REFERÊNCIA — citações sem fonte, sem evento/ID/fls., com [CITAÇÃO_PENDENTE] não resolvidos ou com [REF_DOC] não preenchidos.\n5. OBSERVAÇÕES ESTRUTURAIS — problemas de endereçamento, ordem dos pedidos, ausência de alínea de intimações, ausência de quebra de página em recursos, etc.\n\nPara cada item identificado, indique:\n- Severidade: ALTA / MÉDIA / BAIXA\n- Trecho problemático (cite o início do trecho entre aspas, max 20 palavras)\n- Explicação objetiva do problema\n- Sugestão de correção\n\nSe a peça estiver sem problemas relevantes em alguma categoria, escreva "Sem ressalvas" nessa categoria.\nNÃO INVENTE JURISPRUDÊNCIA. Use apenas a lista branca de precedentes ou [CITAÇÃO_PENDENTE].';
 
@@ -6595,8 +6769,8 @@ async function d4Executar() {
     return;
   }
 
-  var key = getKey();
-  if (!key) { alert('Chave de API não configurada.'); return; }
+  if (!GPStorage.userId) { alert('Faça login para usar o proxy seguro.'); return; }
+  var key = '';
 
   var btn = document.getElementById('d4-btn-executar');
   var status = document.getElementById('d4-status');
@@ -6606,7 +6780,7 @@ async function d4Executar() {
   if (status) status.textContent = 'Enviando para análise...';
   if (resultado) resultado.innerHTML = '';
 
-  var modelo = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'claude-sonnet';
+  var modelo = getModeloSelecionado();
 
   // Montar contexto das peças anteriores
   var blocosPecas = [];
@@ -7110,15 +7284,12 @@ async function gerarMinuta() {
   var tokensEstim = Math.round(tamContexto / 4);
   if (tamContexto > 50000 && !jaUsouResumo) {
     var msg = 'O contexto carregado tem ' + tamContexto.toLocaleString('pt-BR') + ' caracteres (~' + tokensEstim.toLocaleString('pt-BR') + ' tokens de entrada), o que pode gerar custo elevado e risco de ultrapassar o limite do modelo.\n\n' +
-      'Recomendamos primeiro gerar um "Resumo do caso" e usá-lo como base para a petição — isso reduz o consumo em até 90%.\n\n' +
+      'Recomendamos primeiro usar a aba "Análise de processo" no modo "Resumo executivo" e, se fizer sentido, enviar o resumo para a petição — isso reduz o consumo e melhora a organização do caso.\n\n' +
       'Dica: use o Claude Sonnet para resumos e análises rápidas.';
     var okResumo = await customConfirm(msg,
-      { icon: '💡', title: 'Contexto grande — recomendamos resumir primeiro', ok: 'Gerar petição assim mesmo', cancel: 'Ir para Resumir caso' }
+      { icon: '💡', title: 'Contexto grande — recomendamos resumir primeiro', ok: 'Gerar petição assim mesmo', cancel: 'Ir para Análise' }
     );
-    if (!okResumo) {
-      gerarResumoCaso();
-      return;
-    }
+    if (!okResumo) { go('an'); return; }
   }
   if (!GPStorage.userId){alert('Faça login para usar o proxy seguro.');return;}
   var key='', modelo=getModeloSelecionado();
