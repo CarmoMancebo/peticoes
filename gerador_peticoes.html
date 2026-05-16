@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<title>Gerador de Petições — Carmo Mancebo</title>
+<title>Gerador de Petições — Saúde Suplementar</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -653,10 +653,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   font-weight: 600;
   margin-left: 6px;
 }
-.plano-trial { background: #FEF3C7; color: #92400E; border: 1px solid #F59E0B; }
-.plano-solo  { background: #DBEAFE; color: #1E40AF; border: 1px solid #3B82F6; }
-.plano-pro   { background: #D1FAE5; color: #065F46; border: 1px solid #10B981; }
-.plano-escr  { background: #EDE9FE; color: #4C1D95; border: 1px solid #8B5CF6; }
+.plano-essencial { background: #FEF3C7; color: #92400E; border: 1px solid #F59E0B; }
+.plano-avancado  { background: #DBEAFE; color: #1E40AF; border: 1px solid #3B82F6; }
+.plano-completo   { background: #D1FAE5; color: #065F46; border: 1px solid #10B981; }
+.plano-escritorioitorio  { background: #EDE9FE; color: #4C1D95; border: 1px solid #8B5CF6; }
 
 .pecas-contador {
   font-size: 10px;
@@ -826,7 +826,7 @@ tbody tr.st-p td{background:#b3e5fc}
 <div id="login-overlay" class="login-overlay" style="display:flex">
   <div class="login-card" style="max-width:380px;width:100%">
     <div class="login-logo">Gerador de Petições</div>
-    <div class="login-sub">Carmo Mancebo | Advogado</div>
+    <div class="login-sub">Acesso exclusivo para usuários cadastrados</div>
 
     <!-- Abas Entrar / Criar conta -->
     <div style="display:flex;border-bottom:2px solid #E2E8F0;margin:16px 0 18px">
@@ -866,7 +866,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <div id="painel-cadastro" style="display:none">
       <div class="login-field">
         <label>Nome completo</label>
-        <input type="text" id="cad-nome" placeholder="Carmo Mancebo" />
+        <input type="text" id="cad-nome" placeholder="Seu nome completo" />
       </div>
       <div class="login-field">
         <label>E-mail</label>
@@ -874,7 +874,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
       <div class="login-field">
         <label>OAB (opcional)</label>
-        <input type="text" id="cad-oab" placeholder="SP 274.575" />
+        <input type="text" id="cad-oab" placeholder="UF 000.000" />
       </div>
       <div class="login-field">
         <label>Senha (mínimo 6 caracteres)</label>
@@ -892,7 +892,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 1.82 - ChatGPT</div>
+    <div class="login-ver">versão 1.82.1</div>
   </div>
 </div>
 
@@ -911,13 +911,13 @@ tbody tr.st-p td{background:#b3e5fc}
       <div id="res-busca-global-toolbar" style="display:none;position:absolute;top:32px;right:0;width:320px;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
     </div>
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
-    <span id="tb-plano-badge" class="plano-badge plano-trial" title="Clique para ver seu plano" onclick="go('cfg')" style="cursor:pointer">trial</span>
+    <span id="tb-plano-badge" class="plano-badge plano-essencial" title="Clique para ver seu plano" onclick="go('cfg')" style="cursor:pointer">Essencial</span>
     <span id="tb-pecas-contador" class="pecas-contador" title="Peças geradas este mês"></span>
-    <button id="tb-modelo-btn" onclick="go('cfg')" title="Modelo Claude ativo — proxy seguro" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
-      <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Sonnet</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
+    <button id="tb-modelo-btn" onclick="go('cfg')" title="Modo de geração ativo — clique para configurar" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
+      <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Avançado</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
-    <span class="tb-meta" id="tb-versao">versão 1.82 - ChatGPT</span>
+    <span class="tb-meta" id="tb-versao">versão 1.82.1</span>
   </div>
 </div>
 
@@ -953,24 +953,24 @@ tbody tr.st-p td{background:#b3e5fc}
         </div>
         <div id="cfg-pecas-texto" style="font-size:11px;color:var(--text3);margin-bottom:10px"></div>
         <div style="font-size:11px;color:var(--text2);padding:8px 10px;background:var(--bg2);border-radius:6px">
-          🎁 <strong>Período de testes gratuito:</strong> 10 peças/mês no plano trial.
-          Em breve: planos Solo (100 peças/mês) e Pro (ilimitado).<br>
+          🎁 <strong>Período de testes gratuito:</strong> 10 peças/mês — modos Essencial e Avançado disponíveis.
+          Plano Avançado: acesso ilimitado + modo Completo de máxima precisão.<br>
           <span style="color:var(--text3)">Interesse em acesso antecipado? Entre em contato pelo e-mail do perfil.</span>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">IA via proxy seguro</div>
+        <div class="card-title">Modo de geração</div>
         <div style="padding:8px 12px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:6px;font-size:11px;color:#166534;margin-bottom:12px">
-          ✓ <strong>A integração com a IA é realizada exclusivamente via proxy seguro do servidor.</strong> Nenhuma chave de API precisa ser informada pelo usuário.
+          ✓ <strong>A geração é realizada exclusivamente via servidor seguro.</strong> Nenhuma configuração de API é necessária.
         </div>
-        <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Selecione o modelo Claude utilizado na geração das peças. O acesso é realizado exclusivamente pelo proxy seguro do servidor.</p>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Selecione o nível de geração. Modos superiores produzem análises mais profundas e fundamentadas. O acesso é realizado via servidor seguro.</p>
         <div class="field" style="margin-bottom:10px">
-          <label>Modelo de IA</label>
+          <label>Nível de geração</label>
           <select id="sel-modelo-global" onchange="sincronizarModeloGlobal(this.value)" style="width:100%">
-            <option value="claude-sonnet">Claude Sonnet 4.5 — recomendado · Anthropic</option>
-            <option value="claude-opus">Claude Opus 4.5 — máxima precisão, mais caro · Anthropic</option>
-            
+            <option value="avancado" selected>Avançado — recomendado para a maioria das tarefas</option>
+            <option value="essencial">Essencial — respostas rápidas e diretas</option>
+            <option value="completo" id="opt-completo" disabled>Completo — máxima precisão e profundidade (planos pagos)</option>
           </select>
         </div>
         <div id="cfg-modelo-status" style="margin-top:8px;padding:7px 10px;border-radius:6px;font-size:11px;display:none"></div>
@@ -1239,8 +1239,9 @@ tbody tr.st-p td{background:#b3e5fc}
 
       <!-- sel-modelo (oculto) sincronizado com sel-modelo-global na Configuração -->
       <select id="sel-modelo" style="display:none" onchange="sincronizarModeloGlobal(this.value)">
-        <option value="claude-sonnet">Claude Sonnet 4.5</option>
-        <option value="claude-opus">Claude Opus 4.5</option>
+        <option value="avancado" selected>Avançado</option>
+        <option value="essencial">Essencial</option>
+        <option value="completo">Completo</option>
       </select>
 
       <div class="card">
@@ -1380,7 +1381,19 @@ tbody tr.st-p td{background:#b3e5fc}
         <div class="row2">
           <div class="field">
             <label>Área do direito</label>
-            <select id="f-area" onchange="atualizarSubareas()"><option value="civel" selected>Saúde suplementar</option></select>
+            <select id="f-area" onchange="atualizarSubareas()">
+              <option value="civel" selected>Saúde suplementar</option>
+              <optgroup label="— Em breve como módulos específicos —" style="color:var(--text3)">
+                <option value="futuro" disabled>Trabalhista</option>
+                <option value="futuro" disabled>Tributário</option>
+                <option value="futuro" disabled>Família e Sucessões</option>
+                <option value="futuro" disabled>Administrativo</option>
+                <option value="futuro" disabled>Penal</option>
+                <option value="futuro" disabled>Empresarial e Societário</option>
+                <option value="futuro" disabled>Previdenciário</option>
+                <option value="futuro" disabled>Consumidor</option>
+              </optgroup>
+            </select>
           </div>
           <div class="field">
             <label>Subárea / Especialização</label>
@@ -2405,7 +2418,7 @@ function sincronizarModeloGlobal(val) {
   // Mostrar/ocultar campos de chave no card unificado
   var divAnt = document.getElementById('div-anthropic-cfg');
   var divOai = document.getElementById('div-openai-cfg');
-  var isAnt = (val === 'claude-sonnet' || val === 'claude-opus');
+  var isAnt = true; // sempre via proxy seguro
   if (divAnt) divAnt.style.display = isAnt ? '' : 'none';
   if (divOai) divOai.style.display = isAnt ? 'none' : '';
   // Atualizar indicador da toolbar
@@ -2413,9 +2426,9 @@ function sincronizarModeloGlobal(val) {
 }
 
 function atualizarIndicadorModelo() {
-  var val = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'claude-sonnet';
-  var labels = { 'claude-sonnet': 'Sonnet', 'claude-opus': 'Opus' };
-  var icons  = { 'claude-sonnet': '⚡', 'claude-opus': '🔶' };
+  var val = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'avancado';
+  var labels = { 'avancado': 'Avançado', 'essencial': 'Essencial', 'completo': 'Completo' };
+  var icons  = { 'avancado': '⚡', 'essencial': '🔹', 'completo': '🔶' };
 
   var iconEl  = document.getElementById('tb-modelo-icon');
   var labelEl = document.getElementById('tb-modelo-label');
@@ -2505,7 +2518,7 @@ function toggleParteModo() {
 }
 
 function toggleApi() {
-  var val = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'claude-sonnet';
+  var val = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'avancado';
   sincronizarModeloGlobal(val);
   checkBtn();
 }
@@ -2517,8 +2530,8 @@ function saveKey(p) {
 function getModeloSelecionado() {
   var globalSel = document.getElementById('sel-modelo-global');
   var localSel  = document.getElementById('sel-modelo');
-  var modelo = (globalSel && globalSel.value) || (localSel && localSel.value) || 'claude-sonnet';
-  if (modelo !== 'claude-opus') modelo = 'claude-sonnet';
+  var modelo = (globalSel && globalSel.value) || (localSel && localSel.value) || 'avancado';
+  if (!['essencial','avancado','completo'].includes(modelo)) modelo = 'avancado';
   if (globalSel && globalSel.value !== modelo) globalSel.value = modelo;
   if (localSel && localSel.value !== modelo) localSel.value = modelo;
   return modelo;
@@ -2530,7 +2543,7 @@ function getKey() {
 }
 
 function getModeloEChave() {
-  return { modelo: getModeloSelecionado(), key: '', isAnthropic: true };
+  return { modelo: getModeloSelecionado(), isAnthropic: true };
 }
 
 // URLs de consulta dos tribunais — abrem o site com o número pré-preenchido
@@ -3643,7 +3656,7 @@ function renderDashboard() {
       totUsd += (h.custoUsd||0);
       totBrl += (h.custoBrl||0);
       totTk  += (h.tokensIn||0)+(h.tokensOut||0);
-      var m=h.modelo||"?"; porModelo[m]=(porModelo[m]||0)+1;
+      var mLabel={'essencial':'Essencial','avancado':'Avançado','completo':'Completo','gpt-4o-mini':'Essencial','claude-sonnet-4-5':'Avançado','claude-opus-4-5':'Completo'}; var m=mLabel[h.modelo]||h.modelo||'?'; porModelo[m]=(porModelo[m]||0)+1;
       var t=(h.tipoPeca||"?").substring(0,20); porTipo[t]=(porTipo[t]||0)+1;
     });
     var modelos = Object.entries(porModelo).sort(function(a,b){return b[1]-a[1];}).map(function(e){return e[0]+": "+e[1];}).join(" · ");
@@ -4700,9 +4713,9 @@ function base64ToArrayBuffer(b64) {
 
 // Preços das APIs (USD por 1M tokens) — atualizar conforme necessário
 var PRECOS_API = {
-  'claude-sonnet':   { in: 3.00, out: 15.00, nome: 'Claude Sonnet 4.5' },
-  'claude-sonnet46': { in: 3.00, out: 15.00, nome: 'Claude Sonnet 4.6' },
-  'claude-opus':     { in: 5.00, out: 25.00, nome: 'Claude Opus 4.6' }
+  'essencial':  { in: 0.15, out: 0.60,  nome: 'Essencial' },
+  'avancado':   { in: 3.00, out: 15.00, nome: 'Avançado' },
+  'completo':   { in: 5.00, out: 25.00, nome: 'Completo' }
 };
 // Preços verificados: abril/2026 — fonte: platform.claude.com/docs/pricing
 // Claude Opus anterior (4.1, depreciado): $15/$75 — redução de 3× com Opus 4.6
@@ -4887,7 +4900,7 @@ function carregarFeriadosCustom() {
 }
 
 async function compararModelos() {
-  alert('Comparação entre modelos foi removida. Use Claude Sonnet 4.5 ou Claude Opus 4.5 pelo proxy seguro.');
+  alert('Comparação entre modos disponível nos planos pagos.');
 }
 
 // ── VERIFICADOR DE QUALIDADE ────────────────────────────────────────────
@@ -5228,7 +5241,7 @@ async function gerarResumoCaso() {
     return;
   }
 
-  var nomeModelo = modelo==='claude-opus'?'Claude Opus':'Claude Sonnet';
+  var nomeModelo = modelo==='completo'?'Completo':modelo==='essencial'?'Essencial':'Avançado';
 
   // Mudar para aba resultado
   go('res');
@@ -6239,8 +6252,8 @@ async function executarAnalise() {
   var detalhe = document.getElementById('an-detalhe').value || 'medio';
   var instrAd = (document.getElementById('an-instrucoes') || {}).value || '';
   instrAd = instrAd.trim();
-  var modelo = (document.getElementById('sel-modelo-global') || {}).value || document.getElementById('sel-modelo') && document.getElementById('sel-modelo').value || 'claude-sonnet';
-  var nomeModelo = modelo === 'claude-opus' ? 'Claude Opus' : 'Claude Sonnet';var btn = document.getElementById('an-btn-executar');
+  var modelo = (document.getElementById('sel-modelo-global') || {}).value || document.getElementById('sel-modelo') && document.getElementById('sel-modelo').value || 'avancado';
+  var nomeModelo = modelo==='completo'?'Completo':modelo==='essencial'?'Essencial':'Avançado';var btn = document.getElementById('an-btn-executar');
   btn.disabled = true;
   btn.textContent = '⏳ Analisando...';
   document.getElementById('an-status').textContent = 'Enviando documentos para ' + nomeModelo + '...';
@@ -6381,7 +6394,7 @@ async function anChatEnviar() {
   anRenderChat();
   input.value = '';
 
-  var modelo = (document.getElementById('sel-modelo-global') || {}).value || 'claude-sonnet';
+  var modelo = (document.getElementById('sel-modelo-global') || {}).value || 'avancado';
 
   try {
     // Construir prompt: system + histórico simplificado
@@ -6849,6 +6862,13 @@ async function executarVerificacaoContradicao() { d4AbrirPainel(); }
 // ════════════════════════════════════════════════════════════════════════════
 
 async function chamarIAViaProxy(modelo, sysPrompt, messages, onChunk) {
+  // Mapa proprietário → modelo real da API
+  var MODELO_MAP = {
+    'essencial': 'gpt-4o-mini',
+    'avancado':  'claude-sonnet-4-5',
+    'completo':  'claude-opus-4-5'
+  };
+  modelo = MODELO_MAP[modelo] || MODELO_MAP['avancado'];
   var supa = getSupa();
   var session = supa ? await supa.auth.getSession() : null;
   var token   = session && session.data && session.data.session
@@ -6888,7 +6908,7 @@ async function chamarIAViaProxy(modelo, sysPrompt, messages, onChunk) {
     throw new Error(msg);
   }
 
-  var isAnthropic = modelo.startsWith('claude');
+  var isAnthropic = true;
   var rd = resp.body.getReader();
   var dc = new TextDecoder();
 
@@ -7085,6 +7105,15 @@ async function carregarDadosUsuario() {
 function atualizarUIPlano() {
   if (!_dadosUsuario) return;
   var plano = _dadosUsuario.plano || 'trial';
+  // Controle de acesso ao modo Completo
+  var optCompleto = document.getElementById('opt-completo');
+  if (optCompleto) {
+    var podeCompleto = (plano === 'pro' || plano === 'escr' || plano === 'completo');
+    optCompleto.disabled = !podeCompleto;
+    optCompleto.textContent = podeCompleto
+      ? 'Completo — máxima precisão e profundidade'
+      : 'Completo — máxima precisão e profundidade (planos pagos)';
+  }
   var pecasMes = _dadosUsuario.pecas_mes || 0;
   var limite = LIMITES_PLANO[plano] || 10;
   var pct = Math.min(100, Math.round((pecasMes / limite) * 100));
@@ -7285,7 +7314,7 @@ async function gerarMinuta() {
   if (tamContexto > 50000 && !jaUsouResumo) {
     var msg = 'O contexto carregado tem ' + tamContexto.toLocaleString('pt-BR') + ' caracteres (~' + tokensEstim.toLocaleString('pt-BR') + ' tokens de entrada), o que pode gerar custo elevado e risco de ultrapassar o limite do modelo.\n\n' +
       'Recomendamos primeiro usar a aba "Análise de processo" no modo "Resumo executivo" e, se fizer sentido, enviar o resumo para a petição — isso reduz o consumo e melhora a organização do caso.\n\n' +
-      'Dica: use o Claude Sonnet para resumos e análises rápidas.';
+      'Dica: use o modo Avançado para resumos e análises rápidas.';
     var okResumo = await customConfirm(msg,
       { icon: '💡', title: 'Contexto grande — recomendamos resumir primeiro', ok: 'Gerar petição assim mesmo', cancel: 'Ir para Análise' }
     );
@@ -7360,7 +7389,7 @@ async function gerarMinuta() {
   document.getElementById('res-empty').style.display='none';
   document.getElementById('res-content').style.display='block';
   document.getElementById('res-txt').textContent='';
-  var nomeModelo=modelo==='claude-opus'?'Claude Opus':'Claude Sonnet';
+  var nomeModelo=modelo==='completo'?'Completo':modelo==='essencial'?'Essencial':'Avançado';
   setSt2('res-st','info','Aguarde — gerando via '+nomeModelo+'...');
   var enriquecimento = getEnriquecimento();
   var sys = montarSystemPromptPeticao(enriquecimento, tipo, inst, andamento);
@@ -8195,7 +8224,7 @@ async function baixarDocxComTimbrado() {
     '<w:settings xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:zoom w:percent="100"/><w:defaultTabStop w:val="708"/><w:characterSpacingControl w:val="doNotCompress"/><w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat></w:settings>';
 
   var coreXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
-    '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>'+esc(nomeArq)+'</dc:title><dc:creator>Carmo Mancebo</dc:creator></cp:coreProperties>';
+    '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>'+esc(nomeArq)+'</dc:title><dc:creator>Gerador de Petições</dc:creator></cp:coreProperties>';
 
   var appXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
     '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>Gerador de Peticoes</Application></Properties>';
@@ -8305,7 +8334,7 @@ async function baixarDocxSimples() {
       '<w:settings xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:zoom w:percent="100"/><w:defaultTabStop w:val="708"/><w:characterSpacingControl w:val="doNotCompress"/><w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat></w:settings>';
 
     var coreXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
-      '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>'+esc(nomeArq)+'</dc:title><dc:creator>Carmo Mancebo</dc:creator></cp:coreProperties>';
+      '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>'+esc(nomeArq)+'</dc:title><dc:creator>Gerador de Petições</dc:creator></cp:coreProperties>';
 
     var appXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
       '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>Gerador de Peticoes</Application></Properties>';
@@ -8397,7 +8426,7 @@ async function continuarMinuta() {
 
 async function executarGeracao(sys, usr, isContinuacao) {
   var modelo = ultimoModelo || getModeloSelecionado();
-  var nomeModelo = modelo === 'claude-opus' ? 'Claude Opus' : 'Claude Sonnet';
+  var nomeModelo = modelo==='completo'?'Completo':modelo==='essencial'?'Essencial':'Avançado';
   setSt2('res-st','info','Aguarde — '+(isContinuacao?'continuando':'regerando')+' via '+nomeModelo+'...');
   var out = document.getElementById('res-txt');
   var full = isContinuacao ? minuta : '';
