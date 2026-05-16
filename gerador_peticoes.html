@@ -818,6 +818,33 @@ tbody tr.st-p td{background:#b3e5fc}
   body.sidebar-open .sidebar-backdrop{display:block;position:fixed;top:56px;left:0;right:0;bottom:0;background:rgba(15,23,42,.38);z-index:840}
   .nav-item{padding:12px 18px}.card{padding:14px}.btn-row{gap:8px}.btn-row .btn{flex:1 1 auto;justify-content:center}
 }
+@media(max-width:680px){
+  .sidebar{
+    position:fixed;left:-260px;top:0;height:100vh;z-index:1000;
+    transition:left .25s cubic-bezier(.4,0,.2,1);
+    box-shadow:none;
+  }
+  .sidebar.open{
+    left:0;
+    box-shadow:4px 0 20px rgba(0,0,0,.18);
+  }
+  .layout{display:block}
+  .main{width:100%;padding:12px 10px}
+  .toolbar{padding:0 10px}
+  #btn-hamburger{display:flex!important}
+  #sidebar-overlay{display:block}
+  .sidebar-overlay-active{pointer-events:all;opacity:1}
+}
+@media(min-width:681px){
+  #btn-hamburger{display:none!important}
+  #sidebar-overlay{display:none!important}
+}
+
+#sidebar-overlay{
+  display:none;
+  position:fixed;inset:0;background:rgba(0,0,0,.35);
+  z-index:999;opacity:0;transition:opacity .25s;pointer-events:none;
+}
 </style>
 </head>
 <body>
@@ -914,7 +941,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <span id="tb-plano-badge" class="plano-badge plano-essencial" title="Clique para ver seu plano" onclick="go('cfg')" style="cursor:pointer">Essencial</span>
     <span id="tb-pecas-contador" class="pecas-contador" title="Peças geradas este mês"></span>
     <button id="tb-modelo-btn" onclick="go('cfg')" title="Modo de geração ativo — clique para configurar" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
-      <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Avançado</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
+      <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Essencial</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
     <span class="tb-meta" id="tb-versao">versão 1.82.1</span>
@@ -923,7 +950,8 @@ tbody tr.st-p td{background:#b3e5fc}
 
 <div id="sidebar-backdrop" class="sidebar-backdrop" onclick="fecharSidebarMobile()"></div>
 
-<div class="layout">
+<div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+  <div class="layout">
   <nav class="sidebar">
     <div class="nav-item active" onclick="go('cfg')" id="nav-cfg"><span class="nav-num" id="nn-cfg">1</span> Configuração</div>
     <div class="nav-item" onclick="go('proc')" id="nav-proc"><span class="nav-num" id="nn-proc">2</span> Processos</div>
@@ -968,8 +996,8 @@ tbody tr.st-p td{background:#b3e5fc}
         <div class="field" style="margin-bottom:10px">
           <label>Nível de geração</label>
           <select id="sel-modelo-global" onchange="sincronizarModeloGlobal(this.value)" style="width:100%">
-            <option value="avancado" selected>Avançado — recomendado para a maioria das tarefas</option>
-            <option value="essencial">Essencial — respostas rápidas e diretas</option>
+            <option value="essencial" selected>Essencial — respostas rápidas e diretas</option>
+            <option value="avancado" id="opt-avancado" disabled>Avançado — recomendado para a maioria das tarefas (planos pagos)</option>
             <option value="completo" id="opt-completo" disabled>Completo — máxima precisão e profundidade (planos pagos)</option>
           </select>
         </div>
@@ -1239,8 +1267,8 @@ tbody tr.st-p td{background:#b3e5fc}
 
       <!-- sel-modelo (oculto) sincronizado com sel-modelo-global na Configuração -->
       <select id="sel-modelo" style="display:none" onchange="sincronizarModeloGlobal(this.value)">
-        <option value="avancado" selected>Avançado</option>
-        <option value="essencial">Essencial</option>
+        <option value="essencial" selected>Essencial</option>
+        <option value="avancado">Avançado</option>
         <option value="completo">Completo</option>
       </select>
 
@@ -1669,13 +1697,16 @@ tbody tr.st-p td{background:#b3e5fc}
         <div class="card-title">3. Configuração</div>
         <div class="field">
             <label style="font-size:12px">Nível de detalhe</label>
-            <select id="an-detalhe" style="width:100%">
-              <option value="executivo">Executivo (resposta concisa)</option>
-              <option value="medio" selected>Médio (equilibrado)</option>
-              <option value="detalhado">Detalhado (análise extensa)</option>
+            <div id="an-detalhe-aviso" style="padding:7px 10px;background:#EFF6FF;border:1px solid #93C5FD;border-radius:6px;font-size:11px;color:#1E40AF;margin-bottom:8px">
+              💡 <strong>Executivo</strong> pré-selecionado. Altere abaixo se desejar.
+            </div>
+            <select id="an-detalhe" style="width:100%" onchange="var av=document.getElementById('an-detalhe-aviso');if(av)av.style.display='none'">
+              <option value="executivo" selected>Executivo (resposta concisa)</option>
+              <option value="medio">Médio (equilibrado)</option>
+              <option value="detalhado" id="opt-an-detalhado">Detalhado (análise extensa — planos pagos)</option>
             </select>
           </div>
-          <p style="font-size:11px;color:var(--text3);margin-top:6px">Modelo de IA: configurado globalmente em <a href="#" onclick="go('cfg');return false;" style="color:var(--blue)">Configuração</a>.</p>
+          <p style="font-size:11px;color:var(--text3);margin-top:6px">Nível de geração: configurado globalmente em <a href="#" onclick="go('cfg');return false;" style="color:var(--blue)">Configuração</a>.</p>
       </div>
 
       <div class="card">
@@ -2530,7 +2561,7 @@ function saveKey(p) {
 function getModeloSelecionado() {
   var globalSel = document.getElementById('sel-modelo-global');
   var localSel  = document.getElementById('sel-modelo');
-  var modelo = (globalSel && globalSel.value) || (localSel && localSel.value) || 'avancado';
+  var modelo = (globalSel && globalSel.value) || (localSel && localSel.value) || 'essencial';
   if (!['essencial','avancado','completo'].includes(modelo)) modelo = 'avancado';
   if (globalSel && globalSel.value !== modelo) globalSel.value = modelo;
   if (localSel && localSel.value !== modelo) localSel.value = modelo;
@@ -6868,7 +6899,7 @@ async function chamarIAViaProxy(modelo, sysPrompt, messages, onChunk) {
     'avancado':  'claude-sonnet-4-5',
     'completo':  'claude-opus-4-5'
   };
-  modelo = MODELO_MAP[modelo] || MODELO_MAP['avancado'];
+  modelo = MODELO_MAP[modelo] || MODELO_MAP['essencial'];
   var supa = getSupa();
   var session = supa ? await supa.auth.getSession() : null;
   var token   = session && session.data && session.data.session
@@ -7106,13 +7137,31 @@ function atualizarUIPlano() {
   if (!_dadosUsuario) return;
   var plano = _dadosUsuario.plano || 'trial';
   // Controle de acesso ao modo Completo
+  var optAvancado = document.getElementById('opt-avancado');
   var optCompleto = document.getElementById('opt-completo');
+  var podeAvancado = (plano !== 'trial' && plano !== '');
+  var podeCompleto = (plano === 'pro' || plano === 'escr' || plano === 'completo');
+
+  if (optAvancado) {
+    optAvancado.disabled = !podeAvancado;
+    optAvancado.textContent = podeAvancado
+      ? 'Avançado — recomendado para a maioria das tarefas'
+      : 'Avançado — recomendado para a maioria das tarefas (planos pagos)';
+  }
   if (optCompleto) {
-    var podeCompleto = (plano === 'pro' || plano === 'escr' || plano === 'completo');
     optCompleto.disabled = !podeCompleto;
     optCompleto.textContent = podeCompleto
       ? 'Completo — máxima precisão e profundidade'
       : 'Completo — máxima precisão e profundidade (planos pagos)';
+  }
+
+  // Bloquear análise detalhada no trial
+  var optAnDetalhado = document.getElementById('opt-an-detalhado');
+  if (optAnDetalhado) {
+    optAnDetalhado.disabled = !podeAvancado;
+    optAnDetalhado.textContent = podeAvancado
+      ? 'Detalhado (análise extensa)'
+      : 'Detalhado (análise extensa — planos pagos)';
   }
   var pecasMes = _dadosUsuario.pecas_mes || 0;
   var limite = LIMITES_PLANO[plano] || 10;
@@ -8728,6 +8777,33 @@ function _modalKeyHandler(e) {
     if (cr) cr.style.display = this.value === "revisão de peça" ? "block" : "none";
   });
 })();
+
+function toggleSidebar() {
+  var sb = document.querySelector('.sidebar');
+  var ov = document.getElementById('sidebar-overlay');
+  var open = sb.classList.toggle('open');
+  if (ov) {
+    ov.style.opacity = open ? '1' : '0';
+    ov.style.pointerEvents = open ? 'all' : 'none';
+  }
+}
+// Fechar sidebar ao navegar (mobile)
+var _goOrig = typeof go === 'function' ? go : null;
+document.addEventListener('DOMContentLoaded', function() {
+  // Fechar drawer ao clicar em qualquer item da nav
+  document.querySelectorAll('.nav-item').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var sb = document.querySelector('.sidebar');
+      var ov = document.getElementById('sidebar-overlay');
+      if (sb && window.innerWidth <= 680) {
+        sb.classList.remove('open');
+        if (ov) { ov.style.opacity='0'; ov.style.pointerEvents='none'; }
+      }
+    });
+  });
+});
+
+
 </script>
 <div class="app-footer">
   <a href="https://wa.me/5511941261425" target="_blank" rel="noopener" class="footer-contact" title="Abrir WhatsApp">
