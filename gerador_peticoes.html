@@ -919,7 +919,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 1.83</div>
+    <div class="login-ver">versão 1.85</div>
   </div>
 </div>
 
@@ -938,13 +938,13 @@ tbody tr.st-p td{background:#b3e5fc}
       <div id="res-busca-global-toolbar" style="display:none;position:absolute;top:32px;right:0;width:320px;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
     </div>
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
-    <span id="tb-plano-badge" class="plano-badge plano-essencial" title="Clique para ver seu plano" onclick="go('cfg')" style="cursor:pointer">Essencial</span>
+    <span id="tb-plano-badge" class="plano-badge plano-essencial" title="Clique para ver seu plano" onclick="go('cfg')" style="cursor:pointer">Demonstração</span>
     <span id="tb-pecas-contador" class="pecas-contador" title="Peças geradas este mês"></span>
     <button id="tb-modelo-btn" onclick="go('cfg')" title="Modo de geração ativo — clique para configurar" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
-      <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Essencial</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
+      <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Demonstração</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
-    <span class="tb-meta" id="tb-versao">versão 1.83</span>
+    <span class="tb-meta" id="tb-versao">versão 1.85</span>
   </div>
 </div>
 
@@ -981,8 +981,8 @@ tbody tr.st-p td{background:#b3e5fc}
         </div>
         <div id="cfg-pecas-texto" style="font-size:11px;color:var(--text3);margin-bottom:10px"></div>
         <div style="font-size:11px;color:var(--text2);padding:8px 10px;background:var(--bg2);border-radius:6px">
-          🎁 <strong>Período de testes gratuito:</strong> 10 peças/mês — modos Essencial e Avançado disponíveis.
-          Plano Avançado: acesso ilimitado + modo Completo de máxima precisão.<br>
+          🎁 <strong>Plano Degustação:</strong> 10 peças para explorar a ferramenta. Sem prazo de validade — use quando quiser.
+          Upgrade para o plano <strong>Degustação</strong> ou <strong>Avançado</strong> para uso contínuo.<br>
           <span style="color:var(--text3)">Interesse em acesso antecipado? Entre em contato pelo e-mail do perfil.</span>
         </div>
       </div>
@@ -997,7 +997,7 @@ tbody tr.st-p td{background:#b3e5fc}
           <label>Nível de geração</label>
           <select id="sel-modelo-global" onchange="sincronizarModeloGlobal(this.value)" style="width:100%">
             <option value="essencial" selected>Essencial — respostas rápidas e diretas</option>
-            <option value="avancado" id="opt-avancado" disabled>Avançado — recomendado para a maioria das tarefas (planos pagos)</option>
+            <option value="avancado" id="opt-avancado">Avançado — recomendado para a maioria das tarefas</option>
             <option value="completo" id="opt-completo" disabled>Completo — máxima precisão e profundidade (planos pagos)</option>
           </select>
         </div>
@@ -1267,7 +1267,7 @@ tbody tr.st-p td{background:#b3e5fc}
 
       <!-- sel-modelo (oculto) sincronizado com sel-modelo-global na Configuração -->
       <select id="sel-modelo" style="display:none" onchange="sincronizarModeloGlobal(this.value)">
-        <option value="essencial" selected>Essencial</option>
+        <option value="essencial" selected>Demonstração</option>
         <option value="avancado">Avançado</option>
         <option value="completo">Completo</option>
       </select>
@@ -6935,6 +6935,14 @@ async function chamarIAViaProxy(modelo, sysPrompt, messages, onChunk) {
       mostrarModalLimitePlano(msg);
       throw new Error(msg);
     }
+    if (resp.status === 429 && errData.codigo === 'LIMITE_DIARIO') {
+      mostrarModalLimitePlano(msg);
+      throw new Error(msg);
+    }
+    if (resp.status === 403 && errData.codigo === 'MODELO_BLOQUEADO') {
+      alert('⚠️ ' + msg + '\n\nAcesse Configuração para conhecer os planos disponíveis.');
+      throw new Error(msg);
+    }
     if (resp.status === 401) { mostrarLogin(); throw new Error('Sessão expirada.'); }
     throw new Error(msg);
   }
@@ -6983,7 +6991,7 @@ function mostrarModalLimitePlano(msg) {
     '<h3 style="margin:0 0 8px;font-size:16px;color:var(--text)">Limite do plano atingido</h3>' +
     '<p style="font-size:13px;color:var(--text2);margin:0 0 16px">' + (msg||'Você atingiu o limite de peças do seu plano este mês.') + '</p>' +
     '<p style="font-size:12px;color:var(--text2);margin:0 0 16px">Interesse em plano com mais peças:<br>' +
-    '<a href="mailto:carmo.mancebo@adv.oabsp.org.br" style="color:var(--blue)">carmo.mancebo@adv.oabsp.org.br</a></p>' +
+    '<a href="mailto:contato@carmomancebo.com.br" style="color:var(--blue)">contato@carmomancebo.com.br</a></p>' +
     '<div style="display:flex;gap:8px;justify-content:flex-end">' +
     '<button onclick="go(\'cfg\')" style="background:none;border:1px solid var(--border);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Ver plano</button>' +
     '<button onclick="this.closest(\'[style*=fixed]\').remove()" style="background:var(--blue);color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Fechar</button>' +
@@ -7106,10 +7114,24 @@ function instalarHookAntiInjection() {
 // ════════════════════════════════════════════════════════════════════════════
 
 var LIMITES_PLANO = {
-  'trial':     10,
-  'solo':      100,
-  'pro':       99999,
-  'escritorio': 99999
+  'trial':         10,      // Demonstração: 10 peças/mês
+  'demonstracao':  10,      // alias
+  'solo':          600,     // Avançado: 20 peças/dia × 30 (teto mensal)
+  'avancado_plano':600,     // alias do plano Avançado
+  'pro':           99999,   // Completo: ilimitado
+  'completo':      99999,   // alias
+  'escritorio':    99999    // Escritório: ilimitado
+};
+
+// Limite diário por plano (0 = sem limite diário)
+var LIMITES_DIARIOS = {
+  'trial':         10,      // Demonstração: máx 10/mês (já controlado pelo mensal)
+  'demonstracao':  10,
+  'solo':          20,      // Avançado: 20 peças/dia
+  'avancado_plano':20,
+  'pro':           0,
+  'completo':      0,
+  'escritorio':    0
 };
 
 var _dadosUsuario = null; // Cache do perfil do usuário
@@ -7139,14 +7161,12 @@ function atualizarUIPlano() {
   // Controle de acesso ao modo Completo
   var optAvancado = document.getElementById('opt-avancado');
   var optCompleto = document.getElementById('opt-completo');
-  var podeAvancado = (plano !== 'trial' && plano !== '');
+  var podeAvancado = true; // Avançado liberado em todos os planos incluindo Demonstração
   var podeCompleto = (plano === 'pro' || plano === 'escr' || plano === 'completo');
 
   if (optAvancado) {
-    optAvancado.disabled = !podeAvancado;
-    optAvancado.textContent = podeAvancado
-      ? 'Avançado — recomendado para a maioria das tarefas'
-      : 'Avançado — recomendado para a maioria das tarefas (planos pagos)';
+    optAvancado.disabled = false;
+    optAvancado.textContent = 'Avançado — recomendado para a maioria das tarefas';
   }
   if (optCompleto) {
     optCompleto.disabled = !podeCompleto;
@@ -7158,10 +7178,8 @@ function atualizarUIPlano() {
   // Bloquear análise detalhada no trial
   var optAnDetalhado = document.getElementById('opt-an-detalhado');
   if (optAnDetalhado) {
-    optAnDetalhado.disabled = !podeAvancado;
-    optAnDetalhado.textContent = podeAvancado
-      ? 'Detalhado (análise extensa)'
-      : 'Detalhado (análise extensa — planos pagos)';
+    optAnDetalhado.disabled = false;
+    optAnDetalhado.textContent = 'Detalhado (análise extensa)';
   }
   var pecasMes = _dadosUsuario.pecas_mes || 0;
   var limite = LIMITES_PLANO[plano] || 10;
@@ -7185,9 +7203,9 @@ function atualizarUIPlano() {
   // Card de plano na Configuração
   var info = document.getElementById('cfg-plano-info');
   if (info) {
-    var labelPlano = { trial:'Trial gratuito', solo:'Solo', pro:'Pro', escritorio:'Escritório' }[plano] || plano;
+    var labelPlano = { trial:'Demonstração', demonstracao:'Demonstração', avancado_plano:'Avançado', pro:'Completo', escritorio:'Escritório' }[plano] || plano;
     info.innerHTML = '<strong>Plano:</strong> <span class="plano-badge plano-' + (plano==='escritorio'?'escr':plano) + '">' + labelPlano + '</span>' +
-      (plano === 'trial' ? ' &nbsp;·&nbsp; <span style="color:var(--text3);font-size:11px">Período gratuito de testes</span>' : '');
+      (plano === 'trial' ? ' &nbsp;·&nbsp; <span style="color:var(--text3);font-size:11px">Período de demonstração gratuito</span>' : '');
   }
 
   var barra = document.getElementById('cfg-pecas-preenchida');
@@ -7201,7 +7219,9 @@ function atualizarUIPlano() {
     if (limite >= 99999) {
       txtBarra.textContent = pecasMes + ' peças geradas este mês · Plano ilimitado';
     } else {
-      txtBarra.textContent = pecasMes + ' de ' + limite + ' peças usadas este mês · ' + restam + ' restantes';
+      var limiteDia = LIMITES_DIARIOS[plano] || 0;
+      var sufDia = limiteDia > 0 ? ' · Limite: ' + limiteDia + '/dia' : '';
+      txtBarra.textContent = pecasMes + ' de ' + limite + ' peças usadas este mês · ' + restam + ' restantes' + sufDia;
     }
   }
 }
@@ -7218,15 +7238,28 @@ async function incrementarPecasMes() {
 
     var novoValor = precisaReset ? 1 : ((_dadosUsuario ? _dadosUsuario.pecas_mes : 0) + 1);
 
+    // Controle diário
+    var resetDia    = _dadosUsuario && _dadosUsuario.pecas_hoje_reset
+      ? new Date(_dadosUsuario.pecas_hoje_reset) : null;
+    var mesmoDia    = resetDia &&
+      resetDia.getDate()     === agora.getDate()  &&
+      resetDia.getMonth()    === agora.getMonth() &&
+      resetDia.getFullYear() === agora.getFullYear();
+    var novoHoje    = mesmoDia ? ((_dadosUsuario ? _dadosUsuario.pecas_hoje : 0) + 1) : 1;
+
     await supa.from('gp_users').update({
-      pecas_mes: novoValor,
-      pecas_mes_reset: precisaReset ? agora.toISOString() : undefined,
-      ultimo_acesso: agora.toISOString()
+      pecas_mes:         novoValor,
+      pecas_mes_reset:   precisaReset ? agora.toISOString() : undefined,
+      pecas_hoje:        novoHoje,
+      pecas_hoje_reset:  mesmoDia ? undefined : agora.toISOString(),
+      ultimo_acesso:     agora.toISOString()
     }).eq('id', GPStorage.userId);
 
     if (_dadosUsuario) {
-      _dadosUsuario.pecas_mes = novoValor;
-      if (precisaReset) _dadosUsuario.pecas_mes_reset = agora.toISOString();
+      _dadosUsuario.pecas_mes         = novoValor;
+      _dadosUsuario.pecas_hoje        = novoHoje;
+      if (precisaReset) _dadosUsuario.pecas_mes_reset  = agora.toISOString();
+      if (!mesmoDia)    _dadosUsuario.pecas_hoje_reset = agora.toISOString();
     }
     atualizarUIPlano();
     return true;
@@ -7255,11 +7288,34 @@ async function verificarLimitePlano() {
   if (pecasMes >= limite) {
     return {
       permitido: false,
-      motivo: 'Limite do plano ' + plano + ' atingido (' + pecasMes + '/' + limite + ' peças este mês).',
+      motivo: 'Limite do plano atingido: ' + pecasMes + ' de ' + limite + ' peças este mês. Faça upgrade para continuar.',
       plano: plano,
       limite: limite
     };
   }
+
+  // Verificação de limite diário
+  var limiteDiario = LIMITES_DIARIOS[plano] || 0;
+  if (limiteDiario > 0) {
+    var pecasHoje = _dadosUsuario.pecas_hoje || 0;
+    var resetDia  = _dadosUsuario.pecas_hoje_reset ? new Date(_dadosUsuario.pecas_hoje_reset) : null;
+    var hoje      = new Date();
+    var mesmoDia  = resetDia &&
+      resetDia.getDate()     === hoje.getDate()  &&
+      resetDia.getMonth()    === hoje.getMonth() &&
+      resetDia.getFullYear() === hoje.getFullYear();
+    var pecasHojeReal = mesmoDia ? pecasHoje : 0;
+    if (pecasHojeReal >= limiteDiario) {
+      return {
+        permitido: false,
+        motivo: 'Limite diário atingido: ' + pecasHojeReal + ' de ' + limiteDiario + ' peças hoje. Seu limite renova à meia-noite.',
+        plano: plano,
+        limite: limiteDiario,
+        tipo: 'diario'
+      };
+    }
+  }
+
   return { permitido: true, restam: limite - pecasMes };
 }
 
@@ -7312,7 +7368,10 @@ async function gerarMinuta() {
   // 1. Verificar limite do plano
   var limiteCheck = await verificarLimitePlano();
   if (!limiteCheck.permitido) {
-    alert('⛔ ' + limiteCheck.motivo + '\n\nVocê atingiu o limite de peças do seu plano este mês.\nEm breve serão disponibilizados planos pagos com mais peças.\nContato: carmo.mancebo@adv.oabsp.org.br');
+    var msgLimite = limiteCheck.tipo === 'diario'
+      ? '⛔ ' + limiteCheck.motivo + '\n\nSeu limite renova automaticamente à meia-noite.\nPara gerar mais peças sem restrição diária, conheça os planos disponíveis em Configuração.'
+      : '⛔ ' + limiteCheck.motivo + '\n\nConheça os planos disponíveis em Configuração para continuar gerando peças.';
+    alert(msgLimite);
     return;
   }
 
@@ -7361,7 +7420,7 @@ async function gerarMinuta() {
   if (tamContexto > 50000 && !jaUsouResumo) {
     var msg = 'O contexto carregado tem ' + tamContexto.toLocaleString('pt-BR') + ' caracteres (~' + tokensEstim.toLocaleString('pt-BR') + ' tokens de entrada), o que pode gerar custo elevado e risco de ultrapassar o limite do modelo.\n\n' +
       'Recomendamos primeiro usar a aba "Análise de processo" no modo "Resumo executivo" e, se fizer sentido, enviar o resumo para a petição — isso reduz o consumo e melhora a organização do caso.\n\n' +
-      'Dica: use o modo Avançado para resumos e análises rápidas.';
+      'Dica: use o modo Avançado (Sonnet) para análises mais complexas — disponível em todos os planos.';
     var okResumo = await customConfirm(msg,
       { icon: '💡', title: 'Contexto grande — recomendamos resumir primeiro', ok: 'Gerar petição assim mesmo', cancel: 'Ir para Análise' }
     );
