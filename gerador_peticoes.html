@@ -919,7 +919,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 1.88</div>
+    <div class="login-ver">versão 1.89</div>
   </div>
 </div>
 
@@ -944,7 +944,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Demonstração</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
-    <span class="tb-meta" id="tb-versao">versão 1.88</span>
+    <span class="tb-meta" id="tb-versao">versão 1.89</span>
   </div>
 </div>
 
@@ -1175,14 +1175,19 @@ tbody tr.st-p td{background:#b3e5fc}
     <!-- PROCESSOS -->
     <div id="panel-proc" class="panel">
       <div class="panel-title">Processos</div>
-      <div class="panel-sub">Clique para selecionar · 📋 ficha · Duplo clique abre ficha · Shift+clique na coluna para ordenação secundária</div>
+      <div class="panel-sub"></div>
       <div class="proc-instrucao" id="card-instrucao-proc">
         <h3>Como usar esta aba</h3>
         <p>Importe uma planilha com seus processos para gerenciá-los em lote. Ao clicar em um processo, os dados são carregados automaticamente na aba <strong>Gerar petição</strong>.</p>
         <div class="proc-rotas">
           <div class="proc-rota">
             <strong>📋 Com planilha</strong>
-            <span>Importe o arquivo .xlsx do LegalOne ou outro sistema. Clique em qualquer processo para carregá-lo.</span>
+            <span>Importe o arquivo .xlsx no formato padrão da ferramenta. Clique em qualquer processo para carregá-lo na aba Gerar petição.</span>
+            <div style="margin-top:8px">
+              <a href="modelo_planilha_processos.xlsx" download style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#0F6E56;font-weight:500;text-decoration:none;background:#E1F5EE;padding:4px 10px;border-radius:8px;border:0.5px solid #5DCAA5">
+                📥 Baixar modelo de planilha
+              </a>
+            </div>
           </div>
           <div class="proc-rota">
             <strong>✏️ Sem planilha</strong>
@@ -1196,6 +1201,9 @@ tbody tr.st-p td{background:#b3e5fc}
           <p>Selecionar planilha Excel (.xlsx)</p>
           <small>Carregada uma vez — dados salvos automaticamente</small>
         </div>
+      <div id="legenda-tabela" style="font-size:11px;color:var(--text3);padding:4px 2px 8px;display:none">
+        Clique para selecionar &nbsp;·&nbsp; 📋 Clique no ícone de ficha para detalhes &nbsp;·&nbsp; Duplo clique abre ficha &nbsp;·&nbsp; Shift+clique para ordenação secundária
+      </div>
         <input type="file" id="inp-xlsx" accept=".xlsx,.xls" style="display:none" onchange="loadXLSX(this)" />
         <div id="xlsx-info" style="font-size:11px;color:var(--text3);margin-top:4px;min-height:14px"></div>
       </div>
@@ -1300,7 +1308,12 @@ tbody tr.st-p td{background:#b3e5fc}
         <span>Resultado</span>
       </div>
     </div>
-      <div class="panel-title">Gerar petição</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+        <div class="panel-title" style="margin-bottom:0">Gerar petição</div>
+        <button onclick="limparTudoGerar()" style="font-size:12px;color:var(--text2);background:none;border:0.5px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;display:flex;align-items:center;gap:4px" title="Limpar todos os campos e recomeçar">
+          🗑 Limpar tudo
+        </button>
+      </div>
       <div class="panel-sub">Preencha os dados, informe o andamento e gere a minuta.</div>
 
       <!-- sel-modelo (oculto) sincronizado com sel-modelo-global na Configuração -->
@@ -1449,172 +1462,16 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
           💡 <strong>Dica:</strong> PDFs muito grandes (acima de 5 MB) podem exceder o limite de contexto da IA. Considere comprimir no <a href="https://www.ilovepdf.com/pt/comprimir_pdf" target="_blank" style="color:#0C6ECF">iLovePDF</a> ou similar antes de carregar. Isso também acelera a extração de texto.
         </div>
       </div>
-
-      <div class="card">
-        <div class="card-title">Configurações da peça</div>
-        <div class="row2">
-          <div class="field">
-            <label>Área do direito</label>
-            <select id="f-area" onchange="atualizarSubareas()">
-              <option value="civel" selected>Saúde suplementar</option>
-              <optgroup label="— Em breve como módulos específicos —" style="color:var(--text3)">
-                <option value="futuro" disabled>Trabalhista</option>
-                <option value="futuro" disabled>Tributário</option>
-                <option value="futuro" disabled>Família e Sucessões</option>
-                <option value="futuro" disabled>Administrativo</option>
-                <option value="futuro" disabled>Penal</option>
-                <option value="futuro" disabled>Empresarial e Societário</option>
-                <option value="futuro" disabled>Previdenciário</option>
-                <option value="futuro" disabled>Consumidor</option>
-              </optgroup>
-            </select>
-          </div>
-          <div class="field">
-            <label>Subárea / Especialização</label>
-            <select id="f-subarea"></select>
-          </div>
+      <div class="card" id="card-revisar-peca" style="display:none;border:1.5px solid #85B7EB">
+        <div class="card-title" style="display:flex;align-items:center;gap:8px">
+          ✏️ Peça a revisar
+          <span style="font-size:11px;font-weight:400;color:var(--text2)">Cole a peça original para a IA corrigir redação e estrutura</span>
         </div>
-        <div class="field">
-          <label>Tipo de peça</label>
-          <select id="f-tipo" onchange="onTipoChange();g1SugerirTeses(this.value)">
-
-            <option value="auto" selected>Identificar automaticamente pelo andamento</option>
-            <optgroup label="── Revisão ──">
-              <option value="roteiro de audiência">🎤 Roteiro de audiência</option>
-              <option value="revisão de peça">✏️ Revisar peça existente</option>
-            </optgroup>
-            <optgroup label="── Fase de conhecimento ──">
-              <option value="contestação">Contestação</option>
-              <option value="contestação de liminar">Contestação de liminar / Pedido de reconsideração</option>
-              <option value="embargos de declaração">Embargos de declaração</option>
-              <option value="especificação de provas">Especificação de provas</option>
-              <option value="manifestação a decisão interlocutória">Manifestação a decisão interlocutória</option>
-              <option value="manifestação a despacho">Manifestação a despacho / ato ordinatório</option>
-              <option value="manifestação sobre laudo pericial">Manifestação sobre laudo pericial</option>
-              <option value="petição de quesitos">Petição de quesitos (perícia)</option>
-              <option value="petição simples">Petição simples / informativa</option>
-              <option value="réplica à contestação">Réplica à contestação</option>
-            </optgroup>
-            <optgroup label="── Fase recursal ──">
-              <option value="agravo de instrumento">Agravo de instrumento</option>
-              <option value="agravo em recurso especial">Agravo em Recurso Especial (AREsp)</option>
-              <option value="agravo interno">Agravo interno</option>
-              <option value="apelação">Apelação</option>
-              <option value="contrarrazões de apelação">Contrarrazões de apelação</option>
-              <option value="contrarrazões de agravo de instrumento">Contrarrazões ao agravo de instrumento</option>
-              <option value="contrarrazões de recurso especial">Contrarrazões de recurso especial</option>
-              <option value="recurso inominado">Recurso inominado (JEC)</option>
-              <option value="contrarrazões de recurso inominado">Contrarrazões ao recurso inominado (JEC)</option>
-              <option value="recurso especial">Recurso especial (STJ)</option>
-              <option value="recurso extraordinário">Recurso extraordinário (STF)</option>
-            </optgroup>
-            <optgroup label="── Cumprimento de sentença / execução ──">
-              <option value="exceção de pré-executividade">Exceção de pré-executividade</option>
-              <option value="impugnação a cálculos">Petição de cálculos / impugnação a cálculos</option>
-              <option value="impugnação ao cumprimento de sentença">Impugnação ao cumprimento de sentença (artigo 525 CPC)</option>
-              <option value="impugnação ao cumprimento provisório">Impugnação ao cumprimento provisório</option>
-            </optgroup>
-            <optgroup label="── Outro ──">
-              <option value="manual">Preencher manualmente (digitar o tipo)</option>
-            </optgroup>
-          </select>
-          <div id="tipo-hint" style="font-size:11px;color:var(--blue);margin-top:3px;min-height:14px"></div>
-          <div id="g1-sugestoes" class="g1-sugestao-wrap" style="display:none"></div>
-            <input type="text" id="f-tipo-manual" placeholder="Descreva o tipo de peça (ex: Nota de expediente, Contrarrazões ao AREsp...)" style="display:none;margin-top:6px;width:100%;box-sizing:border-box" />
-        </div>
-        <div class="row2">
-          <div class="field">
-            <label>Advogado responsável</label>
-            <select id="f-advogado" onchange="toggleAdvogadoMode()">
-              <option value="auto">Automático (identificar pela petição/processo)</option>
-              
-              <option value="manual">Preencher manualmente (outro advogado)</option>
-              <option value="nenhum">Não incluir bloco de assinatura</option>
-            </select>
-            <div id="adv-manual-box" style="display:none;margin-top:8px;padding:8px;background:var(--surface2);border-radius:var(--rsm);border:1px solid var(--border)">
-              <div style="display:grid;grid-template-columns:1fr 160px;gap:8px;">
-                <div><label style="font-size:11px;color:var(--text2)">Nome completo</label><input type="text" id="f-adv-nome" placeholder="Nome do advogado(a)" /></div>
-                <div><label style="font-size:11px;color:var(--text2)">OAB</label><input type="text" id="f-adv-oab" placeholder="OAB/SP 000.000" /></div>
-              </div>
-            </div>
-          </div>
-          <div class="field">
-            <label>Cidade da assinatura</label>
-            <input type="text" id="f-cidade" value="São Paulo/SP" />
-          </div>
-        </div>
-        <div class="field">
-          <label>Densidade do texto <span style="color:var(--red)">*</span></label>
-          <select id="f-densidade" required>
-            <option value="" selected disabled>— selecione —</option>
-            <option value="objetiva">Objetiva — redação clara, direta, focada no essencial</option>
-            <option value="densa">Densa — detalhada, com fundamentação minuciosa</option>
-            <option value="extensa">Extensa — máximo detalhamento, com revisão antes da entrega</option>
-          </select>
-        </div>
-        <div class="field" id="card-revisar-peca" style="display:none">
-          <label>Peça a revisar <span style="color:var(--red)">*</span></label>
-          <textarea id="f-peca-revisar" rows="10" placeholder="Cole aqui a peça que deseja revisar. A IA irá corrigir a redação, adequar à terminologia jurídica obrigatória, verificar a estrutura dos tópicos, corrigir o uso de § e parágrafo, e aprimorar a argumentação mantendo o conteúdo original."></textarea>
-        </div>
-        <div class="card" id="card-calc-prazo" style="margin-bottom:12px">
-          <div class="card-title" style="cursor:pointer" onclick="toggleCardPrazo()">
-            ⏱ Calcular prazo a partir da decisão
-            <span id="card-prazo-toggle" style="float:right;font-size:11px;color:var(--text3)">▼ expandir</span>
-          </div>
-          <div id="card-prazo-body" style="display:none;padding:10px 0 4px">
-            <div class="field">
-              <label>Texto da decisão / despacho <span style="color:var(--text3);font-weight:400">(cole o trecho com o prazo)</span></label>
-              <textarea id="txt-decisao-prazo" rows="4" placeholder="Ex: 'Intime-se a parte ré para apresentar contestação no prazo de 15 dias úteis...'"></textarea>
-            </div>
-            <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
-              <div class="field" style="flex:1;min-width:120px">
-                <label>Data de início <span style="color:var(--text3);font-weight:400">(intimação/publicação)</span></label>
-                <input type="date" id="inp-data-inicio-prazo" />
-              </div>
-              <button class="btn btn-s" onclick="extrairECalcularPrazo()" style="margin-bottom:4px">Calcular</button>
-              <button class="btn btn-s btn-sm" onclick="limparCardPrazo()" title="Limpar campos">🗑 Limpar</button>
-            </div>
-            <div id="res-prazo" style="display:none;margin-top:8px;padding:10px;background:var(--blue-bg);border-radius:6px;font-size:13px"></div>
-            <hr style="border:none;border-top:1px solid var(--border);margin:10px 0 6px"/>
-            <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px">📅 Feriados municipais</div>
-            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-              <input id="inp-cidade-feriado" type="text" placeholder="Nome da cidade (ex: Campinas)" style="flex:1;min-width:140px;font-size:12px" list="cidades-list">
-              <datalist id="cidades-list"></datalist>
-              <button class="btn btn-s btn-sm" onclick="adicionarFeriadosCidade()">+ Cidade</button>
-            </div>
-            <div id="feriados-cidades-tags" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;min-height:10px"></div>
-            <div id="feriados-st" style="font-size:11px;color:var(--text3);margin-top:3px"></div>
-          </div>
-        </div>
-        <div class="card" style="margin-bottom:12px">
-          <div class="card-title" style="cursor:pointer;display:flex;justify-content:space-between" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none'">
-            <span>✏️ Revisar / conferir peça existente</span>
-            <span style="font-size:11px;color:var(--text3)">▼</span>
-          </div>
-          <div style="display:none;padding:8px 0 4px">
-            <p style="font-size:12px;color:var(--text3);margin-bottom:6px">Cole a peça e clique em "▶ Ativar revisão" para a IA corrigir redação e estrutura.</p>
-            <textarea id="f-peca-revisar-card" rows="8" placeholder="Cole aqui a peça a revisar..."></textarea>
-            <button class="btn btn-s" onclick="ativarModoRevisao()" style="margin-top:6px">▶ Ativar revisão</button>
-          </div>
-        </div>
-        <div class="field">
-          <label style="margin-bottom:6px">Instruções adicionais / teses específicas (opcional)</label>
-          <textarea id="f-inst" style="min-height:90px" placeholder="Ex.: incluir tese sobre inexistência de cobertura pelo rol da ANS, questionar horas de terapia, abordar ADI 7265..."></textarea>
-          <div id="teses-bar" style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap">
-            <span id="teses-ativas-tags" style="display:flex;flex-wrap:wrap;gap:4px;flex:1;min-height:24px;align-items:center">
-              <span id="teses-vazio-msg" style="font-size:11px;color:var(--text3);font-style:italic">Nenhuma tese aplicada</span>
-            </span>
-            <div style="position:relative;display:inline-block">
-              <button type="button" class="btn btn-s btn-sm" onclick="abrirPopoverTeses(event)" id="btn-add-tese" title="Adicionar tese estruturada">+ Adicionar tese ▾</button>
-              <div id="popover-teses" style="display:none"></div>
-            </div>
-          </div>
-        </div>
-        <div id="refs-ativas" style="display:none">
-          <div class="tip" style="margin-bottom:4px">Referências ativas:</div>
-          <div class="rlist" id="refs-ativas-lista"></div>
-        </div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:8px">A IA vai revisar a peça mantendo o conteúdo jurídico, aprimorando a redação, estrutura e fundamentação normativa.</p>
+        <textarea id="f-peca-revisar-card" rows="10" placeholder="Cole aqui o texto completo da peça que deseja revisar..." style="width:100%;resize:vertical"></textarea>
       </div>
+
+      
 
       <div class="card">
         <div class="card-title">Peças de referência</div>
@@ -8967,6 +8824,67 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   };
 })();
+
+
+function limparTudoGerar() {
+  if (!confirm('Limpar todos os campos e arquivos carregados?')) return;
+  // Limpar andamento
+  var ta = document.getElementById('f-and');
+  if (ta) ta.value = '';
+  clearAndamento && clearAndamento();
+  // Limpar número do processo
+  var np = document.getElementById('f-num');
+  if (np) np.value = '';
+  // Limpar pasta
+  var ps = document.getElementById('f-pasta');
+  if (ps) ps.value = '';
+  // Limpar descrição
+  var desc = document.getElementById('f-desc');
+  if (desc) desc.value = '';
+  // Limpar cliente e parte (selects)
+  ['f-cli-modo','f-parte-modo'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = 'auto';
+  });
+  ['f-cli','f-parte'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) { el.value = ''; el.style.display = 'none'; }
+  });
+  // Limpar contexto adicional
+  ['principal','incidente','provas'].forEach(function(tipo) {
+    clearCtx && clearCtx(tipo);
+  });
+  // Limpar peças de referência
+  if (typeof loadRefs === 'function') {
+    var rlist = document.getElementById('rlist');
+    if (rlist) rlist.innerHTML = '';
+    var rtotal = document.getElementById('rtotal');
+    if (rtotal) rtotal.textContent = '';
+  }
+  // Limpar peça para revisar
+  var rev = document.getElementById('f-peca-revisar-card');
+  if (rev) rev.value = '';
+  // Limpar instruções adicionais
+  var inst = document.getElementById('f-inst');
+  if (inst) inst.value = '';
+  // Reset selects de tipo e densidade
+  var ftipo = document.getElementById('f-tipo');
+  if (ftipo) ftipo.value = 'auto';
+  // Limpar resultado anterior
+  var res = document.getElementById('draft-result');
+  if (res) res.innerHTML = '';
+  // Atualizar barra de contexto
+  typeof atualizarCtxBar === 'function' && atualizarCtxBar();
+  // Restaurar destaque do card de andamento
+  var card = document.getElementById('card-andamento');
+  var badge = document.getElementById('badge-comece');
+  var hint = document.getElementById('hint-andamento');
+  if (card) card.classList.remove('preenchido');
+  if (badge) badge.style.display = '';
+  if (hint) hint.style.display = '';
+  // Ir para o topo da aba
+  window.scrollTo({top:0, behavior:'smooth'});
+}
 
 </script>
 <div class="app-footer">
