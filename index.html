@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="version" content="1.12">
+<meta name="version" content="1.13">
 <title>Carmo Martins Mancebo Segundo — Advogado</title>
 <meta name="description" content="Advogado com mais de 15 anos de experiência em contencioso estratégico — saúde suplementar, seguros e direito civil. OAB/SP 274.575.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -132,7 +132,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;color:var(--text);background:va
 .feat-desc{font-size:12px;color:rgba(245,240,232,.48);line-height:1.7;font-weight:300}
 
 /* ── PLANOS ── */
-.planos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;align-items:start;margin-top:2.5rem}
+.planos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;align-items:stretch;margin-top:2.5rem}
 .plano{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;position:relative;transition:box-shadow .2s}
 .plano:hover{box-shadow:0 6px 24px rgba(12,46,91,.1)}
 .plano.destaque{border-color:var(--blue);border-width:2px;box-shadow:0 0 0 3px rgba(24,95,165,.07)}
@@ -145,7 +145,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;color:var(--text);background:va
 .plano-items{list-style:none;margin-bottom:1.25rem;display:flex;flex-direction:column;gap:.4rem}
 .plano-items li{font-size:12px;color:var(--text);display:flex;align-items:flex-start;gap:.45rem;line-height:1.5}
 .plano-items li::before{content:'✓';color:var(--blue);font-weight:700;font-size:12px;flex-shrink:0;margin-top:1px}
-.btn-plano{display:block;text-align:center;padding:8px;border-radius:var(--rsm);font-size:12px;font-weight:500;text-decoration:none;border:1.5px solid var(--blue-dark);color:var(--blue-dark);cursor:pointer;background:transparent;font-family:inherit;transition:background .15s,color .15s}
+.btn-plano{display:block;text-align:center;padding:8px;border-radius:var(--rsm);font-size:12px;font-weight:500;text-decoration:none;border:1.5px solid var(--blue-dark);color:var(--blue-dark);cursor:pointer;background:transparent;font-family:inherit;transition:background .15s,color .15s;margin-top:auto}
 .btn-plano:hover{background:var(--blue-dark);color:#fff}
 .btn-plano.solid{background:var(--blue);color:#fff;border-color:var(--blue)}
 .btn-plano.solid:hover{background:var(--blue-dark);border-color:var(--blue-dark)}
@@ -216,6 +216,13 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
   .features-grid,.planos-grid,.atu-grid,.traj-grid{grid-template-columns:1fr}
   .hero-stats{gap:1.5rem}
 }
+
+/* Card de contato na seção CONTATO — maior e proporcional */
+#contato .footer-contact{width:240px;padding:20px;border-radius:var(--radius);align-self:flex-start}
+#contato .footer-qr{width:200px;height:200px;border-radius:6px}
+#contato .footer-phone{margin-top:8px}
+#contato .footer-phone-label{font-size:10px;letter-spacing:.1em}
+#contato .footer-phone-num{font-size:14px;margin-top:4px;letter-spacing:.02em}
 </style>
 </head>
 <body>
@@ -244,9 +251,9 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
 <section id="hero">
   <div class="hero-inner">
     <div class="hero-eyebrow">Advogado · São Paulo</div>
-    <h1 class="hero-title">Carmo Martins<br><em>Mancebo Segundo</em></h1>
+    <h1 class="hero-title">Carmo Mancebo <em>| Advogado</em></h1>
     <p class="hero-bio">
-      Advogado com mais de <strong>15 anos de experiência em contencioso estratégico</strong>. Atuação consolidada em <strong>saúde suplementar e seguros</strong>, com sólida bagagem em análise técnica de processos judiciais e administrativos de elevada complexidade. Atendimento a operadoras, seguradoras e pessoas físicas em demandas que exigem profundidade jurídica e estratégia processual consistente.
+      Advogado com mais de <strong>15 anos de experiência em contencioso estratégico</strong>. Atuação consolidada em <strong>saúde suplementar e seguros</strong>, com sólida bagagem em análise técnica de processos judiciais e administrativos de elevada complexidade. Atendimento também em <strong>diversas áreas do direito civil</strong>, com a mesma profundidade técnica e estratégia processual consistente — para operadoras, seguradoras e pessoas físicas.
     </p>
     <div class="hero-tags">
       <span class="hero-tag">Saúde Suplementar</span>
@@ -282,15 +289,15 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
           <strong>Carmo Martins Mancebo Segundo</strong> é advogado com atuação desde 2008, acumulando ampla experiência na análise técnica de processos judiciais e administrativos, com trajetória consolidada em ambientes de elevada complexidade e volume.
         </p>
         <p class="sobre-bio">
-          Sua atuação profissional está estruturada na análise documental, interpretação normativa e desenvolvimento de soluções jurídicas em contextos estratégicos, com experiência relevante nos segmentos securitário e de saúde suplementar — incluindo a condução e revisão técnica de demandas envolvendo contratos de seguro e planos de saúde, análise de risco, estruturação de teses jurídicas e padronização de peças processuais.
+          Sua atuação profissional está estruturada na análise documental, interpretação normativa e desenvolvimento de soluções jurídicas em contextos estratégicos, com experiência relevante nos segmentos securitário e de saúde suplementar — incluindo a condução e revisão técnica de demandas envolvendo contratos de seguro e planos de saúde, análise de risco, estruturação de teses jurídicas e padronização de peças processuais. Possui, ainda, amplo conhecimento em diversas áreas do <strong>direito civil</strong>, atendendo demandas contratuais, obrigacionais, de responsabilidade civil e de família.
         </p>
         <p class="sobre-bio">
-          Possui sólido domínio da legislação setorial — Lei 9.656/98, resoluções normativas da ANS, Lei 14.454/2022, normas SUSEP, CDC, Código Civil e CPC — e acompanha de forma contínua a jurisprudência do STJ e do TJSP. Sua experiência inclui, ainda, atuação em controladoria jurídica, coordenação de equipes e participação em processos administrativos perante órgãos regulatórios e conselhos de classe.
+          Possui sólido domínio da legislação setorial — resoluções normativas da ANS, normas SUSEP, CDC, Código Civil e CPC — e acompanha de forma contínua a jurisprudência do STJ e do TJSP. Sua experiência inclui, ainda, atuação em controladoria jurídica, coordenação de equipes e participação em processos administrativos perante órgãos regulatórios e conselhos de classe.
         </p>
         <p class="sobre-bio">
           A partir dessa experiência prática, desenvolveu o <strong>Gerador de Petições</strong> — ferramenta de IA que automatiza a fundamentação normativa de peças processuais, tornando o trabalho jurídico mais preciso, ágil e consistente.
         </p>
-        <span class="sobre-oab">OAB/SP 274.575</span>
+        
       </div>
     </div>
   </div>
@@ -481,26 +488,25 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
       <p class="sec-lead" style="text-align:center;max-width:500px;margin:0 auto">A ferramenta está em fase de validação. O acesso é gratuito durante esse período — em breve os planos pagos serão disponibilizados.</p>
     </div>
     <div class="planos-grid">
-      <div class="plano rev">
-        <div class="plano-nome">Trial</div><div class="plano-preco">Grátis</div>
-        <div class="plano-periodo">Para começar</div><div class="plano-sep"></div>
+      <div class="plano rev" style="display:flex;flex-direction:column">
+        <div class="plano-nome">Trial</div><div class="plano-embreve" style="color:var(--blue-dark)">Grátis</div>
+        <div class="plano-periodo">Para começar — sem cartão</div><div class="plano-sep"></div>
         <ul class="plano-items"><li>10 peças por mês</li><li>Acesso às teses principais</li><li>Fundamentação normativa</li><li>Sem cartão de crédito</li></ul>
         <a href="/geradordepeticoes" class="btn-plano">Começar grátis</a>
       </div>
-      <div class="plano rev" style="transition-delay:.06s">
+      <div class="plano rev" style="transition-delay:.06s;display:flex;flex-direction:column">
         <div class="plano-nome">Solo</div><div class="plano-embreve">Em breve</div>
         <div class="plano-periodo">Em validação — acesso gratuito</div><div class="plano-sep"></div>
         <ul class="plano-items"><li>Peças ilimitadas</li><li>36 teses estruturadas</li><li>7 modos de geração</li><li>Análise de processos</li></ul>
         <button class="btn-plano" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Solicitar acesso</button>
       </div>
-      <div class="plano destaque rev" style="transition-delay:.12s">
-        <div class="plano-badge">Popular</div>
+      <div class="plano destaque rev" style="transition-delay:.12s;display:flex;flex-direction:column">
         <div class="plano-nome">Pro</div><div class="plano-embreve">Em breve</div>
         <div class="plano-periodo">Em validação — acesso gratuito</div><div class="plano-sep"></div>
         <ul class="plano-items"><li>Tudo do Solo</li><li>Detector anti-injection</li><li>Modelos premium</li><li>Suporte prioritário</li></ul>
         <button class="btn-plano solid" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Solicitar acesso</button>
       </div>
-      <div class="plano rev" style="transition-delay:.18s">
+      <div class="plano rev" style="transition-delay:.18s;display:flex;flex-direction:column">
         <div class="plano-nome">Escritório</div><div class="plano-embreve">Em breve</div>
         <div class="plano-periodo">Em validação — acesso gratuito</div><div class="plano-sep"></div>
         <ul class="plano-items"><li>Múltiplos usuários</li><li>Personalização de teses</li><li>Integração e onboarding</li><li>Contrato customizado</li></ul>
@@ -583,7 +589,7 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
     </div>
   </div>
 </footer>
-<div class="ver">index v1.12</div>
+<div class="ver">index v1.13</div>
 
 <script>
 const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);}});},{threshold:.08,rootMargin:'0px 0px -30px 0px'});
