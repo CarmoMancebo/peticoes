@@ -1152,6 +1152,9 @@ tbody tr.st-p td{background:#b3e5fc}
           <small>Carregada uma vez — dados salvos automaticamente</small>
         </div>
         <input type="file" id="inp-xlsx" accept=".xlsx,.xls" style="display:none" onchange="loadXLSX(this)" />
+        <div style="text-align:center;margin-top:8px">
+          <button class="btn btn-s btn-sm" onclick="baixarModeloPlanilha()" style="font-size:11px">📥 Baixar planilha modelo</button>
+        </div>
         <div id="xlsx-info" style="font-size:11px;color:var(--text3);margin-top:4px;min-height:14px"></div>
       </div>
 
@@ -4438,6 +4441,48 @@ function exportXLSX() {
   var wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Processos');
   XLSX.writeFile(wb,'processos_'+new Date().toISOString().slice(0,10)+'.xlsx');
+}
+
+function baixarModeloPlanilha() {
+  try {
+    function addDias(base, n) { var d=new Date(base); d.setDate(d.getDate()+n); return d; }
+    function fmt(d) { return ('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear(); }
+    var hoje = new Date(); hoje.setHours(0,0,0,0);
+    var cab = ['Processo','Pasta','Cliente','Parte contrária','Tipo de peça','Prazo','Responsável','Tratativa'];
+    var linhas = [
+      cab,
+      ['0000001-00.2025.8.26.0001','001','Operadora Alpha S.A.','Beneficiário 001','Contestação',            fmt(addDias(hoje,-17)),'Advogado Responsável','Pendente'],
+      ['0000002-00.2025.8.26.0002','002','Seguradora Beta Ltda.','Beneficiário 002','Contestação',           fmt(addDias(hoje,  0)),'Advogado Responsável','Pendente'],
+      ['0000003-00.2025.8.26.0003','003','Plano Gamma S.A.','Beneficiário 003','Apelação',                   fmt(addDias(hoje,  2)),'Advogado Responsável','Pendente'],
+      ['0000004-00.2025.8.26.0004','004','Operadora Delta Ltda.','Beneficiário 004','Apelação',              fmt(addDias(hoje,  8)),'Advogado Responsável','Pendente'],
+      ['0000005-00.2025.8.26.0005','005','Plano Epsilon S.A.','Beneficiário 005','Agravo de Instrumento',    fmt(addDias(hoje,  5)),'Advogado Responsável','Pendente'],
+      ['0000006-00.2025.8.26.0006','006','Operadora Zeta Ltda.','Beneficiário 006','Agravo Interno',         fmt(addDias(hoje, -1)),'Advogado Responsável','Pendente'],
+      ['0000007-00.2025.8.26.0007','007','Operadora Eta S.A.','Beneficiário 007','REsp',                     fmt(addDias(hoje, 24)),'Advogado Responsável','Cumprido'],
+      ['0000008-00.2025.8.26.0008','008','Plano Theta Ltda.','Beneficiário 008','AREsp',                     fmt(addDias(hoje, 19)),'Advogado Responsável','Pendente'],
+      ['0000009-00.2025.8.26.0009','009','Operadora Iota S.A.','Beneficiário 009','Impugnação ao Cumprimento',fmt(addDias(hoje, 0)),'Advogado Responsável','Pendente'],
+      ['0000010-00.2025.8.26.0010','010','Operadora Kappa Ltda.','Beneficiário 010','Agravo de Instrumento', fmt(addDias(hoje,  2)),'Advogado Responsável','Cancelado'],
+    ];
+    var wb = XLSX.utils.book_new();
+    var ws = XLSX.utils.aoa_to_sheet(linhas);
+    ws['!cols'] = [{wch:32},{wch:7},{wch:28},{wch:20},{wch:28},{wch:12},{wch:22},{wch:12}];
+    XLSX.utils.book_append_sheet(wb, ws, 'Processos');
+    var inst = XLSX.utils.aoa_to_sheet([
+      ['Coluna','Descrição','Exemplos de valores'],
+      ['Processo','Número CNJ do processo','0000001-00.2025.8.26.0001'],
+      ['Pasta','Código interno do caso no escritório','001, A-42, 2025/003'],
+      ['Cliente','Nome da parte que o escritório representa','Operadora ABC S.A.'],
+      ['Parte contrária','Nome da parte adversa ou beneficiário','Beneficiário João da Silva'],
+      ['Tipo de peça','Tipo da peça ou providência pendente','Contestação, Apelação, Agravo de Instrumento'],
+      ['Prazo','Data fatal para protocolo (DD/MM/AAAA)','31/05/2025'],
+      ['Responsável','Advogado ou colaborador responsável','Dr. Fulano'],
+      ['Tratativa','Situação atual da tarefa','Pendente, Cumprido, Cancelado, Reagendado'],
+      ['','',''],
+      ['Observação','As datas da aba Processos são calculadas a partir de hoje ('+fmt(hoje)+') na hora do download, para que os prazos façam sentido pedagogicamente sempre que a planilha for baixada.',''],
+    ]);
+    inst['!cols'] = [{wch:20},{wch:60},{wch:45}];
+    XLSX.utils.book_append_sheet(wb, inst, 'Instruções');
+    XLSX.writeFile(wb, 'modelo_planilha_processos.xlsx');
+  } catch(e) { alert('Erro ao gerar o arquivo: '+e.message); }
 }
 
 // TRATATIVA
