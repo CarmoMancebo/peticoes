@@ -925,7 +925,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 1.92</div>
+    <div class="login-ver">versão 1.91</div>
   </div>
 </div>
 
@@ -950,7 +950,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Demonstração</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
-    <span class="tb-meta" id="tb-versao">versão 1.92</span>
+    <span class="tb-meta" id="tb-versao">versão 1.91</span>
   </div>
 </div>
 
@@ -1176,71 +1176,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <div class="btn-row">
         <button class="btn btn-p" onclick="go('proc')">Próximo: Processos →</button>
       </div>
-    
-      <div class="card" id="card-seguranca">
-        <div class="card-title" style="display:flex;align-items:center;gap:8px">
-          🔒 Proteções de segurança ativas
-          <span style="font-size:11px;font-weight:400;color:var(--text2)">Disponíveis em todos os planos, sem exceção</span>
-        </div>
-        <p style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6">
-          Esta ferramenta implementa múltiplas camadas de proteção contra técnicas de manipulação de sistemas de IA — incluindo as identificadas em casos reais como o do TRT-8 (Parauapebas-PA, 2025). Todas as proteções estão ativas em todos os planos, do Demonstração ao Completo, sem exceção.
-        </p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-          <div style="background:var(--green-bg);border-radius:8px;padding:10px 12px">
-            <div style="font-size:12px;font-weight:500;color:var(--green);margin-bottom:6px">🛡 Ataques de texto</div>
-            <ul style="font-size:11px;color:var(--text2);list-style:none;padding:0;margin:0;line-height:1.9">
-              <li>&#10003; Prompt Hijacking (comando "ignore tudo anterior")</li>
-              <li>&#10003; Prompt Override em português e inglês</li>
-              <li>&#10003; Jailbreaking e redefinição de papel da IA</li>
-              <li>&#10003; Instrução direta à IA (padrão TRT-8)</li>
-              <li>&#10003; Instrução de contestação superficial</li>
-              <li>&#10003; Instrução para não impugnar documentos</li>
-              <li>&#10003; Prompt Leaking (extração de instruções)</li>
-              <li>&#10003; Jailbreak DAN / alter ego</li>
-              <li>&#10003; Comparative Undermining Attack</li>
-            </ul>
-          </div>
-          <div style="background:var(--green-bg);border-radius:8px;padding:10px 12px">
-            <div style="font-size:12px;font-weight:500;color:var(--green);margin-bottom:6px">🛡 Ataques ocultos</div>
-            <ul style="font-size:11px;color:var(--text2);list-style:none;padding:0;margin:0;line-height:1.9">
-              <li>&#10003; Texto invisível (cor branca, fonte zero)</li>
-              <li>&#10003; Caracteres Unicode de controle e largura zero</li>
-              <li>&#10003; Caracteres bidirecionais ocultos</li>
-              <li>&#10003; Payload Splitting (instrução fragmentada)</li>
-              <li>&#10003; Ataque multimodal (comando em imagem)</li>
-              <li>&#10003; Sanitização de PDFs e DOCX ao carregar</li>
-              <li>&#10003; Verificação em todos os campos de entrada</li>
-              <li>&#10003; Verificação no output após geração</li>
-            </ul>
-          </div>
-          <div style="background:#EFF6FF;border-radius:8px;padding:10px 12px">
-            <div style="font-size:12px;font-weight:500;color:var(--blue);margin-bottom:6px">🛡 Segurança de acesso</div>
-            <ul style="font-size:11px;color:var(--text2);list-style:none;padding:0;margin:0;line-height:1.9">
-              <li>&#10003; Autenticação real via JWT (Supabase Auth)</li>
-              <li>&#10003; Sessão única por usuário (anti-compartilhamento)</li>
-              <li>&#10003; Chaves de API exclusivamente no servidor</li>
-              <li>&#10003; Controle de acesso por plano e por modelo</li>
-              <li>&#10003; Honeypot e rate limiting no cadastro</li>
-              <li>&#10003; RLS (Row Level Security) no banco de dados</li>
-            </ul>
-          </div>
-          <div style="background:#EFF6FF;border-radius:8px;padding:10px 12px">
-            <div style="font-size:12px;font-weight:500;color:var(--blue);margin-bottom:6px">🛡 Integridade do output</div>
-            <ul style="font-size:11px;color:var(--text2);list-style:none;padding:0;margin:0;line-height:1.9">
-              <li>&#10003; Protocolo anti-alucinação de jurisprudência</li>
-              <li>&#10003; Lista branca de precedentes verificados</li>
-              <li>&#10003; Marcadores [CITAÇÃO_PENDENTE] para referências incertas</li>
-              <li>&#10003; Marcadores [REF_DOC] para documentos do processo</li>
-              <li>&#10003; Alerta jurídico ao detectar injeção</li>
-              <li>&#10003; Referência expressa ao artigo 80 do CPC</li>
-            </ul>
-          </div>
-        </div>
-        <div style="padding:8px 12px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;font-size:11px;color:#854F0B;line-height:1.55">
-          ⚠ <strong>Aviso legal:</strong> a inserção de instruções ocultas em peças processuais configura litigância de má-fé (artigo 80 do CPC), sujeitando o responsável a multa de até 10% do valor da causa e comunicação à OAB. A ferramenta detecta e registra essas tentativas.
-        </div>
-      </div>
-      </div>
+    </div>
 
     <!-- PROCESSOS -->
     <div id="panel-proc" class="panel">
@@ -1482,12 +1418,6 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
       <div class="card">
         <div class="card-title">📁 Contexto adicional (opcional)</div>
         <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Carregue cópias de peças complementares para enriquecer o contexto. A IA usará estes documentos para embasar a fundamentação sem misturar indevidamente com o andamento principal.</p>
-        <div style="padding:10px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;font-size:12px;color:#1E40AF;margin-bottom:8px;line-height:1.6">
-          💡 <strong>Seleção inteligente:</strong> insira apenas as peças essenciais — petição inicial, contestação, decisão ou sentença. Documentos bem escolhidos produzem resultados mais precisos e ágeis. Prefira <strong>.txt</strong> ou comprima PDFs antes de carregar.
-        </div>
-        <div style="padding:8px 12px;background:#FAEEDA;border:1px solid #F59E0B;border-radius:8px;font-size:11px;color:#854F0B;margin-bottom:10px;line-height:1.6">
-          ⚠ <strong>Atenção:</strong> documentos elaborados pela parte contrária podem conter argumentos que influenciam o output da IA. Carregue apenas peças que deseja usar como referência de fundamentação.
-        </div>
 
         <!-- Peças iniciais e decisões de fase de conhecimento -->
         <div class="field" style="margin-bottom:12px">
@@ -1607,15 +1537,15 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
         <div class="card-title">1. Documentos do processo</div>
         <p style="font-size:12px;color:var(--text2);margin-bottom:8px">Faça upload de PDFs, .txt ou cole o texto. Quanto mais completo, melhor a análise. Tipos sugeridos: petição inicial, contestação, decisões, laudos, contratos.</p>
 
-        <div style="padding:10px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;font-size:12px;color:#1E40AF;margin-bottom:8px;line-height:1.6">
-          💡 <strong>Para um resultado mais rápido e preciso:</strong> insira apenas as peças essenciais do processo — petição inicial, contestação, decisão, sentença ou laudo. Documentos completos e bem selecionados geram análises significativamente melhores do que processos inteiros carregados de uma vez. Prefira arquivos <strong>.txt</strong> ou comprima os PDFs antes de carregar (ilovepdf.com).
+        <div style="padding:8px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;font-size:11px;color:#1E40AF;margin-bottom:8px">
+          💡 <strong>Dica de custo:</strong> envie apenas as <strong>peças principais</strong> do processo — não o processo inteiro. Cada página consome ~500-800 tokens. Prefira <strong>.txt</strong> ou compacte os PDFs antes (ilovepdf.com). Processos com 500+ páginas podem exceder o limite do plano.
         </div>
         <input type="file" id="an-files" multiple accept=".pdf,.txt,.docx" style="margin-bottom:8px" onchange="anCarregarArquivos(this.files)">
         <div id="an-doc-list" class="an-doc-list"></div>
 
         <details style="margin-top:10px">
           <summary style="cursor:pointer;font-size:12px;color:var(--text2)">📋 Ou cole o texto aqui (clique para expandir)</summary>
-          <div style="font-size:11px;color:#92400E;margin:4px 0 2px">⚠ Cole apenas os trechos mais relevantes — foco nas peças essenciais garante análise mais precisa e ágil.</div>
+          <div style="font-size:11px;color:#92400E;margin:4px 0 2px">⚠ Cole apenas os trechos mais relevantes para evitar consumo excessivo de tokens.</div>
           <textarea id="an-texto-colado" placeholder="Cole aqui o texto do andamento, decisão, peça ou trecho relevante..." style="margin-top:2px;min-height:120px;width:100%"></textarea>
           <button class="btn btn-s btn-sm" onclick="anAddTextoColado()" style="margin-top:6px">+ Adicionar texto como documento</button>
         </details>
@@ -7021,37 +6951,9 @@ var PADROES_INJECTION = [
   // Instruções que tentam alterar comportamento da IA geradora
   { regex: /n[aã]o\s+siga\s+(as?\s+)?(instru[cç][oõ]es?|regras?)/gi,           tipo: 'Instrução para ignorar regras' },
   { regex: /system\s+prompt|instrução\s+do\s+sistema/gi,                         tipo: 'Referência ao system prompt' },
-  { regex: /system\\s+prompt|instru.{1,5}o\\s+do\\s+sistema/gi, tipo: 'Referência ao system prompt' },
-  { regex: /resuma\\s+.{0,20}instru.{1,10}es\\s+.{0,20}(anteriores|sistema)|liste\\s+.{0,10}instru.{1,10}es|repita\\s+.{0,10}system/gi, tipo: 'Prompt Leaking (extração de instruções)' },
-  { regex: /omita|ignore.{0,20}(precedentes|julgados|acord.os).{0,20}(contr.rios|desfavor)/gi, tipo: 'Comparative Undermining (jurisprudência seletiva)' },
-  { regex: /continua.{1,5}o da instru|parte \\d+ do comando|fragmento \\d+ de/gi, tipo: 'Payload Splitting (instrução fragmentada)' },
-  { regex: /\\bDAN\\b|Do Anything Now|modo sem restri.{1,5}es/gi, tipo: 'Jailbreak DAN / alter ego' },
-  { regex: /imagem (acima|anexa|abaixo) cont.m instru|execute o que est. na imagem/gi, tipo: 'Ataque multimodal (comando em imagem)' }
 ];
 
 // Varrer texto em busca de padrões de injection
-
-// Sanitizacao anti-injecao oculta — remove caracteres Unicode invisiveis e de controle
-function sanitizarTexto(t) {
-  if (!t) return '';
-  // Remover caracteres problematicos usando codePointAt para compatibilidade
-  var result = '';
-  for (var i = 0; i < t.length; i++) {
-    var code = t.charCodeAt(i);
-    // Manter apenas caracteres uteis: tabs, newlines, e texto normal
-    if (code === 9 || code === 10 || code === 13) { result += t[i]; continue; }
-    if (code < 32 || code === 127) continue; // controles
-    if (code >= 0x200B && code <= 0x200F) continue; // largura zero
-    if (code >= 0x2028 && code <= 0x2029) continue; // separadores de linha
-    if (code >= 0x202A && code <= 0x202E) continue; // bidirecionais
-    if (code >= 0x2066 && code <= 0x2069) continue; // bidirecionais isolados
-    if (code === 0xFEFF) continue; // BOM
-    if (code === 0x00AD) continue; // hifen suave
-    result += t[i];
-  }
-  return result.slice(0, 500000);
-}
-
 function detectarInjection(texto) {
   if (!texto || texto.length < 10) return [];
   var alertas = [];
