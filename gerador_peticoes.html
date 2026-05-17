@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -739,7 +737,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .nav-sep{height:1px;background:var(--border);margin:.75rem 1.5rem}
 .main{flex:1;padding:2rem;max-width:860px}
 .panel{display:none}.panel.active{display:block}
-.panel-title{font-size:18px;font-weight:600;margin-bottom:4px;font-family:'Cormorant Garamond',serif;letter-spacing:.01em}
+.panel-title{font-size:18px;font-weight:600;margin-bottom:4px}
 .panel-sub{font-size:13px;color:var(--text2);margin-bottom:1.5rem}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem}
 .card-title{font-size:13px;font-weight:600;margin-bottom:1rem}
@@ -925,7 +923,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 1.91</div>
+    <div class="login-ver">versão 1.90</div>
   </div>
 </div>
 
@@ -950,7 +948,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Demonstração</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
-    <span class="tb-meta" id="tb-versao">versão 1.91</span>
+    <span class="tb-meta" id="tb-versao">versão 1.90</span>
   </div>
 </div>
 
@@ -2181,7 +2179,7 @@ function preencherDadosUsuario(user) {
   var nomeEl = document.getElementById('tb-user-nome');
   var oabEl = document.getElementById('tb-user-oab');
   if (nomeEl) nomeEl.textContent = nome + ' | Advogado';
-  if (oabEl) oabEl.textContent = oab ? 'OAB/SP ' + oab.replace(/^(OAB\/?SP?\s*)/i,'') : user.email;
+  if (oabEl) oabEl.textContent = oab ? 'OAB ' + oab : user.email;
   if (typeof atualizarIndicadorModelo === 'function') atualizarIndicadorModelo();
 }
 
