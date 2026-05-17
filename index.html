@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="version" content="1.17">
+<meta name="version" content="1.18">
 <title>Carmo Mancebo — Advogado | Saúde Suplementar, Seguros e Direito Cível</title>
 <meta name="description" content="Advogado com mais de 15 anos de experiência em direito cível, saúde suplementar e seguros. OAB/SP 274.575. Atendimento remoto em todo o Brasil.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -144,7 +144,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;color:var(--text);background:va
 .plano-sep{height:1px;background:var(--border);margin-bottom:1rem}
 .plano-items{list-style:none;margin-bottom:1.25rem;display:flex;flex-direction:column;gap:.4rem}
 .plano-items li{font-size:12px;color:var(--text);display:flex;align-items:flex-start;gap:.45rem;line-height:1.5}
-.plano-items li::before{content:'✓';color:var(--blue);font-weight:700;font-size:12px;flex-shrink:0;margin-top:1px}
+.plano-items li::before{content:'';color:var(--blue);font-weight:700;font-size:12px;flex-shrink:0;margin-top:1px}
 .btn-plano{display:block;text-align:center;padding:8px;border-radius:var(--rsm);font-size:12px;font-weight:500;text-decoration:none;border:1.5px solid var(--blue-dark);color:var(--blue-dark);cursor:pointer;background:transparent;font-family:inherit;transition:background .15s,color .15s;margin-top:auto}
 .btn-plano:hover{background:var(--blue-dark);color:#fff}
 .btn-plano.solid{background:var(--blue);color:#fff;border-color:var(--blue)}
@@ -280,6 +280,43 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
 .btn-wpp:hover{opacity:.9;transform:translateY(-1px)}
 .btn-calendly{display:inline-flex;align-items:center;gap:.625rem;background:transparent;color:var(--blue-dark);padding:10px 20px;border-radius:var(--rsm);font-size:13px;font-weight:500;text-decoration:none;border:1.5px solid var(--border2);transition:background .15s,color .15s}
 .btn-calendly:hover{background:var(--bg)}
+
+/* ── SEGURANÇA ─────────────────────────────────────────── */
+.seg-intro{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start;margin-bottom:4rem}
+.seg-tag{display:inline-flex;align-items:center;gap:.5rem;background:rgba(12,46,91,.08);color:var(--blue-dark);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:5px 12px;border-radius:100px;border:1px solid rgba(12,46,91,.12);margin-bottom:1rem}
+.seg-aviso{background:var(--blue-bg);border:1px solid rgba(24,95,165,.18);border-radius:var(--rsm);padding:1.25rem 1.5rem;font-size:13px;color:var(--blue-dark);line-height:1.75;margin-top:1.5rem}
+.seg-aviso strong{font-weight:600}
+.ataques-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:3rem}
+.ataque-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;border-top:3px solid var(--blue-dark)}
+.ataque-nome{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--blue-dark);margin-bottom:.5rem}
+.ataque-desc{font-size:13px;color:var(--text2);line-height:1.75;font-weight:300}
+.protecoes-wrap{margin-bottom:3rem}
+.protecoes-header{display:flex;align-items:baseline;gap:1rem;margin-bottom:2rem}
+.protecoes-num{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:700;color:var(--blue);line-height:1}
+.protecoes-label{font-size:13px;color:var(--text2);line-height:1.5}
+.protecoes-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}
+.protecao-grupo-titulo{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:.875rem;padding-bottom:.5rem;border-bottom:2px solid var(--blue-bg)}
+.protecao-lista{list-style:none;display:flex;flex-direction:column;gap:.4rem}
+.protecao-lista li{font-size:12.5px;color:var(--text2);display:flex;align-items:flex-start;gap:.5rem;line-height:1.55;font-weight:300}
+.protecao-lista li::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:.4em}
+.aviso-legal{background:var(--blue-dark);border-radius:var(--radius);padding:1.75rem 2rem;margin-bottom:3rem}
+.aviso-legal-titulo{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(200,169,110,.8);margin-bottom:.875rem}
+.aviso-legal-texto{font-size:13px;color:rgba(245,240,232,.7);line-height:1.8;font-weight:300}
+.aviso-legal-texto strong{color:rgba(245,240,232,.92);font-weight:500}
+.seg-cta{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
+.seg-cta-texto{}
+.seg-cta-titulo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--blue-dark);margin-bottom:.4rem}
+.seg-cta-sub{font-size:13px;color:var(--text2);font-weight:300;line-height:1.65}
+@media(max-width:960px){
+  .seg-intro{grid-template-columns:1fr;gap:2rem}
+  .ataques-grid{grid-template-columns:1fr}
+  .protecoes-cols{grid-template-columns:1fr}
+  .seg-cta{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:760px){
+  .ataques-grid{grid-template-columns:1fr}
+  .protecoes-cols{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
@@ -292,6 +329,7 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
       <li><a href="#atuacao">Atuação</a></li>
       <li><a href="#produto">O Produto</a></li>
       <li><a href="#planos">Planos</a></li>
+      <li><a href="#seguranca">Segurança</a></li>
       <li><a href="#contato">Contato</a></li>
     </ul>
   </div>
@@ -504,7 +542,7 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
 <span class="ml-d">» Verificando rol ANS...</span><br>
 <span class="ml-d">» Aplicando critério científico...</span><br>
 <span class="ml-d">» Estruturando tópicos e pedidos...</span><br><br>
-<span class="ml-b">Peça gerada com sucesso ✓</span><br>
+<span class="ml-b">Peça gerada com sucesso </span><br>
 <span class="ml-c">█</span>
           </div>
         </div>
@@ -597,6 +635,122 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
   </div>
 </section>
 
+<!-- SEGURANÇA -->
+<section id="seguranca" class="sec sec-surface">
+  <div class="container">
+
+    <!-- Bloco 1 — Introdução -->
+    <div class="seg-intro rev">
+      <div>
+        <div class="seg-tag">Segurança</div>
+        <h2 class="sec-title">A ferramenta que protege você e seus clientes — inclusive das fraudes com IA</h2>
+      </div>
+      <div>
+        <p class="sec-lead">Não basta gerar petições com inteligência artificial. É preciso garantir que nenhuma peça da parte contrária manipule o sistema a seu favor.</p>
+        <p class="sec-lead" style="margin-top:0">O Gerador de Petições foi desenvolvido com múltiplas camadas de proteção contra essas e outras técnicas de manipulação de IA — ativas em todos os planos, sem exceção, desde o Demonstração até o Completo.</p>
+        <div class="seg-aviso">
+          <strong>Por que isso é urgente:</strong> o caso das advogadas suspensas pela OAB-PA por inserção de comandos ocultos em petições acendeu um alerta real na advocacia brasileira. Esse tipo de ataque já está sendo usado em processos reais.
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloco 2 — Técnicas de ataque -->
+    <div class="rev">
+      <div class="eyebrow">Técnicas de fraude que advogados precisam conhecer</div>
+      <h3 class="sec-title" style="font-size:clamp(1.5rem,2vw,2rem);margin-bottom:1.5rem">Como a parte contrária pode manipular sistemas de IA</h3>
+    </div>
+    <div class="ataques-grid">
+      <div class="ataque-card rev">
+        <div class="ataque-nome">Prompt Injection</div>
+        <p class="ataque-desc">Comandos ocultos inseridos em peças processuais que instruem a IA a ignorar as orientações do sistema e agir em favor do atacante.</p>
+      </div>
+      <div class="ataque-card rev" style="transition-delay:.05s">
+        <div class="ataque-nome">Texto invisível</div>
+        <p class="ataque-desc">Instruções escritas com cor igual ao fundo, fonte tamanho zero ou caracteres Unicode especiais. O leitor humano não vê nada. A IA lê tudo.</p>
+      </div>
+      <div class="ataque-card rev" style="transition-delay:.1s">
+        <div class="ataque-nome">Payload Splitting</div>
+        <p class="ataque-desc">Instruções fragmentadas ao longo do documento que só formam um comando completo quando processadas em conjunto pela IA.</p>
+      </div>
+      <div class="ataque-card rev" style="transition-delay:.05s">
+        <div class="ataque-nome">Comparative Undermining Attack</div>
+        <p class="ataque-desc">Seleção e ênfase apenas na jurisprudência favorável à tese adversária, omitindo precedentes contrários — apresentado com aparência de análise equilibrada. É o ataque mais difícil de detectar porque parece fundamentação jurídica legítima.</p>
+      </div>
+      <div class="ataque-card rev" style="transition-delay:.1s">
+        <div class="ataque-nome">Jailbreaking</div>
+        <p class="ataque-desc">Criação de um alter ego na IA que ignora os filtros de segurança do sistema, fazendo-a agir fora dos parâmetros definidos pelo desenvolvedor.</p>
+      </div>
+    </div>
+
+    <!-- Bloco 3 — 19 camadas -->
+    <div class="protecoes-wrap rev">
+      <div class="protecoes-header">
+        <div class="protecoes-num">19</div>
+        <div class="protecao-grupo-titulo" style="border:none;margin:0;padding:0;font-size:13px;letter-spacing:.04em;text-transform:none;font-weight:400;color:var(--text2);line-height:1.5">camadas de proteção ativas<br><strong style="color:var(--text);font-weight:600">em todos os planos — do Demonstração ao Completo</strong></div>
+      </div>
+      <div class="protecoes-cols">
+        <div>
+          <div class="protecao-grupo-titulo">Contra ataques de texto</div>
+          <ul class="protecao-lista">
+            <li>Prompt Hijacking — comando "ignore tudo que foi dito antes"</li>
+            <li>Prompt Override em português e inglês</li>
+            <li>Jailbreaking e redefinição de papel da IA</li>
+            <li>Instrução direta à IA identificada no documento</li>
+            <li>Instrução de contestação superficial</li>
+            <li>Instrução para não impugnar documentos</li>
+            <li>Prompt Leaking — extração de instruções internas do sistema</li>
+            <li>Jailbreak DAN / alter ego</li>
+            <li>Comparative Undermining Attack — jurisprudência deliberadamente seletiva</li>
+          </ul>
+        </div>
+        <div>
+          <div class="protecao-grupo-titulo">Contra ataques ocultos</div>
+          <ul class="protecao-lista">
+            <li>Texto invisível (cor branca sobre fundo branco, fonte tamanho zero)</li>
+            <li>Caracteres Unicode de controle e largura zero</li>
+            <li>Caracteres bidirecionais ocultos</li>
+            <li>Payload Splitting — instrução fragmentada ao longo do documento</li>
+            <li>Ataque multimodal — comando embutido em imagem ou diagrama</li>
+            <li>Sanitização automática de texto extraído de PDFs e DOCX</li>
+          </ul>
+        </div>
+        <div>
+          <div class="protecao-grupo-titulo">Segurança de acesso e integridade</div>
+          <ul class="protecao-lista">
+            <li>Autenticação real via JWT</li>
+            <li>Sessão única por usuário — acesso simultâneo encerra o anterior</li>
+            <li>Chaves de API exclusivamente no servidor — nunca expostas no navegador</li>
+            <li>Honeypot e rate limiting anti-bot no cadastro</li>
+          </ul>
+          <div class="protecao-grupo-titulo" style="margin-top:1.5rem">Integridade do output</div>
+          <ul class="protecao-lista">
+            <li>Protocolo anti-alucinação de jurisprudência</li>
+            <li>Lista branca de precedentes verificados</li>
+            <li>Marcadores para referências que precisam de verificação</li>
+            <li>Alerta ao detectar injeção — com referência ao artigo 80 do CPC</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloco 4 — Aviso legal -->
+    <div class="aviso-legal rev">
+      <div class="aviso-legal-titulo">Aviso legal</div>
+      <p class="aviso-legal-texto">A inserção de instruções ocultas em peças processuais configura <strong>litigância de má-fé</strong> nos termos do artigo 80 do Código de Processo Civil, sujeitando o responsável a multa de até 10% do valor da causa e comunicação ao Conselho Seccional da OAB. O sistema detecta essas tentativas.</p>
+    </div>
+
+    <!-- Bloco 5 — CTA -->
+    <div class="seg-cta rev">
+      <div class="seg-cta-texto">
+        <div class="seg-cta-titulo">Comece agora. O plano Demonstração é gratuito.</div>
+        <p class="seg-cta-sub">25 peças por mês, modos Essencial e Avançado, todas as 19 proteções ativas — sem necessidade de cartão de crédito.<br>Planos Avançado (150 peças/mês) e Completo (300 peças/mês) disponíveis em breve.</p>
+      </div>
+      <a href="/geradordepeticoes" class="btn-p" style="white-space:nowrap;flex-shrink:0">Criar conta gratuita →</a>
+    </div>
+
+  </div>
+</section>
+
 <!-- CONTATO -->
 <section id="contato" class="sec sec-surface">
   <div class="container">
@@ -668,14 +822,12 @@ footer{background:var(--blue-dark);border-top:1px solid rgba(255,255,255,.07);pa
       <p class="footer-info">OAB/SP 274.575</p>
     </div>
     <div class="footer-links">
-      <a href="#">Política de Privacidade</a>
-      <a href="#">Termos de Uso</a>
       <a href="#contato">Contato</a>
       <a href="https://linkedin.com/in/carmoadvogado" target="_blank" rel="noopener">LinkedIn</a>
     </div>
   </div>
 </footer>
-<div class="ver">index v1.17</div>
+<div class="ver">index v1.18</div>
 
 <script>
 const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);}});},{threshold:.08,rootMargin:'0px 0px -30px 0px'});
