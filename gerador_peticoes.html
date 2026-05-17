@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -739,7 +737,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .nav-sep{height:1px;background:var(--border);margin:.75rem 1.5rem}
 .main{flex:1;padding:2rem;max-width:860px}
 .panel{display:none}.panel.active{display:block}
-.panel-title{font-size:18px;font-weight:600;margin-bottom:4px;font-family:'Cormorant Garamond',serif;letter-spacing:.01em}
+.panel-title{font-size:18px;font-weight:600;margin-bottom:4px}
 .panel-sub{font-size:13px;color:var(--text2);margin-bottom:1.5rem}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem}
 .card-title{font-size:13px;font-weight:600;margin-bottom:1rem}
@@ -911,10 +909,6 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
       <div class="login-field">
         <label>Confirmar senha</label>
-        <!-- Honeypot anti-bot — não deve ser preenchido por humanos -->
-        <input type="text" id="cad-hp" name="website" autocomplete="off"
-               style="display:none;position:absolute;left:-9999px" tabindex="-1"
-               aria-hidden="true" />
         <input type="password" id="cad-senha2" placeholder="Repita a senha"
           onkeydown="if(event.key==='Enter')fazerCadastro()" />
       </div>
@@ -925,7 +919,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 1.92.1</div>
+    <div class="login-ver">versão 1.87</div>
   </div>
 </div>
 
@@ -950,7 +944,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Demonstração</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
-    <span class="tb-meta" id="tb-versao">versão 1.92</span>
+    <span class="tb-meta" id="tb-versao">versão 1.87</span>
   </div>
 </div>
 
@@ -974,9 +968,6 @@ tbody tr.st-p td{background:#b3e5fc}
     <div id="panel-cfg" class="panel active">
       <div class="panel-title">Configuração</div>
       <div class="panel-sub">Selecione peças de referência para uso como modelo de estilo e estrutura.</div>
-      <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
-        <button class="btn btn-s btn-sm" onclick="go('ger')" style="font-size:12px;color:var(--blue)">Ir direto para Gerar petição →</button>
-      </div>
 
 
 
@@ -990,9 +981,9 @@ tbody tr.st-p td{background:#b3e5fc}
         </div>
         <div id="cfg-pecas-texto" style="font-size:11px;color:var(--text3);margin-bottom:10px"></div>
         <div style="font-size:11px;color:var(--text2);padding:8px 10px;background:var(--bg2);border-radius:6px">
-          🎁 <strong>Plano Demonstração:</strong> 10 peças para explorar a ferramenta. Sem prazo de validade — use quando quiser.
-          Upgrade para o plano <strong>Demonstração</strong> ou <strong>Avançado</strong> para uso contínuo.<br>
-          <span style="color:var(--text3)">Acesse a seção de planos para conhecer as opções disponíveis.</span>
+          🎁 <strong>Plano Degustação:</strong> 10 peças para explorar a ferramenta. Sem prazo de validade — use quando quiser.
+          Upgrade para o plano <strong>Degustação</strong> ou <strong>Avançado</strong> para uso contínuo.<br>
+          <span style="color:var(--text3)">Interesse em acesso antecipado? Entre em contato pelo e-mail do perfil.</span>
         </div>
       </div>
 
@@ -1176,104 +1167,18 @@ tbody tr.st-p td{background:#b3e5fc}
       <div class="btn-row">
         <button class="btn btn-p" onclick="go('proc')">Próximo: Processos →</button>
       </div>
-    
-      <div class="card" id="card-seguranca">
-        <div class="card-title" style="display:flex;align-items:center;gap:8px">
-          🔒 Proteções de segurança ativas
-          <span style="font-size:11px;font-weight:400;color:var(--text2)">Disponíveis em todos os planos, sem exceção</span>
-        </div>
-        <p style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6">
-          Esta ferramenta implementa múltiplas camadas de proteção contra técnicas de manipulação de sistemas de IA — incluindo as identificadas em casos reais como o do TRT-8 (Parauapebas-PA, 2025). Todas as proteções estão ativas em todos os planos, do Demonstração ao Completo, sem exceção.
-        </p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-          <div style="background:var(--green-bg);border-radius:8px;padding:10px 12px">
-            <div style="font-size:12px;font-weight:500;color:var(--green);margin-bottom:6px">🛡 Ataques de texto</div>
-            <ul style="font-size:11px;color:var(--text2);list-style:none;padding:0;margin:0;line-height:1.9">
-              <li>&#10003; Prompt Hijacking (comando "ignore tudo anterior")</li>
-              <li>&#10003; Prompt Override em português e inglês</li>
-              <li>&#10003; Jailbreaking e redefinição de papel da IA</li>
-              <li>&#10003; Instrução direta à IA (padrão TRT-8)</li>
-              <li>&#10003; Instrução de contestação superficial</li>
-              <li>&#10003; Instrução para não impugnar documentos</li>
-              <li>&#10003; Prompt Leaking (extração de instruções)</li>
-              <li>&#10003; Jailbreak DAN / alter ego</li>
-              <li>&#10003; Comparative Undermining Attack</li>
-            </ul>
-          </div>
-          <div style="background:var(--green-bg);border-radius:8px;padding:10px 12px">
-            <div style="font-size:12px;font-weight:500;color:var(--green);margin-bottom:6px">🛡 Ataques ocultos</div>
-            <ul style="font-size:11px;color:var(--text2);list-style:none;padding:0;margin:0;line-height:1.9">
-              <li>&#10003; Texto invisível (cor branca, fonte zero)</li>
-              <li>&#10003; Caracteres Unicode de controle e largura zero</li>
-              <li>&#10003; Caracteres bidirecionais ocultos</li>
-              <li>&#10003; Payload Splitting (instrução fragmentada)</li>
-              <li>&#10003; Ataque multimodal (comando em imagem)</li>
-              <li>&#10003; Sanitização de PDFs e DOCX ao carregar</li>
-              <li>&#10003; Verificação em todos os campos de entrada</li>
-              <li>&#10003; Verificação no output após geração</li>
-            </ul>
-          </div>
-          <div style="background:#EFF6FF;border-radius:8px;padding:10px 12px">
-            <div style="font-size:12px;font-weight:500;color:var(--blue);margin-bottom:6px">🛡 Segurança de acesso</div>
-            <ul style="font-size:11px;color:var(--text2);list-style:none;padding:0;margin:0;line-height:1.9">
-              <li>&#10003; Autenticação real via JWT (Supabase Auth)</li>
-              <li>&#10003; Sessão única por usuário (anti-compartilhamento)</li>
-              <li>&#10003; Chaves de API exclusivamente no servidor</li>
-              <li>&#10003; Controle de acesso por plano e por modelo</li>
-              <li>&#10003; Honeypot e rate limiting no cadastro</li>
-              <li>&#10003; RLS (Row Level Security) no banco de dados</li>
-            </ul>
-          </div>
-          <div style="background:#EFF6FF;border-radius:8px;padding:10px 12px">
-            <div style="font-size:12px;font-weight:500;color:var(--blue);margin-bottom:6px">🛡 Integridade do output</div>
-            <ul style="font-size:11px;color:var(--text2);list-style:none;padding:0;margin:0;line-height:1.9">
-              <li>&#10003; Protocolo anti-alucinação de jurisprudência</li>
-              <li>&#10003; Lista branca de precedentes verificados</li>
-              <li>&#10003; Marcadores [CITAÇÃO_PENDENTE] para referências incertas</li>
-              <li>&#10003; Marcadores [REF_DOC] para documentos do processo</li>
-              <li>&#10003; Alerta jurídico ao detectar injeção</li>
-              <li>&#10003; Referência expressa ao artigo 80 do CPC</li>
-            </ul>
-          </div>
-        </div>
-        <div style="padding:8px 12px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;font-size:11px;color:#854F0B;line-height:1.55">
-          ⚠ <strong>Aviso legal:</strong> a inserção de instruções ocultas em peças processuais configura litigância de má-fé (artigo 80 do CPC), sujeitando o responsável a multa de até 10% do valor da causa e comunicação à OAB. A ferramenta detecta e registra essas tentativas.
-        </div>
-      </div>
-      </div>
+    </div>
 
     <!-- PROCESSOS -->
     <div id="panel-proc" class="panel">
       <div class="panel-title">Processos</div>
-      <div class="panel-sub"></div>
-      <div class="proc-instrucao" id="card-instrucao-proc">
-        <h3>Como usar esta aba</h3>
-        <p>Importe uma planilha com seus processos para gerenciá-los em lote. Ao clicar em um processo, os dados são carregados automaticamente na aba <strong>Gerar petição</strong>.</p>
-        <div class="proc-rotas">
-          <div class="proc-rota">
-            <strong>📋 Com planilha</strong>
-            <span>Importe o arquivo .xlsx no formato padrão da ferramenta. Clique em qualquer processo para carregá-lo na aba Gerar petição.</span>
-            <div style="margin-top:8px">
-              <button onclick="baixarModeloPlanilha()" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#0F6E56;font-weight:500;cursor:pointer;background:#E1F5EE;padding:4px 10px;border-radius:8px;border:0.5px solid #5DCAA5">
-                📥 Baixar modelo de planilha
-              </button>
-            </div>
-          </div>
-          <div class="proc-rota">
-            <strong>✏️ Sem planilha</strong>
-            <span>Esta aba é opcional. Vá direto para <a href="#" onclick="go('ger');return false" style="color:#166534;font-weight:500">Gerar petição</a> e insira os dados manualmente.</span>
-          </div>
-        </div>
-      </div>
+      <div class="panel-sub">Clique para selecionar · 📋 ficha · Duplo clique abre ficha · Shift+clique na coluna para ordenação secundária</div>
 
       <div class="card" id="card-xlsx">
         <div class="fzone" onclick="document.getElementById('inp-xlsx').click()">
           <p>Selecionar planilha Excel (.xlsx)</p>
           <small>Carregada uma vez — dados salvos automaticamente</small>
         </div>
-      <div id="legenda-tabela" style="font-size:11px;color:var(--text3);padding:4px 2px 8px;display:none">
-        Clique para selecionar &nbsp;·&nbsp; 📋 Clique no ícone de ficha para detalhes &nbsp;·&nbsp; Duplo clique abre ficha &nbsp;·&nbsp; Shift+clique para ordenação secundária
-      </div>
         <input type="file" id="inp-xlsx" accept=".xlsx,.xls" style="display:none" onchange="loadXLSX(this)" />
         <div id="xlsx-info" style="font-size:11px;color:var(--text3);margin-top:4px;min-height:14px"></div>
       </div>
@@ -1357,33 +1262,7 @@ tbody tr.st-p td{background:#b3e5fc}
 
     <!-- GERAR -->
     <div id="panel-ger" class="panel">
-      <div class="progress-bar-flow" id="barra-fluxo">
-      <div class="pf-step done" id="pf-cfg" onclick="go('cfg')" title="Ir para Configuração">
-        <div class="pf-dot">✓</div>
-        <span>Configuração</span>
-      </div>
-      <div class="pf-line"></div>
-      <div class="pf-step" id="pf-proc" onclick="go('proc')" title="Ir para Processos">
-        <div class="pf-dot">2</div>
-        <span>Processos</span>
-      </div>
-      <div class="pf-line"></div>
-      <div class="pf-step active" id="pf-ger" onclick="go('ger')" title="Ir para Gerar petição">
-        <div class="pf-dot">3</div>
-        <span>Gerar petição</span>
-      </div>
-      <div class="pf-line"></div>
-      <div class="pf-step" id="pf-res" onclick="go('res')" title="Ver resultado">
-        <div class="pf-dot">4</div>
-        <span>Resultado</span>
-      </div>
-    </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
-        <div class="panel-title" style="margin-bottom:0">Gerar petição</div>
-        <button onclick="limparTudoGerar()" style="font-size:12px;color:var(--text2);background:none;border:0.5px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;display:flex;align-items:center;gap:4px" title="Limpar todos os campos e recomeçar">
-          🗑 Limpar tudo
-        </button>
-      </div>
+      <div class="panel-title">Gerar petição</div>
       <div class="panel-sub">Preencha os dados, informe o andamento e gere a minuta.</div>
 
       <!-- sel-modelo (oculto) sincronizado com sel-modelo-global na Configuração -->
@@ -1393,42 +1272,13 @@ tbody tr.st-p td{background:#b3e5fc}
         <option value="completo">Completo</option>
       </select>
 
-      <div class="card card-destaque" id="card-andamento">
-        <div class="card-title" style="display:flex;align-items:center;gap:8px">
-          Andamento do tribunal
-          <span id="badge-comece" style="display:inline-flex;align-items:center;gap:4px;background:#E6F1FB;color:#185FA5;font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;animation:pulse-badge 2s ease-in-out infinite">▶ Comece aqui</span>
-        </div>
-        <p id="hint-andamento" style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.6">Cole o texto do andamento copiado do tribunal (e-SAJ, PJe, TJSP, STJ etc.) ou carregue o arquivo abaixo. A IA identifica automaticamente as partes, o tipo de peça necessária e os fundamentos aplicáveis.</p>
-        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
-          <button class="btn btn-s btn-sm" onclick="document.getElementById('inp-and').click()">📎 Carregar arquivo (PDF, DOCX, TXT)</button>
-          <span id="and-nome" style="font-size:11px;color:var(--text3)"></span>
-          <button class="btn btn-s btn-sm fhide" id="btn-and-clear" onclick="clearAndamento()">× Limpar</button>
-        </div>
-        <input type="file" id="inp-and" accept=".pdf,.docx,.txt" style="display:none" onchange="loadAndamento(this)" />
-        <div id="and-st"></div>
-        <div class="field">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-            <label style="margin-bottom:0">Texto do andamento / decisão / despacho / sentença / acórdão</label>
-            <button class="btn btn-s btn-sm" onclick="analisarAndamento()" title="Detecta automaticamente: tipo de demanda, dados do processo, e sugere tipo de peça" style="font-size:11px;padding:3px 8px">🔍 Analisar andamento</button>
-          </div>
-          <textarea id="f-and" style="min-height:140px" placeholder="Cole aqui o texto do andamento processual copiado do tribunal (e-SAJ, PJe, TJSP, STJ etc.).
-
-Exemplo: "Vistos. Trata-se de ação de obrigação de fazer... Intime-se a parte ré para manifestação no prazo de 15 dias. São Paulo, 22 de abril de 2026."
-
-Quanto mais completo o andamento, mais precisa e fundamentada será a peça gerada. Você também pode carregar o arquivo PDF ou DOCX acima...."></textarea>
-          <div id="and-analise" style="display:none;margin-top:6px;padding:8px 10px;background:#EFF6FF;border:1px solid #93C5FD;border-radius:6px;font-size:11px;color:#1E3A8A"></div>
-          <div style="font-size:10px;color:var(--text3);text-align:right;margin-top:2px"><span id="cnt-and">0</span> chars · <span id="cnt-and-tk">0</span> tokens est.</div>
-          <div id="alerta-dlp" style="display:none;margin-top:6px;padding:8px 10px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:6px;font-size:11px;color:#92400E"></div>
-        </div>
-      </div>
-
       <div class="card">
         <div class="card-title">Dados do processo</div>
         <!-- Linha 1: Pasta + Número do processo (seletor auto/manual + input do número) -->
         <div class="row2" style="grid-template-columns:1fr 2fr;gap:12px;margin-bottom:14px">
-          <div class="field"><label style="display:inline-flex;align-items:center;gap:0">Pasta<span class="tooltip-wrap"><span class="tooltip-icon" tabindex="0">?</span><span class="tooltip-box">Opcional. Referência interna do escritório para identificar o processo na planilha.</span></span></label><input type="text" id="f-pasta" /></div>
+          <div class="field"><label>Pasta</label><input type="text" id="f-pasta" /></div>
           <div class="field field-required">
-            <label style="display:inline-flex;align-items:center;gap:0">Número do processo<span class="tooltip-wrap"><span class="tooltip-icon" tabindex="0">?</span><span class="tooltip-box">Cole o número CNJ (0000000-00.0000.0.00.0000). A IA consulta os dados do tribunal automaticamente.</span></span></label>
+            <label>Número do processo</label>
             <div style="display:flex;gap:6px;align-items:stretch;">
               <select id="f-proc-modo" style="max-width:180px;flex-shrink:0;" onchange="toggleProcModo()">
                 <option value="manual">Preencher manualmente</option>
@@ -1456,7 +1306,7 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
         </div>
         <!-- Cliente e Parte contrária em linhas separadas (uma linha cada) -->
         <div class="field field-required" style="margin-bottom:14px">
-          <label style="display:inline-flex;align-items:center;gap:0">Cliente (executada / ré)<span class="tooltip-wrap"><span class="tooltip-icon" tabindex="0">?</span><span class="tooltip-box">Em "Automático", a IA identifica o nome da operadora no andamento. Selecione "Preencher manualmente" para informar diretamente.</span></span></label>
+          <label>Cliente (executada / ré)</label>
           <div style="display:flex;gap:6px;align-items:stretch;">
             <select id="f-cliente-modo" style="max-width:180px;flex-shrink:0;" onchange="toggleClienteModo()">
               <option value="auto" selected>Automático (IA identifica)</option>
@@ -1467,7 +1317,7 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
           </div>
         </div>
         <div class="field field-required" style="margin-bottom:14px">
-          <label style="display:inline-flex;align-items:center;gap:0">Parte contrária<span class="tooltip-wrap"><span class="tooltip-icon" tabindex="0">?</span><span class="tooltip-box">Nome do autor ou exequente. Em "Automático", a IA extrai do andamento carregado.</span></span></label>
+          <label>Parte contrária</label>
           <div style="display:flex;gap:6px;align-items:stretch;">
             <select id="f-parte-modo" style="max-width:180px;flex-shrink:0;" onchange="toggleParteModo()">
               <option value="auto" selected>Automático (IA identifica)</option>
@@ -1476,52 +1326,33 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
             <input type="text" id="f-parte" placeholder="(será identificado pela IA)" disabled style="flex:1;background:var(--surface2);" />
           </div>
         </div>
-        <div class="field"><label style="display:inline-flex;align-items:center;gap:0">Descrição da demanda<span class="tooltip-wrap"><span class="tooltip-icon" tabindex="0">?</span><span class="tooltip-box">Opcional. Descreva brevemente a tarefa (ex.: "elaborar impugnação ao cumprimento de sentença"). Se deixado em branco, a IA identifica pelo andamento.</span></span></label><input type="text" id="f-desc" /></div>
+        <div class="field"><label>Descrição da demanda (Tarefa)</label><input type="text" id="f-desc" /></div>
       </div>
 
       <div class="card">
-        <div class="card-title">Configurações da peça</div>
-        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Defina os parâmetros que influenciam a assinatura e a densidade da minuta. O preenchimento desse card é necessário para a geração da peça.</p>
-        <div class="row2" style="grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-          <div class="field">
-            <label>Advogado responsável</label>
-            <select id="f-advogado" onchange="toggleAdvogadoMode()">
-              <option value="auto" selected>Automático (identificar pela petição/processo)</option>
-              <option value="manual">Preencher manualmente (outro advogado)</option>
-              <option value="nenhum">Não incluir bloco de assinatura</option>
-            </select>
-            <div id="adv-manual-box" style="display:none;margin-top:8px;padding:8px;background:var(--surface2);border-radius:var(--rsm);border:1px solid var(--border)">
-              <div style="display:grid;grid-template-columns:1fr 160px;gap:8px;">
-                <div><label style="font-size:11px;color:var(--text2)">Nome completo</label><input type="text" id="f-adv-nome" placeholder="Nome do advogado(a)" /></div>
-                <div><label style="font-size:11px;color:var(--text2)">OAB</label><input type="text" id="f-adv-oab" placeholder="OAB/SP 000.000" /></div>
-              </div>
-            </div>
-          </div>
-          <div class="field">
-            <label>Cidade da assinatura</label>
-            <input type="text" id="f-cidade" value="São Paulo/SP" />
-          </div>
+        <div class="card-title">Andamento do tribunal</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-s btn-sm" onclick="document.getElementById('inp-and').click()">📎 Carregar arquivo (PDF, DOCX, TXT)</button>
+          <span id="and-nome" style="font-size:11px;color:var(--text3)"></span>
+          <button class="btn btn-s btn-sm fhide" id="btn-and-clear" onclick="clearAndamento()">× Limpar</button>
         </div>
+        <input type="file" id="inp-and" accept=".pdf,.docx,.txt" style="display:none" onchange="loadAndamento(this)" />
+        <div id="and-st"></div>
         <div class="field">
-          <label>Densidade do texto <span style="color:var(--red)">*</span></label>
-          <select id="f-densidade" required>
-            <option value="" selected disabled>— selecione —</option>
-            <option value="objetiva">Objetiva — redação clara, direta, focada no essencial</option>
-            <option value="densa">Densa — detalhada, com fundamentação minuciosa</option>
-            <option value="extensa">Extensa — máximo detalhamento, com revisão antes da entrega</option>
-          </select>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <label style="margin-bottom:0">Texto do andamento / decisão / despacho / sentença / acórdão</label>
+            <button class="btn btn-s btn-sm" onclick="analisarAndamento()" title="Detecta automaticamente: tipo de demanda, dados do processo, e sugere tipo de peça" style="font-size:11px;padding:3px 8px">🔍 Analisar andamento</button>
+          </div>
+          <textarea id="f-and" style="min-height:140px" placeholder="Cole o texto ou carregue um arquivo acima..."></textarea>
+          <div id="and-analise" style="display:none;margin-top:6px;padding:8px 10px;background:#EFF6FF;border:1px solid #93C5FD;border-radius:6px;font-size:11px;color:#1E3A8A"></div>
+          <div style="font-size:10px;color:var(--text3);text-align:right;margin-top:2px"><span id="cnt-and">0</span> chars · <span id="cnt-and-tk">0</span> tokens est.</div>
+          <div id="alerta-dlp" style="display:none;margin-top:6px;padding:8px 10px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:6px;font-size:11px;color:#92400E"></div>
         </div>
       </div>
 
       <div class="card">
         <div class="card-title">📁 Contexto adicional (opcional)</div>
         <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Carregue cópias de peças complementares para enriquecer o contexto. A IA usará estes documentos para embasar a fundamentação sem misturar indevidamente com o andamento principal.</p>
-        <div style="padding:10px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;font-size:12px;color:#1E40AF;margin-bottom:8px;line-height:1.6">
-          💡 <strong>Seleção inteligente:</strong> insira apenas as peças essenciais — petição inicial, contestação, decisão ou sentença. Documentos bem escolhidos produzem resultados mais precisos e ágeis. Prefira <strong>.txt</strong> ou comprima PDFs antes de carregar.
-        </div>
-        <div style="padding:8px 12px;background:#FAEEDA;border:1px solid #F59E0B;border-radius:8px;font-size:11px;color:#854F0B;margin-bottom:10px;line-height:1.6">
-          ⚠ <strong>Atenção:</strong> documentos elaborados pela parte contrária podem conter argumentos que influenciam o output da IA. Carregue apenas peças que deseja usar como referência de fundamentação.
-        </div>
 
         <!-- Peças iniciais e decisões de fase de conhecimento -->
         <div class="field" style="margin-bottom:12px">
@@ -1572,17 +1403,172 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
           💡 <strong>Dica:</strong> PDFs muito grandes (acima de 5 MB) podem exceder o limite de contexto da IA. Considere comprimir no <a href="https://www.ilovepdf.com/pt/comprimir_pdf" target="_blank" style="color:#0C6ECF">iLovePDF</a> ou similar antes de carregar. Isso também acelera a extração de texto.
         </div>
       </div>
-      <div class="card" id="card-revisar-peca" style="display:none;border:1.5px solid #85B7EB">
-        <div class="card-title" style="display:flex;align-items:center;gap:8px">
-          ✏️ Peça a revisar
-          <span style="font-size:11px;font-weight:400;color:var(--text2)">Cole a peça original para a IA corrigir redação e estrutura</span>
-        </div>
-        <p style="font-size:12px;color:var(--text3);margin-bottom:8px">A IA vai revisar a peça mantendo o conteúdo jurídico, aprimorando a redação, estrutura e fundamentação normativa.</p>
-        <textarea id="f-peca-revisar-card" rows="10" placeholder="Cole aqui o texto completo da peça que deseja revisar..." style="width:100%;resize:vertical" oninput="var h=document.getElementById('f-peca-revisar'); if(h) h.value=this.value;"></textarea>
-        <textarea id="f-peca-revisar" style="display:none" aria-hidden="true"></textarea>
-      </div>
 
-      
+      <div class="card">
+        <div class="card-title">Configurações da peça</div>
+        <div class="row2">
+          <div class="field">
+            <label>Área do direito</label>
+            <select id="f-area" onchange="atualizarSubareas()">
+              <option value="civel" selected>Saúde suplementar</option>
+              <optgroup label="— Em breve como módulos específicos —" style="color:var(--text3)">
+                <option value="futuro" disabled>Trabalhista</option>
+                <option value="futuro" disabled>Tributário</option>
+                <option value="futuro" disabled>Família e Sucessões</option>
+                <option value="futuro" disabled>Administrativo</option>
+                <option value="futuro" disabled>Penal</option>
+                <option value="futuro" disabled>Empresarial e Societário</option>
+                <option value="futuro" disabled>Previdenciário</option>
+                <option value="futuro" disabled>Consumidor</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="field">
+            <label>Subárea / Especialização</label>
+            <select id="f-subarea"></select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Tipo de peça</label>
+          <select id="f-tipo" onchange="onTipoChange();g1SugerirTeses(this.value)">
+
+            <option value="auto" selected>Identificar automaticamente pelo andamento</option>
+            <optgroup label="── Revisão ──">
+              <option value="roteiro de audiência">🎤 Roteiro de audiência</option>
+              <option value="revisão de peça">✏️ Revisar peça existente</option>
+            </optgroup>
+            <optgroup label="── Fase de conhecimento ──">
+              <option value="contestação">Contestação</option>
+              <option value="contestação de liminar">Contestação de liminar / Pedido de reconsideração</option>
+              <option value="embargos de declaração">Embargos de declaração</option>
+              <option value="especificação de provas">Especificação de provas</option>
+              <option value="manifestação a decisão interlocutória">Manifestação a decisão interlocutória</option>
+              <option value="manifestação a despacho">Manifestação a despacho / ato ordinatório</option>
+              <option value="manifestação sobre laudo pericial">Manifestação sobre laudo pericial</option>
+              <option value="petição de quesitos">Petição de quesitos (perícia)</option>
+              <option value="petição simples">Petição simples / informativa</option>
+              <option value="réplica à contestação">Réplica à contestação</option>
+            </optgroup>
+            <optgroup label="── Fase recursal ──">
+              <option value="agravo de instrumento">Agravo de instrumento</option>
+              <option value="agravo em recurso especial">Agravo em Recurso Especial (AREsp)</option>
+              <option value="agravo interno">Agravo interno</option>
+              <option value="apelação">Apelação</option>
+              <option value="contrarrazões de apelação">Contrarrazões de apelação</option>
+              <option value="contrarrazões de agravo de instrumento">Contrarrazões ao agravo de instrumento</option>
+              <option value="contrarrazões de recurso especial">Contrarrazões de recurso especial</option>
+              <option value="recurso inominado">Recurso inominado (JEC)</option>
+              <option value="contrarrazões de recurso inominado">Contrarrazões ao recurso inominado (JEC)</option>
+              <option value="recurso especial">Recurso especial (STJ)</option>
+              <option value="recurso extraordinário">Recurso extraordinário (STF)</option>
+            </optgroup>
+            <optgroup label="── Cumprimento de sentença / execução ──">
+              <option value="exceção de pré-executividade">Exceção de pré-executividade</option>
+              <option value="impugnação a cálculos">Petição de cálculos / impugnação a cálculos</option>
+              <option value="impugnação ao cumprimento de sentença">Impugnação ao cumprimento de sentença (artigo 525 CPC)</option>
+              <option value="impugnação ao cumprimento provisório">Impugnação ao cumprimento provisório</option>
+            </optgroup>
+            <optgroup label="── Outro ──">
+              <option value="manual">Preencher manualmente (digitar o tipo)</option>
+            </optgroup>
+          </select>
+          <div id="tipo-hint" style="font-size:11px;color:var(--blue);margin-top:3px;min-height:14px"></div>
+          <div id="g1-sugestoes" class="g1-sugestao-wrap" style="display:none"></div>
+            <input type="text" id="f-tipo-manual" placeholder="Descreva o tipo de peça (ex: Nota de expediente, Contrarrazões ao AREsp...)" style="display:none;margin-top:6px;width:100%;box-sizing:border-box" />
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>Advogado responsável</label>
+            <select id="f-advogado" onchange="toggleAdvogadoMode()">
+              <option value="auto">Automático (identificar pela petição/processo)</option>
+              
+              <option value="manual">Preencher manualmente (outro advogado)</option>
+              <option value="nenhum">Não incluir bloco de assinatura</option>
+            </select>
+            <div id="adv-manual-box" style="display:none;margin-top:8px;padding:8px;background:var(--surface2);border-radius:var(--rsm);border:1px solid var(--border)">
+              <div style="display:grid;grid-template-columns:1fr 160px;gap:8px;">
+                <div><label style="font-size:11px;color:var(--text2)">Nome completo</label><input type="text" id="f-adv-nome" placeholder="Nome do advogado(a)" /></div>
+                <div><label style="font-size:11px;color:var(--text2)">OAB</label><input type="text" id="f-adv-oab" placeholder="OAB/SP 000.000" /></div>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Cidade da assinatura</label>
+            <input type="text" id="f-cidade" value="São Paulo/SP" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Densidade do texto <span style="color:var(--red)">*</span></label>
+          <select id="f-densidade" required>
+            <option value="" selected disabled>— selecione —</option>
+            <option value="objetiva">Objetiva — redação clara, direta, focada no essencial</option>
+            <option value="densa">Densa — detalhada, com fundamentação minuciosa</option>
+            <option value="extensa">Extensa — máximo detalhamento, com revisão antes da entrega</option>
+          </select>
+        </div>
+        <div class="field" id="card-revisar-peca" style="display:none">
+          <label>Peça a revisar <span style="color:var(--red)">*</span></label>
+          <textarea id="f-peca-revisar" rows="10" placeholder="Cole aqui a peça que deseja revisar. A IA irá corrigir a redação, adequar à terminologia jurídica obrigatória, verificar a estrutura dos tópicos, corrigir o uso de § e parágrafo, e aprimorar a argumentação mantendo o conteúdo original."></textarea>
+        </div>
+        <div class="card" id="card-calc-prazo" style="margin-bottom:12px">
+          <div class="card-title" style="cursor:pointer" onclick="toggleCardPrazo()">
+            ⏱ Calcular prazo a partir da decisão
+            <span id="card-prazo-toggle" style="float:right;font-size:11px;color:var(--text3)">▼ expandir</span>
+          </div>
+          <div id="card-prazo-body" style="display:none;padding:10px 0 4px">
+            <div class="field">
+              <label>Texto da decisão / despacho <span style="color:var(--text3);font-weight:400">(cole o trecho com o prazo)</span></label>
+              <textarea id="txt-decisao-prazo" rows="4" placeholder="Ex: 'Intime-se a parte ré para apresentar contestação no prazo de 15 dias úteis...'"></textarea>
+            </div>
+            <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+              <div class="field" style="flex:1;min-width:120px">
+                <label>Data de início <span style="color:var(--text3);font-weight:400">(intimação/publicação)</span></label>
+                <input type="date" id="inp-data-inicio-prazo" />
+              </div>
+              <button class="btn btn-s" onclick="extrairECalcularPrazo()" style="margin-bottom:4px">Calcular</button>
+              <button class="btn btn-s btn-sm" onclick="limparCardPrazo()" title="Limpar campos">🗑 Limpar</button>
+            </div>
+            <div id="res-prazo" style="display:none;margin-top:8px;padding:10px;background:var(--blue-bg);border-radius:6px;font-size:13px"></div>
+            <hr style="border:none;border-top:1px solid var(--border);margin:10px 0 6px"/>
+            <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px">📅 Feriados municipais</div>
+            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+              <input id="inp-cidade-feriado" type="text" placeholder="Nome da cidade (ex: Campinas)" style="flex:1;min-width:140px;font-size:12px" list="cidades-list">
+              <datalist id="cidades-list"></datalist>
+              <button class="btn btn-s btn-sm" onclick="adicionarFeriadosCidade()">+ Cidade</button>
+            </div>
+            <div id="feriados-cidades-tags" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;min-height:10px"></div>
+            <div id="feriados-st" style="font-size:11px;color:var(--text3);margin-top:3px"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="card-title" style="cursor:pointer;display:flex;justify-content:space-between" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none'">
+            <span>✏️ Revisar / conferir peça existente</span>
+            <span style="font-size:11px;color:var(--text3)">▼</span>
+          </div>
+          <div style="display:none;padding:8px 0 4px">
+            <p style="font-size:12px;color:var(--text3);margin-bottom:6px">Cole a peça e clique em "▶ Ativar revisão" para a IA corrigir redação e estrutura.</p>
+            <textarea id="f-peca-revisar-card" rows="8" placeholder="Cole aqui a peça a revisar..."></textarea>
+            <button class="btn btn-s" onclick="ativarModoRevisao()" style="margin-top:6px">▶ Ativar revisão</button>
+          </div>
+        </div>
+        <div class="field">
+          <label style="margin-bottom:6px">Instruções adicionais / teses específicas (opcional)</label>
+          <textarea id="f-inst" style="min-height:90px" placeholder="Ex.: incluir tese sobre inexistência de cobertura pelo rol da ANS, questionar horas de terapia, abordar ADI 7265..."></textarea>
+          <div id="teses-bar" style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap">
+            <span id="teses-ativas-tags" style="display:flex;flex-wrap:wrap;gap:4px;flex:1;min-height:24px;align-items:center">
+              <span id="teses-vazio-msg" style="font-size:11px;color:var(--text3);font-style:italic">Nenhuma tese aplicada</span>
+            </span>
+            <div style="position:relative;display:inline-block">
+              <button type="button" class="btn btn-s btn-sm" onclick="abrirPopoverTeses(event)" id="btn-add-tese" title="Adicionar tese estruturada">+ Adicionar tese ▾</button>
+              <div id="popover-teses" style="display:none"></div>
+            </div>
+          </div>
+        </div>
+        <div id="refs-ativas" style="display:none">
+          <div class="tip" style="margin-bottom:4px">Referências ativas:</div>
+          <div class="rlist" id="refs-ativas-lista"></div>
+        </div>
+      </div>
 
       <div class="card">
         <div class="card-title">Peças de referência</div>
@@ -1642,15 +1628,15 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
         <div class="card-title">1. Documentos do processo</div>
         <p style="font-size:12px;color:var(--text2);margin-bottom:8px">Faça upload de PDFs, .txt ou cole o texto. Quanto mais completo, melhor a análise. Tipos sugeridos: petição inicial, contestação, decisões, laudos, contratos.</p>
 
-        <div style="padding:10px 12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;font-size:12px;color:#1E40AF;margin-bottom:8px;line-height:1.6">
-          💡 <strong>Para um resultado mais rápido e preciso:</strong> insira apenas as peças essenciais do processo — petição inicial, contestação, decisão, sentença ou laudo. Documentos completos e bem selecionados geram análises significativamente melhores do que processos inteiros carregados de uma vez. Prefira arquivos <strong>.txt</strong> ou comprima os PDFs antes de carregar (ilovepdf.com).
+        <div style="padding:8px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;font-size:11px;color:#1E40AF;margin-bottom:8px">
+          💡 <strong>Dica de custo:</strong> envie apenas as <strong>peças principais</strong> do processo — não o processo inteiro. Cada página consome ~500-800 tokens. Prefira <strong>.txt</strong> ou compacte os PDFs antes (ilovepdf.com). Processos com 500+ páginas podem exceder o limite do plano.
         </div>
         <input type="file" id="an-files" multiple accept=".pdf,.txt,.docx" style="margin-bottom:8px" onchange="anCarregarArquivos(this.files)">
         <div id="an-doc-list" class="an-doc-list"></div>
 
         <details style="margin-top:10px">
           <summary style="cursor:pointer;font-size:12px;color:var(--text2)">📋 Ou cole o texto aqui (clique para expandir)</summary>
-          <div style="font-size:11px;color:#92400E;margin:4px 0 2px">⚠ Cole apenas os trechos mais relevantes — foco nas peças essenciais garante análise mais precisa e ágil.</div>
+          <div style="font-size:11px;color:#92400E;margin:4px 0 2px">⚠ Cole apenas os trechos mais relevantes para evitar consumo excessivo de tokens.</div>
           <textarea id="an-texto-colado" placeholder="Cole aqui o texto do andamento, decisão, peça ou trecho relevante..." style="margin-top:2px;min-height:120px;width:100%"></textarea>
           <button class="btn btn-s btn-sm" onclick="anAddTextoColado()" style="margin-top:6px">+ Adicionar texto como documento</button>
         </details>
@@ -2286,7 +2272,7 @@ function preencherDadosUsuario(user) {
   var nomeEl = document.getElementById('tb-user-nome');
   var oabEl = document.getElementById('tb-user-oab');
   if (nomeEl) nomeEl.textContent = nome + ' | Advogado';
-  if (oabEl) oabEl.textContent = oab ? 'OAB/SP ' + oab.replace(/^(OAB\/?SP?\s*)/i,'') : user.email;
+  if (oabEl) oabEl.textContent = oab ? 'OAB ' + oab : user.email;
   if (typeof atualizarIndicadorModelo === 'function') atualizarIndicadorModelo();
 }
 
@@ -2335,30 +2321,10 @@ async function fazerCadastro() {
   var err = document.getElementById('cad-err');
   var btn = document.getElementById('btn-fazer-cadastro');
 
-  // Honeypot: campo deve estar vazio — se preenchido, é bot
-  var hp = (document.getElementById('cad-hp') || {}).value || '';
-  if (hp) { err.textContent = 'Erro de validação. Tente novamente.'; return; }
-
-  if (!nome || nome.length < 3) { err.textContent = 'Informe seu nome completo (mínimo 3 caracteres).'; return; }
-  if (nome.length > 100) { err.textContent = 'Nome muito longo.'; return; }
-
-  // Validação de e-mail robusta
-  var emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
-  if (!email || !emailRegex.test(email)) { err.textContent = 'E-mail inválido. Verifique o formato.'; return; }
-
-  if (senha.length < 8) { err.textContent = 'A senha deve ter pelo menos 8 caracteres.'; return; }
-  if (!/[A-Z]/.test(senha) && !/[0-9]/.test(senha)) {
-    err.textContent = 'Use ao menos uma letra maiúscula ou número na senha.'; return;
-  }
+  if (!nome)  { err.textContent = 'Informe seu nome.'; return; }
+  if (!email || !email.includes('@')) { err.textContent = 'E-mail inválido.'; return; }
+  if (senha.length < 6) { err.textContent = 'A senha deve ter pelo menos 6 caracteres.'; return; }
   if (senha !== senha2) { err.textContent = 'As senhas não coincidem.'; return; }
-
-  // Rate limiting visual: bloquear tentativas rápidas repetidas
-  var agora = Date.now();
-  var ultimaTentativa = parseInt(localStorage.getItem('gp_cad_ts') || '0');
-  if (agora - ultimaTentativa < 5000) {
-    err.textContent = 'Aguarde alguns segundos antes de tentar novamente.'; return;
-  }
-  localStorage.setItem('gp_cad_ts', agora);
 
   btn.disabled = true; btn.textContent = 'Criando conta...';
   err.textContent = '';
@@ -7056,37 +7022,9 @@ var PADROES_INJECTION = [
   // Instruções que tentam alterar comportamento da IA geradora
   { regex: /n[aã]o\s+siga\s+(as?\s+)?(instru[cç][oõ]es?|regras?)/gi,           tipo: 'Instrução para ignorar regras' },
   { regex: /system\s+prompt|instrução\s+do\s+sistema/gi,                         tipo: 'Referência ao system prompt' },
-  { regex: /system\\s+prompt|instru.{1,5}o\\s+do\\s+sistema/gi, tipo: 'Referência ao system prompt' },
-  { regex: /resuma\\s+.{0,20}instru.{1,10}es\\s+.{0,20}(anteriores|sistema)|liste\\s+.{0,10}instru.{1,10}es|repita\\s+.{0,10}system/gi, tipo: 'Prompt Leaking (extração de instruções)' },
-  { regex: /omita|ignore.{0,20}(precedentes|julgados|acord.os).{0,20}(contr.rios|desfavor)/gi, tipo: 'Comparative Undermining (jurisprudência seletiva)' },
-  { regex: /continua.{1,5}o da instru|parte \\d+ do comando|fragmento \\d+ de/gi, tipo: 'Payload Splitting (instrução fragmentada)' },
-  { regex: /\\bDAN\\b|Do Anything Now|modo sem restri.{1,5}es/gi, tipo: 'Jailbreak DAN / alter ego' },
-  { regex: /imagem (acima|anexa|abaixo) cont.m instru|execute o que est. na imagem/gi, tipo: 'Ataque multimodal (comando em imagem)' }
 ];
 
 // Varrer texto em busca de padrões de injection
-
-// Sanitizacao anti-injecao oculta — remove caracteres Unicode invisiveis e de controle
-function sanitizarTexto(t) {
-  if (!t) return '';
-  // Remover caracteres problematicos usando codePointAt para compatibilidade
-  var result = '';
-  for (var i = 0; i < t.length; i++) {
-    var code = t.charCodeAt(i);
-    // Manter apenas caracteres uteis: tabs, newlines, e texto normal
-    if (code === 9 || code === 10 || code === 13) { result += t[i]; continue; }
-    if (code < 32 || code === 127) continue; // controles
-    if (code >= 0x200B && code <= 0x200F) continue; // largura zero
-    if (code >= 0x2028 && code <= 0x2029) continue; // separadores de linha
-    if (code >= 0x202A && code <= 0x202E) continue; // bidirecionais
-    if (code >= 0x2066 && code <= 0x2069) continue; // bidirecionais isolados
-    if (code === 0xFEFF) continue; // BOM
-    if (code === 0x00AD) continue; // hifen suave
-    result += t[i];
-  }
-  return result.slice(0, 500000);
-}
-
 function detectarInjection(texto) {
   if (!texto || texto.length < 10) return [];
   var alertas = [];
@@ -8923,162 +8861,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-
-// Onboarding — remover destaque do card de andamento após preenchimento
-(function() {
-  function checkAndamento() {
-    var ta = document.getElementById('f-and');
-    var card = document.getElementById('card-andamento');
-    var badge = document.getElementById('badge-comece');
-    var hint = document.getElementById('hint-andamento');
-    if (!ta || !card) return;
-    var preenchido = ta.value.trim().length > 30;
-    if (preenchido) {
-      card.classList.add('preenchido');
-      if (badge) badge.style.display = 'none';
-      if (hint) hint.style.display = 'none';
-    } else {
-      card.classList.remove('preenchido');
-      if (badge) badge.style.display = '';
-      if (hint) hint.style.display = '';
-    }
-  }
-  document.addEventListener('DOMContentLoaded', function() {
-    var ta = document.getElementById('f-and');
-    if (ta) {
-      ta.addEventListener('input', checkAndamento);
-      ta.addEventListener('change', checkAndamento);
-      checkAndamento();
-    }
-    // Atualizar barra de progresso ao navegar
-    var origGo = window.go;
-    if (origGo) {
-      window.go = function(id) {
-        origGo(id);
-        atualizarBarraFluxo(id);
-      };
-    }
-  });
-  window.atualizarBarraFluxo = function(id) {
-    var mapa = { cfg: 'pf-cfg', proc: 'pf-proc', ger: 'pf-ger', res: 'pf-res', an: null, dash: null };
-    var steps = ['pf-cfg','pf-proc','pf-ger','pf-res'];
-    var ativo = mapa[id];
-    if (!ativo) return;
-    var idxAtivo = steps.indexOf(ativo);
-    steps.forEach(function(sid, i) {
-      var el = document.getElementById(sid);
-      if (!el) return;
-      el.classList.remove('active','done');
-      if (sid === ativo) el.classList.add('active');
-      else if (i < idxAtivo) el.classList.add('done');
-    });
-    // Atualizar números/check dos dots
-    steps.forEach(function(sid, i) {
-      var el = document.getElementById(sid);
-      if (!el) return;
-      var dot = el.querySelector('.pf-dot');
-      if (!dot) return;
-      if (i < idxAtivo) dot.textContent = '✓';
-      else dot.textContent = String(i+1);
-    });
-  };
-})();
-
-
-function limparTudoGerar() {
-  if (!confirm('Limpar todos os campos e arquivos carregados?')) return;
-  // Limpar andamento
-  var ta = document.getElementById('f-and');
-  if (ta) ta.value = '';
-  clearAndamento && clearAndamento();
-  // Limpar número do processo
-  var np = document.getElementById('f-num');
-  if (np) np.value = '';
-  // Limpar pasta
-  var ps = document.getElementById('f-pasta');
-  if (ps) ps.value = '';
-  // Limpar descrição
-  var desc = document.getElementById('f-desc');
-  if (desc) desc.value = '';
-  // Limpar cliente e parte (selects)
-  ['f-cli-modo','f-parte-modo'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.value = 'auto';
-  });
-  ['f-cli','f-parte'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) { el.value = ''; el.style.display = 'none'; }
-  });
-  // Limpar contexto adicional
-  ['principal','incidente','provas'].forEach(function(tipo) {
-    clearCtx && clearCtx(tipo);
-  });
-  // Limpar peças de referência
-  if (typeof loadRefs === 'function') {
-    var rlist = document.getElementById('rlist');
-    if (rlist) rlist.innerHTML = '';
-    var rtotal = document.getElementById('rtotal');
-    if (rtotal) rtotal.textContent = '';
-  }
-  // Limpar peça para revisar
-  var rev = document.getElementById('f-peca-revisar-card');
-  if (rev) rev.value = '';
-  var revHidden = document.getElementById('f-peca-revisar');
-  if (revHidden) revHidden.value = '';
-  // Limpar instruções adicionais
-  var inst = document.getElementById('f-inst');
-  if (inst) inst.value = '';
-  // Reset selects de tipo e densidade
-  var ftipo = document.getElementById('f-tipo');
-  if (ftipo) ftipo.value = 'auto';
-  var fdens = document.getElementById('f-densidade');
-  if (fdens) fdens.value = '';
-  var fadv = document.getElementById('f-advogado');
-  if (fadv) fadv.value = 'auto';
-  var fnome = document.getElementById('f-adv-nome');
-  if (fnome) fnome.value = '';
-  var foab = document.getElementById('f-adv-oab');
-  if (foab) foab.value = '';
-  var fcid = document.getElementById('f-cidade');
-  if (fcid) fcid.value = 'São Paulo/SP';
-  if (typeof toggleAdvogadoMode === 'function') toggleAdvogadoMode();
-  // Limpar resultado anterior
-  var res = document.getElementById('draft-result');
-  if (res) res.innerHTML = '';
-  // Atualizar barra de contexto
-  typeof atualizarCtxBar === 'function' && atualizarCtxBar();
-  // Restaurar destaque do card de andamento
-  var card = document.getElementById('card-andamento');
-  var badge = document.getElementById('badge-comece');
-  var hint = document.getElementById('hint-andamento');
-  if (card) card.classList.remove('preenchido');
-  if (badge) badge.style.display = '';
-  if (hint) hint.style.display = '';
-  // Ir para o topo da aba
-  window.scrollTo({top:0, behavior:'smooth'});
-}
-
-
-function baixarModeloPlanilha() {
-  try {
-    var b64 = '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';
-    var bin = atob(b64);
-    var arr = new Uint8Array(bin.length);
-    for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-    var blob = new Blob([arr], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'modelo_planilha_processos.xlsx';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
-  } catch(e) {
-    alert('Erro ao gerar o arquivo: ' + e.message);
-  }
-}
-
 </script>
 <div class="app-footer">
   <a href="https://wa.me/5511941261425" target="_blank" rel="noopener" class="footer-contact" title="Abrir WhatsApp">
@@ -9107,84 +8889,6 @@ function baixarModeloPlanilha() {
 .custom-modal-btn-ok:hover{background:#0C2E5B}
 .custom-modal-btn-cancel{background:#F7F9FC;color:#4A5568;border:1px solid #CBD5E0}
 .custom-modal-btn-cancel:hover{background:#EDF2F7}
-
-.card-destaque {
-  border: 2px solid #85B7EB !important;
-  box-shadow: 0 0 0 3px rgba(55,138,221,0.08);
-  transition: border-color .4s, box-shadow .4s;
-}
-.card-destaque.preenchido {
-  border: 0.5px solid var(--border) !important;
-  box-shadow: none;
-}
-@keyframes pulse-badge {
-  0%,100% { opacity:1; }
-  50% { opacity:.55; }
-}
-.tooltip-wrap { position:relative; display:inline-flex; align-items:center; }
-.tooltip-icon {
-  display:inline-flex; align-items:center; justify-content:center;
-  width:16px; height:16px; border-radius:50%;
-  background:var(--bg2); color:var(--text2);
-  font-size:10px; font-weight:600; cursor:help;
-  border:0.5px solid var(--border); margin-left:5px; flex-shrink:0;
-}
-.tooltip-box {
-  display:none; position:absolute; left:22px; top:-4px; z-index:100;
-  background:var(--bg); border:0.5px solid var(--border);
-  border-radius:8px; padding:8px 11px; font-size:12px; font-weight:400;
-  color:var(--text2); line-height:1.55; width:240px;
-  box-shadow:0 4px 12px rgba(0,0,0,.1);
-}
-.tooltip-wrap:hover .tooltip-box,
-.tooltip-wrap:focus-within .tooltip-box { display:block; }
-.progress-bar-flow {
-  display:flex; align-items:center; gap:0;
-  padding:10px 16px; margin-bottom:4px;
-  border-bottom:0.5px solid var(--border);
-  background:var(--bg);
-}
-.pf-step {
-  display:flex; align-items:center; gap:6px;
-  font-size:12px; color:var(--text3); cursor:pointer;
-}
-.pf-step.active { color:var(--blue); font-weight:500; }
-.pf-step.done { color:var(--text2); }
-.pf-dot {
-  width:22px; height:22px; border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  font-size:11px; font-weight:500; flex-shrink:0;
-  background:var(--bg2); color:var(--text3); border:0.5px solid var(--border);
-}
-.pf-step.active .pf-dot { background:#E6F1FB; color:#185FA5; border-color:#85B7EB; }
-.pf-step.done .pf-dot { background:#EAF3DE; color:#3B6D11; border-color:#97C459; }
-.pf-line { flex:1; height:1px; background:var(--border); margin:0 6px; }
-.onboard-card {
-  background:#EFF6FF; border:1px solid #93C5FD;
-  border-radius:10px; padding:14px 16px; margin-bottom:16px;
-}
-.onboard-card h3 { font-size:14px; font-weight:500; color:#1E40AF; margin-bottom:6px; }
-.onboard-card p { font-size:13px; color:#1E3A8A; line-height:1.65; margin-bottom:10px; }
-.proc-instrucao {
-  background:#F0FDF4; border:1px solid #86EFAC;
-  border-radius:10px; padding:14px 16px; margin-bottom:16px;
-}
-.proc-instrucao h3 { font-size:14px; font-weight:500; color:#166534; margin-bottom:6px; }
-.proc-instrucao p { font-size:13px; color:#14532D; line-height:1.65; }
-.proc-instrucao .proc-rotas { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
-.proc-instrucao .proc-rota {
-  flex:1; min-width:180px; background:#fff;
-  border:0.5px solid #86EFAC; border-radius:8px; padding:10px 12px;
-}
-.proc-instrucao .proc-rota strong { font-size:13px; color:#166534; display:block; margin-bottom:3px; }
-.proc-instrucao .proc-rota span { font-size:12px; color:#15803D; line-height:1.5; }
-.empty-state-proc {
-  text-align:center; padding:40px 20px; color:var(--text3);
-}
-.empty-state-proc .es-icon { font-size:32px; margin-bottom:12px; }
-.empty-state-proc h3 { font-size:15px; font-weight:500; color:var(--text2); margin-bottom:6px; }
-.empty-state-proc p { font-size:13px; line-height:1.6; margin-bottom:16px; }
-
 </style>
 
 <div id="custom-modal-overlay" class="custom-modal-overlay" style="display:none" onclick="if(event.target===this)_modalResolve(false)">
