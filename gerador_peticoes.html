@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<title>Gerador de Petições — Saúde Suplementar</title>
+<title>Gerador de Petições — Carmo Mancebo</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -653,10 +653,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
   font-weight: 600;
   margin-left: 6px;
 }
-.plano-essencial { background: #FEF3C7; color: #92400E; border: 1px solid #F59E0B; }
-.plano-avancado  { background: #DBEAFE; color: #1E40AF; border: 1px solid #3B82F6; }
-.plano-completo   { background: #D1FAE5; color: #065F46; border: 1px solid #10B981; }
-.plano-escritorioitorio  { background: #EDE9FE; color: #4C1D95; border: 1px solid #8B5CF6; }
+.plano-trial { background: #FEF3C7; color: #92400E; border: 1px solid #F59E0B; }
+.plano-solo  { background: #DBEAFE; color: #1E40AF; border: 1px solid #3B82F6; }
+.plano-pro   { background: #D1FAE5; color: #065F46; border: 1px solid #10B981; }
+.plano-escr  { background: #EDE9FE; color: #4C1D95; border: 1px solid #8B5CF6; }
 
 .pecas-contador {
   font-size: 10px;
@@ -818,33 +818,6 @@ tbody tr.st-p td{background:#b3e5fc}
   body.sidebar-open .sidebar-backdrop{display:block;position:fixed;top:56px;left:0;right:0;bottom:0;background:rgba(15,23,42,.38);z-index:840}
   .nav-item{padding:12px 18px}.card{padding:14px}.btn-row{gap:8px}.btn-row .btn{flex:1 1 auto;justify-content:center}
 }
-@media(max-width:680px){
-  .sidebar{
-    position:fixed;left:-260px;top:0;height:100vh;z-index:1000;
-    transition:left .25s cubic-bezier(.4,0,.2,1);
-    box-shadow:none;
-  }
-  .sidebar.open{
-    left:0;
-    box-shadow:4px 0 20px rgba(0,0,0,.18);
-  }
-  .layout{display:block}
-  .main{width:100%;padding:12px 10px}
-  .toolbar{padding:0 10px}
-  #btn-hamburger{display:flex!important}
-  #sidebar-overlay{display:block}
-  .sidebar-overlay-active{pointer-events:all;opacity:1}
-}
-@media(min-width:681px){
-  #btn-hamburger{display:none!important}
-  #sidebar-overlay{display:none!important}
-}
-
-#sidebar-overlay{
-  display:none;
-  position:fixed;inset:0;background:rgba(0,0,0,.35);
-  z-index:999;opacity:0;transition:opacity .25s;pointer-events:none;
-}
 </style>
 </head>
 <body>
@@ -853,7 +826,7 @@ tbody tr.st-p td{background:#b3e5fc}
 <div id="login-overlay" class="login-overlay" style="display:flex">
   <div class="login-card" style="max-width:380px;width:100%">
     <div class="login-logo">Gerador de Petições</div>
-    <div class="login-sub">Acesso exclusivo para usuários cadastrados</div>
+    <div class="login-sub">Carmo Mancebo | Advogado</div>
 
     <!-- Abas Entrar / Criar conta -->
     <div style="display:flex;border-bottom:2px solid #E2E8F0;margin:16px 0 18px">
@@ -893,7 +866,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <div id="painel-cadastro" style="display:none">
       <div class="login-field">
         <label>Nome completo</label>
-        <input type="text" id="cad-nome" placeholder="Seu nome completo" />
+        <input type="text" id="cad-nome" placeholder="Carmo Mancebo" />
       </div>
       <div class="login-field">
         <label>E-mail</label>
@@ -901,7 +874,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
       <div class="login-field">
         <label>OAB (opcional)</label>
-        <input type="text" id="cad-oab" placeholder="UF 000.000" />
+        <input type="text" id="cad-oab" placeholder="SP 274.575" />
       </div>
       <div class="login-field">
         <label>Senha (mínimo 6 caracteres)</label>
@@ -919,7 +892,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 1.88</div>
+    <div class="login-ver">versão 1.92.2</div>
   </div>
 </div>
 
@@ -938,20 +911,19 @@ tbody tr.st-p td{background:#b3e5fc}
       <div id="res-busca-global-toolbar" style="display:none;position:absolute;top:32px;right:0;width:320px;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
     </div>
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
-    <span id="tb-plano-badge" class="plano-badge plano-essencial" title="Clique para ver seu plano" onclick="go('cfg')" style="cursor:pointer">Demonstração</span>
+    <span id="tb-plano-badge" class="plano-badge plano-trial" title="Clique para ver seu plano" onclick="go('cfg')" style="cursor:pointer">trial</span>
     <span id="tb-pecas-contador" class="pecas-contador" title="Peças geradas este mês"></span>
-    <button id="tb-modelo-btn" onclick="go('cfg')" title="Modo de geração ativo — clique para configurar" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
-      <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Demonstração</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
+    <button id="tb-modelo-btn" onclick="go('cfg')" title="Modelo Claude ativo — proxy seguro" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
+      <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Sonnet</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
     <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
-    <span class="tb-meta" id="tb-versao">versão 1.88</span>
+    <span class="tb-meta" id="tb-versao">versão 1.92.2</span>
   </div>
 </div>
 
 <div id="sidebar-backdrop" class="sidebar-backdrop" onclick="fecharSidebarMobile()"></div>
 
-<div id="sidebar-overlay" onclick="toggleSidebar()"></div>
-  <div class="layout">
+<div class="layout">
   <nav class="sidebar">
     <div class="nav-item active" onclick="go('cfg')" id="nav-cfg"><span class="nav-num" id="nn-cfg">1</span> Configuração</div>
     <div class="nav-item" onclick="go('proc')" id="nav-proc"><span class="nav-num" id="nn-proc">2</span> Processos</div>
@@ -968,9 +940,6 @@ tbody tr.st-p td{background:#b3e5fc}
     <div id="panel-cfg" class="panel active">
       <div class="panel-title">Configuração</div>
       <div class="panel-sub">Selecione peças de referência para uso como modelo de estilo e estrutura.</div>
-      <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
-        <button class="btn btn-s btn-sm" onclick="go('ger')" style="font-size:12px;color:var(--blue)">Ir direto para Gerar petição →</button>
-      </div>
 
 
 
@@ -984,24 +953,24 @@ tbody tr.st-p td{background:#b3e5fc}
         </div>
         <div id="cfg-pecas-texto" style="font-size:11px;color:var(--text3);margin-bottom:10px"></div>
         <div style="font-size:11px;color:var(--text2);padding:8px 10px;background:var(--bg2);border-radius:6px">
-          🎁 <strong>Plano Demonstração:</strong> 10 peças para explorar a ferramenta. Sem prazo de validade — use quando quiser.
-          Upgrade para o plano <strong>Demonstração</strong> ou <strong>Avançado</strong> para uso contínuo.<br>
-          <span style="color:var(--text3)">Acesse a seção de planos para conhecer as opções disponíveis.</span>
+          🎁 <strong>Período de testes gratuito:</strong> 10 peças/mês no plano trial.
+          Em breve: planos Solo (100 peças/mês) e Pro (ilimitado).<br>
+          <span style="color:var(--text3)">Interesse em acesso antecipado? Entre em contato pelo e-mail do perfil.</span>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">Modo de geração</div>
+        <div class="card-title">IA via proxy seguro</div>
         <div style="padding:8px 12px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:6px;font-size:11px;color:#166534;margin-bottom:12px">
-          ✓ <strong>A geração é realizada exclusivamente via servidor seguro.</strong> Nenhuma configuração de API é necessária.
+          ✓ <strong>A integração com a IA é realizada exclusivamente via proxy seguro do servidor.</strong> Nenhuma chave de API precisa ser informada pelo usuário.
         </div>
-        <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Selecione o nível de geração. Modos superiores produzem análises mais profundas e fundamentadas. O acesso é realizado via servidor seguro.</p>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Selecione o modelo Claude utilizado na geração das peças. O acesso é realizado exclusivamente pelo proxy seguro do servidor.</p>
         <div class="field" style="margin-bottom:10px">
-          <label>Nível de geração</label>
+          <label>Modelo de IA</label>
           <select id="sel-modelo-global" onchange="sincronizarModeloGlobal(this.value)" style="width:100%">
-            <option value="essencial" selected>Essencial — respostas ágeis e diretas</option>
-            <option value="avancado" id="opt-avancado">Avançado — recomendado para a maioria das tarefas</option>
-            <option value="completo" id="opt-completo" disabled>Completo — máxima precisão e profundidade (planos pagos)</option>
+            <option value="claude-sonnet">Claude Sonnet 4.5 — recomendado · Anthropic</option>
+            <option value="claude-opus">Claude Opus 4.5 — máxima precisão, mais caro · Anthropic</option>
+            
           </select>
         </div>
         <div id="cfg-modelo-status" style="margin-top:8px;padding:7px 10px;border-radius:6px;font-size:11px;display:none"></div>
@@ -1176,20 +1145,6 @@ tbody tr.st-p td{background:#b3e5fc}
     <div id="panel-proc" class="panel">
       <div class="panel-title">Processos</div>
       <div class="panel-sub">Clique para selecionar · 📋 ficha · Duplo clique abre ficha · Shift+clique na coluna para ordenação secundária</div>
-      <div class="proc-instrucao" id="card-instrucao-proc">
-        <h3>Como usar esta aba</h3>
-        <p>Importe uma planilha com seus processos para gerenciá-los em lote. Ao clicar em um processo, os dados são carregados automaticamente na aba <strong>Gerar petição</strong>.</p>
-        <div class="proc-rotas">
-          <div class="proc-rota">
-            <strong>📋 Com planilha</strong>
-            <span>Importe o arquivo .xlsx do LegalOne ou outro sistema. Clique em qualquer processo para carregá-lo.</span>
-          </div>
-          <div class="proc-rota">
-            <strong>✏️ Sem planilha</strong>
-            <span>Esta aba é opcional. Vá direto para <a href="#" onclick="go('ger');return false" style="color:#166534;font-weight:500">Gerar petição</a> e insira os dados manualmente.</span>
-          </div>
-        </div>
-      </div>
 
       <div class="card" id="card-xlsx">
         <div class="fzone" onclick="document.getElementById('inp-xlsx').click()">
@@ -1279,73 +1234,22 @@ tbody tr.st-p td{background:#b3e5fc}
 
     <!-- GERAR -->
     <div id="panel-ger" class="panel">
-      <div class="progress-bar-flow" id="barra-fluxo">
-      <div class="pf-step done" id="pf-cfg" onclick="go('cfg')" title="Ir para Configuração">
-        <div class="pf-dot">✓</div>
-        <span>Configuração</span>
-      </div>
-      <div class="pf-line"></div>
-      <div class="pf-step" id="pf-proc" onclick="go('proc')" title="Ir para Processos">
-        <div class="pf-dot">2</div>
-        <span>Processos</span>
-      </div>
-      <div class="pf-line"></div>
-      <div class="pf-step active" id="pf-ger" onclick="go('ger')" title="Ir para Gerar petição">
-        <div class="pf-dot">3</div>
-        <span>Gerar petição</span>
-      </div>
-      <div class="pf-line"></div>
-      <div class="pf-step" id="pf-res" onclick="go('res')" title="Ver resultado">
-        <div class="pf-dot">4</div>
-        <span>Resultado</span>
-      </div>
-    </div>
       <div class="panel-title">Gerar petição</div>
       <div class="panel-sub">Preencha os dados, informe o andamento e gere a minuta.</div>
 
       <!-- sel-modelo (oculto) sincronizado com sel-modelo-global na Configuração -->
       <select id="sel-modelo" style="display:none" onchange="sincronizarModeloGlobal(this.value)">
-        <option value="essencial" selected>Demonstração</option>
-        <option value="avancado">Avançado</option>
-        <option value="completo">Completo</option>
+        <option value="claude-sonnet">Claude Sonnet 4.5</option>
+        <option value="claude-opus">Claude Opus 4.5</option>
       </select>
-
-      <div class="card card-destaque" id="card-andamento">
-        <div class="card-title" style="display:flex;align-items:center;gap:8px">
-          Andamento do tribunal
-          <span id="badge-comece" style="display:inline-flex;align-items:center;gap:4px;background:#E6F1FB;color:#185FA5;font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;animation:pulse-badge 2s ease-in-out infinite">▶ Comece aqui</span>
-        </div>
-        <p id="hint-andamento" style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.6">Cole o texto do andamento copiado do tribunal (e-SAJ, PJe, TJSP, STJ etc.) ou carregue o arquivo abaixo. A IA identifica automaticamente as partes, o tipo de peça necessária e os fundamentos aplicáveis.</p>
-        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
-          <button class="btn btn-s btn-sm" onclick="document.getElementById('inp-and').click()">📎 Carregar arquivo (PDF, DOCX, TXT)</button>
-          <span id="and-nome" style="font-size:11px;color:var(--text3)"></span>
-          <button class="btn btn-s btn-sm fhide" id="btn-and-clear" onclick="clearAndamento()">× Limpar</button>
-        </div>
-        <input type="file" id="inp-and" accept=".pdf,.docx,.txt" style="display:none" onchange="loadAndamento(this)" />
-        <div id="and-st"></div>
-        <div class="field">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-            <label style="margin-bottom:0">Texto do andamento / decisão / despacho / sentença / acórdão</label>
-            <button class="btn btn-s btn-sm" onclick="analisarAndamento()" title="Detecta automaticamente: tipo de demanda, dados do processo, e sugere tipo de peça" style="font-size:11px;padding:3px 8px">🔍 Analisar andamento</button>
-          </div>
-          <textarea id="f-and" style="min-height:140px" placeholder="Cole aqui o texto do andamento processual copiado do tribunal (e-SAJ, PJe, TJSP, STJ etc.).
-
-Exemplo: "Vistos. Trata-se de ação de obrigação de fazer... Intime-se a parte ré para manifestação no prazo de 15 dias. São Paulo, 22 de abril de 2026."
-
-Quanto mais completo o andamento, mais precisa e fundamentada será a peça gerada. Você também pode carregar o arquivo PDF ou DOCX acima...."></textarea>
-          <div id="and-analise" style="display:none;margin-top:6px;padding:8px 10px;background:#EFF6FF;border:1px solid #93C5FD;border-radius:6px;font-size:11px;color:#1E3A8A"></div>
-          <div style="font-size:10px;color:var(--text3);text-align:right;margin-top:2px"><span id="cnt-and">0</span> chars · <span id="cnt-and-tk">0</span> tokens est.</div>
-          <div id="alerta-dlp" style="display:none;margin-top:6px;padding:8px 10px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:6px;font-size:11px;color:#92400E"></div>
-        </div>
-      </div>
 
       <div class="card">
         <div class="card-title">Dados do processo</div>
         <!-- Linha 1: Pasta + Número do processo (seletor auto/manual + input do número) -->
         <div class="row2" style="grid-template-columns:1fr 2fr;gap:12px;margin-bottom:14px">
-          <div class="field"><label style="display:inline-flex;align-items:center;gap:0">Pasta<span class="tooltip-wrap"><span class="tooltip-icon" tabindex="0">?</span><span class="tooltip-box">Opcional. Referência interna do escritório para identificar o processo na planilha.</span></span></label><input type="text" id="f-pasta" /></div>
+          <div class="field"><label>Pasta</label><input type="text" id="f-pasta" /></div>
           <div class="field field-required">
-            <label style="display:inline-flex;align-items:center;gap:0">Número do processo<span class="tooltip-wrap"><span class="tooltip-icon" tabindex="0">?</span><span class="tooltip-box">Cole o número CNJ (0000000-00.0000.0.00.0000). A IA consulta os dados do tribunal automaticamente.</span></span></label>
+            <label>Número do processo</label>
             <div style="display:flex;gap:6px;align-items:stretch;">
               <select id="f-proc-modo" style="max-width:180px;flex-shrink:0;" onchange="toggleProcModo()">
                 <option value="manual">Preencher manualmente</option>
@@ -1373,7 +1277,7 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
         </div>
         <!-- Cliente e Parte contrária em linhas separadas (uma linha cada) -->
         <div class="field field-required" style="margin-bottom:14px">
-          <label style="display:inline-flex;align-items:center;gap:0">Cliente (executada / ré)<span class="tooltip-wrap"><span class="tooltip-icon" tabindex="0">?</span><span class="tooltip-box">Em "Automático", a IA identifica o nome da operadora no andamento. Selecione "Preencher manualmente" para informar diretamente.</span></span></label>
+          <label>Cliente (executada / ré)</label>
           <div style="display:flex;gap:6px;align-items:stretch;">
             <select id="f-cliente-modo" style="max-width:180px;flex-shrink:0;" onchange="toggleClienteModo()">
               <option value="auto" selected>Automático (IA identifica)</option>
@@ -1384,7 +1288,7 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
           </div>
         </div>
         <div class="field field-required" style="margin-bottom:14px">
-          <label style="display:inline-flex;align-items:center;gap:0">Parte contrária<span class="tooltip-wrap"><span class="tooltip-icon" tabindex="0">?</span><span class="tooltip-box">Nome do autor ou exequente. Em "Automático", a IA extrai do andamento carregado.</span></span></label>
+          <label>Parte contrária</label>
           <div style="display:flex;gap:6px;align-items:stretch;">
             <select id="f-parte-modo" style="max-width:180px;flex-shrink:0;" onchange="toggleParteModo()">
               <option value="auto" selected>Automático (IA identifica)</option>
@@ -1393,7 +1297,28 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
             <input type="text" id="f-parte" placeholder="(será identificado pela IA)" disabled style="flex:1;background:var(--surface2);" />
           </div>
         </div>
-        <div class="field"><label style="display:inline-flex;align-items:center;gap:0">Descrição da demanda<span class="tooltip-wrap"><span class="tooltip-icon" tabindex="0">?</span><span class="tooltip-box">Opcional. Descreva brevemente a tarefa (ex.: "elaborar impugnação ao cumprimento de sentença"). Se deixado em branco, a IA identifica pelo andamento.</span></span></label><input type="text" id="f-desc" /></div>
+        <div class="field"><label>Descrição da demanda (Tarefa)</label><input type="text" id="f-desc" /></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Andamento do tribunal</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-s btn-sm" onclick="document.getElementById('inp-and').click()">📎 Carregar arquivo (PDF, DOCX, TXT)</button>
+          <span id="and-nome" style="font-size:11px;color:var(--text3)"></span>
+          <button class="btn btn-s btn-sm fhide" id="btn-and-clear" onclick="clearAndamento()">× Limpar</button>
+        </div>
+        <input type="file" id="inp-and" accept=".pdf,.docx,.txt" style="display:none" onchange="loadAndamento(this)" />
+        <div id="and-st"></div>
+        <div class="field">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <label style="margin-bottom:0">Texto do andamento / decisão / despacho / sentença / acórdão</label>
+            <button class="btn btn-s btn-sm" onclick="analisarAndamento()" title="Detecta automaticamente: tipo de demanda, dados do processo, e sugere tipo de peça" style="font-size:11px;padding:3px 8px">🔍 Analisar andamento</button>
+          </div>
+          <textarea id="f-and" style="min-height:140px" placeholder="Cole o texto ou carregue um arquivo acima..."></textarea>
+          <div id="and-analise" style="display:none;margin-top:6px;padding:8px 10px;background:#EFF6FF;border:1px solid #93C5FD;border-radius:6px;font-size:11px;color:#1E3A8A"></div>
+          <div style="font-size:10px;color:var(--text3);text-align:right;margin-top:2px"><span id="cnt-and">0</span> chars · <span id="cnt-and-tk">0</span> tokens est.</div>
+          <div id="alerta-dlp" style="display:none;margin-top:6px;padding:8px 10px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:6px;font-size:11px;color:#92400E"></div>
+        </div>
       </div>
 
       <div class="card">
@@ -1455,19 +1380,7 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
         <div class="row2">
           <div class="field">
             <label>Área do direito</label>
-            <select id="f-area" onchange="atualizarSubareas()">
-              <option value="civel" selected>Saúde suplementar</option>
-              <optgroup label="— Em breve como módulos específicos —" style="color:var(--text3)">
-                <option value="futuro" disabled>Trabalhista</option>
-                <option value="futuro" disabled>Tributário</option>
-                <option value="futuro" disabled>Família e Sucessões</option>
-                <option value="futuro" disabled>Administrativo</option>
-                <option value="futuro" disabled>Penal</option>
-                <option value="futuro" disabled>Empresarial e Societário</option>
-                <option value="futuro" disabled>Previdenciário</option>
-                <option value="futuro" disabled>Consumidor</option>
-              </optgroup>
-            </select>
+            <select id="f-area" onchange="atualizarSubareas()"><option value="civel" selected>Saúde suplementar</option></select>
           </div>
           <div class="field">
             <label>Subárea / Especialização</label>
@@ -1546,9 +1459,8 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
         <div class="field">
           <label>Densidade do texto <span style="color:var(--red)">*</span></label>
           <select id="f-densidade" required>
-            <option value="" selected disabled>— selecione —</option>
             <option value="objetiva">Objetiva — redação clara, direta, focada no essencial</option>
-            <option value="densa">Densa — detalhada, com fundamentação minuciosa</option>
+            <option value="densa" selected>Densa — detalhada, com fundamentação minuciosa</option>
             <option value="extensa">Extensa — máximo detalhamento, com revisão antes da entrega</option>
           </select>
         </div>
@@ -1743,16 +1655,13 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
         <div class="card-title">3. Configuração</div>
         <div class="field">
             <label style="font-size:12px">Nível de detalhe</label>
-            <div id="an-detalhe-aviso" style="padding:7px 10px;background:#EFF6FF;border:1px solid #93C5FD;border-radius:6px;font-size:11px;color:#1E40AF;margin-bottom:8px">
-              💡 <strong>Executivo</strong> pré-selecionado. Altere abaixo se desejar.
-            </div>
-            <select id="an-detalhe" style="width:100%" onchange="var av=document.getElementById('an-detalhe-aviso');if(av)av.style.display='none'">
-              <option value="executivo" selected>Executivo (resposta concisa)</option>
-              <option value="medio">Médio (equilibrado)</option>
-              <option value="detalhado" id="opt-an-detalhado">Detalhado (análise extensa — planos pagos)</option>
+            <select id="an-detalhe" style="width:100%">
+              <option value="executivo">Executivo (resposta concisa)</option>
+              <option value="medio" selected>Médio (equilibrado)</option>
+              <option value="detalhado">Detalhado (análise extensa)</option>
             </select>
           </div>
-          <p style="font-size:11px;color:var(--text3);margin-top:6px">Nível de geração: configurado globalmente em <a href="#" onclick="go('cfg');return false;" style="color:var(--blue)">Configuração</a>.</p>
+          <p style="font-size:11px;color:var(--text3);margin-top:6px">Modelo de IA: configurado globalmente em <a href="#" onclick="go('cfg');return false;" style="color:var(--blue)">Configuração</a>.</p>
       </div>
 
       <div class="card">
@@ -2495,7 +2404,7 @@ function sincronizarModeloGlobal(val) {
   // Mostrar/ocultar campos de chave no card unificado
   var divAnt = document.getElementById('div-anthropic-cfg');
   var divOai = document.getElementById('div-openai-cfg');
-  var isAnt = true; // sempre via proxy seguro
+  var isAnt = (val === 'claude-sonnet' || val === 'claude-opus');
   if (divAnt) divAnt.style.display = isAnt ? '' : 'none';
   if (divOai) divOai.style.display = isAnt ? 'none' : '';
   // Atualizar indicador da toolbar
@@ -2503,9 +2412,9 @@ function sincronizarModeloGlobal(val) {
 }
 
 function atualizarIndicadorModelo() {
-  var val = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'avancado';
-  var labels = { 'avancado': 'Avançado', 'essencial': 'Essencial', 'completo': 'Completo' };
-  var icons  = { 'avancado': '⚡', 'essencial': '🔹', 'completo': '🔶' };
+  var val = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'claude-sonnet';
+  var labels = { 'claude-sonnet': 'Sonnet', 'claude-opus': 'Opus' };
+  var icons  = { 'claude-sonnet': '⚡', 'claude-opus': '🔶' };
 
   var iconEl  = document.getElementById('tb-modelo-icon');
   var labelEl = document.getElementById('tb-modelo-label');
@@ -2595,7 +2504,7 @@ function toggleParteModo() {
 }
 
 function toggleApi() {
-  var val = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'avancado';
+  var val = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'claude-sonnet';
   sincronizarModeloGlobal(val);
   checkBtn();
 }
@@ -2607,8 +2516,8 @@ function saveKey(p) {
 function getModeloSelecionado() {
   var globalSel = document.getElementById('sel-modelo-global');
   var localSel  = document.getElementById('sel-modelo');
-  var modelo = (globalSel && globalSel.value) || (localSel && localSel.value) || 'essencial';
-  if (!['essencial','avancado','completo'].includes(modelo)) modelo = 'avancado';
+  var modelo = (globalSel && globalSel.value) || (localSel && localSel.value) || 'claude-sonnet';
+  if (modelo !== 'claude-opus') modelo = 'claude-sonnet';
   if (globalSel && globalSel.value !== modelo) globalSel.value = modelo;
   if (localSel && localSel.value !== modelo) localSel.value = modelo;
   return modelo;
@@ -2620,7 +2529,7 @@ function getKey() {
 }
 
 function getModeloEChave() {
-  return { modelo: getModeloSelecionado(), isAnthropic: true };
+  return { modelo: getModeloSelecionado(), key: '', isAnthropic: true };
 }
 
 // URLs de consulta dos tribunais — abrem o site com o número pré-preenchido
@@ -3733,7 +3642,7 @@ function renderDashboard() {
       totUsd += (h.custoUsd||0);
       totBrl += (h.custoBrl||0);
       totTk  += (h.tokensIn||0)+(h.tokensOut||0);
-      var mLabel={'essencial':'Essencial','avancado':'Avançado','completo':'Completo','claude-haiku-3-5':'Essencial','claude-sonnet-4-5':'Avançado','claude-opus-4-5':'Completo'}; var m=mLabel[h.modelo]||h.modelo||'?'; porModelo[m]=(porModelo[m]||0)+1;
+      var m=h.modelo||"?"; porModelo[m]=(porModelo[m]||0)+1;
       var t=(h.tipoPeca||"?").substring(0,20); porTipo[t]=(porTipo[t]||0)+1;
     });
     var modelos = Object.entries(porModelo).sort(function(a,b){return b[1]-a[1];}).map(function(e){return e[0]+": "+e[1];}).join(" · ");
@@ -4790,9 +4699,9 @@ function base64ToArrayBuffer(b64) {
 
 // Preços das APIs (USD por 1M tokens) — atualizar conforme necessário
 var PRECOS_API = {
-  'essencial':  { in: 0.25, out: 1.25,  nome: 'Essencial' },
-  'avancado':   { in: 3.00, out: 15.00, nome: 'Avançado' },
-  'completo':   { in: 5.00, out: 25.00, nome: 'Completo' }
+  'claude-sonnet':   { in: 3.00, out: 15.00, nome: 'Claude Sonnet 4.5' },
+  'claude-sonnet46': { in: 3.00, out: 15.00, nome: 'Claude Sonnet 4.6' },
+  'claude-opus':     { in: 5.00, out: 25.00, nome: 'Claude Opus 4.6' }
 };
 // Preços verificados: abril/2026 — fonte: platform.claude.com/docs/pricing
 // Claude Opus anterior (4.1, depreciado): $15/$75 — redução de 3× com Opus 4.6
@@ -4977,7 +4886,7 @@ function carregarFeriadosCustom() {
 }
 
 async function compararModelos() {
-  alert('Comparação entre modos disponível nos planos pagos.');
+  alert('Comparação entre modelos foi removida. Use Claude Sonnet 4.5 ou Claude Opus 4.5 pelo proxy seguro.');
 }
 
 // ── VERIFICADOR DE QUALIDADE ────────────────────────────────────────────
@@ -5318,7 +5227,7 @@ async function gerarResumoCaso() {
     return;
   }
 
-  var nomeModelo = modelo==='completo'?'Completo':modelo==='essencial'?'Essencial':'Avançado';
+  var nomeModelo = modelo==='claude-opus'?'Claude Opus':'Claude Sonnet';
 
   // Mudar para aba resultado
   go('res');
@@ -6329,8 +6238,8 @@ async function executarAnalise() {
   var detalhe = document.getElementById('an-detalhe').value || 'medio';
   var instrAd = (document.getElementById('an-instrucoes') || {}).value || '';
   instrAd = instrAd.trim();
-  var modelo = (document.getElementById('sel-modelo-global') || {}).value || document.getElementById('sel-modelo') && document.getElementById('sel-modelo').value || 'avancado';
-  var nomeModelo = modelo==='completo'?'Completo':modelo==='essencial'?'Essencial':'Avançado';var btn = document.getElementById('an-btn-executar');
+  var modelo = (document.getElementById('sel-modelo-global') || {}).value || document.getElementById('sel-modelo') && document.getElementById('sel-modelo').value || 'claude-sonnet';
+  var nomeModelo = modelo === 'claude-opus' ? 'Claude Opus' : 'Claude Sonnet';var btn = document.getElementById('an-btn-executar');
   btn.disabled = true;
   btn.textContent = '⏳ Analisando...';
   document.getElementById('an-status').textContent = 'Enviando documentos para ' + nomeModelo + '...';
@@ -6471,7 +6380,7 @@ async function anChatEnviar() {
   anRenderChat();
   input.value = '';
 
-  var modelo = (document.getElementById('sel-modelo-global') || {}).value || 'avancado';
+  var modelo = (document.getElementById('sel-modelo-global') || {}).value || 'claude-sonnet';
 
   try {
     // Construir prompt: system + histórico simplificado
@@ -6939,13 +6848,6 @@ async function executarVerificacaoContradicao() { d4AbrirPainel(); }
 // ════════════════════════════════════════════════════════════════════════════
 
 async function chamarIAViaProxy(modelo, sysPrompt, messages, onChunk) {
-  // Mapa proprietário → modelo real da API
-  var MODELO_MAP = {
-    'essencial': 'claude-haiku-3-5',
-    'avancado':  'claude-sonnet-4-5',
-    'completo':  'claude-opus-4-5'
-  };
-  modelo = MODELO_MAP[modelo] || MODELO_MAP['essencial'];
   var supa = getSupa();
   var session = supa ? await supa.auth.getSession() : null;
   var token   = session && session.data && session.data.session
@@ -6981,19 +6883,11 @@ async function chamarIAViaProxy(modelo, sysPrompt, messages, onChunk) {
       mostrarModalLimitePlano(msg);
       throw new Error(msg);
     }
-    if (resp.status === 429 && errData.codigo === 'LIMITE_DIARIO') {
-      mostrarModalLimitePlano(msg);
-      throw new Error(msg);
-    }
-    if (resp.status === 403 && errData.codigo === 'MODELO_BLOQUEADO') {
-      alert('⚠️ ' + msg + '\n\nAcesse Configuração para conhecer os planos disponíveis.');
-      throw new Error(msg);
-    }
     if (resp.status === 401) { mostrarLogin(); throw new Error('Sessão expirada.'); }
     throw new Error(msg);
   }
 
-  var isAnthropic = true;
+  var isAnthropic = modelo.startsWith('claude');
   var rd = resp.body.getReader();
   var dc = new TextDecoder();
 
@@ -7037,7 +6931,7 @@ function mostrarModalLimitePlano(msg) {
     '<h3 style="margin:0 0 8px;font-size:16px;color:var(--text)">Limite do plano atingido</h3>' +
     '<p style="font-size:13px;color:var(--text2);margin:0 0 16px">' + (msg||'Você atingiu o limite de peças do seu plano este mês.') + '</p>' +
     '<p style="font-size:12px;color:var(--text2);margin:0 0 16px">Interesse em plano com mais peças:<br>' +
-    '<a href="mailto:contato@carmomancebo.com.br" style="color:var(--blue)">contato@carmomancebo.com.br</a></p>' +
+    '<a href="mailto:carmo.mancebo@adv.oabsp.org.br" style="color:var(--blue)">carmo.mancebo@adv.oabsp.org.br</a></p>' +
     '<div style="display:flex;gap:8px;justify-content:flex-end">' +
     '<button onclick="go(\'cfg\')" style="background:none;border:1px solid var(--border);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Ver plano</button>' +
     '<button onclick="this.closest(\'[style*=fixed]\').remove()" style="background:var(--blue);color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Fechar</button>' +
@@ -7160,24 +7054,10 @@ function instalarHookAntiInjection() {
 // ════════════════════════════════════════════════════════════════════════════
 
 var LIMITES_PLANO = {
-  'trial':         25,   // Demonstração: 25 peças/mês
-  'demonstracao':  25,   // alias
-  'solo':          150,  // Avançado: 150 peças/mês
-  'avancado_plano':150,  // alias
-  'pro':           300,  // Completo: 300 peças/mês
-  'completo':      300,  // alias
-  'escritorio':    300   // Escritório: igual ao Completo até definição
-};
-
-// Sem limites diários — controle apenas mensal
-var LIMITES_DIARIOS = {
-  'trial':         0,
-  'demonstracao':  0,
-  'solo':          0,
-  'avancado_plano':0,
-  'pro':           0,
-  'completo':      0,
-  'escritorio':    0
+  'trial':     10,
+  'solo':      100,
+  'pro':       99999,
+  'escritorio': 99999
 };
 
 var _dadosUsuario = null; // Cache do perfil do usuário
@@ -7204,29 +7084,6 @@ async function carregarDadosUsuario() {
 function atualizarUIPlano() {
   if (!_dadosUsuario) return;
   var plano = _dadosUsuario.plano || 'trial';
-  // Controle de acesso ao modo Completo
-  var optAvancado = document.getElementById('opt-avancado');
-  var optCompleto = document.getElementById('opt-completo');
-  var podeAvancado = true; // Avançado liberado em todos os planos incluindo Demonstração
-  var podeCompleto = (plano === 'pro' || plano === 'escr' || plano === 'completo');
-
-  if (optAvancado) {
-    optAvancado.disabled = false;
-    optAvancado.textContent = 'Avançado — recomendado para a maioria das tarefas';
-  }
-  if (optCompleto) {
-    optCompleto.disabled = !podeCompleto;
-    optCompleto.textContent = podeCompleto
-      ? 'Completo — máxima precisão e profundidade'
-      : 'Completo — máxima precisão e profundidade (planos pagos)';
-  }
-
-  // Bloquear análise detalhada no trial
-  var optAnDetalhado = document.getElementById('opt-an-detalhado');
-  if (optAnDetalhado) {
-    optAnDetalhado.disabled = false;
-    optAnDetalhado.textContent = 'Detalhado (análise extensa)';
-  }
   var pecasMes = _dadosUsuario.pecas_mes || 0;
   var limite = LIMITES_PLANO[plano] || 10;
   var pct = Math.min(100, Math.round((pecasMes / limite) * 100));
@@ -7235,7 +7092,7 @@ function atualizarUIPlano() {
   // Badge de plano na toolbar
   var badge = document.getElementById('tb-plano-badge');
   if (badge) {
-    badge.textContent = labelPlano || plano;
+    badge.textContent = plano;
     badge.className = 'plano-badge plano-' + (plano === 'escritorio' ? 'escr' : plano);
   }
 
@@ -7249,9 +7106,9 @@ function atualizarUIPlano() {
   // Card de plano na Configuração
   var info = document.getElementById('cfg-plano-info');
   if (info) {
-    var labelPlano = { trial:'Demonstração', demonstracao:'Demonstração', solo:'Avançado', avancado_plano:'Avançado', pro:'Completo', completo:'Completo', escritorio:'Escritório' }[plano] || plano;
+    var labelPlano = { trial:'Trial gratuito', solo:'Solo', pro:'Pro', escritorio:'Escritório' }[plano] || plano;
     info.innerHTML = '<strong>Plano:</strong> <span class="plano-badge plano-' + (plano==='escritorio'?'escr':plano) + '">' + labelPlano + '</span>' +
-      (plano === 'trial' ? ' &nbsp;·&nbsp; <span style="color:var(--text3);font-size:11px">Período de demonstração gratuito</span>' : '');
+      (plano === 'trial' ? ' &nbsp;·&nbsp; <span style="color:var(--text3);font-size:11px">Período gratuito de testes</span>' : '');
   }
 
   var barra = document.getElementById('cfg-pecas-preenchida');
@@ -7265,9 +7122,7 @@ function atualizarUIPlano() {
     if (limite >= 99999) {
       txtBarra.textContent = pecasMes + ' peças geradas este mês · Plano ilimitado';
     } else {
-      var limiteDia = LIMITES_DIARIOS[plano] || 0;
-      var sufDia = limiteDia > 0 ? ' · Limite: ' + limiteDia + '/dia' : '';
-      txtBarra.textContent = pecasMes + ' de ' + limite + ' peças usadas este mês · ' + restam + ' restantes' + sufDia;
+      txtBarra.textContent = pecasMes + ' de ' + limite + ' peças usadas este mês · ' + restam + ' restantes';
     }
   }
 }
@@ -7284,28 +7139,15 @@ async function incrementarPecasMes() {
 
     var novoValor = precisaReset ? 1 : ((_dadosUsuario ? _dadosUsuario.pecas_mes : 0) + 1);
 
-    // Controle diário
-    var resetDia    = _dadosUsuario && _dadosUsuario.pecas_hoje_reset
-      ? new Date(_dadosUsuario.pecas_hoje_reset) : null;
-    var mesmoDia    = resetDia &&
-      resetDia.getDate()     === agora.getDate()  &&
-      resetDia.getMonth()    === agora.getMonth() &&
-      resetDia.getFullYear() === agora.getFullYear();
-    var novoHoje    = mesmoDia ? ((_dadosUsuario ? _dadosUsuario.pecas_hoje : 0) + 1) : 1;
-
     await supa.from('gp_users').update({
-      pecas_mes:         novoValor,
-      pecas_mes_reset:   precisaReset ? agora.toISOString() : undefined,
-      pecas_hoje:        novoHoje,
-      pecas_hoje_reset:  mesmoDia ? undefined : agora.toISOString(),
-      ultimo_acesso:     agora.toISOString()
+      pecas_mes: novoValor,
+      pecas_mes_reset: precisaReset ? agora.toISOString() : undefined,
+      ultimo_acesso: agora.toISOString()
     }).eq('id', GPStorage.userId);
 
     if (_dadosUsuario) {
-      _dadosUsuario.pecas_mes         = novoValor;
-      _dadosUsuario.pecas_hoje        = novoHoje;
-      if (precisaReset) _dadosUsuario.pecas_mes_reset  = agora.toISOString();
-      if (!mesmoDia)    _dadosUsuario.pecas_hoje_reset = agora.toISOString();
+      _dadosUsuario.pecas_mes = novoValor;
+      if (precisaReset) _dadosUsuario.pecas_mes_reset = agora.toISOString();
     }
     atualizarUIPlano();
     return true;
@@ -7334,34 +7176,11 @@ async function verificarLimitePlano() {
   if (pecasMes >= limite) {
     return {
       permitido: false,
-      motivo: 'Limite do plano atingido: ' + pecasMes + ' de ' + limite + ' peças este mês. Faça upgrade para continuar.',
+      motivo: 'Limite do plano ' + plano + ' atingido (' + pecasMes + '/' + limite + ' peças este mês).',
       plano: plano,
       limite: limite
     };
   }
-
-  // Verificação de limite diário
-  var limiteDiario = LIMITES_DIARIOS[plano] || 0;
-  if (limiteDiario > 0) {
-    var pecasHoje = _dadosUsuario.pecas_hoje || 0;
-    var resetDia  = _dadosUsuario.pecas_hoje_reset ? new Date(_dadosUsuario.pecas_hoje_reset) : null;
-    var hoje      = new Date();
-    var mesmoDia  = resetDia &&
-      resetDia.getDate()     === hoje.getDate()  &&
-      resetDia.getMonth()    === hoje.getMonth() &&
-      resetDia.getFullYear() === hoje.getFullYear();
-    var pecasHojeReal = mesmoDia ? pecasHoje : 0;
-    if (pecasHojeReal >= limiteDiario) {
-      return {
-        permitido: false,
-        motivo: 'Limite diário atingido: ' + pecasHojeReal + ' de ' + limiteDiario + ' peças hoje. Seu limite renova à meia-noite.',
-        plano: plano,
-        limite: limiteDiario,
-        tipo: 'diario'
-      };
-    }
-  }
-
   return { permitido: true, restam: limite - pecasMes };
 }
 
@@ -7404,8 +7223,10 @@ function montarSystemPromptPeticao(enriquecimento, tipo, inst, andamento) {
   blocos.push('PROTOCOLO ANTI-ALUCINAÇÃO DE JURISPRUDÊNCIA: você não tem acesso à internet nem a bases jurisprudenciais em tempo real. Jamais invente número de processo, REsp, AREsp, relator, data, ementa ou trecho de julgado. Use livremente apenas estes precedentes por nome/tema, sem relator ou data: STF ADI 7265; STJ Temas 990, 952, 106, 1036, 988, 1076, 610, 297 e 940; Súmula Vinculante 7; Súmula Normativa ANS nº 27. A Súmula 102 do TJSP foi revogada em 10/09/2025 e não deve ser citada como vigente. Para qualquer precedente fora dessa lista, use [CITAÇÃO_PENDENTE: descreva o tema] para pesquisa posterior pelo advogado. Prefira fundamentação legal quando suficiente.');
   blocos.push('PROTOCOLO DE REFERÊNCIA A DOCUMENTOS: sempre que mencionar petição, decisão, sentença, acórdão, laudo, parecer, nota técnica, contrato, procuração, comprovante, recurso, ofício, documento da ANS/NATJUS ou outro documento dos autos, indique evento, id., fls. ou doc. quando a informação constar do contexto. Se não constar, use [REF_DOC: descrição do documento]. Uma peça sem rastreabilidade documental é incompleta.');
   blocos.push('REGRAS DE ESTILO: escreva artigo por extenso, nunca art.; use inciso por extenso; use § para parágrafos numerados e parágrafo único por extenso; use Constituição da República, nunca CF/88; evite Vossa Excelência e prefira esse juízo ou esse órgão julgador; nunca use a presente peça/demanda como muleta; títulos em CAIXA ALTA, sem markdown; pedidos com Ante ao exposto, requer-se: e alíneas a), b), c); datas em dd/mm/aaaa salvo instrução diversa; não use símbolos de markdown como **, #, > ou listas com hífen na peça final.');
-  blocos.push('MARCO REGULATÓRIO: Lei nº 9.656/1998 (artigo 10 e § 13 inserido pela Lei nº 14.454/2022 como critérios cumulativos para cobertura fora do rol); RN ANS nº 565/2022 (norma vigente de cobertura — revogou RN 309/2012 e RN 566/2022); RN nº 465/2021 e atualizações (rol taxativo — RN 642 e 643/2025); ADI 7265 como eixo constitucional. Distinção essencial: o dever de saúde universal é do Estado/SUS (artigo 196 da Constituição da República); a operadora tem obrigação definida pelo contrato e pela lei especial. RNs auxiliares: 162/2007 (DLP/CPT); 438/2018 (portabilidade); 259/2011 (prazos assistenciais); 279/2011 (ex-empregado/aposentado); 623/2024 (negativa fundamentada); 365/2015 e 585/2023 (rede); CONSU 13/1998 (urgência/emergência). NATJUS emite nota técnica — não laudo pericial.');
-  blocos.push('FLUXO E ESTRATÉGIA DEFENSIVA: (1) verificar se o procedimento está no Anexo I da RN 465/2021 e se há DUT aplicável; (2) se fora do rol, exigir do autor os três requisitos cumulativos do § 13 do artigo 10 da Lei nº 9.656/1998: eficácia baseada em evidências + plano terapêutico, ausência de substituto no rol, recomendação CONITEC ou órgão internacional aprovado para uso no Brasil; (3) o ônus probatório é do autor (artigo 373, inciso I, do CPC); (4) verificar carência, CPT/DLP, rede credenciada e comunicação formal da negativa. Quando fora do rol: tópico próprio com três camadas — inexistência no Anexo I, não preenchimento do § 13 e ausência de recomendação CONITEC. Precedentes vinculantes da lista branca: STF ADI 7265; STJ Temas 990, 952, 106, 1036, 988, 1076, 610, 297 e 940. Súmula 102 do TJSP REVOGADA em 10/09/2025 — não citar.');
+  blocos.push('NORMAS E TESES CENTRAIS DE SAÚDE SUPLEMENTAR: Lei nº 9.656/1998; Lei nº 14.454/2022, especialmente os critérios do § 13 do artigo 10 da Lei nº 9.656/1998; RN ANS nº 565/2022 como norma vigente de cobertura assistencial obrigatória, observando que revogou a RN nº 309/2012 e a RN nº 566/2022; RN nº 465/2021 e atualizações do rol; ADI 7265 como eixo constitucional; distinção entre obrigação contratual/regulatória da operadora e dever universal do Estado pelo SUS.');
+  blocos.push('CATÁLOGO ANS ESSENCIAL: RN nº 162/2007 para doença ou lesão preexistente e cobertura parcial temporária; RN nº 438/2018 para portabilidade; RN nº 63/2003 e RN nº 171/2008 para reajustes; RN nº 279/2011 para manutenção de ex-empregado/aposentado; RN nº 259/2011 para prazos assistenciais; RN nº 623/2024 para regras de atendimento e negativa fundamentada; RN nº 365/2015, RN nº 417/2016 e RN nº 585/2023 para rede assistencial; Resolução CONSU nº 13/1998 para urgência e emergência; RN nº 483/2022 e RN nº 489/2022 para fiscalização e sanções.');
+  blocos.push('FLUXO DE VERIFICAÇÃO REGULATÓRIA: identifique tipo de contrato e data; verifique segmentação; confira se o procedimento está no rol e se há DUT; se estiver fora do rol, aplique cumulativamente os critérios da Lei nº 14.454/2022; verifique carência, CPT/DLP, rede, prazos de atendimento e comunicação formal da negativa; diferencie prescrição médica de obrigação de cobertura. NATJUS elabora nota técnica, não laudo pericial.');
+  blocos.push('ESTRATÉGIA DEFENSIVA: quando houver procedimento fora do rol, estruturar tópico próprio sobre ausência de cobertura obrigatória com três camadas: inexistência no Anexo I/DUT aplicável; não preenchimento dos requisitos do § 13 do artigo 10 da Lei nº 9.656/1998; ausência de recomendação CONITEC ou de órgão internacional aprovado para uso no Brasil. O ônus de provar os requisitos legais é do autor, nos termos do artigo 373, inciso I, do Código de Processo Civil.');
   blocos.push(getInstrucaoEstrutura(tipo === 'auto' ? inferir((inst || '') + ' ' + andamento) : tipo));
   blocos.push(getInstrucaoDensidade());
   return blocos.filter(Boolean).join('\n\n');
@@ -7414,10 +7235,7 @@ async function gerarMinuta() {
   // 1. Verificar limite do plano
   var limiteCheck = await verificarLimitePlano();
   if (!limiteCheck.permitido) {
-    var msgLimite = limiteCheck.tipo === 'diario'
-      ? '⛔ ' + limiteCheck.motivo + '\n\nSeu limite renova automaticamente à meia-noite.\nPara gerar mais peças sem restrição diária, conheça os planos disponíveis em Configuração.'
-      : '⛔ ' + limiteCheck.motivo + '\n\nConheça os planos disponíveis em Configuração para continuar gerando peças.';
-    alert(msgLimite);
+    alert('⛔ ' + limiteCheck.motivo + '\n\nVocê atingiu o limite de peças do seu plano este mês.\nEm breve serão disponibilizados planos pagos com mais peças.\nContato: carmo.mancebo@adv.oabsp.org.br');
     return;
   }
 
@@ -7466,7 +7284,7 @@ async function gerarMinuta() {
   if (tamContexto > 50000 && !jaUsouResumo) {
     var msg = 'O contexto carregado tem ' + tamContexto.toLocaleString('pt-BR') + ' caracteres (~' + tokensEstim.toLocaleString('pt-BR') + ' tokens de entrada), o que pode gerar custo elevado e risco de ultrapassar o limite do modelo.\n\n' +
       'Recomendamos primeiro usar a aba "Análise de processo" no modo "Resumo executivo" e, se fizer sentido, enviar o resumo para a petição — isso reduz o consumo e melhora a organização do caso.\n\n' +
-      'Dica: use o modo Avançado (Sonnet) para análises mais complexas — disponível em todos os planos.';
+      'Dica: use o Claude Sonnet para resumos e análises rápidas.';
     var okResumo = await customConfirm(msg,
       { icon: '💡', title: 'Contexto grande — recomendamos resumir primeiro', ok: 'Gerar petição assim mesmo', cancel: 'Ir para Análise' }
     );
@@ -7541,7 +7359,7 @@ async function gerarMinuta() {
   document.getElementById('res-empty').style.display='none';
   document.getElementById('res-content').style.display='block';
   document.getElementById('res-txt').textContent='';
-  var nomeModelo=modelo==='completo'?'Completo':modelo==='essencial'?'Essencial':'Avançado';
+  var nomeModelo=modelo==='claude-opus'?'Claude Opus':'Claude Sonnet';
   setSt2('res-st','info','Aguarde — gerando via '+nomeModelo+'...');
   var enriquecimento = getEnriquecimento();
   var sys = montarSystemPromptPeticao(enriquecimento, tipo, inst, andamento);
@@ -8376,7 +8194,7 @@ async function baixarDocxComTimbrado() {
     '<w:settings xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:zoom w:percent="100"/><w:defaultTabStop w:val="708"/><w:characterSpacingControl w:val="doNotCompress"/><w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat></w:settings>';
 
   var coreXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
-    '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>'+esc(nomeArq)+'</dc:title><dc:creator>Gerador de Petições</dc:creator></cp:coreProperties>';
+    '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>'+esc(nomeArq)+'</dc:title><dc:creator>Carmo Mancebo</dc:creator></cp:coreProperties>';
 
   var appXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
     '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>Gerador de Peticoes</Application></Properties>';
@@ -8486,7 +8304,7 @@ async function baixarDocxSimples() {
       '<w:settings xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:zoom w:percent="100"/><w:defaultTabStop w:val="708"/><w:characterSpacingControl w:val="doNotCompress"/><w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat></w:settings>';
 
     var coreXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
-      '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>'+esc(nomeArq)+'</dc:title><dc:creator>Gerador de Petições</dc:creator></cp:coreProperties>';
+      '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>'+esc(nomeArq)+'</dc:title><dc:creator>Carmo Mancebo</dc:creator></cp:coreProperties>';
 
     var appXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
       '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>Gerador de Peticoes</Application></Properties>';
@@ -8578,7 +8396,7 @@ async function continuarMinuta() {
 
 async function executarGeracao(sys, usr, isContinuacao) {
   var modelo = ultimoModelo || getModeloSelecionado();
-  var nomeModelo = modelo==='completo'?'Completo':modelo==='essencial'?'Essencial':'Avançado';
+  var nomeModelo = modelo === 'claude-opus' ? 'Claude Opus' : 'Claude Sonnet';
   setSt2('res-st','info','Aguarde — '+(isContinuacao?'continuando':'regerando')+' via '+nomeModelo+'...');
   var out = document.getElementById('res-txt');
   var full = isContinuacao ? minuta : '';
@@ -8880,94 +8698,6 @@ function _modalKeyHandler(e) {
     if (cr) cr.style.display = this.value === "revisão de peça" ? "block" : "none";
   });
 })();
-
-function toggleSidebar() {
-  var sb = document.querySelector('.sidebar');
-  var ov = document.getElementById('sidebar-overlay');
-  var open = sb.classList.toggle('open');
-  if (ov) {
-    ov.style.opacity = open ? '1' : '0';
-    ov.style.pointerEvents = open ? 'all' : 'none';
-  }
-}
-// Fechar sidebar ao navegar (mobile)
-var _goOrig = typeof go === 'function' ? go : null;
-document.addEventListener('DOMContentLoaded', function() {
-  // Fechar drawer ao clicar em qualquer item da nav
-  document.querySelectorAll('.nav-item').forEach(function(el) {
-    el.addEventListener('click', function() {
-      var sb = document.querySelector('.sidebar');
-      var ov = document.getElementById('sidebar-overlay');
-      if (sb && window.innerWidth <= 680) {
-        sb.classList.remove('open');
-        if (ov) { ov.style.opacity='0'; ov.style.pointerEvents='none'; }
-      }
-    });
-  });
-});
-
-
-
-// Onboarding — remover destaque do card de andamento após preenchimento
-(function() {
-  function checkAndamento() {
-    var ta = document.getElementById('f-and');
-    var card = document.getElementById('card-andamento');
-    var badge = document.getElementById('badge-comece');
-    var hint = document.getElementById('hint-andamento');
-    if (!ta || !card) return;
-    var preenchido = ta.value.trim().length > 30;
-    if (preenchido) {
-      card.classList.add('preenchido');
-      if (badge) badge.style.display = 'none';
-      if (hint) hint.style.display = 'none';
-    } else {
-      card.classList.remove('preenchido');
-      if (badge) badge.style.display = '';
-      if (hint) hint.style.display = '';
-    }
-  }
-  document.addEventListener('DOMContentLoaded', function() {
-    var ta = document.getElementById('f-and');
-    if (ta) {
-      ta.addEventListener('input', checkAndamento);
-      ta.addEventListener('change', checkAndamento);
-      checkAndamento();
-    }
-    // Atualizar barra de progresso ao navegar
-    var origGo = window.go;
-    if (origGo) {
-      window.go = function(id) {
-        origGo(id);
-        atualizarBarraFluxo(id);
-      };
-    }
-  });
-  window.atualizarBarraFluxo = function(id) {
-    var mapa = { cfg: 'pf-cfg', proc: 'pf-proc', ger: 'pf-ger', res: 'pf-res', an: null, dash: null };
-    var steps = ['pf-cfg','pf-proc','pf-ger','pf-res'];
-    var ativo = mapa[id];
-    if (!ativo) return;
-    var idxAtivo = steps.indexOf(ativo);
-    steps.forEach(function(sid, i) {
-      var el = document.getElementById(sid);
-      if (!el) return;
-      el.classList.remove('active','done');
-      if (sid === ativo) el.classList.add('active');
-      else if (i < idxAtivo) el.classList.add('done');
-    });
-    // Atualizar números/check dos dots
-    steps.forEach(function(sid, i) {
-      var el = document.getElementById(sid);
-      if (!el) return;
-      var dot = el.querySelector('.pf-dot');
-      if (!dot) return;
-      if (i < idxAtivo) dot.textContent = '✓';
-      else dot.textContent = String(i+1);
-    });
-  };
-})();
-
 </script>
 <div class="app-footer">
   <a href="https://wa.me/5511941261425" target="_blank" rel="noopener" class="footer-contact" title="Abrir WhatsApp">
@@ -8996,84 +8726,6 @@ document.addEventListener('DOMContentLoaded', function() {
 .custom-modal-btn-ok:hover{background:#0C2E5B}
 .custom-modal-btn-cancel{background:#F7F9FC;color:#4A5568;border:1px solid #CBD5E0}
 .custom-modal-btn-cancel:hover{background:#EDF2F7}
-
-.card-destaque {
-  border: 2px solid #85B7EB !important;
-  box-shadow: 0 0 0 3px rgba(55,138,221,0.08);
-  transition: border-color .4s, box-shadow .4s;
-}
-.card-destaque.preenchido {
-  border: 0.5px solid var(--border) !important;
-  box-shadow: none;
-}
-@keyframes pulse-badge {
-  0%,100% { opacity:1; }
-  50% { opacity:.55; }
-}
-.tooltip-wrap { position:relative; display:inline-flex; align-items:center; }
-.tooltip-icon {
-  display:inline-flex; align-items:center; justify-content:center;
-  width:16px; height:16px; border-radius:50%;
-  background:var(--bg2); color:var(--text2);
-  font-size:10px; font-weight:600; cursor:help;
-  border:0.5px solid var(--border); margin-left:5px; flex-shrink:0;
-}
-.tooltip-box {
-  display:none; position:absolute; left:22px; top:-4px; z-index:100;
-  background:var(--bg); border:0.5px solid var(--border);
-  border-radius:8px; padding:8px 11px; font-size:12px; font-weight:400;
-  color:var(--text2); line-height:1.55; width:240px;
-  box-shadow:0 4px 12px rgba(0,0,0,.1);
-}
-.tooltip-wrap:hover .tooltip-box,
-.tooltip-wrap:focus-within .tooltip-box { display:block; }
-.progress-bar-flow {
-  display:flex; align-items:center; gap:0;
-  padding:10px 16px; margin-bottom:4px;
-  border-bottom:0.5px solid var(--border);
-  background:var(--bg);
-}
-.pf-step {
-  display:flex; align-items:center; gap:6px;
-  font-size:12px; color:var(--text3); cursor:pointer;
-}
-.pf-step.active { color:var(--blue); font-weight:500; }
-.pf-step.done { color:var(--text2); }
-.pf-dot {
-  width:22px; height:22px; border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  font-size:11px; font-weight:500; flex-shrink:0;
-  background:var(--bg2); color:var(--text3); border:0.5px solid var(--border);
-}
-.pf-step.active .pf-dot { background:#E6F1FB; color:#185FA5; border-color:#85B7EB; }
-.pf-step.done .pf-dot { background:#EAF3DE; color:#3B6D11; border-color:#97C459; }
-.pf-line { flex:1; height:1px; background:var(--border); margin:0 6px; }
-.onboard-card {
-  background:#EFF6FF; border:1px solid #93C5FD;
-  border-radius:10px; padding:14px 16px; margin-bottom:16px;
-}
-.onboard-card h3 { font-size:14px; font-weight:500; color:#1E40AF; margin-bottom:6px; }
-.onboard-card p { font-size:13px; color:#1E3A8A; line-height:1.65; margin-bottom:10px; }
-.proc-instrucao {
-  background:#F0FDF4; border:1px solid #86EFAC;
-  border-radius:10px; padding:14px 16px; margin-bottom:16px;
-}
-.proc-instrucao h3 { font-size:14px; font-weight:500; color:#166534; margin-bottom:6px; }
-.proc-instrucao p { font-size:13px; color:#14532D; line-height:1.65; }
-.proc-instrucao .proc-rotas { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
-.proc-instrucao .proc-rota {
-  flex:1; min-width:180px; background:#fff;
-  border:0.5px solid #86EFAC; border-radius:8px; padding:10px 12px;
-}
-.proc-instrucao .proc-rota strong { font-size:13px; color:#166534; display:block; margin-bottom:3px; }
-.proc-instrucao .proc-rota span { font-size:12px; color:#15803D; line-height:1.5; }
-.empty-state-proc {
-  text-align:center; padding:40px 20px; color:var(--text3);
-}
-.empty-state-proc .es-icon { font-size:32px; margin-bottom:12px; }
-.empty-state-proc h3 { font-size:15px; font-weight:500; color:var(--text2); margin-bottom:6px; }
-.empty-state-proc p { font-size:13px; line-height:1.6; margin-bottom:16px; }
-
 </style>
 
 <div id="custom-modal-overlay" class="custom-modal-overlay" style="display:none" onclick="if(event.target===this)_modalResolve(false)">
