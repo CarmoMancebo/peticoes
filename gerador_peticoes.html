@@ -1071,6 +1071,12 @@ tbody tr.st-p td{background:#b3e5fc}
         <input type="password" id="cad-senha2" placeholder="Repita a senha"
           onkeydown="if(event.key==='Enter')fazerCadastro()" />
       </div>
+      <div style="margin-bottom:12px;padding:10px 12px;background:#FFF9EB;border:1px solid #FAC775;border-radius:8px;font-size:11px;color:#7A5A16;line-height:1.6">
+        <strong>⚠ Condições do plano Demonstração:</strong><br>
+        • <strong>25 peças</strong> válidas por <strong>30 dias</strong> a partir do cadastro — não renováveis<br>
+        • Após 30 dias ou 25 peças, é necessário contratar um plano pago para continuar<br>
+        • O compartilhamento de login/senha é detectado automaticamente e ocasiona <strong>suspensão imediata</strong> da conta
+      </div>
       <button class="login-btn" onclick="fazerCadastro()" id="btn-fazer-cadastro">Criar conta</button>
       <div id="cad-err" class="login-err"></div>
       <div id="cad-ok" style="display:none;margin-top:10px;padding:10px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;font-size:12px;color:#166534;text-align:center">
@@ -2548,6 +2554,17 @@ async function limparSessaoAtiva() {
   GP_SESSION_NONCE = null;
   localStorage.removeItem('gp_session_nonce');
 }
+// ── DEVICE ID — fingerprint por dispositivo para detecção de compartilhamento ─
+var GP_DEVICE_ID = (function() {
+  var k = 'gp_device_id';
+  var id = localStorage.getItem(k);
+  if (!id) {
+    id = 'dev-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+    try { localStorage.setItem(k, id); } catch(e) {}
+  }
+  return id;
+})();
+
 // ── INICIALIZAÇÃO DE AUTH ─────────────────────────────────────────────────
 function inicializarAuth() {
   var supa = getSupa();
@@ -7935,6 +7952,7 @@ async function chamarIAViaProxy(modelo, sysPrompt, messages, onChunk) {
         messages: messages,
         max_tokens: 8000,
         stream: true,
+        dispositivo_id: GP_DEVICE_ID,
       }),
     });
   } catch (netErr) {
@@ -7946,7 +7964,19 @@ async function chamarIAViaProxy(modelo, sysPrompt, messages, onChunk) {
     try { errData = await resp.json(); } catch(e) {}
     var msg = errData.error || ('Erro ' + resp.status + ' no servidor.');
     if (resp.status === 429 && errData.codigo === 'LIMITE_PLANO') {
-      mostrarModalLimitePlano(msg);
+      mostrarModalLimitePlano(msg, errData);
+      throw new Error(msg);
+    }
+    if (resp.status === 402 && errData.codigo === 'TRIAL_EXPIRADO') {
+      mostrarModalTrialExpirado(msg);
+      throw new Error(msg);
+    }
+    if (resp.status === 403 && errData.codigo === 'BANIDO') {
+      mostrarModalContaSuspensa(msg);
+      throw new Error(msg);
+    }
+    if (resp.status === 403 && errData.codigo === 'COMPARTILHAMENTO') {
+      mostrarModalCompartilhamento(msg);
       throw new Error(msg);
     }
     if (resp.status === 401) {
@@ -7999,19 +8029,69 @@ async function chamarIAViaProxy(modelo, sysPrompt, messages, onChunk) {
   return { texto: texto, uso: uso };
 }
 
-function mostrarModalLimitePlano(msg) {
+function _criarModal(html) {
   var m = document.createElement('div');
-  m.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center';
-  m.innerHTML = '<div style="background:var(--bg);border-radius:12px;padding:24px 28px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2)">' +
-    '<h3 style="margin:0 0 8px;font-size:16px;color:var(--text)">Limite do plano atingido</h3>' +
-    '<p style="font-size:13px;color:var(--text2);margin:0 0 16px">' + (msg||'Você atingiu o limite de peças do seu plano este mês.') + '</p>' +
-    '<p style="font-size:12px;color:var(--text2);margin:0 0 16px">Interesse em plano com mais peças:<br>' +
-    '<a href="mailto:carmo.mancebo@adv.oabsp.org.br" style="color:var(--blue)">carmo.mancebo@adv.oabsp.org.br</a></p>' +
+  m.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center';
+  m.innerHTML = html;
+  document.body.appendChild(m);
+  return m;
+}
+var _EMAIL_SUPORTE = 'carmo.mancebo@adv.oabsp.org.br';
+
+function mostrarModalLimitePlano(msg, errData) {
+  var isTrialEsgotado = errData && errData.codigo === 'LIMITE_PLANO' && (errData.pecas_usadas >= 25);
+  _criarModal(
+    '<div style="background:var(--bg);border-radius:12px;padding:24px 28px;max-width:440px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2)">' +
+    '<h3 style="margin:0 0 8px;font-size:16px;color:var(--text)">⚠ Limite de peças atingido</h3>' +
+    '<p style="font-size:13px;color:var(--text2);margin:0 0 12px">' + (msg||'Você atingiu o limite de peças do seu plano.') + '</p>' +
+    (isTrialEsgotado
+      ? '<p style="font-size:12px;color:var(--text2);margin:0 0 14px">O plano Demonstração inclui <strong>25 peças em 30 dias</strong> e não é renovável. Para continuar, entre em contato:</p>'
+      : '<p style="font-size:12px;color:var(--text2);margin:0 0 14px">Para fazer upgrade do seu plano, entre em contato:</p>') +
+    '<p style="font-size:13px;font-weight:600;margin:0 0 16px"><a href="mailto:' + _EMAIL_SUPORTE + '" style="color:var(--blue)">' + _EMAIL_SUPORTE + '</a></p>' +
     '<div style="display:flex;gap:8px;justify-content:flex-end">' +
     '<button onclick="go(\'cfg\')" style="background:none;border:1px solid var(--border);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Ver plano</button>' +
     '<button onclick="this.closest(\'[style*=fixed]\').remove()" style="background:var(--blue);color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px">Fechar</button>' +
-    '</div></div>';
-  document.body.appendChild(m);
+    '</div></div>'
+  );
+}
+
+function mostrarModalTrialExpirado(msg) {
+  _criarModal(
+    '<div style="background:var(--bg);border-radius:12px;padding:24px 28px;max-width:440px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2)">' +
+    '<h3 style="margin:0 0 8px;font-size:16px;color:#DC2626">⏰ Período de demonstração encerrado</h3>' +
+    '<p style="font-size:13px;color:var(--text2);margin:0 0 12px">' + (msg||'Seu período de 30 dias expirou.') + '</p>' +
+    '<p style="font-size:12px;color:var(--text2);margin:0 0 6px">Para continuar utilizando o Gerador de Petições, contrate um plano. Entre em contato:</p>' +
+    '<p style="font-size:13px;font-weight:600;margin:0 0 16px"><a href="mailto:' + _EMAIL_SUPORTE + '" style="color:var(--blue)">' + _EMAIL_SUPORTE + '</a></p>' +
+    '<div style="display:flex;justify-content:flex-end">' +
+    '<button onclick="this.closest(\'[style*=fixed]\').remove()" style="background:#DC2626;color:white;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-size:13px">Entendido</button>' +
+    '</div></div>'
+  );
+}
+
+function mostrarModalContaSuspensa(msg) {
+  _criarModal(
+    '<div style="background:var(--bg);border-radius:12px;padding:24px 28px;max-width:440px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2)">' +
+    '<h3 style="margin:0 0 8px;font-size:16px;color:#DC2626">🚫 Conta suspensa</h3>' +
+    '<p style="font-size:13px;color:var(--text2);margin:0 0 12px">' + (msg||'Sua conta foi suspensa.') + '</p>' +
+    '<p style="font-size:12px;color:var(--text2);margin:0 0 6px">Para solicitar a reativação, entre em contato com o suporte:</p>' +
+    '<p style="font-size:13px;font-weight:600;margin:0 0 16px"><a href="mailto:' + _EMAIL_SUPORTE + '" style="color:var(--blue)">' + _EMAIL_SUPORTE + '</a></p>' +
+    '<div style="display:flex;justify-content:flex-end">' +
+    '<button onclick="fazerLogout();this.closest(\'[style*=fixed]\').remove()" style="background:#DC2626;color:white;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-size:13px">Sair</button>' +
+    '</div></div>'
+  );
+}
+
+function mostrarModalCompartilhamento(msg) {
+  _criarModal(
+    '<div style="background:var(--bg);border-radius:12px;padding:24px 28px;max-width:460px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2)">' +
+    '<h3 style="margin:0 0 8px;font-size:16px;color:#DC2626">⛔ Compartilhamento detectado</h3>' +
+    '<p style="font-size:13px;color:var(--text2);margin:0 0 10px">' + (msg||'Compartilhamento de credenciais detectado.') + '</p>' +
+    '<p style="font-size:12px;color:var(--text2);margin:0 0 6px">O sistema identificou acesso simultâneo por mais de um dispositivo. Sua conta foi <strong>automaticamente suspensa</strong> como medida de proteção. Para reativação manual, contate o suporte:</p>' +
+    '<p style="font-size:13px;font-weight:600;margin:0 0 16px"><a href="mailto:' + _EMAIL_SUPORTE + '" style="color:var(--blue)">' + _EMAIL_SUPORTE + '</a></p>' +
+    '<div style="display:flex;justify-content:flex-end">' +
+    '<button onclick="fazerLogout();this.closest(\'[style*=fixed]\').remove()" style="background:#DC2626;color:white;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-size:13px">Sair</button>' +
+    '</div></div>'
+  );
 }
 
 // ANTI-PROMPT INJECTION — Detector de tentativas de manipulação de IA
@@ -8171,19 +8251,45 @@ function atualizarUIPlano() {
     badge.className = 'plano-badge plano-' + (plano === 'escritorio' ? 'escr' : plano);
   }
 
+  // Calcular dias restantes do trial (30 dias a partir de criado_em)
+  var diasTrialRestantes = null;
+  if (plano === 'trial' && _dadosUsuario && _dadosUsuario.criado_em) {
+    var expiraTrialMs = new Date(_dadosUsuario.criado_em).getTime() + 30 * 24 * 60 * 60 * 1000;
+    diasTrialRestantes = Math.max(0, Math.ceil((expiraTrialMs - Date.now()) / (24 * 60 * 60 * 1000)));
+  }
+
   // Contador na toolbar
   var cont = document.getElementById('tb-pecas-contador');
   if (cont) {
-    cont.textContent = pecasMes + '/' + limite + ' peças';
-    cont.className = 'pecas-contador' + (pct >= 90 ? ' limite' : pct >= 70 ? ' aviso' : '');
+    var contTxt = pecasMes + '/' + limite + ' peças';
+    if (plano === 'trial' && diasTrialRestantes !== null) {
+      contTxt += ' · ' + diasTrialRestantes + 'd restantes';
+    }
+    cont.textContent = contTxt;
+    var classCont = 'pecas-contador';
+    if (pct >= 90 || (plano === 'trial' && diasTrialRestantes !== null && diasTrialRestantes <= 3)) {
+      classCont += ' limite';
+    } else if (pct >= 70 || (plano === 'trial' && diasTrialRestantes !== null && diasTrialRestantes <= 7)) {
+      classCont += ' aviso';
+    }
+    cont.className = classCont;
+    cont.style.display = '';
   }
 
   // Card de plano na Configuração
   var info = document.getElementById('cfg-plano-info');
   if (info) {
     var labelPlano = { trial:'Demonstração', solo:'Avançado', pro:'Completo', escritorio:'Escritório' }[plano] || plano;
-    info.innerHTML = '<strong>Plano:</strong> <span class="plano-badge plano-' + (plano==='escritorio'?'escr':plano) + '">' + labelPlano + '</span>' +
-      (plano === 'trial' ? ' &nbsp;·&nbsp; <span style="color:var(--text3);font-size:11px">Período gratuito de testes</span>' : '');
+    var trialInfo = '';
+    if (plano === 'trial') {
+      if (diasTrialRestantes !== null) {
+        var corDias = diasTrialRestantes <= 3 ? '#DC2626' : diasTrialRestantes <= 7 ? '#D97706' : 'var(--text3)';
+        trialInfo = ' &nbsp;·&nbsp; <span style="color:' + corDias + ';font-size:11px;font-weight:600">' + diasTrialRestantes + ' dias restantes do período</span>';
+      } else {
+        trialInfo = ' &nbsp;·&nbsp; <span style="color:var(--text3);font-size:11px">30 dias · não renovável</span>';
+      }
+    }
+    info.innerHTML = '<strong>Plano:</strong> <span class="plano-badge plano-' + (plano==='escritorio'?'escr':plano) + '">' + labelPlano + '</span>' + trialInfo;
   }
 
   var barra = document.getElementById('cfg-pecas-preenchida');
@@ -8195,7 +8301,9 @@ function atualizarUIPlano() {
   var txtBarra = document.getElementById('cfg-pecas-texto');
   if (txtBarra) {
     if (limite >= 99999) {
-      txtBarra.textContent = pecasMes + ' peças geradas este mês · Plano ilimitado';
+      txtBarra.textContent = pecasMes + ' peças geradas · Sem limite';
+    } else if (plano === 'trial') {
+      txtBarra.textContent = pecasMes + ' de ' + limite + ' peças usadas · ' + restam + ' restantes · válidas por 30 dias a partir do cadastro (não renováveis)';
     } else {
       txtBarra.textContent = pecasMes + ' de ' + limite + ' peças usadas este mês · ' + restam + ' restantes';
     }
