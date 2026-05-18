@@ -989,7 +989,21 @@ tbody tr.st-p td{background:#b3e5fc}
   body.sidebar-open .sidebar{left:0}
   body.sidebar-open .sidebar-backdrop{display:block;position:fixed;top:56px;left:0;right:0;bottom:0;background:rgba(15,23,42,.38);z-index:840}
   .nav-item{padding:12px 18px}.card{padding:14px}.btn-row{gap:8px}.btn-row .btn{flex:1 1 auto;justify-content:center}
+  .densidade-opts{grid-template-columns:1fr!important}
 }
+/* Card de andamento — destaque visual de ponto de partida */
+.card-destaque{border:2px solid #85B7EB!important;box-shadow:0 0 0 3px rgba(55,138,221,.08);transition:border-color .4s,box-shadow .4s}
+.card-destaque.preenchido{border:0.5px solid var(--border)!important;box-shadow:none}
+@keyframes pulse-badge{0%,100%{opacity:1}50%{opacity:.55}}
+/* Seletor visual de densidade do texto */
+.densidade-opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.densidade-card{border:2px solid var(--border);border-radius:8px;padding:10px 14px;cursor:pointer;transition:border-color .15s,background .15s;user-select:none}
+.densidade-card:hover{border-color:var(--blue);background:var(--blue-bg)}
+.densidade-card.selected{border-color:var(--blue);background:var(--blue-bg)}
+.densidade-titulo{font-weight:600;font-size:13px;color:var(--text);margin-bottom:3px}
+.densidade-desc{font-size:11px;color:var(--text2);line-height:1.4}
+.densidade-card.selected .densidade-titulo{color:var(--blue)}
+.densidade-card.selected .densidade-desc{color:var(--blue)}
 </style>
 </head>
 <body>
@@ -1091,7 +1105,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <span class="user-avatar" id="tb-user-iniciais">—</span>
       <span class="user-nome" id="tb-user-primeironome">—</span>
     </span>
-    <span class="tb-meta" id="tb-versao">versão 1.93</span>
+    <span class="tb-meta" id="tb-versao">versão 1.94</span>
   </div>
 </div>
 
@@ -1197,13 +1211,13 @@ tbody tr.st-p td{background:#b3e5fc}
         <div style="padding:8px 12px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:6px;font-size:11px;color:#166534;margin-bottom:12px">
           ✓ <strong>A integração com a IA é realizada exclusivamente via proxy seguro do servidor.</strong> Nenhuma chave de API precisa ser informada pelo usuário.
         </div>
-        <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Selecione o modelo Claude utilizado na geração das peças. O acesso é realizado exclusivamente pelo proxy seguro do servidor.</p>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Selecione o modo de geração das peças. O acesso é realizado exclusivamente pelo proxy seguro do servidor.</p>
         <div class="field" style="margin-bottom:10px">
-          <label>Modelo de IA</label>
+          <label>Modo de geração</label>
           <select id="sel-modelo-global" onchange="sincronizarModeloGlobal(this.value)" style="width:100%">
-            <option value="claude-sonnet">Claude Sonnet 4.5 — recomendado · Anthropic</option>
-            <option value="claude-opus">Claude Opus 4.5 — máxima precisão, mais caro · Anthropic</option>
-            
+            <option value="essencial">Essencial — rápido e eficiente</option>
+            <option value="avancado" selected>Avançado — padrão recomendado</option>
+            <option value="completo" disabled>Completo — máxima precisão · Em breve (plano Completo)</option>
           </select>
         </div>
         <div id="cfg-modelo-status" style="margin-top:8px;padding:7px 10px;border-radius:6px;font-size:11px;display:none"></div>
@@ -1391,7 +1405,7 @@ tbody tr.st-p td{background:#b3e5fc}
         <div id="xlsx-info" style="font-size:11px;color:var(--text3);margin-top:4px;min-height:14px"></div>
       </div>
 
-      <div id="proc-hdr" style="display:none;margin-bottom:10px">
+      <div id="proc-hdr" style="display:none;margin-bottom:10px;overflow-x:hidden">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
           <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
             <span style="font-size:12px;color:var(--text2)">Filtrar:</span>
@@ -1412,14 +1426,9 @@ tbody tr.st-p td{background:#b3e5fc}
           </div>
         </div>
         <!-- Linha 1: seletores uniformes -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
-          <select id="filtro-resp" onchange="renderTabela()" style="font-size:12px;width:100%">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;min-width:0">
+          <select id="filtro-resp" onchange="renderTabela()" style="font-size:12px;width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis">
             <option value="">Todos os responsáveis</option>
-            <option value="CARMO">CARMO</option>
-            <option value="MAY">MAY / MAYARA</option>
-            <option value="BIANCA">BIANCA</option>
-            <option value="GABI">GABI</option>
-            <option value="CINTHIA">CINTHIA</option>
           </select>
           <select id="filtro-trat" onchange="renderTabela()" style="font-size:12px;width:100%">
             <option value="">Todas as tratativas</option>
@@ -1475,8 +1484,9 @@ tbody tr.st-p td{background:#b3e5fc}
 
       <!-- sel-modelo (oculto) sincronizado com sel-modelo-global na Configuração -->
       <select id="sel-modelo" style="display:none" onchange="sincronizarModeloGlobal(this.value)">
-        <option value="claude-sonnet">Claude Sonnet 4.5</option>
-        <option value="claude-opus">Claude Opus 4.5</option>
+        <option value="essencial">Essencial</option>
+        <option value="avancado" selected>Avançado</option>
+        <option value="completo">Completo</option>
       </select>
 
       <div class="card">
@@ -1499,17 +1509,12 @@ tbody tr.st-p td{background:#b3e5fc}
           </div>
         </div>
 
-        <!-- Linha 2: Sistema (mesmo lugar do seletor auto/manual) + Botões na direita (mesmo lugar do input número) -->
-        <div class="row2" style="grid-template-columns:1fr 2fr;gap:12px;align-items:flex-end;margin-bottom:14px">
-          <div class="field">
-            <label style="visibility:hidden">Ações</label>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-              <button class="btn btn-s btn-sm" onclick="abrirNoTribunal()" title="Abrir site do tribunal com o número do processo pré-preenchido">🔗 Abrir no tribunal</button>
-              <button class="btn btn-s btn-sm" onclick="verHistoricoProcesso(document.getElementById('f-proc').value)" title="Ver histórico de gerações para este processo">📋 Histórico</button>
-              <button class="btn btn-s btn-sm" onclick="copiarProcesso()" title="Copiar número do processo">📋 Copiar número</button>
-              <span id="proc-copy-st" style="font-size:11px;color:var(--green);align-self:center"></span>
-            </div>
-          </div>
+        <!-- Linha 2: botões de ação do processo — alinhados em linha única -->
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:nowrap;margin-bottom:14px">
+          <button class="btn btn-s btn-sm" onclick="abrirNoTribunal()" title="Abrir site do tribunal com o número do processo pré-preenchido">🔗 Abrir no tribunal</button>
+          <button class="btn btn-s btn-sm" onclick="verHistoricoProcesso(document.getElementById('f-proc').value)" title="Ver histórico de gerações para este processo">📋 Histórico</button>
+          <button class="btn btn-s btn-sm" onclick="copiarProcesso()" title="Copiar número do processo">📋 Copiar número</button>
+          <span id="proc-copy-st" style="font-size:11px;color:var(--green);margin-left:4px"></span>
         </div>
         <!-- Cliente e Parte contrária em linhas separadas (uma linha cada) -->
         <div class="field field-required" style="margin-bottom:14px">
@@ -1536,8 +1541,12 @@ tbody tr.st-p td{background:#b3e5fc}
         <div class="field"><label>Descrição da demanda (Tarefa)</label><input type="text" id="f-desc" /></div>
       </div>
 
-      <div class="card">
-        <div class="card-title">Andamento do tribunal</div>
+      <div class="card card-destaque" id="card-andamento">
+        <div class="card-title" style="display:flex;align-items:center;gap:8px">
+          Andamento do tribunal
+          <span id="badge-comece" style="display:inline-flex;align-items:center;gap:4px;background:#E6F1FB;color:#185FA5;font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;animation:pulse-badge 2s ease-in-out infinite">▶ Comece aqui</span>
+        </div>
+        <p id="hint-andamento" style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.6">Cole o texto do andamento copiado do tribunal (e-SAJ, PJe, TJSP, STJ etc.) ou carregue o arquivo abaixo. A IA identifica automaticamente as partes, o tipo de peça necessária e os fundamentos aplicáveis.</p>
         <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
           <button class="btn btn-s btn-sm" onclick="document.getElementById('inp-and').click()">📎 Carregar arquivo (PDF, DOCX, TXT)</button>
           <span id="and-nome" style="font-size:11px;color:var(--text3)"></span>
@@ -1550,7 +1559,11 @@ tbody tr.st-p td{background:#b3e5fc}
             <label style="margin-bottom:0">Texto do andamento / decisão / despacho / sentença / acórdão</label>
             <button class="btn btn-s btn-sm" onclick="analisarAndamento()" title="Detecta automaticamente: tipo de demanda, dados do processo, e sugere tipo de peça" style="font-size:11px;padding:3px 8px">🔍 Analisar andamento</button>
           </div>
-          <textarea id="f-and" style="min-height:140px" placeholder="Cole o texto ou carregue um arquivo acima..."></textarea>
+          <textarea id="f-and" style="min-height:140px" placeholder="Cole aqui o texto do andamento processual copiado do tribunal (e-SAJ, PJe, TJSP, STJ etc.).
+
+Exemplo: &quot;Vistos. Trata-se de ação de obrigação de fazer... Intime-se a parte ré para manifestação no prazo de 15 dias. São Paulo, 22 de abril de 2026.&quot;
+
+Quanto mais completo o andamento, mais precisa e fundamentada será a peça gerada. Você também pode carregar o arquivo PDF ou DOCX acima."></textarea>
           <div id="and-analise" style="display:none;margin-top:6px;padding:8px 10px;background:#EFF6FF;border:1px solid #93C5FD;border-radius:6px;font-size:11px;color:#1E3A8A"></div>
           <div style="font-size:10px;color:var(--text3);text-align:right;margin-top:2px"><span id="cnt-and">0</span> chars · <span id="cnt-and-tk">0</span> tokens est.</div>
           <div id="alerta-dlp" style="display:none;margin-top:6px;padding:8px 10px;background:#FEF3C7;border:1px solid #F59E0B;border-radius:6px;font-size:11px;color:#92400E"></div>
@@ -1692,14 +1705,6 @@ tbody tr.st-p td{background:#b3e5fc}
             <input type="text" id="f-cidade" value="São Paulo/SP" />
           </div>
         </div>
-        <div class="field">
-          <label>Densidade do texto <span style="color:var(--red)">*</span></label>
-          <select id="f-densidade" required>
-            <option value="objetiva">Objetiva — redação clara, direta, focada no essencial</option>
-            <option value="densa" selected>Densa — detalhada, com fundamentação minuciosa</option>
-            <option value="extensa">Extensa — máximo detalhamento, com revisão antes da entrega</option>
-          </select>
-        </div>
         <div class="field" id="card-revisar-peca" style="display:none">
           <label>Peça a revisar <span style="color:var(--red)">*</span></label>
           <textarea id="f-peca-revisar" rows="10" placeholder="Cole aqui a peça que deseja revisar. A IA irá corrigir a redação, adequar à terminologia jurídica obrigatória, verificar a estrutura dos tópicos, corrigir o uso de § e parágrafo, e aprimorar a argumentação mantendo o conteúdo original."></textarea>
@@ -1786,6 +1791,36 @@ tbody tr.st-p td{background:#b3e5fc}
         </div>
       </div>
       <div id="draft-st" style="font-size:10px;color:var(--text3);min-height:14px;margin-bottom:4px;text-align:right"></div>
+
+      <!-- Densidade do texto — campo obrigatório, imediatamente antes de Gerar -->
+      <div style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <span style="font-weight:600;font-size:13px;color:var(--text)">Densidade do texto</span>
+          <span style="color:var(--red);font-size:12px;font-weight:700">*</span>
+          <span style="font-size:11px;color:var(--text3)">— define extensão e profundidade da peça gerada</span>
+        </div>
+        <div class="densidade-opts">
+          <div class="densidade-card" id="dc-objetiva" onclick="setDensidade('objetiva')">
+            <div class="densidade-titulo">Objetiva</div>
+            <div class="densidade-desc">Clara e direta, focada nos pontos essenciais</div>
+          </div>
+          <div class="densidade-card selected" id="dc-densa" onclick="setDensidade('densa')">
+            <div class="densidade-titulo">Densa</div>
+            <div class="densidade-desc">Detalhada, com fundamentação minuciosa</div>
+          </div>
+          <div class="densidade-card" id="dc-extensa" onclick="setDensidade('extensa')">
+            <div class="densidade-titulo">Extensa</div>
+            <div class="densidade-desc">Máximo detalhamento, com revisão antes da entrega</div>
+          </div>
+        </div>
+        <!-- select oculto mantido para compatibilidade com o restante do código -->
+        <select id="f-densidade" required style="display:none">
+          <option value="objetiva">Objetiva</option>
+          <option value="densa" selected>Densa</option>
+          <option value="extensa">Extensa</option>
+        </select>
+      </div>
+
       <div class="btn-row">
         <button class="btn btn-p" id="btn-ger" onclick="gerarMinuta()" disabled>Gerar minuta</button>
         <div id="btn-ger-status" style="font-size:11px;color:var(--text3);margin-top:6px;min-height:14px"></div>        <button class="btn btn-s" onclick="abrirVerificadorRN()" title="Consultar a RN ANS vigente para o tema da controvérsia">📋 Verificar RN ANS</button>
@@ -1798,19 +1833,11 @@ tbody tr.st-p td{background:#b3e5fc}
 
     <!-- DASHBOARD -->
     <div id="panel-dash" class="panel">
-      <div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px;color:#78350F;display:flex;gap:8px;align-items:flex-start">
-        <span style="font-size:16px;flex-shrink:0">⚠</span>
-        <div>
-          <strong>Painel em fase de testes — valores são estimativas</strong><br>
-          Os custos exibidos são calculados com base em médias de mercado e não correspondem às quantias efetivamente cobradas pela Anthropic. Os totais de tokens e peças geradas são aproximados. Para conferir o consumo real, acesse o painel oficial: <a href="https://console.anthropic.com" target="_blank" style="color:#92400E">console.anthropic.com</a>.
-        </div>
-      </div>
       <div id="storage-status-badge" style="margin-bottom:12px"></div>
       <div class="panel-title">📊 Dashboard de Uso</div>
       <div id="dash-content" style="padding:8px 0"></div>
       <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-s btn-sm" onclick="renderDashboard()">🔄 Atualizar</button>
-        <button class="btn btn-s btn-sm" onclick="exportarCustosCSV()">📥 Exportar CSV</button>
       </div>
     </div>
 <!-- ANÁLISE DE PROCESSO -->
@@ -1823,7 +1850,7 @@ tbody tr.st-p td{background:#b3e5fc}
         <p style="font-size:12px;color:var(--text2);margin-bottom:8px">Faça upload de PDFs, .txt ou cole o texto. Quanto mais completo, melhor a análise. Tipos sugeridos: petição inicial, contestação, decisões, laudos, contratos.</p>
 
         <div style="padding:8px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;font-size:11px;color:#1E40AF;margin-bottom:8px">
-          💡 <strong>Dica de custo:</strong> envie apenas as <strong>peças principais</strong> do processo — não o processo inteiro. Cada página consome ~500-800 tokens. Prefira <strong>.txt</strong> ou compacte os PDFs antes (ilovepdf.com). Processos com 500+ páginas podem exceder o limite do plano.
+          💡 <strong>Dica de uso:</strong> prefira carregar as <strong>peças principais</strong> do processo — petição inicial, contestação, sentença, recurso ou apelação. Evite carregar o processo inteiro; foque nos documentos que concentram os pontos controvertidos. Prefira arquivos <strong>.txt</strong> quando disponíveis.
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
           <button class="btn btn-s btn-sm" onclick="document.getElementById('an-files').click()">📎 Carregar arquivo</button>
@@ -1897,12 +1924,13 @@ tbody tr.st-p td{background:#b3e5fc}
         <div class="field">
             <label style="font-size:12px">Nível de detalhe</label>
             <select id="an-detalhe" style="width:100%">
+              <option value="" disabled selected>— Selecione o nível de detalhe —</option>
               <option value="executivo">Executivo (resposta concisa)</option>
-              <option value="medio" selected>Médio (equilibrado)</option>
+              <option value="medio">Médio (equilibrado)</option>
               <option value="detalhado">Detalhado (análise extensa)</option>
             </select>
           </div>
-          <p style="font-size:11px;color:var(--text3);margin-top:6px">Modelo de IA: configurado globalmente em <a href="#" onclick="go('cfg');return false;" style="color:var(--blue)">Configuração</a>.</p>
+          <p style="font-size:11px;color:var(--text3);margin-top:6px">Modo de geração: configurado globalmente em <a href="#" onclick="go('cfg');return false;" style="color:var(--blue)">Configuração</a>.</p>
       </div>
 
       <div class="card">
@@ -2022,8 +2050,6 @@ tbody tr.st-p td{background:#b3e5fc}
       <label>Transferido para (col. L)</label>
       <select id="tp-transf" onchange="updConc()">
         <option value="">— selecione —</option>
-        <option value="CARMO">CARMO</option>
-        <option value="MAYARA">MAYARA</option>
       </select>
     </div>
     <div class="field fhide" id="tp-div-data">
@@ -2695,36 +2721,49 @@ function go(id) {
   document.getElementById('nav-'+id).classList.add('active');
 }
 
+function setDensidade(val) {
+  var sel = document.getElementById('f-densidade');
+  if (sel) sel.value = val;
+  ['objetiva','densa','extensa'].forEach(function(v) {
+    var card = document.getElementById('dc-' + v);
+    if (card) card.classList.toggle('selected', v === val);
+  });
+}
+
 function sincronizarModeloGlobal(val) {
   if (!val) return;
+  // Normalizar: valores legados mapeados para proprietários
+  if (val === 'claude-sonnet' || val === 'claude-sonnet46') val = 'avancado';
+  if (val === 'claude-opus') val = 'completo';
+  if (val === 'claude-haiku') val = 'essencial';
   // Sincronizar todos os seletores
   ['sel-modelo', 'sel-modelo-global'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el && el.value !== val) el.value = val;
   });
-  // Mostrar/ocultar campos de chave no card unificado
-  var divAnt = document.getElementById('div-anthropic-cfg');
-  var divOai = document.getElementById('div-openai-cfg');
-  var isAnt = (val === 'claude-sonnet' || val === 'claude-opus');
-  if (divAnt) divAnt.style.display = isAnt ? '' : 'none';
-  if (divOai) divOai.style.display = isAnt ? 'none' : '';
   // Atualizar indicador da toolbar
   atualizarIndicadorModelo();
 }
 
+function nomeModoProprio(val) {
+  if (val === 'essencial') return 'Essencial';
+  if (val === 'completo')  return 'Completo';
+  return 'Avançado';
+}
+
 function atualizarIndicadorModelo() {
-  var val = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'claude-sonnet';
-  var labels = { 'claude-sonnet': 'Sonnet', 'claude-opus': 'Opus' };
-  var icons  = { 'claude-sonnet': '⚡', 'claude-opus': '🔶' };
+  var val = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'avancado';
+  var icons = { 'essencial': '⚡', 'avancado': '⚡', 'completo': '🔶' };
 
   var iconEl  = document.getElementById('tb-modelo-icon');
   var labelEl = document.getElementById('tb-modelo-label');
   var chaveEl = document.getElementById('tb-modelo-chave');
   var btn     = document.getElementById('tb-modelo-btn');
   var statusEl = document.getElementById('cfg-modelo-status');
+  var nome = nomeModoProprio(val);
 
   if (iconEl)  iconEl.textContent  = icons[val] || '⚡';
-  if (labelEl) labelEl.textContent = labels[val] || 'Claude';
+  if (labelEl) labelEl.textContent = nome;
 
   var proxyAtivo = !!GPStorage.userId;
 
@@ -2733,7 +2772,7 @@ function atualizarIndicadorModelo() {
   if (btn) {
     btn.classList.add('tb-modelo-ok');
     btn.classList.remove('tb-modelo-warn');
-    btn.title = 'Modelo ativo: ' + (labels[val] || 'Claude') + ' · Proxy seguro ativo';
+    btn.title = 'Modo ativo: ' + nome + ' · Proxy seguro ativo';
   }
 
   if (statusEl) {
@@ -2742,8 +2781,8 @@ function atualizarIndicadorModelo() {
     statusEl.style.border = '1px solid rgba(5,150,105,.25)';
     statusEl.style.color = '#065f46';
     statusEl.innerHTML = proxyAtivo
-      ? '✓ Proxy seguro ativo · Modelo: <strong>' + (labels[val] || 'Claude') + '</strong>.'
-      : '✓ Modelo Claude configurado para uso via proxy seguro.';
+      ? '✓ Proxy seguro ativo · Modo: <strong>' + nome + '</strong>.'
+      : '✓ Modo de geração configurado para uso via proxy seguro.';
   }
 }
 
@@ -2817,8 +2856,12 @@ function saveKey(p) {
 function getModeloSelecionado() {
   var globalSel = document.getElementById('sel-modelo-global');
   var localSel  = document.getElementById('sel-modelo');
-  var modelo = (globalSel && globalSel.value) || (localSel && localSel.value) || 'claude-sonnet';
-  if (modelo !== 'claude-opus') modelo = 'claude-sonnet';
+  var modelo = (globalSel && globalSel.value) || (localSel && localSel.value) || 'avancado';
+  // Normalizar valores legados
+  if (modelo === 'claude-sonnet' || modelo === 'claude-sonnet46') modelo = 'avancado';
+  if (modelo === 'claude-opus') modelo = 'completo';
+  if (modelo === 'claude-haiku') modelo = 'essencial';
+  if (!['essencial','avancado','completo'].includes(modelo)) modelo = 'avancado';
   if (globalSel && globalSel.value !== modelo) globalSel.value = modelo;
   if (localSel && localSel.value !== modelo) localSel.value = modelo;
   return modelo;
@@ -3207,11 +3250,21 @@ async function extrairPDF(ab) {
   }
 }
 
+function _andamentoPreenchido(preenchido) {
+  var badge = document.getElementById('badge-comece');
+  var card  = document.getElementById('card-andamento');
+  var hint  = document.getElementById('hint-andamento');
+  if (badge) badge.style.display = preenchido ? 'none' : 'inline-flex';
+  if (card)  { if (preenchido) card.classList.add('preenchido'); else card.classList.remove('preenchido'); }
+  if (hint)  hint.style.display = preenchido ? 'none' : '';
+}
+
 function setAndamento(txt, nome) {
   if (txt && txt.trim().length > 20) {
     document.getElementById('f-and').value = txt.trim();
     setSt('and-st','ok','Texto extraído ('+txt.trim().length+' caracteres). Revise se necessário.');
     document.getElementById('btn-and-clear').classList.remove('fhide');
+    _andamentoPreenchido(true);
   } else {
     setSt('and-st','warn','Não foi possível extrair texto. Este arquivo pode ser uma imagem — cole o texto manualmente.');
   }
@@ -3223,6 +3276,7 @@ function clearAndamento() {
   document.getElementById('and-st').className='';
   document.getElementById('and-st').textContent='';
   document.getElementById('btn-and-clear').classList.add('fhide');
+  _andamentoPreenchido(false);
 }
 
 // PLANILHA
@@ -3468,6 +3522,51 @@ function atualizarFiltroTribunal() {
   }
 }
 
+function popularFiltroResponsavel() {
+  var selResp  = document.getElementById('filtro-resp');
+  var selTransf = document.getElementById('tp-transf');
+  if (!selResp) return;
+
+  // Coletar nomes únicos da coluna responsável, ignorando vazios
+  var nomes = {};
+  procs.forEach(function(p) {
+    var r = (p.resp || '').trim();
+    if (r) nomes[r] = true;
+  });
+  var lista = Object.keys(nomes).sort();
+
+  // Filtro de responsáveis
+  var selAtual = selResp.value;
+  selResp.innerHTML = '<option value="">Todos os responsáveis</option>';
+  if (lista.length === 0) {
+    var hint = document.createElement('option');
+    hint.disabled = true;
+    hint.textContent = '— Dica: inclua coluna "Responsável" na planilha —';
+    selResp.appendChild(hint);
+  } else {
+    lista.forEach(function(nome) {
+      var opt = document.createElement('option');
+      opt.value = nome;
+      opt.textContent = nome;
+      selResp.appendChild(opt);
+    });
+    if (selAtual) selResp.value = selAtual;
+  }
+
+  // Select de transferência (mesmo conjunto de nomes)
+  if (selTransf) {
+    var selTAtual = selTransf.value;
+    selTransf.innerHTML = '<option value="">— selecione —</option>';
+    lista.forEach(function(nome) {
+      var opt = document.createElement('option');
+      opt.value = nome;
+      opt.textContent = nome;
+      selTransf.appendChild(opt);
+    });
+    if (selTAtual) selTransf.value = selTAtual;
+  }
+}
+
 function iniciarTabela() {
   var s = getSt();
   procs.forEach(function(p) {
@@ -3488,7 +3587,8 @@ function iniciarTabela() {
   document.getElementById('proc-hdr').style.display='block';
   document.getElementById('twrap').style.display='block';
   document.getElementById('nn-proc').classList.add('ok');
-  atualizarFiltroTribunal(); // popula o select com os tribunais reais da planilha
+  atualizarFiltroTribunal();    // popula o select com os tribunais reais da planilha
+  popularFiltroResponsavel();   // popula responsáveis e transferência a partir da planilha
   renderTabela();
 }
 
@@ -3911,7 +4011,7 @@ function importarConfig() {
           if (cfg.formato.tamanho)     { var el=document.getElementById("fmt-tamanho");     if(el) el.value=cfg.formato.tamanho; }
           if (cfg.formato.data)        { var el=document.getElementById("fmt-data");        if(el) el.value=cfg.formato.data; }
           if (cfg.formato.alinhamento) { var el=document.getElementById("fmt-alinhamento"); if(el) el.value=cfg.formato.alinhamento; }
-          if (cfg.formato.densidade)   { var el=document.getElementById("f-densidade");     if(el) el.value=cfg.formato.densidade; }
+          if (cfg.formato.densidade)   { setDensidade(cfg.formato.densidade); }
         }
         if (cfg.area)   { var el=document.getElementById("f-area");   if(el) { el.value=cfg.area; atualizarSubareas(); } }
         if (cfg.modelo) { var el=document.getElementById("sel-modelo"); if(el) el.value=cfg.modelo; }
@@ -3937,27 +4037,18 @@ function renderDashboard() {
     var hist = JSON.parse(localStorage.getItem("gp_uso")||"[]");
     if (!hist.length) { div.innerHTML='<p style="color:var(--text3)">Nenhum dado de uso registrado ainda.</p>'; return; }
     // Totais gerais
-    var totUsd=0,totBrl=0,totTk=0,totPecas=hist.length;
+    var totTk=0,totPecas=hist.length;
     var porModelo={}; var porTipo={};
     hist.forEach(function(h){
-      totUsd += (h.custoUsd||0);
-      totBrl += (h.custoBrl||0);
       totTk  += (h.tokensIn||0)+(h.tokensOut||0);
       var m=h.modelo||"?"; porModelo[m]=(porModelo[m]||0)+1;
       var t=(h.tipoPeca||"?").substring(0,20); porTipo[t]=(porTipo[t]||0)+1;
     });
     var modelos = Object.entries(porModelo).sort(function(a,b){return b[1]-a[1];}).map(function(e){return e[0]+": "+e[1];}).join(" · ");
     var topTipos = Object.entries(porTipo).sort(function(a,b){return b[1]-a[1];}).slice(0,5).map(function(e){return e[0]+": "+e[1];}).join("<br>");
-    // Últimos 7 dias
-    var agora=Date.now(), semana=7*24*3600*1000;
-    var semHist=hist.filter(function(h){return h.data&&(agora-new Date(h.data).getTime())<semana;});
-    var semUsd=semHist.reduce(function(s,h){return s+(h.custoUsd||0);},0);
     div.innerHTML =
       '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px">'+
       '<div style="background:var(--bg2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3)">Total de gerações</div><div style="font-size:24px;font-weight:700">'+totPecas+'</div></div>'+
-      '<div style="background:var(--bg2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3)">Custo total (USD)</div><div style="font-size:24px;font-weight:700">$'+totUsd.toFixed(4)+'</div></div>'+
-      '<div style="background:var(--bg2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3)">Custo total (BRL)</div><div style="font-size:24px;font-weight:700">R$'+totBrl.toFixed(2)+'</div></div>'+
-      '<div style="background:var(--bg2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3)">Custo últimos 7 dias</div><div style="font-size:24px;font-weight:700">$'+semUsd.toFixed(4)+'</div></div>'+
       '<div style="background:var(--bg2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3)">Total de tokens</div><div style="font-size:24px;font-weight:700">'+Math.round(totTk/1000)+'k</div></div>'+
       '</div>'+
       '<div style="font-size:12px"><strong>Por modelo:</strong> '+modelos+'</div>'+
@@ -5586,7 +5677,7 @@ async function gerarResumoCaso() {
     return;
   }
 
-  var nomeModelo = modelo==='claude-opus'?'Claude Opus':'Claude Sonnet';
+  var nomeModelo = nomeModoProprio(modelo);
 
   // Mudar para aba resultado
   go('res');
@@ -6594,11 +6685,12 @@ async function executarAnalise() {
     if (!perguntaLivre) { alert('Digite sua pergunta antes de analisar.'); return; }
   }
 
-  var detalhe = document.getElementById('an-detalhe').value || 'medio';
+  var detalhe = document.getElementById('an-detalhe').value;
+  if (!detalhe) { alert('Selecione o nível de detalhe antes de analisar (item "3. Configuração").'); return; }
   var instrAd = (document.getElementById('an-instrucoes') || {}).value || '';
   instrAd = instrAd.trim();
-  var modelo = (document.getElementById('sel-modelo-global') || {}).value || document.getElementById('sel-modelo') && document.getElementById('sel-modelo').value || 'claude-sonnet';
-  var nomeModelo = modelo === 'claude-opus' ? 'Claude Opus' : 'Claude Sonnet';var btn = document.getElementById('an-btn-executar');
+  var modelo = (document.getElementById('sel-modelo-global') || {}).value || document.getElementById('sel-modelo') && document.getElementById('sel-modelo').value || 'avancado';
+  var nomeModelo = nomeModoProprio(modelo);var btn = document.getElementById('an-btn-executar');
   btn.disabled = true;
   btn.textContent = '⏳ Analisando...';
   document.getElementById('an-status').textContent = 'Enviando documentos para ' + nomeModelo + '...';
@@ -7783,7 +7875,7 @@ async function gerarMinuta() {
   document.getElementById('res-empty').style.display='none';
   document.getElementById('res-content').style.display='block';
   document.getElementById('res-txt').textContent='';
-  var nomeModelo=modelo==='claude-opus'?'Claude Opus':'Claude Sonnet';
+  var nomeModelo=nomeModoProprio(modelo);
   setSt2('res-st','info','Aguarde — gerando via '+nomeModelo+'...');
   var enriquecimento = getEnriquecimento();
   var sys = montarSystemPromptPeticao(enriquecimento, tipo, inst, andamento);
@@ -8820,7 +8912,7 @@ async function continuarMinuta() {
 
 async function executarGeracao(sys, usr, isContinuacao) {
   var modelo = ultimoModelo || getModeloSelecionado();
-  var nomeModelo = modelo === 'claude-opus' ? 'Claude Opus' : 'Claude Sonnet';
+  var nomeModelo = nomeModoProprio(modelo);
   setSt2('res-st','info','Aguarde — '+(isContinuacao?'continuando':'regerando')+' via '+nomeModelo+'...');
   var out = document.getElementById('res-txt');
   var full = isContinuacao ? minuta : '';
@@ -8953,7 +9045,7 @@ async function importarBackup(inp) {
         if (data.config.modelo) document.getElementById('sel-modelo').value = data.config.modelo;
         if (data.config.advogado) document.getElementById('f-advogado').value = data.config.advogado;
         if (data.config.cidade) document.getElementById('f-cidade').value = data.config.cidade;
-        if (data.config.densidade) document.getElementById('f-densidade').value = data.config.densidade;
+        if (data.config.densidade) setDensidade(data.config.densidade);
         if (data.config.area) { document.getElementById('f-area').value = data.config.area; atualizarSubareas(); }
         if (data.config.subarea) document.getElementById('f-subarea').value = data.config.subarea;
         var fmt = data.config.fmt;
@@ -9087,6 +9179,11 @@ function _modalKeyHandler(e) {
     if (el2) el2.textContent = Math.round(n/4).toLocaleString("pt-BR");
     onTipoChange(); // atualizar sugestão de tipo
     atualizarIndicadorContexto();
+    // Badge / card-destaque
+    var preenchido = this.value.trim().length > 0;
+    _andamentoPreenchido(preenchido);
+    if (preenchido) document.getElementById('btn-and-clear').classList.remove('fhide');
+    else document.getElementById('btn-and-clear').classList.add('fhide');
   });
   // Atualizar indicador também ao mudar modelo
   var _selMod = document.getElementById("sel-modelo");
