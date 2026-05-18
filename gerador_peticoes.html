@@ -1078,7 +1078,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 1.92.2</div>
+    <div class="login-ver">versão 1.96</div>
   </div>
 </div>
 
@@ -1092,20 +1092,20 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="tb-oab">OAB/SP 274.575</div>
   </div>
   <div class="tb-right">
+    <span id="tb-user-chip" class="user-chip" title="Sua conta" onclick="abrirModalUsuario()" style="display:none;margin-right:8px">
+      <span class="user-avatar" id="tb-user-iniciais">—</span>
+      <span class="user-nome" id="tb-user-primeironome">—</span>
+    </span>
     <button id="btn-busca-global" onclick="abrirBuscaGlobal()" title="Busca global (Ctrl+K)" style="background:none;border:1px solid var(--border);border-radius:14px;cursor:pointer;font-size:11px;padding:3px 10px 3px 8px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s;display:inline-flex;align-items:center;gap:6px" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
       🔍 <span>Buscar</span> <span style="font-size:9px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1px 4px;color:var(--text3)">Ctrl K</span>
     </button>
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
     <span id="tb-plano-badge" class="plano-badge plano-trial" title="Clique para ver seu plano" onclick="go('cfg')" style="cursor:pointer">Demonstração</span>
     <span id="tb-pecas-contador" class="pecas-contador" title="Peças geradas este mês"></span>
-    <button id="tb-modelo-btn" onclick="go('cfg')" title="Modelo Claude ativo — proxy seguro" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
-      <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Sonnet</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
+    <button id="tb-modelo-btn" onclick="go('cfg')" title="Modelo de IA ativo — proxy seguro" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
+      <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Essencial</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
-    <span id="tb-user-chip" class="user-chip" title="Sua conta" onclick="abrirModalUsuario()" style="display:none">
-      <span class="user-avatar" id="tb-user-iniciais">—</span>
-      <span class="user-nome" id="tb-user-primeironome">—</span>
-    </span>
-    <span class="tb-meta" id="tb-versao">versão 1.95</span>
+    <span class="tb-meta" id="tb-versao">versão 1.96</span>
   </div>
 </div>
 
@@ -1215,11 +1215,11 @@ tbody tr.st-p td{background:#b3e5fc}
         <div class="field" style="margin-bottom:10px">
           <label style="margin-bottom:8px;display:block">Modo de geração</label>
           <div class="densidade-opts">
-            <div class="densidade-card" id="mgc-essencial" onclick="setModoGeracao('essencial')">
+            <div class="densidade-card selected" id="mgc-essencial" onclick="setModoGeracao('essencial')">
               <div class="densidade-titulo">⚡ Essencial</div>
               <div class="densidade-desc">Rápido e eficiente — ideal para peças objetivas</div>
             </div>
-            <div class="densidade-card selected" id="mgc-avancado" onclick="setModoGeracao('avancado')">
+            <div class="densidade-card" id="mgc-avancado" onclick="setModoGeracao('avancado')">
               <div class="densidade-titulo">⭐ Avançado</div>
               <div class="densidade-desc">Padrão recomendado — qualidade e velocidade</div>
             </div>
@@ -1231,8 +1231,8 @@ tbody tr.st-p td{background:#b3e5fc}
           </div>
           <!-- select oculto mantido para compatibilidade -->
           <select id="sel-modelo-global" style="display:none" onchange="sincronizarModeloGlobal(this.value)">
-            <option value="essencial">Essencial</option>
-            <option value="avancado" selected>Avançado</option>
+            <option value="essencial" selected>Essencial</option>
+            <option value="avancado">Avançado</option>
             <option value="completo">Completo</option>
           </select>
         </div>
@@ -1378,15 +1378,6 @@ tbody tr.st-p td{background:#b3e5fc}
         <button class="btn btn-s btn-sm" onclick="ativarNotificacoes()">🔔 Ativar notificações</button>
         <span id="notif-st" style="font-size:11px;color:var(--text3);margin-left:8px"></span>
       </div>
-      <div class="card">
-        <div class="card-title">⚙️ Exportar / Importar configurações</div>
-        <p style="font-size:12px;color:var(--text3);margin-bottom:8px">Salve e restaure preferências, teses e feriados em outro dispositivo.</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-s btn-sm" onclick="exportarConfig()">📤 Exportar config</button>
-          <button class="btn btn-s btn-sm" onclick="importarConfig()">📥 Importar config</button>
-        </div>
-      </div>
-
       <div class="card" style="background:var(--blue-bg);border-color:var(--blue-mid)">
         <div class="card-title" style="color:var(--blue)">⌨ Atalhos de teclado</div>
         <div style="font-size:12px;color:var(--text)">
@@ -1408,6 +1399,19 @@ tbody tr.st-p td{background:#b3e5fc}
     <div id="panel-proc" class="panel">
       <div class="panel-title">Processos</div>
       <div class="panel-sub">Clique para selecionar · 📋 ficha · Duplo clique abre ficha · Shift+clique na coluna para ordenação secundária</div>
+
+      <div style="padding:12px 16px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;margin-bottom:14px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#166534;margin-bottom:4px">✅ Como usar a aba Processos</div>
+          <ul style="font-size:12px;color:#166534;margin:0;padding-left:18px;line-height:1.7">
+            <li>Carregue ou atualize a <strong>planilha Excel</strong> com os processos do escritório</li>
+            <li>Clique em um processo para <strong>selecioná-lo</strong> — os dados são preenchidos automaticamente</li>
+            <li>Duplo clique abre a <strong>ficha completa</strong> com histórico e tratativas</li>
+            <li>Com o processo selecionado, vá para <strong>Gerar petição</strong> para criar a minuta</li>
+          </ul>
+        </div>
+        <button class="btn btn-p" onclick="go('ger')" style="white-space:nowrap;flex-shrink:0;align-self:center">→ Gerar petição</button>
+      </div>
 
       <div class="card" id="card-xlsx">
         <div class="fzone" onclick="document.getElementById('inp-xlsx').click()">
@@ -1500,8 +1504,8 @@ tbody tr.st-p td{background:#b3e5fc}
 
       <!-- sel-modelo (oculto) sincronizado com sel-modelo-global na Configuração -->
       <select id="sel-modelo" style="display:none" onchange="sincronizarModeloGlobal(this.value)">
-        <option value="essencial">Essencial</option>
-        <option value="avancado" selected>Avançado</option>
+        <option value="essencial" selected>Essencial</option>
+        <option value="avancado">Avançado</option>
         <option value="completo">Completo</option>
       </select>
 
@@ -1562,9 +1566,13 @@ tbody tr.st-p td{background:#b3e5fc}
           Andamento do tribunal
           <span id="badge-comece" style="display:inline-flex;align-items:center;gap:4px;background:#E6F1FB;color:#185FA5;font-size:11px;font-weight:500;padding:2px 8px;border-radius:10px;animation:pulse-badge 2s ease-in-out infinite">▶ Comece aqui</span>
         </div>
-        <p id="hint-andamento" style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.6">Cole o texto do andamento copiado do tribunal (e-SAJ, PJe, TJSP, STJ etc.) ou carregue o arquivo abaixo. A IA identifica automaticamente as partes, o tipo de peça necessária e os fundamentos aplicáveis.</p>
+        <p id="hint-andamento" style="font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.6">Cole o texto do andamento copiado do tribunal (e-SAJ, PJe, TJSP, STJ etc.) ou carregue o arquivo abaixo. A IA identifica automaticamente as partes, o tipo de peça necessária e os fundamentos aplicáveis.</p>
+        <div style="padding:8px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;font-size:11px;color:#1E40AF;margin-bottom:10px">
+          💡 <strong>Dica de uso:</strong> cole o texto <strong>integral</strong> copiado do tribunal — decisão, despacho, sentença ou acórdão. Quanto mais completo, mais precisa e fundamentada será a peça gerada. Para <strong>petição inicial</strong>, o andamento é opcional: preencha o formulário estruturado no card Configurações da peça.
+        </div>
         <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
           <button class="btn btn-s btn-sm" onclick="document.getElementById('inp-and').click()">📎 Carregar arquivo (PDF, DOCX, TXT)</button>
+          <button class="btn btn-s btn-sm" onclick="clearAndamento()" title="Limpar texto e arquivo carregado">🗑 Limpar tudo</button>
           <span id="and-nome" style="font-size:11px;color:var(--text3)"></span>
           <button class="btn btn-s btn-sm fhide" id="btn-and-clear" onclick="clearAndamento()">× Limpar</button>
         </div>
@@ -1588,10 +1596,7 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
 
       <div class="card">
         <div class="card-title">📁 Contexto adicional (opcional)</div>
-        <p style="font-size:12px;color:var(--text2);margin-bottom:8px">Carregue cópias de peças complementares para enriquecer o contexto. A IA usará estes documentos para embasar a fundamentação sem misturar indevidamente com o andamento principal.</p>
-        <div style="padding:8px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;font-size:11px;color:#1E40AF;margin-bottom:10px">
-          💡 <strong>Dica de uso:</strong> prefira carregar as <strong>peças principais</strong> do processo — petição inicial, contestação, sentença, recurso ou apelação. Evite carregar o processo inteiro; foque nos documentos que concentram os pontos controvertidos. Prefira arquivos <strong>.txt</strong> quando disponíveis.
-        </div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Carregue cópias de peças complementares para enriquecer o contexto. A IA usará estes documentos para embasar a fundamentação sem misturar indevidamente com o andamento principal.</p>
 
         <!-- Peças iniciais e decisões de fase de conhecimento -->
         <div class="field" style="margin-bottom:12px">
@@ -1645,12 +1650,16 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
 
       <div class="card">
         <div class="card-title">Configurações da peça</div>
+        <div style="padding:8px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;font-size:11px;color:#1E40AF;margin-bottom:10px">
+          💡 Selecione a <strong>área do direito</strong> e o <strong>tipo de peça</strong>. A seleção afina o prompt e melhora a qualidade da minuta gerada. A ferramenta lembrará da última área usada em cada sessão.
+        </div>
         <div class="row2">
           <div class="field">
             <label>Área do direito</label>
             <select id="f-area" onchange="atualizarSubareas()">
+              <option value="" disabled selected>— selecione a área —</option>
               <optgroup label="── Cível ──">
-                <option value="civel" selected>Saúde suplementar</option>
+                <option value="civel">Saúde suplementar</option>
                 <option value="civel_geral">Cível geral</option>
               </optgroup>
               <optgroup label="── Outras áreas ──">
@@ -1810,6 +1819,22 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
           </div>
         </div>
 
+        <div class="field">
+          <label style="margin-bottom:4px">Instruções adicionais / teses específicas (opcional)</label>
+          <div style="padding:7px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;font-size:11px;color:#1E40AF;margin-bottom:6px">
+            💡 Use este campo para orientar a IA com teses específicas, fundamentos que devem constar na peça, jurisprudência relevante ou qualquer instrução pontual. Não é necessário repetir o que já está no andamento.
+          </div>
+          <textarea id="f-inst" style="min-height:90px" placeholder="Ex.: incluir tese sobre inexistência de cobertura pelo rol da ANS, questionar horas de terapia, abordar ADI 7265..."></textarea>
+          <div id="teses-bar" style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap">
+            <span id="teses-ativas-tags" style="display:flex;flex-wrap:wrap;gap:4px;flex:1;min-height:24px;align-items:center">
+              <span id="teses-vazio-msg" style="font-size:11px;color:var(--text3);font-style:italic">Nenhuma tese aplicada</span>
+            </span>
+            <div style="position:relative;display:inline-block">
+              <button type="button" class="btn btn-s btn-sm" onclick="abrirPopoverTeses(event)" id="btn-add-tese" title="Adicionar tese estruturada">+ Adicionar tese ▾</button>
+              <div id="popover-teses" style="display:none"></div>
+            </div>
+          </div>
+        </div>
         <div class="card" id="card-calc-prazo" style="margin-bottom:12px">
           <div class="card-title" style="cursor:pointer" onclick="toggleCardPrazo()">
             ⏱ Calcular prazo a partir da decisão
@@ -1838,19 +1863,6 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
             </div>
             <div id="feriados-cidades-tags" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;min-height:10px"></div>
             <div id="feriados-st" style="font-size:11px;color:var(--text3);margin-top:3px"></div>
-          </div>
-        </div>
-        <div class="field">
-          <label style="margin-bottom:6px">Instruções adicionais / teses específicas (opcional)</label>
-          <textarea id="f-inst" style="min-height:90px" placeholder="Ex.: incluir tese sobre inexistência de cobertura pelo rol da ANS, questionar horas de terapia, abordar ADI 7265..."></textarea>
-          <div id="teses-bar" style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap">
-            <span id="teses-ativas-tags" style="display:flex;flex-wrap:wrap;gap:4px;flex:1;min-height:24px;align-items:center">
-              <span id="teses-vazio-msg" style="font-size:11px;color:var(--text3);font-style:italic">Nenhuma tese aplicada</span>
-            </span>
-            <div style="position:relative;display:inline-block">
-              <button type="button" class="btn btn-s btn-sm" onclick="abrirPopoverTeses(event)" id="btn-add-tese" title="Adicionar tese estruturada">+ Adicionar tese ▾</button>
-              <div id="popover-teses" style="display:none"></div>
-            </div>
           </div>
         </div>
         <div id="refs-ativas" style="display:none">
@@ -1884,17 +1896,20 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
 
       <!-- Densidade do texto — campo obrigatório, imediatamente antes de Gerar -->
       <div style="margin-bottom:14px">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
           <span style="font-weight:600;font-size:13px;color:var(--text)">Densidade do texto</span>
           <span style="color:var(--red);font-size:12px;font-weight:700">*</span>
           <span style="font-size:11px;color:var(--text3)">— define extensão e profundidade da peça gerada</span>
+        </div>
+        <div style="padding:7px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;font-size:11px;color:#1E40AF;margin-bottom:8px">
+          💡 Selecione a densidade antes de gerar. <strong>Objetiva</strong> é ideal para petições simples e contestações diretas; <strong>Densa</strong> para peças com fundamentação detalhada; <strong>Extensa</strong> para recursos e peças complexas que exigem máxima profundidade.
         </div>
         <div class="densidade-opts">
           <div class="densidade-card" id="dc-objetiva" onclick="setDensidade('objetiva')">
             <div class="densidade-titulo">Objetiva</div>
             <div class="densidade-desc">Clara e direta, focada nos pontos essenciais</div>
           </div>
-          <div class="densidade-card selected" id="dc-densa" onclick="setDensidade('densa')">
+          <div class="densidade-card" id="dc-densa" onclick="setDensidade('densa')">
             <div class="densidade-titulo">Densa</div>
             <div class="densidade-desc">Detalhada, com fundamentação minuciosa</div>
           </div>
@@ -1905,8 +1920,9 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
         </div>
         <!-- select oculto mantido para compatibilidade com o restante do código -->
         <select id="f-densidade" required style="display:none">
+          <option value="" disabled selected>— selecione —</option>
           <option value="objetiva">Objetiva</option>
-          <option value="densa" selected>Densa</option>
+          <option value="densa">Densa</option>
           <option value="extensa">Extensa</option>
         </select>
       </div>
@@ -2011,6 +2027,9 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
 
       <div class="card">
         <div class="card-title">3. Configuração</div>
+        <div style="padding:7px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;font-size:11px;color:#1E40AF;margin-bottom:10px">
+          💡 Selecione o <strong>nível de detalhe</strong> da análise. Para uma visão rápida do caso, use <strong>Executivo</strong>. Para análise jurídica aprofundada, use <strong>Detalhado</strong>. O modelo de IA é configurado globalmente em <a href="#" onclick="go('cfg');return false;" style="color:#1E40AF;font-weight:600">Configuração</a>.
+        </div>
         <div class="field">
             <label style="font-size:12px">Nível de detalhe</label>
             <select id="an-detalhe" style="width:100%">
@@ -2020,7 +2039,6 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
               <option value="detalhado">Detalhado (análise extensa)</option>
             </select>
           </div>
-          <p style="font-size:11px;color:var(--text3);margin-top:6px">Modo de geração: configurado globalmente em <a href="#" onclick="go('cfg');return false;" style="color:var(--blue)">Configuração</a>.</p>
       </div>
 
       <div class="card">
@@ -3297,8 +3315,8 @@ function nomeModoProprio(val) {
 }
 
 function atualizarIndicadorModelo() {
-  var val = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'avancado';
-  var icons = { 'essencial': '⚡', 'avancado': '⚡', 'completo': '🔶' };
+  var val = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'essencial';
+  var icons = { 'essencial': '⚡', 'avancado': '⭐', 'completo': '🔶' };
 
   var iconEl  = document.getElementById('tb-modelo-icon');
   var labelEl = document.getElementById('tb-modelo-label');
@@ -3389,7 +3407,7 @@ function toggleParteModo() {
 }
 
 function toggleApi() {
-  var val = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'claude-sonnet';
+  var val = (document.getElementById('sel-modelo-global') || document.getElementById('sel-modelo') || {}).value || 'essencial';
   sincronizarModeloGlobal(val);
   checkBtn();
 }
@@ -3401,12 +3419,12 @@ function saveKey(p) {
 function getModeloSelecionado() {
   var globalSel = document.getElementById('sel-modelo-global');
   var localSel  = document.getElementById('sel-modelo');
-  var modelo = (globalSel && globalSel.value) || (localSel && localSel.value) || 'avancado';
+  var modelo = (globalSel && globalSel.value) || (localSel && localSel.value) || 'essencial';
   // Normalizar valores legados
   if (modelo === 'claude-sonnet' || modelo === 'claude-sonnet46') modelo = 'avancado';
   if (modelo === 'claude-opus') modelo = 'completo';
   if (modelo === 'claude-haiku') modelo = 'essencial';
-  if (!['essencial','avancado','completo'].includes(modelo)) modelo = 'avancado';
+  if (!['essencial','avancado','completo'].includes(modelo)) modelo = 'essencial';
   if (globalSel && globalSel.value !== modelo) globalSel.value = modelo;
   if (localSel && localSel.value !== modelo) localSel.value = modelo;
   return modelo;
@@ -7247,7 +7265,7 @@ async function executarAnalise() {
   if (!detalhe) { alert('Selecione o nível de detalhe antes de analisar (item "3. Configuração").'); return; }
   var instrAd = (document.getElementById('an-instrucoes') || {}).value || '';
   instrAd = instrAd.trim();
-  var modelo = (document.getElementById('sel-modelo-global') || {}).value || document.getElementById('sel-modelo') && document.getElementById('sel-modelo').value || 'avancado';
+  var modelo = (document.getElementById('sel-modelo-global') || {}).value || document.getElementById('sel-modelo') && document.getElementById('sel-modelo').value || 'essencial';
   var nomeModelo = nomeModoProprio(modelo);var btn = document.getElementById('an-btn-executar');
   btn.disabled = true;
   btn.textContent = '⏳ Analisando...';
@@ -7389,7 +7407,7 @@ async function anChatEnviar() {
   anRenderChat();
   input.value = '';
 
-  var modelo = (document.getElementById('sel-modelo-global') || {}).value || 'claude-sonnet';
+  var modelo = (document.getElementById('sel-modelo-global') || {}).value || 'essencial';
 
   try {
     // Construir prompt: system + histórico simplificado
