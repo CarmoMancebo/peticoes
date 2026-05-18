@@ -1111,7 +1111,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <button id="tb-modelo-btn" onclick="go('cfg')" title="Modelo de IA ativo — proxy seguro" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Essencial</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
-    <span class="tb-meta" id="tb-versao">versão 1.97</span>
+    <span class="tb-meta" id="tb-versao">versão 1.98</span>
   </div>
 </div>
 
@@ -1193,10 +1193,13 @@ tbody tr.st-p td{background:#b3e5fc}
             <div style="font-size:12px;color:#374151;line-height:1.7">
               Siga estes 4 passos para gerar sua primeira peça:<br>
               <span style="display:flex;flex-direction:column;gap:4px;margin-top:6px">
-                <span><strong style="color:#1d4ed8">1.</strong> Vá em <strong>Processos</strong> e adicione um processo (manual ou via planilha)</span>
-                <span><strong style="color:#1d4ed8">2.</strong> Abra <strong>Gerador</strong>, selecione o processo, área e tipo de peça</span>
-                <span><strong style="color:#1d4ed8">3.</strong> Preencha o andamento processual</span>
-                <span><strong style="color:#1d4ed8">4.</strong> Clique em <strong>Gerar minuta</strong> e aguarde a IA</span>
+                <span><strong style="color:#1d4ed8">1.</strong> Vá em <strong>Processos</strong>, baixe a planilha modelo e importe com seus processos</span>
+                <span><strong style="color:#1d4ed8">2.</strong> Selecione um processo na tabela — o <strong>Gerador</strong> abre automaticamente</span>
+                <span><strong style="color:#1d4ed8">3.</strong> Cole o teor da intimação/decisão no campo <strong>Andamento</strong> (ou inclua na planilha antecipadamente)</span>
+                <span><strong style="color:#1d4ed8">4.</strong> Escolha área, tipo de peça e densidade, depois clique em <strong>Gerar minuta</strong></span>
+              </span>
+              <span style="display:inline-block;margin-top:8px;padding:6px 8px;background:#EFF6FF;border-radius:6px;font-size:11px;color:#1e40af">
+                💡 Obtenha o texto da intimação diretamente no DJEN (<strong>comunica.pje.jus.br</strong>) usando "Copiar sem formatação" — e cole na planilha ou no campo Andamento.
               </span>
             </div>
           </div>
@@ -1450,6 +1453,11 @@ tbody tr.st-p td{background:#b3e5fc}
           <button class="btn btn-s btn-sm" onclick="baixarModeloPlanilha()" style="font-size:11px">📥 Baixar planilha modelo</button>
         </div>
         <div id="xlsx-info" style="font-size:11px;color:var(--text3);margin-top:4px;min-height:14px"></div>
+        <div style="margin-top:10px;padding:9px 11px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:7px;font-size:11px;color:#1e40af;line-height:1.6">
+          💡 <strong>Dica — coluna "Andamento/Intimação":</strong> preencha essa coluna opcional com o teor integral da intimação ou decisão.
+          Ao clicar no processo, o texto é carregado automaticamente no campo Andamento — pronto para gerar a peça.<br>
+          Obtenha o texto em <strong>comunica.pje.jus.br</strong> (DJEN) usando o botão <strong>"Copiar sem formatação"</strong> e cole diretamente na planilha.
+        </div>
       </div>
 
       <div id="proc-hdr" style="display:none;margin-bottom:10px;overflow-x:hidden">
@@ -3929,7 +3937,8 @@ var XLSX_SINONIMOS = {
   processo: ['processo','numero processo','n processo','n do processo','numero do processo','processo cnj','cnj','npu','numero unico','numero judicial'],
   cliente: ['cliente principal','cliente','representado','representada','parte cliente','parte defendida','defendido','defendida','operadora','seguradora','empresa','reu','requerido','executado'],
   parte: ['contrario principal','contraria principal','parte contraria','parte adversa','adverso','autor','autora','requerente','demandante','beneficiario','segurado','exequente'],
-  desc: ['descricao','descrição','tarefa','providencia','objeto','assunto','observacao','observações','resumo','nota','andamento','andamentos','ato'],
+  desc: ['descricao','descrição','tarefa','providencia','objeto','assunto','observacao','observações','resumo','nota','ato'],
+  and: ['andamento','andamentos','teor','teor da intimacao','teor intimacao','intimacao texto','texto intimacao','texto publicacao','publicacao texto','movimentacao texto','texto movimentacao','djen','conteudo intimacao'],
   prazo: ['prazo fatal','prazo','vencimento','data fatal','data limite','data prazo','deadline','publicacao','intimacao'],
   tipo: ['tipo subtipo','tipo - subtipo','tipo de peca','tipo peça','peca','peça','tipo','subtipo','providencia','classe tarefa','evento'],
   resp: ['responsavel','responsável','resp','resp.','advogado responsavel','advogado responsável','adv responsavel','adv responsável','responsavel pelo caso','owner','executor'],
@@ -3997,6 +4006,7 @@ function loadXLSX(inp) {
         cliente:  gc(r, XLSX_SINONIMOS.cliente) || '',
         parte:    gc(r, XLSX_SINONIMOS.parte),
         desc:     gc(r, XLSX_SINONIMOS.desc),
+        and:      gc(r, XLSX_SINONIMOS.and),
         prazo:    gc(r, XLSX_SINONIMOS.prazo),
         tipo:     gc(r, XLSX_SINONIMOS.tipo),
         resp:     gc(r, XLSX_SINONIMOS.resp),
@@ -5404,6 +5414,17 @@ function selProc(i,tr) {
   document.getElementById('f-cliente').value=p.cliente;
   document.getElementById('f-parte').value=p.parte;
   document.getElementById('f-desc').value=p.desc;
+  // Pré-popula o andamento se a planilha tiver o teor da intimação
+  if (p.and && p.and.trim()) {
+    var fAnd = document.getElementById('f-and');
+    if (fAnd) {
+      fAnd.value = p.and.trim();
+      _andamentoPreenchido(true);
+      var btnClear = document.getElementById('btn-and-clear');
+      if (btnClear) btnClear.classList.remove('fhide');
+      atualizarIndicadorContexto();
+    }
+  }
   checkBtn();
   go('ger');
 }
@@ -5488,23 +5509,23 @@ function baixarModeloPlanilha() {
     function addDias(base, n) { var d=new Date(base); d.setDate(d.getDate()+n); return d; }
     function fmt(d) { return ('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear(); }
     var hoje = new Date(); hoje.setHours(0,0,0,0);
-    var cab = ['Processo','Pasta','Cliente','Parte contrária','Tipo de peça','Prazo','Responsável','Tratativa'];
+    var cab = ['Processo','Pasta','Cliente','Parte contrária','Tipo de peça','Prazo','Responsável','Tratativa','Andamento/Intimação'];
     var linhas = [
       cab,
-      ['0000001-00.2025.8.26.0001','001','Operadora Alpha S.A.','Beneficiário 001','Contestação',            fmt(addDias(hoje,-17)),'Advogado Responsável','Pendente'],
-      ['0000002-00.2025.8.26.0002','002','Seguradora Beta Ltda.','Beneficiário 002','Contestação',           fmt(addDias(hoje,  0)),'Advogado Responsável','Pendente'],
-      ['0000003-00.2025.8.26.0003','003','Plano Gamma S.A.','Beneficiário 003','Apelação',                   fmt(addDias(hoje,  2)),'Advogado Responsável','Pendente'],
-      ['0000004-00.2025.8.26.0004','004','Operadora Delta Ltda.','Beneficiário 004','Apelação',              fmt(addDias(hoje,  8)),'Advogado Responsável','Pendente'],
-      ['0000005-00.2025.8.26.0005','005','Plano Epsilon S.A.','Beneficiário 005','Agravo de Instrumento',    fmt(addDias(hoje,  5)),'Advogado Responsável','Pendente'],
-      ['0000006-00.2025.8.26.0006','006','Operadora Zeta Ltda.','Beneficiário 006','Agravo Interno',         fmt(addDias(hoje, -1)),'Advogado Responsável','Pendente'],
-      ['0000007-00.2025.8.26.0007','007','Operadora Eta S.A.','Beneficiário 007','REsp',                     fmt(addDias(hoje, 24)),'Advogado Responsável','Cumprido'],
-      ['0000008-00.2025.8.26.0008','008','Plano Theta Ltda.','Beneficiário 008','AREsp',                     fmt(addDias(hoje, 19)),'Advogado Responsável','Pendente'],
-      ['0000009-00.2025.8.26.0009','009','Operadora Iota S.A.','Beneficiário 009','Impugnação ao Cumprimento',fmt(addDias(hoje, 0)),'Advogado Responsável','Pendente'],
-      ['0000010-00.2025.8.26.0010','010','Operadora Kappa Ltda.','Beneficiário 010','Agravo de Instrumento', fmt(addDias(hoje,  2)),'Advogado Responsável','Cancelado'],
+      ['0000001-00.2025.8.26.0001','001','Operadora Alpha S.A.','Beneficiário 001','Contestação',            fmt(addDias(hoje,-17)),'Advogado Responsável','Pendente',''],
+      ['0000002-00.2025.8.26.0002','002','Seguradora Beta Ltda.','Beneficiário 002','Contestação',           fmt(addDias(hoje,  0)),'Advogado Responsável','Pendente',''],
+      ['0000003-00.2025.8.26.0003','003','Plano Gamma S.A.','Beneficiário 003','Apelação',                   fmt(addDias(hoje,  2)),'Advogado Responsável','Pendente',''],
+      ['0000004-00.2025.8.26.0004','004','Operadora Delta Ltda.','Beneficiário 004','Apelação',              fmt(addDias(hoje,  8)),'Advogado Responsável','Pendente',''],
+      ['0000005-00.2025.8.26.0005','005','Plano Epsilon S.A.','Beneficiário 005','Agravo de Instrumento',    fmt(addDias(hoje,  5)),'Advogado Responsável','Pendente',''],
+      ['0000006-00.2025.8.26.0006','006','Operadora Zeta Ltda.','Beneficiário 006','Agravo Interno',         fmt(addDias(hoje, -1)),'Advogado Responsável','Pendente',''],
+      ['0000007-00.2025.8.26.0007','007','Operadora Eta S.A.','Beneficiário 007','REsp',                     fmt(addDias(hoje, 24)),'Advogado Responsável','Cumprido',''],
+      ['0000008-00.2025.8.26.0008','008','Plano Theta Ltda.','Beneficiário 008','AREsp',                     fmt(addDias(hoje, 19)),'Advogado Responsável','Pendente',''],
+      ['0000009-00.2025.8.26.0009','009','Operadora Iota S.A.','Beneficiário 009','Impugnação ao Cumprimento',fmt(addDias(hoje, 0)),'Advogado Responsável','Pendente',''],
+      ['0000010-00.2025.8.26.0010','010','Operadora Kappa Ltda.','Beneficiário 010','Agravo de Instrumento', fmt(addDias(hoje,  2)),'Advogado Responsável','Cancelado',''],
     ];
     var wb = XLSX.utils.book_new();
     var ws = XLSX.utils.aoa_to_sheet(linhas);
-    ws['!cols'] = [{wch:32},{wch:7},{wch:28},{wch:20},{wch:28},{wch:12},{wch:22},{wch:12}];
+    ws['!cols'] = [{wch:32},{wch:7},{wch:28},{wch:20},{wch:28},{wch:12},{wch:22},{wch:12},{wch:60}];
     XLSX.utils.book_append_sheet(wb, ws, 'Processos');
     var inst = XLSX.utils.aoa_to_sheet([
       ['Coluna','Descrição','Exemplos de valores'],
@@ -5516,10 +5537,11 @@ function baixarModeloPlanilha() {
       ['Prazo','Data fatal para protocolo (DD/MM/AAAA)','31/05/2025'],
       ['Responsável','Advogado ou colaborador responsável','Dr. Fulano'],
       ['Tratativa','Situação atual da tarefa','Pendente, Cumprido, Cancelado, Reagendado'],
+      ['Andamento/Intimação','(Opcional) Texto integral da intimação, decisão ou despacho copiado do tribunal. Ao selecionar o processo na ferramenta, este texto é carregado automaticamente no campo Andamento, pronto para geração da peça. Obtenha em: comunica.pje.jus.br → "Copiar sem formatação".','Cole aqui o teor completo da intimação...'],
       ['','',''],
       ['Observação','As datas da aba Processos são calculadas a partir de hoje ('+fmt(hoje)+') na hora do download, para que os prazos façam sentido pedagogicamente sempre que a planilha for baixada.',''],
     ]);
-    inst['!cols'] = [{wch:20},{wch:60},{wch:45}];
+    inst['!cols'] = [{wch:22},{wch:80},{wch:45}];
     XLSX.utils.book_append_sheet(wb, inst, 'Instruções');
     XLSX.writeFile(wb, 'modelo_planilha_processos.xlsx');
   } catch(e) { alert('Erro ao gerar o arquivo: '+e.message); }
