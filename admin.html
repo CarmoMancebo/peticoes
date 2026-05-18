@@ -6,6 +6,7 @@
 <title>Admin — Gerador de Petições</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -320,6 +321,59 @@ tr.banido-row td { background: #FFF5F5; }
 .pagination button:hover:not(:disabled) { background: var(--bg2); }
 .contagem { font-size: 11px; color: var(--text3); }
 .section-gap { margin-bottom: 32px; }
+
+/* ── CHART ── */
+.chart-wrap {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: var(--r); padding: 16px 20px 20px;
+  margin-bottom: 20px;
+}
+.chart-title { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 14px; }
+.chart-canvas-wrap { height: 140px; }
+
+/* ── DETALHES MODAL ── */
+.det-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  z-index: 9999; display: flex; align-items: flex-start; justify-content: center;
+  padding: 60px 16px 40px; overflow-y: auto;
+}
+.det-modal {
+  background: var(--surface); border-radius: 12px;
+  width: 100%; max-width: 540px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.25);
+}
+.det-header {
+  background: var(--blue-dark); color: #fff;
+  padding: 14px 20px; border-radius: 12px 12px 0 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.det-header h3 { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 700; }
+.det-close { background: none; border: none; color: rgba(255,255,255,.65); cursor: pointer; font-size: 22px; line-height: 1; padding: 0; }
+.det-close:hover { color: #fff; }
+.det-body { padding: 18px 20px 0; }
+.det-row { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px; gap: 12px; }
+.det-row:last-of-type { border-bottom: none; }
+.det-lbl { color: var(--text2); flex-shrink: 0; }
+.det-val { font-weight: 600; text-align: right; word-break: break-all; }
+.det-notes { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.det-notes label { display: block; font-size: 11px; font-weight: 700; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
+.det-notes textarea {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border2);
+  border-radius: 6px; font-size: 12px; resize: vertical; min-height: 72px;
+  font-family: inherit; outline: none; background: var(--bg);
+}
+.det-notes textarea:focus { border-color: var(--blue); }
+.det-expiry { margin-top: 12px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.det-expiry label { font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .04em; flex-shrink: 0; }
+.det-expiry input[type=date] {
+  padding: 5px 8px; border: 1px solid var(--border2); border-radius: 6px;
+  font-size: 12px; background: var(--bg); outline: none; cursor: pointer;
+}
+.det-expiry input[type=date]:focus { border-color: var(--blue); }
+.det-footer {
+  display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap;
+  padding: 14px 20px; border-top: 1px solid var(--border); margin-top: 16px;
+}
 </style>
 </head>
 <body>
@@ -395,6 +449,12 @@ tr.banido-row td { background: #FFF5F5; }
           <div class="stat-label">Suspensos</div>
         </div>
       </div>
+    </div>
+
+    <!-- ── A4: GRÁFICO CADASTROS SEMANAIS ── -->
+    <div class="chart-wrap">
+      <div class="chart-title">Cadastros por semana (últimas 8 semanas)</div>
+      <div class="chart-canvas-wrap"><canvas id="chart-cadastros"></canvas></div>
     </div>
 
     <!-- ── USUÁRIOS ── -->
@@ -492,6 +552,7 @@ tr.banido-row td { background: #FFF5F5; }
               <th>Dias sem acesso</th>
               <th>Peças geradas</th>
               <th>Situação</th>
+              <th>Reengajamento</th>
             </tr>
           </thead>
           <tbody id="churn-body">
@@ -503,6 +564,42 @@ tr.banido-row td { background: #FFF5F5; }
 
   </div><!-- /container -->
 </div><!-- /app-screen -->
+
+<!-- ── A1: MODAL DETALHES DO USUÁRIO ── -->
+<div id="det-overlay" class="det-overlay" style="display:none" onclick="fecharDetalhes(event)">
+  <div class="det-modal" onclick="event.stopPropagation()">
+    <div class="det-header">
+      <h3 id="det-titulo">Detalhes do usuário</h3>
+      <button class="det-close" onclick="fecharDetalhes()">×</button>
+    </div>
+    <div class="det-body">
+      <div class="det-row"><span class="det-lbl">Nome</span><span class="det-val" id="det-nome">—</span></div>
+      <div class="det-row"><span class="det-lbl">E-mail</span><span class="det-val" id="det-email">—</span></div>
+      <div class="det-row"><span class="det-lbl">OAB</span><span class="det-val" id="det-oab">—</span></div>
+      <div class="det-row"><span class="det-lbl">Ocupação</span><span class="det-val" id="det-ocup">—</span></div>
+      <div class="det-row"><span class="det-lbl">Plano</span><span class="det-val" id="det-plano">—</span></div>
+      <div class="det-row"><span class="det-lbl">Uso este mês</span><span class="det-val" id="det-uso">—</span></div>
+      <div class="det-row"><span class="det-lbl">Cadastro</span><span class="det-val" id="det-criado">—</span></div>
+      <div class="det-row"><span class="det-lbl">Último acesso</span><span class="det-val" id="det-acesso">—</span></div>
+      <div class="det-row"><span class="det-lbl">Status</span><span class="det-val" id="det-status">—</span></div>
+      <!-- A5: Validade do plano -->
+      <div class="det-expiry">
+        <label>Validade do plano</label>
+        <input type="date" id="det-expira" title="Deixe em branco para sem expiração" />
+        <span style="font-size:11px;color:var(--text3)">opcional — deixe em branco se não expira</span>
+      </div>
+      <!-- A3: Notas internas -->
+      <div class="det-notes">
+        <label>Notas internas (visíveis só para você)</label>
+        <textarea id="det-notas" placeholder="Ex: entrou via indicação, tem interesse em plano escritório, aguardando retorno…"></textarea>
+      </div>
+    </div>
+    <div class="det-footer">
+      <button class="btn-sm" onclick="fecharDetalhes()">Fechar</button>
+      <button class="btn-sm blue" onclick="salvarDetalhes()" id="btn-salvar-det">Salvar notas</button>
+    </div>
+  </div>
+</div>
 
 <!-- Status bar -->
 <div id="status-bar"></div>
@@ -569,13 +666,14 @@ async function carregarUsuarios() {
   document.getElementById('tabela-body').innerHTML = '<tr><td colspan="8" class="loading">Carregando…</td></tr>';
   try {
     var r = await supa.from('gp_users')
-      .select('id, nome, email, oab, ocupacao, plano, pecas_mes, criado_em, ultimo_acesso, banido, banido_motivo, is_admin, session_id')
+      .select('id, nome, email, oab, ocupacao, plano, plano_expira, pecas_mes, criado_em, ultimo_acesso, banido, banido_motivo, is_admin, session_id, admin_notes')
       .order('ultimo_acesso', { ascending: false });
     if (r.error) throw r.error;
     todosUsuarios = r.data || [];
     calcularStats();
     renderTabela();
     renderChurn();
+    renderChart();
   } catch(e) {
     document.getElementById('tabela-body').innerHTML =
       '<tr><td colspan="8" class="loading" style="color:var(--red)">Erro: ' + esc(e.message) + '</td></tr>';
@@ -639,7 +737,7 @@ function renderChurn() {
   }).slice(0, 50);
 
   if (!emRisco.length) {
-    document.getElementById('churn-body').innerHTML = '<tr><td colspan="6" class="loading" style="color:var(--green)">✓ Todos os usuários acessaram nos últimos 14 dias.</td></tr>';
+    document.getElementById('churn-body').innerHTML = '<tr><td colspan="7" class="loading" style="color:var(--green)">✓ Todos os usuários acessaram nos últimos 14 dias.</td></tr>';
     return;
   }
 
@@ -659,6 +757,7 @@ function renderChurn() {
       '<td><span class="churn-dias ' + cls + '">' + dStr + '</span></td>' +
       '<td><div class="uso-bar"><div class="uso-fill" style="width:'+pct+'%;background:'+corB+'"></div></div>' + (u.pecas_mes||0) + '/' + lim + '</td>' +
       '<td>' + (pct >= 80 ? '<span style="color:var(--amber);font-weight:700">Próximo do limite</span>' : '<span style="color:var(--text3)">Normal</span>') + '</td>' +
+      '<td><a class="action-btn neutral" href="mailto:' + esc(u.email||'') + '?subject=' + encodeURIComponent('Gerador de Petições — Sentimos sua falta') + '&body=' + encodeURIComponent('Olá, ' + (u.nome||'') + ',\n\nNotamos que faz algum tempo que você não utiliza o Gerador de Petições.\n\nPodemos ajudar com alguma dúvida?\n\nAtenciosamente,\nCarmo Mancebo') + '" style="text-decoration:none">✉ E-mail</a></td>' +
     '</tr>';
   }).join('');
 }
@@ -776,6 +875,7 @@ function renderTabela() {
         ? '<span class="badge badge-banido" title="' + esc(u.banido_motivo||'') + '">🚫 Suspenso</span>'
         : '<span class="badge badge-ok">✓ Ativo</span>') + '</td>' +
       '<td><div class="actions-cell">' +
+        '<button class="action-btn neutral" onclick="abrirDetalhes(\'' + uid + '\')">👁 Detalhes</button>' +
         (u.banido
           ? '<button class="action-btn success" onclick="desbanirUsuario(\'' + uid + '\')">✓ Reativar</button>'
           : '<button class="action-btn danger"  onclick="banirUsuario(\'' + uid + '\',\'' + esc(u.nome||u.email||'') + '\')">🚫 Suspender</button>') +
@@ -844,7 +944,106 @@ function mostrarStatus(msg, dur) {
 
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') fazerLogin();
+  if (e.key === 'Escape') fecharDetalhes();
 });
+
+// ── A4: GRÁFICO CADASTROS SEMANAIS ───────────────────────────────────────────
+var _chart = null;
+function renderChart() {
+  var semanas = [];
+  var agora = Date.now();
+  for (var i = 7; i >= 0; i--) {
+    var inicio = new Date(agora - (i + 1) * 7 * 86400000);
+    var fim    = new Date(agora - i * 7 * 86400000);
+    var label  = inicio.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
+    var count  = todosUsuarios.filter(function(u) {
+      if (!u.criado_em) return false;
+      var t = new Date(u.criado_em).getTime();
+      return t >= inicio.getTime() && t < fim.getTime();
+    }).length;
+    semanas.push({ label: label, count: count });
+  }
+  var canvas = document.getElementById('chart-cadastros');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  if (_chart) { _chart.destroy(); }
+  _chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: semanas.map(function(s){ return s.label; }),
+      datasets: [{
+        label: 'Cadastros',
+        data: semanas.map(function(s){ return s.count; }),
+        backgroundColor: 'rgba(24,95,165,.75)',
+        borderRadius: 4,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: 'rgba(0,0,0,.05)' } }
+      }
+    }
+  });
+}
+
+// ── A1+A3+A5: MODAL DETALHES ──────────────────────────────────────────────────
+var _detUid = null;
+function abrirDetalhes(uid) {
+  var u = todosUsuarios.find(function(x){ return x.id === uid; });
+  if (!u) return;
+  _detUid = uid;
+  var LIMITES = { trial:25, solo:150, pro:300, escritorio:300 };
+  var LABELS  = { trial:'Demonstração', solo:'Ágil', pro:'Avançado', escritorio:'Escritório' };
+  var lim = LIMITES[u.plano] || 25;
+
+  document.getElementById('det-titulo').textContent  = u.nome || u.email || 'Usuário';
+  document.getElementById('det-nome').textContent    = u.nome || '—';
+  document.getElementById('det-email').textContent   = u.email || '—';
+  document.getElementById('det-oab').textContent     = u.oab || '—';
+  document.getElementById('det-ocup').textContent    = u.ocupacao || '—';
+  document.getElementById('det-plano').textContent   = (LABELS[u.plano] || u.plano || '—') + (u.is_admin ? ' · ADMIN' : '');
+  document.getElementById('det-uso').textContent     = (u.pecas_mes||0) + ' / ' + lim + ' peças este mês';
+  document.getElementById('det-criado').textContent  = u.criado_em  ? new Date(u.criado_em).toLocaleString('pt-BR')  : '—';
+  document.getElementById('det-acesso').textContent  = u.ultimo_acesso ? new Date(u.ultimo_acesso).toLocaleString('pt-BR') : '—';
+  document.getElementById('det-status').textContent  = u.banido ? '🚫 Suspenso — ' + (u.banido_motivo||'sem motivo') : '✓ Ativo';
+  document.getElementById('det-notas').value         = u.admin_notes || '';
+  document.getElementById('det-expira').value        = u.plano_expira ? u.plano_expira.slice(0, 10) : '';
+  document.getElementById('det-overlay').style.display = 'flex';
+}
+
+function fecharDetalhes(e) {
+  if (e && e.target !== document.getElementById('det-overlay')) return;
+  document.getElementById('det-overlay').style.display = 'none';
+  _detUid = null;
+}
+
+async function salvarDetalhes() {
+  if (!_detUid) return;
+  var notas   = document.getElementById('det-notas').value;
+  var expira  = document.getElementById('det-expira').value;
+  var dados   = { admin_notes: notas || null };
+  if (expira) dados.plano_expira = new Date(expira).toISOString();
+  else        dados.plano_expira = null;
+  var btn = document.getElementById('btn-salvar-det');
+  btn.disabled = true; btn.textContent = 'Salvando…';
+  try {
+    var r = await supa.from('gp_users').update(dados).eq('id', _detUid);
+    if (r.error) throw r.error;
+    var idx = todosUsuarios.findIndex(function(u){ return u.id === _detUid; });
+    if (idx !== -1) Object.assign(todosUsuarios[idx], dados);
+    mostrarStatus('✓ Notas salvas.');
+    document.getElementById('det-overlay').style.display = 'none';
+    _detUid = null;
+  } catch(e) {
+    mostrarStatus('Erro: ' + e.message, 4000);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Salvar notas';
+  }
+}
 </script>
 </body>
 </html>

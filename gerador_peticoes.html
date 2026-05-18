@@ -1166,6 +1166,13 @@ tbody tr.st-p td{background:#b3e5fc}
         </div>
       </div>
     </span>
+    <!-- S3: área rápida -->
+    <span id="tb-area-chip" style="display:none;position:relative;margin-right:6px">
+      <button id="tb-area-btn" onclick="toggleAreaRapida(event)" title="Mudar área de atuação (atalho)" style="background:none;border:1px solid var(--border);border-radius:14px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;color:var(--text2);transition:all .15s;display:inline-flex;align-items:center;gap:5px" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
+        ⚖ <span id="tb-area-label">Área</span> <span style="font-size:8px;opacity:.55">▼</span>
+      </button>
+      <div id="tb-area-dropdown" style="display:none;position:absolute;right:0;top:34px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);min-width:210px;z-index:500;overflow:hidden;max-height:320px;overflow-y:auto"></div>
+    </span>
     <button id="btn-busca-global" onclick="abrirBuscaGlobal()" title="Busca global (Ctrl+K)" style="background:none;border:1px solid var(--border);border-radius:14px;cursor:pointer;font-size:11px;padding:3px 10px 3px 8px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s;display:inline-flex;align-items:center;gap:6px" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
       🔍 <span>Buscar</span> <span style="font-size:9px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1px 4px;color:var(--text3)">Ctrl K</span>
     </button>
@@ -1175,7 +1182,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <button id="tb-modelo-btn" onclick="go('cfg')" title="Modelo de IA ativo — proxy seguro" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Essencial</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
-    <span class="tb-meta" id="tb-versao">versão 2.2</span>
+    <span class="tb-meta" id="tb-versao">versão 2.4</span>
   </div>
 </div>
 
@@ -1266,28 +1273,40 @@ tbody tr.st-p td{background:#b3e5fc}
       <div class="panel-sub">Selecione peças de referência para uso como modelo de estilo e estrutura.</div>
 
       <!-- Card de boas-vindas (B2) — visível apenas para novos usuários -->
-      <div id="card-onboarding" style="display:none;margin-bottom:16px;padding:16px;background:linear-gradient(135deg,#EFF6FF 0%,#F0FDF4 100%);border:1px solid #93C5FD;border-radius:10px">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
-          <div>
-            <div style="font-size:14px;font-weight:700;color:#1e3a5f;margin-bottom:8px">👋 Bem-vindo ao Gerador de Petições!</div>
-            <div style="font-size:12px;color:#374151;line-height:1.7">
-              Siga estes 4 passos para gerar sua primeira peça:<br>
-              <span style="display:flex;flex-direction:column;gap:4px;margin-top:6px">
-                <span><strong style="color:#1d4ed8">1.</strong> Vá em <strong>Processos</strong>, baixe a planilha modelo e importe com seus processos</span>
-                <span><strong style="color:#1d4ed8">2.</strong> Selecione um processo na tabela — o <strong>Gerador</strong> abre automaticamente</span>
-                <span><strong style="color:#1d4ed8">3.</strong> Cole o teor da intimação/decisão no campo <strong>Andamento</strong> (ou inclua na planilha antecipadamente)</span>
-                <span><strong style="color:#1d4ed8">4.</strong> Escolha área, tipo de peça e densidade, depois clique em <strong>Gerar minuta</strong></span>
-              </span>
-              <span style="display:inline-block;margin-top:8px;padding:6px 8px;background:#EFF6FF;border-radius:6px;font-size:11px;color:#1e40af">
-                💡 Obtenha o texto da intimação diretamente no DJEN (<strong>comunica.pje.jus.br</strong>) usando "Copiar sem formatação" — e cole na planilha ou no campo Andamento.
-              </span>
-            </div>
-          </div>
-          <button onclick="dispensarOnboarding()" title="Fechar" style="background:none;border:none;cursor:pointer;color:#6b7280;font-size:18px;padding:0;flex-shrink:0;line-height:1">×</button>
+      <div id="card-onboarding" style="display:none;margin-bottom:16px;background:linear-gradient(135deg,#EFF6FF 0%,#F0FDF4 100%);border:1px solid #93C5FD;border-radius:10px;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px 10px">
+          <div style="font-size:13px;font-weight:700;color:#1e3a5f">👋 Primeiros passos</div>
+          <button onclick="dispensarOnboarding()" title="Fechar" style="background:none;border:none;cursor:pointer;color:#6b7280;font-size:18px;padding:0;line-height:1">×</button>
         </div>
-        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-p btn-sm" onclick="go('proc');dispensarOnboarding()">Ir para Processos</button>
-          <button class="btn btn-s btn-sm" onclick="dispensarOnboarding()">Entendido</button>
+        <!-- S1: barra de progresso com 4 etapas -->
+        <div style="display:flex;align-items:center;gap:0;padding:0 16px 12px;flex-wrap:nowrap;overflow-x:auto">
+          <div id="onb-step-1" style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:70px;flex:1">
+            <div id="onb-dot-1" style="width:28px;height:28px;border-radius:50%;background:#166534;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">✓</div>
+            <div style="font-size:10px;font-weight:600;color:#166534;text-align:center">Cadastro</div>
+          </div>
+          <div style="flex:1;height:2px;background:#d1fae5;min-width:12px;margin-bottom:16px"></div>
+          <div id="onb-step-2" style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:70px;flex:1">
+            <div id="onb-dot-2" style="width:28px;height:28px;border-radius:50%;background:#9ca3af;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">2</div>
+            <div style="font-size:10px;font-weight:600;color:#6b7280;text-align:center">Área favorita</div>
+          </div>
+          <div style="flex:1;height:2px;background:#e5e7eb;min-width:12px;margin-bottom:16px" id="onb-line-2"></div>
+          <div id="onb-step-3" style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:70px;flex:1">
+            <div id="onb-dot-3" style="width:28px;height:28px;border-radius:50%;background:#9ca3af;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">3</div>
+            <div style="font-size:10px;font-weight:600;color:#6b7280;text-align:center">Primeira peça</div>
+          </div>
+          <div style="flex:1;height:2px;background:#e5e7eb;min-width:12px;margin-bottom:16px" id="onb-line-3"></div>
+          <div id="onb-step-4" style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:70px;flex:1">
+            <div id="onb-dot-4" style="width:28px;height:28px;border-radius:50%;background:#9ca3af;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">4</div>
+            <div style="font-size:10px;font-weight:600;color:#6b7280;text-align:center">Download</div>
+          </div>
+        </div>
+        <!-- dica contextual -->
+        <div id="onb-dica" style="padding:8px 16px 12px;font-size:11px;color:#374151;background:rgba(255,255,255,.5);border-top:1px solid rgba(147,197,253,.4);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <span id="onb-dica-txt">Selecione sua área no campo abaixo e clique em ⭐ para fixá-la como favorita.</span>
+          <div style="display:flex;gap:6px;flex-shrink:0">
+            <button class="btn btn-p btn-sm" onclick="go('proc');dispensarOnboarding()">Ir para Processos</button>
+            <button class="btn btn-s btn-sm" onclick="dispensarOnboarding()">Entendido</button>
+          </div>
         </div>
       </div>
 
@@ -2762,6 +2781,9 @@ function preencherDadosUsuario(user) {
     chipWrap.style.display = 'inline-flex';
   }
 
+  // Mostrar chip de área rápida (S3)
+  atualizarAreaChip();
+
   // Guardar dados para o modal
   window._gpUsuarioInfo = { nome: nome, email: user.email || '', oab: oab };
 
@@ -3569,6 +3591,7 @@ function atualizarSubareas() {
   }).join('');
   atualizarTipos();
   atualizarBotaoPinArea();
+  atualizarAreaChip();
 }
 
 function atualizarBotaoPinArea() {
@@ -4003,6 +4026,125 @@ function dispensarOnboarding() {
   try { localStorage.setItem('gp_onboarding_dismissed', '1'); } catch(e) {}
   var el = document.getElementById('card-onboarding');
   if (el) el.style.display = 'none';
+}
+
+// S1: atualizar barra de progresso do onboarding
+function atualizarOnboarding() {
+  var passos = [
+    { dot:'onb-dot-1', done: true },
+    { dot:'onb-dot-2', done: !!(localStorage.getItem('gp_area_favorita')), linha:'onb-line-2',
+      dica: 'Selecione sua área de atuação no campo Área abaixo e clique em ⭐ para fixá-la.' },
+    { dot:'onb-dot-3', done: !!(localStorage.getItem('gp_primeira_peca')), linha:'onb-line-3',
+      dica: 'Selecione um processo, preencha o Andamento e clique em <strong>Gerar minuta</strong>.' },
+    { dot:'onb-dot-4', done: !!(localStorage.getItem('gp_primeiro_download')), linha:'onb-line-4',
+      dica: 'Após gerar a minuta, clique em <strong>Baixar .docx</strong> para exportar a peça.' },
+  ];
+  var verde = '#166534', cinza = '#9ca3af', azul = '#185FA5';
+  var proximoPendente = null;
+  passos.forEach(function(p, i) {
+    var dot = document.getElementById(p.dot);
+    if (!dot) return;
+    if (p.done) {
+      dot.textContent = '✓';
+      dot.style.background = verde;
+      if (p.linha) { var l = document.getElementById(p.linha); if (l) l.style.background = '#d1fae5'; }
+      var step = dot.closest ? dot.closest('[id^="onb-step-"]') : dot.parentElement;
+      if (step) { var lbl = step.querySelector('div:last-child'); if (lbl) lbl.style.color = verde; }
+    } else {
+      if (!proximoPendente) {
+        proximoPendente = p;
+        dot.style.background = azul;
+        dot.textContent = i + 1;
+        var step = dot.closest ? dot.closest('[id^="onb-step-"]') : dot.parentElement;
+        if (step) { var lbl = step.querySelector('div:last-child'); if (lbl) lbl.style.color = azul; }
+      } else {
+        dot.textContent = i + 1;
+        dot.style.background = cinza;
+      }
+    }
+  });
+  var dicaTxt = document.getElementById('onb-dica-txt');
+  if (dicaTxt) {
+    if (proximoPendente) {
+      dicaTxt.innerHTML = '<strong style="color:#1d4ed8">Próximo:</strong> ' + proximoPendente.dica;
+    } else {
+      dicaTxt.innerHTML = '🎉 <strong style="color:#166534">Tudo pronto!</strong> Você completou todos os passos.';
+    }
+  }
+}
+
+// S3: área rápida no topbar
+var _AREAS_RAPIDAS = [
+  { v:'civel',          l:'Saúde Suplementar' },
+  { v:'civel_geral',    l:'Cível Geral' },
+  { v:'familia',        l:'Família e Sucessões' },
+  { v:'imobiliario',    l:'Imobiliário' },
+  { v:'trabalhista',    l:'Trabalhista' },
+  { v:'previdenciario', l:'Previdenciário / INSS' },
+  { v:'administrativo', l:'Administrativo' },
+  { v:'tributario',     l:'Tributário / Fiscal' },
+  { v:'mp',             l:'Ministério Público' },
+  { v:'empresarial',    l:'Empresarial / Societário' },
+  { v:'bancario',       l:'Bancário / Financeiro' },
+  { v:'internacional',  l:'Internacional / Arbitragem' },
+  { v:'criminal',       l:'Criminal / Penal' },
+  { v:'ambiental',      l:'Ambiental' },
+  { v:'digital',        l:'Digital / LGPD' },
+  { v:'consumidor',     l:'Defesa do Consumidor' },
+];
+
+function atualizarAreaChip() {
+  var chip  = document.getElementById('tb-area-chip');
+  var label = document.getElementById('tb-area-label');
+  if (!chip || !label) return;
+  var val = (document.getElementById('f-area') || {}).value || '';
+  if (val) {
+    var found = _AREAS_RAPIDAS.find(function(a) { return a.v === val; });
+    label.textContent = found ? found.l.split(' / ')[0].split(' e ')[0] : 'Área';
+    chip.style.display = '';
+  }
+}
+
+function toggleAreaRapida(e) {
+  if (e) e.stopPropagation();
+  var dd = document.getElementById('tb-area-dropdown');
+  if (!dd) return;
+  if (dd.style.display !== 'none') { dd.style.display = 'none'; return; }
+  var cur = (document.getElementById('f-area') || {}).value || '';
+  dd.innerHTML = _AREAS_RAPIDAS.map(function(a) {
+    var isSel = a.v === cur;
+    var bg  = isSel ? 'var(--blue-bg)' : 'transparent';
+    var col = isSel ? 'var(--blue)' : 'var(--text)';
+    var fw  = isSel ? '700' : '400';
+    return '<div onclick="selecionarAreaRapida(\'' + a.v + '\')" ' +
+      'style="padding:8px 14px;font-size:12px;cursor:pointer;background:' + bg + ';color:' + col + ';font-weight:' + fw + '" ' +
+      'onmouseover="this.style.background=\'var(--bg2)\'" ' +
+      'onmouseout="this.style.background=\'' + bg + '\'">' +
+      (isSel ? '✓ ' : '') + a.l + '</div>';
+  }).join('');
+  dd.style.display = 'block';
+  setTimeout(function() {
+    document.addEventListener('click', _fecharAreaRapidaOutside, { once: true });
+  }, 10);
+}
+
+function _fecharAreaRapidaOutside(e) {
+  var chip = document.getElementById('tb-area-chip');
+  if (chip && !chip.contains(e.target)) {
+    var dd = document.getElementById('tb-area-dropdown');
+    if (dd) dd.style.display = 'none';
+  }
+}
+
+function selecionarAreaRapida(area) {
+  var el = document.getElementById('f-area');
+  if (el) {
+    el.value = area;
+    if (typeof atualizarSubareas === 'function') atualizarSubareas();
+  }
+  var dd = document.getElementById('tb-area-dropdown');
+  if (dd) dd.style.display = 'none';
+  if (typeof go === 'function') go('ger');
 }
 
 function checkBtn() {
@@ -9369,6 +9511,7 @@ async function gerarMinuta() {
     var btnSO = document.getElementById('btn-segunda-opiniao'); if(btnSO) btnSO.style.display='';
     var btnContr = document.getElementById('btn-verificar-contradicao'); if(btnContr) btnContr.style.display='';
     // Incrementar contador + salvar no Supabase
+    try { localStorage.setItem('gp_primeira_peca', '1'); atualizarOnboarding(); } catch(e){}
     incrementarPecasMes();
     var _proc = (document.getElementById('f-proc')||{}).value||'';
     var _tipo = (document.getElementById('f-tipo')||{}).value||'peça';
@@ -10014,6 +10157,7 @@ async function baixarDocx() {
     } else {
       await baixarDocxSimples();
     }
+  try { localStorage.setItem('gp_primeiro_download', '1'); atualizarOnboarding(); } catch(e2){}
   } catch(e) { setSt2('res-st','err', formatarErroParaUsuario(e, 'gerar .docx')); }
 }
 
@@ -10660,7 +10804,7 @@ function _modalKeyHandler(e) {
   try {
     if (!localStorage.getItem('gp_onboarding_dismissed')) {
       var _ob = document.getElementById('card-onboarding');
-      if (_ob) _ob.style.display = 'block';
+      if (_ob) { _ob.style.display = 'block'; atualizarOnboarding(); }
     }
   } catch(e) {}
 
