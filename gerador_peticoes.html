@@ -1092,7 +1092,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 1.96</div>
+    <div class="login-ver">versão 2.0</div>
   </div>
 </div>
 
@@ -1119,7 +1119,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <button id="tb-modelo-btn" onclick="go('cfg')" title="Modelo de IA ativo — proxy seguro" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Essencial</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
-    <span class="tb-meta" id="tb-versao">versão 1.99</span>
+    <span class="tb-meta" id="tb-versao">versão 2.0</span>
   </div>
 </div>
 
@@ -1171,6 +1171,9 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="um-actions">
       <button onclick="fecharModalUsuario()">Fechar</button>
       <button class="danger" onclick="fecharModalUsuario();fazerLogout()">Sair da conta</button>
+    </div>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);text-align:center">
+      <button onclick="solicitarExclusaoConta()" style="background:none;border:none;color:var(--text3);font-size:10px;cursor:pointer;text-decoration:underline">Solicitar exclusão da conta (LGPD)</button>
     </div>
   </div>
 </div>
@@ -1400,16 +1403,6 @@ tbody tr.st-p td{background:#b3e5fc}
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">Backup e importação</div>
-        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Exporte toda a configuração (planilha, tratativas, timbrado, peças de referência, observações) para um arquivo JSON, ou restaure a partir de um backup anterior.</p>
-        <div class="btn-row">
-          <button class="btn btn-s btn-sm" onclick="exportarBackup()">📤 Exportar backup (.json)</button>
-          <button class="btn btn-s btn-sm" onclick="document.getElementById('inp-backup').click()">📥 Importar backup</button>
-          <input type="file" id="inp-backup" accept=".json" style="display:none" onchange="importarBackup(this)" />
-        </div>
-        <div id="backup-st" style="margin-top:8px"></div>
-      </div>
       <div class="card">
         <div class="card-title">🔔 Notificações de prazo</div>
         <p style="font-size:12px;color:var(--text3);margin-bottom:8px">Receba alertas no navegador sobre prazos críticos (D-2, hoje ou vencido).</p>
@@ -1701,6 +1694,7 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
             <label>Área do direito</label>
             <select id="f-area" onchange="atualizarSubareas()">
               <option value="" disabled selected>— selecione a área —</option>
+
               <optgroup label="── Cível ──">
                 <option value="civel">Saúde suplementar</option>
                 <option value="civel_geral">Cível geral</option>
@@ -1719,6 +1713,9 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
                 <option value="internacional">Internacional / Arbitragem</option>
               </optgroup>
             </select>
+            <div id="btn-pin-area" style="display:none;align-items:center;margin-top:5px;font-size:11px;color:var(--text2);gap:4px;padding:3px 8px;border:1px solid var(--border);border-radius:20px;width:fit-content;background:var(--bg2)">
+              ⭐ Definir como padrão
+            </div>
           </div>
           <div class="field">
             <label>Subárea / Especialização</label>
@@ -1730,6 +1727,9 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
           <select id="f-tipo" onchange="onTipoChange();g1SugerirTeses(this.value)">
 
             <option value="auto" selected>Identificar automaticamente pelo andamento</option>
+            <optgroup label="── Petição inicial ──">
+              <option value="petição inicial">📝 Petição inicial</option>
+            </optgroup>
             <optgroup label="── Revisão ──">
               <option value="roteiro de audiência">🎤 Roteiro de audiência</option>
               <option value="revisão de peça">✏️ Revisar peça existente</option>
@@ -2125,6 +2125,7 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
         <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
           <button class="btn btn-s btn-sm" id="btn-toggle-edit" onclick="toggleEditMode()" title="Alternar entre visualização e edição">✏ Editar texto</button>
           <button class="btn btn-s btn-sm" id="btn-usar-base" onclick="usarComoBase()" title="Usar este texto como contexto para elaborar uma nova petição (útil quando se gera um resumo e depois se quer a peça)">📎 Usar como base para nova petição</button>
+          <button class="btn btn-s btn-sm" id="btn-numerar-parag" onclick="toggleNumeracaoParag()" title="Numerar cada parágrafo da petição">🔢 Numerar parágrafos</button>
           <span class="tip" id="res-edit-status"></span>
           <span style="margin-left:auto" class="tip" id="res-char-count"></span>
         </div>
@@ -2708,7 +2709,10 @@ function abrirModalUsuario() {
     fill.style.background = pct >= 90 ? '#DC2626' : pct >= 70 ? '#D97706' : 'var(--blue)';
   }
   if (num) num.textContent = pecasMes + ' / ' + limite;
-  if (inf) inf.textContent = restam + ' restantes este mês · renova no primeiro dia do mês seguinte.';
+  var infTxt = plano === 'trial'
+    ? restam + ' restantes — plano Demonstração não é renovável (30 dias / 25 peças).'
+    : restam + ' restantes · renova no primeiro dia do mês seguinte.';
+  if (inf) inf.textContent = infTxt;
 
   var ov = document.getElementById('user-modal-overlay');
   if (ov) ov.classList.add('show');
@@ -3294,13 +3298,46 @@ function atualizarTipos() {
 
 function atualizarSubareas() {
   var area = document.getElementById('f-area').value;
-  if (area) try { localStorage.setItem('gp_ultima_area', area); } catch(e) {}
   var subs = SUBAREAS[area] || [];
   var sel = document.getElementById('f-subarea');
   sel.innerHTML = subs.map(function(s){
     return '<option value="'+s.v+'">'+s.l+'</option>';
   }).join('');
   atualizarTipos();
+  atualizarBotaoPinArea();
+}
+
+function atualizarBotaoPinArea() {
+  var area = document.getElementById('f-area').value;
+  var btn  = document.getElementById('btn-pin-area');
+  if (!btn) return;
+  var fav  = localStorage.getItem('gp_area_favorita');
+  if (!area) {
+    btn.style.display = 'none';
+    return;
+  }
+  btn.style.display = 'inline-flex';
+  if (fav === area) {
+    btn.innerHTML = '<span style="color:#16a34a;font-size:11px">✓ Área padrão</span> <button onclick="removerAreaFavorita()" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:10px;padding:0 0 0 6px;line-height:1" title="Remover área padrão">✕</button>';
+    btn.style.cursor = 'default';
+    btn.onclick = null;
+  } else {
+    btn.innerHTML = '⭐ Definir como padrão';
+    btn.style.cursor = 'pointer';
+    btn.onclick = pinAreaFavorita;
+  }
+}
+
+function pinAreaFavorita() {
+  var area = document.getElementById('f-area').value;
+  if (!area) return;
+  try { localStorage.setItem('gp_area_favorita', area); } catch(e) {}
+  atualizarBotaoPinArea();
+}
+
+function removerAreaFavorita() {
+  try { localStorage.removeItem('gp_area_favorita'); } catch(e) {}
+  atualizarBotaoPinArea();
 }
 
 function getEnriquecimento() {
@@ -8224,6 +8261,44 @@ function mostrarModalCompartilhamento(msg) {
   );
 }
 
+function solicitarExclusaoConta() {
+  var info = window._gpUsuarioInfo || {};
+  var email = info.email || '(não identificado)';
+  var mailto = 'mailto:carmo.mancebo@adv.oabsp.org.br'
+    + '?subject=' + encodeURIComponent('Solicitação de exclusão de conta — LGPD')
+    + '&body=' + encodeURIComponent(
+        'Olá,\n\nSolicito a exclusão da minha conta no Gerador de Petições conforme a Lei 13.709/2018 (LGPD).\n\nE-mail da conta: ' + email + '\n\nAtenciosamente.'
+      );
+  window.location.href = mailto;
+  fecharModalUsuario();
+}
+
+var _numeracaoAtiva = false;
+function toggleNumeracaoParag() {
+  _numeracaoAtiva = !_numeracaoAtiva;
+  var btn = document.getElementById('btn-numerar-parag');
+  var div = document.getElementById('res-txt');
+  if (!div) return;
+  if (_numeracaoAtiva) {
+    var linhas = div.textContent.split('\n');
+    var num = 0;
+    div.innerHTML = linhas.map(function(l) {
+      var trimmed = l.trim();
+      if (!trimmed) return '<div style="min-height:0.4em"></div>';
+      num++;
+      return '<div style="display:flex;gap:10px;margin-bottom:2px">'
+        + '<span style="color:var(--text3);font-size:10px;min-width:22px;text-align:right;padding-top:2px;flex-shrink:0;user-select:none">' + num + '</span>'
+        + '<span>' + trimmed.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>'
+        + '</div>';
+    }).join('');
+    if (btn) { btn.textContent = '🔢 Remover numeração'; btn.style.color = 'var(--blue)'; }
+  } else {
+    var txt = Array.from(div.querySelectorAll('span:last-child')).map(function(s){ return s.textContent; }).join('\n');
+    div.textContent = txt || div.textContent;
+    if (btn) { btn.textContent = '🔢 Numerar parágrafos'; btn.style.color = ''; }
+  }
+}
+
 function abrirPoliticaPrivacidade() {
   _criarModal(
     '<div style="background:var(--bg);border-radius:12px;padding:24px 28px;max-width:560px;width:93%;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2)">' +
@@ -10086,15 +10161,15 @@ function _modalKeyHandler(e) {
     }
   } catch(e) {}
 
-  // Inicializar subáreas — restaurar última área selecionada (A2)
-  var _areaRestored = localStorage.getItem('gp_ultima_area');
-  if (_areaRestored) {
+  // Inicializar subáreas — restaurar apenas área marcada como favorita (explicitamente pelo usuário)
+  var _areaFav = localStorage.getItem('gp_area_favorita');
+  if (_areaFav) {
     var _areaEl = document.getElementById('f-area');
-    if (_areaEl && _areaEl.querySelector('option[value="'+_areaRestored+'"]')) {
-      _areaEl.value = _areaRestored;
+    if (_areaEl && _areaEl.querySelector('option[value="'+_areaFav+'"]')) {
+      _areaEl.value = _areaFav;
     }
   }
-  if (document.getElementById('f-area')) atualizarSubareas();
+  if (document.getElementById('f-area')) { atualizarSubareas(); atualizarBotaoPinArea(); }
 
   checkBtn();
   // Contador de chars/tokens no campo andamento
