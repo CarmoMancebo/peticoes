@@ -659,12 +659,184 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .plano-escr  { background: #EDE9FE; color: #4C1D95; border: 1px solid #8B5CF6; }
 
 .pecas-contador {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #D1FAE5;
+  color: #065F46;
+  border: 1px solid #10B981;
+  line-height: 1.3;
+  vertical-align: middle;
+  transition: all .2s;
+}
+.pecas-contador.aviso  { background: #FEF3C7; color: #92400E; border-color: #F59E0B; }
+.pecas-contador.limite { background: #FEE2E2; color: #991B1B; border-color: #DC2626; font-weight: 700; }
+
+/* === CHIP DE USUÁRIO LOGADO === */
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 3px;
+  border-radius: 16px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  vertical-align: middle;
+  margin-right: 10px;
+  transition: all .15s;
+  font-size: 11px;
+  color: var(--text2);
+  line-height: 1;
+}
+.user-chip:hover { border-color: var(--blue); color: var(--blue); }
+.user-chip .user-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #185FA5 0%, #0C2E5B 100%);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.user-chip .user-nome { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* === MODAL DO USUÁRIO === */
+.user-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+.user-modal-overlay.show { display: flex; }
+.user-modal {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 380px;
+  max-width: 92vw;
+  padding: 22px 22px 18px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.25);
+  font-size: 13px;
+  color: var(--text);
+}
+.user-modal .um-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.user-modal .um-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #185FA5 0%, #0C2E5B 100%);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+}
+.user-modal .um-nome { font-weight: 700; font-size: 15px; }
+.user-modal .um-email { color: var(--text3); font-size: 11px; word-break: break-all; }
+.user-modal .um-row { display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--border); font-size: 12px; }
+.user-modal .um-row:first-of-type { border-top: none; }
+.user-modal .um-row .um-label { color: var(--text2); }
+.user-modal .um-row .um-val { font-weight: 600; }
+.user-modal .um-pecas-barra { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin: 8px 0 4px; }
+.user-modal .um-pecas-fill  { height: 100%; background: var(--blue); border-radius: 3px; transition: width .3s; }
+.user-modal .um-pecas-info  { font-size: 11px; color: var(--text3); margin-bottom: 14px; }
+.user-modal .um-actions { display: flex; gap: 8px; margin-top: 14px; }
+.user-modal .um-actions button { flex: 1; padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--bg2); color: var(--text); }
+.user-modal .um-actions button.danger { background: #DC2626; color: #fff; border-color: #DC2626; }
+.user-modal .um-actions button.danger:hover { background: #B91C1C; }
+
+/* === BUSCA GLOBAL — Modal Cmd+K (C8) === */
+.busca-global-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 9998;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 12vh;
+}
+.busca-global-overlay.show { display: flex; }
+.busca-global-modal {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 600px;
+  max-width: 92vw;
+  box-shadow: 0 20px 50px rgba(0,0,0,.3);
+  overflow: hidden;
+}
+.busca-global-modal .bg-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.busca-global-modal .bg-icon { font-size: 18px; opacity: .8; }
+.busca-global-modal input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  color: var(--text);
+}
+.busca-global-modal .bg-kbd {
+  font-size: 10px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: var(--text3);
+}
+.busca-global-modal .bg-resultados {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 4px 0;
+  min-height: 60px;
+}
+.busca-global-modal .bg-resultados:empty::before {
+  content: 'Digite ao menos 2 caracteres para buscar processos, minutas e teses.';
+  display: block;
+  padding: 24px 18px;
+  font-size: 12px;
+  color: var(--text3);
+  text-align: center;
+}
+.busca-global-modal .g-res-item {
+  cursor: pointer;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  transition: background .12s;
+}
+.busca-global-modal .g-res-item:hover,
+.busca-global-modal .g-res-item.active {
+  background: rgba(24,95,165,.08);
+}
+.busca-global-modal .bg-rodape {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  padding: 8px 18px;
+  border-top: 1px solid var(--border);
   font-size: 10px;
   color: var(--text3);
-  margin-left: 4px;
+  background: var(--bg2);
 }
-.pecas-contador.aviso { color: #D97706; font-weight: 600; }
-.pecas-contador.limite { color: #DC2626; font-weight: 700; }
 
 /* === D2 — SEGUNDA OPINIÃO === */
 .seg-opiniao-painel {
@@ -902,26 +1074,78 @@ tbody tr.st-p td{background:#b3e5fc}
     <button id="btn-mobile-menu" class="mobile-menu-btn" onclick="toggleSidebarMobile()" title="Abrir menu">☰</button><span class="tb-title">Gerador de Petições</span>
   </div>
   <div class="tb-center">
-    <div class="tb-name" id="tb-user-nome">Usuário | Advogado</div>
-    <div class="tb-oab" id="tb-user-oab">OAB</div>
+    <div class="tb-name">Carmo Mancebo | Advogado</div>
+    <div class="tb-oab">OAB/SP 274.575</div>
   </div>
   <div class="tb-right">
-    <div style="position:relative;margin-right:12px">
-      <input id="busca-global-toolbar" type="text" placeholder="🔍 Busca global..." style="font-size:11px;padding:4px 8px;border-radius:16px;border:1px solid var(--border);background:var(--bg2);color:var(--text);width:200px" oninput="buscaGlobal(this.value)" onfocus="document.getElementById('res-busca-global-toolbar').style.display='block'" onblur="setTimeout(function(){document.getElementById('res-busca-global-toolbar').style.display='none';},200)">
-      <div id="res-busca-global-toolbar" style="display:none;position:absolute;top:32px;right:0;width:320px;max-height:320px;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:600;padding:4px 0"></div>
-    </div>
+    <button id="btn-busca-global" onclick="abrirBuscaGlobal()" title="Busca global (Ctrl+K)" style="background:none;border:1px solid var(--border);border-radius:14px;cursor:pointer;font-size:11px;padding:3px 10px 3px 8px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s;display:inline-flex;align-items:center;gap:6px" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
+      🔍 <span>Buscar</span> <span style="font-size:9px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1px 4px;color:var(--text3)">Ctrl K</span>
+    </button>
     <button id="btn-tema-toolbar" onclick="toggleTema()" title="Alternar tema claro/escuro" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0 8px;line-height:1;vertical-align:middle;margin-right:8px">🌙</button>
-    <span id="tb-plano-badge" class="plano-badge plano-trial" title="Clique para ver seu plano" onclick="go('cfg')" style="cursor:pointer">trial</span>
+    <span id="tb-plano-badge" class="plano-badge plano-trial" title="Clique para ver seu plano" onclick="go('cfg')" style="cursor:pointer">Demonstração</span>
     <span id="tb-pecas-contador" class="pecas-contador" title="Peças geradas este mês"></span>
     <button id="tb-modelo-btn" onclick="go('cfg')" title="Modelo Claude ativo — proxy seguro" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Sonnet</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
-    <button class="btn btn-s btn-sm" onclick="fazerLogout()" title="Sair da conta" style="margin-right:10px;padding:3px 8px;font-size:11px">🔒 Sair</button>
-    <span class="tb-meta" id="tb-versao">versão 1.92.2</span>
+    <span id="tb-user-chip" class="user-chip" title="Sua conta" onclick="abrirModalUsuario()" style="display:none">
+      <span class="user-avatar" id="tb-user-iniciais">—</span>
+      <span class="user-nome" id="tb-user-primeironome">—</span>
+    </span>
+    <span class="tb-meta" id="tb-versao">versão 1.93</span>
   </div>
 </div>
 
 <div id="sidebar-backdrop" class="sidebar-backdrop" onclick="fecharSidebarMobile()"></div>
+
+<!-- Modal de busca global (C8) -->
+<div id="busca-global-overlay" class="busca-global-overlay" onclick="fecharBuscaGlobal(event)">
+  <div class="busca-global-modal" onclick="event.stopPropagation()">
+    <div class="bg-input-wrap">
+      <span class="bg-icon">🔍</span>
+      <input id="busca-global-input" type="text" placeholder="Buscar processos, minutas, teses..." oninput="buscaGlobal(this.value)" />
+      <span class="bg-kbd">ESC</span>
+    </div>
+    <div id="busca-global-resultados" class="bg-resultados"></div>
+    <div class="bg-rodape">
+      <span>↑ ↓ para navegar</span>
+      <span>↵ para abrir</span>
+      <span>ESC para fechar</span>
+    </div>
+  </div>
+</div>
+
+<!-- Modal do usuário logado (C1) -->
+<div id="user-modal-overlay" class="user-modal-overlay" onclick="fecharModalUsuario(event)">
+  <div class="user-modal" onclick="event.stopPropagation()">
+    <div class="um-header">
+      <span class="um-avatar" id="um-avatar">—</span>
+      <div>
+        <div class="um-nome" id="um-nome">Usuário</div>
+        <div class="um-email" id="um-email">—</div>
+      </div>
+    </div>
+    <div class="um-row">
+      <span class="um-label">Plano</span>
+      <span class="um-val" id="um-plano">—</span>
+    </div>
+    <div class="um-row">
+      <span class="um-label">OAB</span>
+      <span class="um-val" id="um-oab">—</span>
+    </div>
+    <div style="margin-top:14px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px">
+        <span>Peças geradas este mês</span>
+        <span id="um-pecas-num">—</span>
+      </div>
+      <div class="um-pecas-barra"><div class="um-pecas-fill" id="um-pecas-fill" style="width:0%"></div></div>
+      <div class="um-pecas-info" id="um-pecas-info">—</div>
+    </div>
+    <div class="um-actions">
+      <button onclick="fecharModalUsuario()">Fechar</button>
+      <button class="danger" onclick="fecharModalUsuario();fazerLogout()">Sair da conta</button>
+    </div>
+  </div>
+</div>
 
 <div class="layout">
   <nav class="sidebar">
@@ -953,9 +1177,18 @@ tbody tr.st-p td{background:#b3e5fc}
         </div>
         <div id="cfg-pecas-texto" style="font-size:11px;color:var(--text3);margin-bottom:10px"></div>
         <div style="font-size:11px;color:var(--text2);padding:8px 10px;background:var(--bg2);border-radius:6px">
-          🎁 <strong>Período de testes gratuito:</strong> 10 peças/mês no plano trial.
-          Em breve: planos Solo (100 peças/mês) e Pro (ilimitado).<br>
-          <span style="color:var(--text3)">Interesse em acesso antecipado? Entre em contato pelo e-mail do perfil.</span>
+          🎁 <strong>Plano Demonstração ativo:</strong> 25 peças/mês com acesso aos modelos Essencial e Avançado.<br>
+          <span style="display:inline-block;margin-top:6px">
+            <span class="plano-badge plano-solo" style="margin-right:4px">Avançado</span>
+            <span style="color:var(--text3);font-size:10px">150 peças/mês · </span>
+            <span style="background:#FEF3C7;color:#92400E;border:1px solid #F59E0B;border-radius:10px;padding:1px 6px;font-size:9px;font-weight:600">EM BREVE</span>
+          </span><br>
+          <span style="display:inline-block;margin-top:4px">
+            <span class="plano-badge plano-pro" style="margin-right:4px">Completo</span>
+            <span style="color:var(--text3);font-size:10px">300 peças/mês + modelo Completo · </span>
+            <span style="background:#FEF3C7;color:#92400E;border:1px solid #F59E0B;border-radius:10px;padding:1px 6px;font-size:9px;font-weight:600">EM BREVE</span>
+          </span><br>
+          <span style="color:var(--text3);margin-top:6px;display:inline-block">Interesse em acesso antecipado? Entre em contato pelo e-mail do perfil.</span>
         </div>
       </div>
 
@@ -1592,7 +1825,12 @@ tbody tr.st-p td{background:#b3e5fc}
         <div style="padding:8px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;font-size:11px;color:#1E40AF;margin-bottom:8px">
           💡 <strong>Dica de custo:</strong> envie apenas as <strong>peças principais</strong> do processo — não o processo inteiro. Cada página consome ~500-800 tokens. Prefira <strong>.txt</strong> ou compacte os PDFs antes (ilovepdf.com). Processos com 500+ páginas podem exceder o limite do plano.
         </div>
-        <input type="file" id="an-files" multiple accept=".pdf,.txt,.docx" style="margin-bottom:8px" onchange="anCarregarArquivos(this.files)">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
+          <button class="btn btn-s btn-sm" onclick="document.getElementById('an-files').click()">📎 Carregar arquivo</button>
+          <button class="btn btn-s btn-sm" onclick="anLimparTudo()" id="an-btn-limpar-top" title="Limpar todos os arquivos, textos e resultados">🗑 Limpar tudo</button>
+          <span id="an-files-info" style="font-size:11px;color:var(--text3)"></span>
+        </div>
+        <input type="file" id="an-files" multiple accept=".pdf,.txt,.docx" style="display:none" onchange="anCarregarArquivos(this.files)">
         <div id="an-doc-list" class="an-doc-list"></div>
 
         <details style="margin-top:10px">
@@ -1674,7 +1912,6 @@ tbody tr.st-p td{background:#b3e5fc}
 
       <div class="an-toolbar">
         <button class="btn btn-p" onclick="executarAnalise()" id="an-btn-executar">▶ Analisar</button>
-        <button class="btn btn-s" onclick="anLimparTudo()" id="an-btn-limpar">🗑 Limpar</button>
         <button class="btn btn-s" onclick="anExportarMd()" id="an-btn-export" style="display:none">📥 Exportar (.md)</button>
         <button class="btn btn-s" onclick="anCopiarResultado()" id="an-btn-copy" style="display:none">📋 Copiar</button>
         <button class="btn btn-s" onclick="abrirModalUsarPeticao()" id="an-btn-usar" style="display:none;background:rgba(24,95,165,.12);border-color:var(--blue);color:var(--blue);font-weight:600" title="Aproveitar o resultado desta análise na aba Gerar petição">→ Usar na petição</button>
@@ -2227,11 +2464,72 @@ function preencherDadosUsuario(user) {
   var meta = user.user_metadata || {};
   var nome = meta.nome || user.email || 'Usuário';
   var oab = meta.oab || '';
-  var nomeEl = document.getElementById('tb-user-nome');
-  var oabEl = document.getElementById('tb-user-oab');
-  if (nomeEl) nomeEl.textContent = nome + ' | Advogado';
-  if (oabEl) oabEl.textContent = oab ? 'OAB ' + oab : user.email;
+
+  // Chip do usuário logado no topbar (C1)
+  var chip = document.getElementById('tb-user-chip');
+  var iniEl = document.getElementById('tb-user-iniciais');
+  var pnEl  = document.getElementById('tb-user-primeironome');
+  if (chip && iniEl && pnEl) {
+    var partes = nome.trim().split(/\s+/);
+    var ini = partes.length >= 2
+      ? (partes[0][0] + partes[partes.length-1][0]).toUpperCase()
+      : (partes[0].slice(0,2) || '?').toUpperCase();
+    iniEl.textContent = ini;
+    pnEl.textContent = partes[0] || 'Conta';
+    chip.style.display = 'inline-flex';
+  }
+
+  // Guardar dados para o modal
+  window._gpUsuarioInfo = { nome: nome, email: user.email || '', oab: oab };
+
   if (typeof atualizarIndicadorModelo === 'function') atualizarIndicadorModelo();
+}
+
+// Modal do usuário (C1)
+function abrirModalUsuario() {
+  var info = window._gpUsuarioInfo || { nome:'Usuário', email:'—', oab:'' };
+  var partes = (info.nome || 'U').trim().split(/\s+/);
+  var ini = partes.length >= 2
+    ? (partes[0][0] + partes[partes.length-1][0]).toUpperCase()
+    : (partes[0].slice(0,2) || '?').toUpperCase();
+
+  var avatarEl = document.getElementById('um-avatar');
+  var nomeEl   = document.getElementById('um-nome');
+  var emailEl  = document.getElementById('um-email');
+  var planoEl  = document.getElementById('um-plano');
+  var oabEl    = document.getElementById('um-oab');
+  if (avatarEl) avatarEl.textContent = ini;
+  if (nomeEl)   nomeEl.textContent   = info.nome;
+  if (emailEl)  emailEl.textContent  = info.email || '—';
+  if (oabEl)    oabEl.textContent    = info.oab ? 'OAB ' + info.oab : '—';
+
+  // Preencher plano e contador de peças
+  var plano = (_dadosUsuario && _dadosUsuario.plano) || 'trial';
+  var labelPlano = { trial:'Demonstração', solo:'Avançado', pro:'Completo', escritorio:'Escritório' }[plano] || plano;
+  if (planoEl) planoEl.textContent = labelPlano;
+
+  var limite = LIMITES_PLANO[plano] || 25;
+  var pecasMes = (_dadosUsuario && _dadosUsuario.pecas_mes) || 0;
+  var pct = Math.min(100, Math.round((pecasMes / limite) * 100));
+  var restam = Math.max(0, limite - pecasMes);
+  var fill = document.getElementById('um-pecas-fill');
+  var num  = document.getElementById('um-pecas-num');
+  var inf  = document.getElementById('um-pecas-info');
+  if (fill) {
+    fill.style.width = pct + '%';
+    fill.style.background = pct >= 90 ? '#DC2626' : pct >= 70 ? '#D97706' : 'var(--blue)';
+  }
+  if (num) num.textContent = pecasMes + ' / ' + limite;
+  if (inf) inf.textContent = restam + ' restantes este mês · renova no primeiro dia do mês seguinte.';
+
+  var ov = document.getElementById('user-modal-overlay');
+  if (ov) ov.classList.add('show');
+}
+
+function fecharModalUsuario(ev) {
+  if (ev && ev.target && ev.target.closest && ev.target.closest('.user-modal')) return;
+  var ov = document.getElementById('user-modal-overlay');
+  if (ov) ov.classList.remove('show');
 }
 
 function trocarAbaLogin(aba) {
@@ -3917,9 +4215,25 @@ function togglePinColunas() {
   if (btn) { btn.classList.toggle("active", _pinAtivo); btn.title = _pinAtivo ? "Desafixar colunas" : "Fixar Pasta e Processo durante rolagem"; }
 }
 
-// ── BUSCA GLOBAL ────────────────────────────────────────────────────────
+// ── BUSCA GLOBAL — Modal Cmd+K (C8) ─────────────────────────────────────
+function abrirBuscaGlobal() {
+  var ov = document.getElementById('busca-global-overlay');
+  if (!ov) return;
+  ov.classList.add('show');
+  var inp = document.getElementById('busca-global-input');
+  if (inp) { inp.value = ''; setTimeout(function(){ inp.focus(); }, 30); }
+  var res = document.getElementById('busca-global-resultados');
+  if (res) res.innerHTML = '';
+}
+
+function fecharBuscaGlobal(ev) {
+  if (ev && ev.target && ev.target.closest && ev.target.closest('.busca-global-modal')) return;
+  var ov = document.getElementById('busca-global-overlay');
+  if (ov) ov.classList.remove('show');
+}
+
 function buscaGlobal(q) {
-  var res = document.getElementById("res-busca-global-toolbar");
+  var res = document.getElementById("busca-global-resultados");
   if (!res) return;
   q = (q||"").toLowerCase().trim();
   if (q.length < 2) { res.innerHTML=""; return; }
@@ -3930,7 +4244,7 @@ function buscaGlobal(q) {
     var hay = ((p.pasta||"")+" "+(p.proc||"")+" "+(p.parte||"")+" "+(p.desc||"")+" "+(p.cliente||"")).toLowerCase();
     if (hay.indexOf(q)>=0) itens.push({
       cat:"📁 Processo", label:(p.pasta||p.proc)+" — "+(p.parte||p.desc||"").substring(0,40),
-      action:"selProc("+i+",document.createElement('tr'));go('ger')"
+      action:"fecharBuscaGlobal();selProc("+i+",document.createElement('tr'));go('ger')"
     });
   });
 
@@ -3942,7 +4256,7 @@ function buscaGlobal(q) {
           || (m.preview||"").toLowerCase().indexOf(q)>=0) {
         itens.push({ cat:"📄 Minuta",
           label:new Date(m.data).toLocaleDateString("pt-BR")+" — "+m.tipo+(m.proc?" ("+m.proc+")":""),
-          action:"restaurarMinuta("+i+")"
+          action:"fecharBuscaGlobal();restaurarMinuta("+i+")"
         });
       }
     });
@@ -3955,20 +4269,20 @@ function buscaGlobal(q) {
       if ((t.titulo||"").toLowerCase().indexOf(q)>=0 || (t.texto||"").toLowerCase().indexOf(q)>=0) {
         itens.push({ cat:"📚 Tese",
           label:t.titulo,
-          action:"inserirTese("+i+")"
+          action:"fecharBuscaGlobal();inserirTese("+i+")"
         });
       }
     });
   } catch(e){}
 
   if (!itens.length) {
-    res.innerHTML='<div style="padding:10px 14px;font-size:12px;color:var(--text3)">Nenhum resultado</div>';
+    res.innerHTML='<div style="padding:14px 18px;font-size:12px;color:var(--text3);text-align:center">Nenhum resultado para <strong>"'+q.replace(/</g,'&lt;')+'"</strong></div>';
     return;
   }
-  res.innerHTML = itens.slice(0,12).map(function(it){
-    return '<div onclick="'+it.action+'" class="g-res-item" style="padding:8px 14px;border-bottom:1px solid var(--border)">'+
-      '<span style="font-size:10px;color:var(--text3);margin-right:6px">'+it.cat+'</span>'+
-      '<span style="font-size:12px">'+it.label+'</span></div>';
+  res.innerHTML = itens.slice(0,20).map(function(it,idx){
+    return '<div onclick="'+it.action+'" class="g-res-item'+(idx===0?' active':'')+'">'+
+      '<span style="font-size:10px;color:var(--text3);margin-right:8px">'+it.cat+'</span>'+
+      '<span>'+it.label+'</span></div>';
   }).join("");
 }
 
@@ -5338,7 +5652,7 @@ async function gerarResumoCaso() {
     nomeArq = (pasta?pasta+' - ':'') + 'resumo do caso - GeradoPorIA';
     document.getElementById('res-nome').textContent = 'Arquivo: '+nomeArq+'.docx  ·  Modelo: '+nomeModelo+'  ·  (Resumo estruturado)';
     setSt2('res-st','ok','Resumo gerado com sucesso.');
-  } catch(e) { setSt2('res-st','err','Erro ao gerar resumo: '+e.message); }
+  } catch(e) { setSt2('res-st','err', formatarErroParaUsuario(e, 'gerar resumo')); }
 }
 
 // ============================================================
@@ -6892,6 +7206,40 @@ async function executarVerificacaoContradicao() { d4AbrirPainel(); }
 // CHAMADA VIA PROXY (Edge Function Supabase) — chave segura no servidor
 // ════════════════════════════════════════════════════════════════════════════
 
+// Helper: traduz erros técnicos em mensagens orientadas ao usuário (M6)
+function formatarErroParaUsuario(err, contexto) {
+  var msg = (err && err.message) ? err.message : String(err || '');
+  var ctx = contexto || 'a operação';
+  // Erros já formatados (com dicas embutidas)
+  if (msg.indexOf('⚙') === 0 || msg.indexOf('🔁') === 0 || msg.indexOf('⏱') === 0) return msg;
+  // Sessão / auth
+  if (/sess[aã]o\s+(expirad|inv[aá]lid)|401|n[aã]o\s+autorizad/i.test(msg)) {
+    return '🔁 Sessão expirada. Sair e entrar novamente costuma resolver.';
+  }
+  // Limite de peças
+  if (/limite\s+de\s+\d+\s+pe[cç]as|LIMITE_PLANO/i.test(msg)) {
+    return '⛔ Limite mensal de peças atingido. Aguarde o início do próximo mês ou entre em contato para upgrade.';
+  }
+  // Rede / timeout
+  if (/failed to fetch|networkerror|timeout|aborted|conex[aã]o/i.test(msg)) {
+    return '🌐 Sem conexão com o servidor. Verifique sua internet e tente novamente em alguns segundos.';
+  }
+  // Servidor 5xx
+  if (/\b50\d\b|servidor|internal/i.test(msg)) {
+    return '⚙ Erro temporário no servidor. Tente novamente em 30 segundos. Se persistir: pressione Ctrl+F5 para atualizar a página.';
+  }
+  // 429 genérico (sem limite de plano)
+  if (/\b429\b|too many|muitas requisi/i.test(msg)) {
+    return '⏱ Muitas requisições seguidas. Aguarde 10 segundos e tente novamente.';
+  }
+  // Contexto muito grande
+  if (/token|context|limite\s+do\s+modelo|too\s+long/i.test(msg)) {
+    return '📦 O contexto enviado é muito grande para o modelo. Reduza arquivos anexados ou divida em partes menores.';
+  }
+  // Erro genérico — mantém a mensagem original + sugestões
+  return 'Erro em ' + ctx + ': ' + msg + '\n\nSe persistir: 1) Pressione Ctrl+F5 para atualizar; 2) Saia e entre na conta novamente; 3) Reduza o tamanho do contexto enviado.';
+}
+
 async function chamarIAViaProxy(modelo, sysPrompt, messages, onChunk) {
   var supa = getSupa();
   var session = supa ? await supa.auth.getSession() : null;
@@ -6899,26 +7247,31 @@ async function chamarIAViaProxy(modelo, sysPrompt, messages, onChunk) {
     ? session.data.session.access_token : null;
 
   if (!token) {
-    throw new Error('Sessão expirada. Faça login novamente.');
+    throw new Error('🔁 Sessão expirada. Faça login novamente para continuar.');
   }
 
   var texto = '';
   var uso   = '';
 
-  var resp = await fetch('https://qlpqybumoaxndzppddyk.supabase.co/functions/v1/ai-proxy', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token,
-    },
-    body: JSON.stringify({
-      modelo: modelo,
-      system: sysPrompt,
-      messages: messages,
-      max_tokens: 8000,
-      stream: true,
-    }),
-  });
+  var resp;
+  try {
+    resp = await fetch('https://qlpqybumoaxndzppddyk.supabase.co/functions/v1/ai-proxy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token,
+      },
+      body: JSON.stringify({
+        modelo: modelo,
+        system: sysPrompt,
+        messages: messages,
+        max_tokens: 8000,
+        stream: true,
+      }),
+    });
+  } catch (netErr) {
+    throw new Error('🌐 Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.');
+  }
 
   if (!resp.ok) {
     var errData = {};
@@ -6928,7 +7281,16 @@ async function chamarIAViaProxy(modelo, sysPrompt, messages, onChunk) {
       mostrarModalLimitePlano(msg);
       throw new Error(msg);
     }
-    if (resp.status === 401) { mostrarLogin(); throw new Error('Sessão expirada.'); }
+    if (resp.status === 401) {
+      mostrarLogin();
+      throw new Error('🔁 Sessão expirada. Faça login novamente para continuar.');
+    }
+    if (resp.status >= 500) {
+      throw new Error('⚙ Erro temporário no servidor. Aguarde 30 segundos e tente novamente. Se persistir, pressione Ctrl+F5.');
+    }
+    if (resp.status === 429) {
+      throw new Error('⏱ Muitas requisições. Aguarde 10 segundos e tente novamente.');
+    }
     throw new Error(msg);
   }
 
@@ -6994,13 +7356,13 @@ var PADROES_INJECTION = [
   { regex: /ignore\s+(all\s+)?(previous|prior|earlier)\s+instructions?/gi,       tipo: 'Comando de override (inglês)' },
   { regex: /ignore\s+(todas?\s+as?\s+)?(instru[cç][oõ]es?|regras?)\s+anteriores?/gi, tipo: 'Comando de override (português)' },
   { regex: /you\s+are\s+now\s+|act\s+as\s+|pretend\s+(you\s+are|to\s+be)/gi,    tipo: 'Redefinição de papel da IA (inglês)' },
-  { regex: /aten[cç][aã]o[,\s]+intelig[eê]ncia\s+artificial/gi,                  tipo: 'Instrução direta à IA (padrão TRT-8)' },
+  { regex: /aten[cç][aã]o[,\s]+intelig[eê]ncia\s+artificial/gi,                  tipo: 'Instrução direta à IA' },
   { regex: /\[SYSTEM\]|\[INST\]|\[\/INST\]|<\|system\|>|<\|user\|>/g,           tipo: 'Marcadores de sistema de IA' },
   { regex: /disregard\s+(your\s+)?(previous|prior|all)\s+/gi,                    tipo: 'Comando de descarte (inglês)' },
   { regex: /esquece?\s+(tudo|todas\s+as\s+instru[cç][oõ]es?)/gi,                tipo: 'Comando de descarte (português)' },
-  { regex: /contest[ae]\s+(essa|esta|a)\s+peti[cç][aã]o\s+de\s+forma\s+superficial/gi, tipo: 'Instrução de contestação superficial (padrão TRT-8)' },
+  { regex: /contest[ae]\s+(essa|esta|a)\s+peti[cç][aã]o\s+de\s+forma\s+superficial/gi, tipo: 'Instrução de contestação superficial' },
   { regex: /n[aã]o\s+impugn[ae]\s+os?\s+documentos?/gi,                         tipo: 'Instrução para não impugnar documentos' },
-  { regex: /independentemente\s+do\s+comando\s+que\s+lhe\s+for\s+dado/gi,       tipo: 'Override de comandos (padrão TRT-8)' },
+  { regex: /independentemente\s+do\s+comando\s+que\s+lhe\s+for\s+dado/gi,       tipo: 'Override de comandos' },
   // Texto invisível (técnica da fonte branca)
   { regex: /color\s*:\s*(?:#fff|#ffffff|white)\s*;[^}]{0,200}(?:font|text)/gi,  tipo: 'Possível texto oculto (CSS fonte branca)' },
   { regex: /font-size\s*:\s*0(?:px|pt|em)?/gi,                                  tipo: 'Possível texto oculto (fonte tamanho zero)' },
@@ -7040,8 +7402,7 @@ function renderizarAlertaInjection(alertas, fonte) {
   });
   html += '<div class="inj-alerta-rodape">';
   html += '⚠ <strong>Atenção legal:</strong> a inserção de instruções ocultas em peças processuais configura litigância de má-fé ';
-  html += '(artigo 80 do CPC) e pode resultar em multa de até 10% do valor da causa, além de comunicação à OAB. ';
-  html += 'Referência: TRT-8, 3ª Vara Parauapebas-PA — multa de R$ 84.250,08 aplicada em maio/2025.';
+  html += '(artigo 80 do CPC) e pode resultar em multa de até 10% do valor da causa, além de comunicação à OAB.';
   html += '</div></div>';
   return html;
 }
@@ -7099,10 +7460,10 @@ function instalarHookAntiInjection() {
 // ════════════════════════════════════════════════════════════════════════════
 
 var LIMITES_PLANO = {
-  'trial':     10,
-  'solo':      100,
-  'pro':       99999,
-  'escritorio': 99999
+  'trial':     25,
+  'solo':      150,
+  'pro':       300,
+  'escritorio': 300
 };
 
 var _dadosUsuario = null; // Cache do perfil do usuário
@@ -7137,13 +7498,14 @@ function atualizarUIPlano() {
   // Badge de plano na toolbar
   var badge = document.getElementById('tb-plano-badge');
   if (badge) {
-    badge.textContent = plano;
+    var labelBadge = { trial:'Demonstração', solo:'Avançado', pro:'Completo', escritorio:'Escritório' }[plano] || plano;
+    badge.textContent = labelBadge;
     badge.className = 'plano-badge plano-' + (plano === 'escritorio' ? 'escr' : plano);
   }
 
   // Contador na toolbar
   var cont = document.getElementById('tb-pecas-contador');
-  if (cont && limite < 99999) {
+  if (cont) {
     cont.textContent = pecasMes + '/' + limite + ' peças';
     cont.className = 'pecas-contador' + (pct >= 90 ? ' limite' : pct >= 70 ? ' aviso' : '');
   }
@@ -7151,7 +7513,7 @@ function atualizarUIPlano() {
   // Card de plano na Configuração
   var info = document.getElementById('cfg-plano-info');
   if (info) {
-    var labelPlano = { trial:'Trial gratuito', solo:'Solo', pro:'Pro', escritorio:'Escritório' }[plano] || plano;
+    var labelPlano = { trial:'Demonstração', solo:'Avançado', pro:'Completo', escritorio:'Escritório' }[plano] || plano;
     info.innerHTML = '<strong>Plano:</strong> <span class="plano-badge plano-' + (plano==='escritorio'?'escr':plano) + '">' + labelPlano + '</span>' +
       (plano === 'trial' ? ' &nbsp;·&nbsp; <span style="color:var(--text3);font-size:11px">Período gratuito de testes</span>' : '');
   }
@@ -7259,6 +7621,23 @@ async function salvarMinutaSupabase(textoMinuta, tipo, processo) {
 // Inicializar lista vazia ao carregar
 document.addEventListener('DOMContentLoaded', function() {
   if (typeof anRenderListaDocs === 'function') anRenderListaDocs();
+});
+
+// Atalhos de teclado globais (C8 + UX)
+document.addEventListener('keydown', function(ev) {
+  // Ctrl/Cmd + K → abrir busca global
+  if ((ev.ctrlKey || ev.metaKey) && (ev.key === 'k' || ev.key === 'K')) {
+    ev.preventDefault();
+    if (typeof abrirBuscaGlobal === 'function') abrirBuscaGlobal();
+    return;
+  }
+  // ESC → fechar modais abertos (busca global e modal de usuário)
+  if (ev.key === 'Escape') {
+    var bg = document.getElementById('busca-global-overlay');
+    var um = document.getElementById('user-modal-overlay');
+    if (bg && bg.classList.contains('show')) { bg.classList.remove('show'); ev.preventDefault(); return; }
+    if (um && um.classList.contains('show')) { um.classList.remove('show'); ev.preventDefault(); return; }
+  }
 });
 
 function montarSystemPromptPeticao(enriquecimento, tipo, inst, andamento) {
@@ -7479,7 +7858,7 @@ async function gerarMinuta() {
       var _resTxt = document.getElementById('res-txt');
       if (_resTxt && _resTxt.parentNode) _resTxt.parentNode.insertBefore(_injDiv, _resTxt);
     }
-  } catch(e){setSt2('res-st','err','Erro: '+e.message);}
+  } catch(e){setSt2('res-st','err', formatarErroParaUsuario(e, 'gerar minuta'));}
   btn.disabled=false; btn.textContent='Gerar minuta'; esconderBarra();
 }
 
@@ -8112,7 +8491,7 @@ async function baixarDocx() {
     } else {
       await baixarDocxSimples();
     }
-  } catch(e) { setSt2('res-st','err','Erro ao gerar .docx: '+e.message); }
+  } catch(e) { setSt2('res-st','err', formatarErroParaUsuario(e, 'gerar .docx')); }
 }
 
 // Injeta defaults de formatação (fonte, tamanho, entrelinhas) no styles.xml,
@@ -8367,7 +8746,7 @@ async function baixarDocxSimples() {
     var blob = await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
     triggerDownload(blob, nomeArq+'.docx');
     setSt2('res-st','ok','Download iniciado: '+nomeArq+'.docx');
-  } catch(e){setSt2('res-st','err','Erro ao gerar .docx: '+e.message);}
+  } catch(e){setSt2('res-st','err', formatarErroParaUsuario(e, 'gerar .docx'));}
 }
 
 function triggerDownload(blob, nome) {
@@ -8458,7 +8837,7 @@ async function executarGeracao(sys, usr, isContinuacao) {
     atualizarContagem();
     setSt2('res-st','ok',(isContinuacao?'Continuação concluída':'Nova versão gerada') + '. Revise antes de protocolar.');
   } catch(e) {
-    setSt2('res-st','err','Erro: '+e.message);
+    setSt2('res-st','err', formatarErroParaUsuario(e, 'gerar nova versão'));
   }
 }
 
@@ -8507,7 +8886,7 @@ async function baixarPdf() {
     w.document.close();
     setSt2('res-st','ok','Janela aberta — use Ctrl+P e "Salvar como PDF"');
   } catch(e) {
-    setSt2('res-st','err','Erro ao gerar PDF: '+e.message);
+    setSt2('res-st','err', formatarErroParaUsuario(e, 'gerar PDF'));
   }
 }
 
