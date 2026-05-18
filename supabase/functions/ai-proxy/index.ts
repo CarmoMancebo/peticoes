@@ -1,4 +1,4 @@
-// Edge Function: ai-proxy — v1.92.2
+// Edge Function: ai-proxy — v2.3
 // Proxy seguro para Anthropic API via Supabase
 // Deploy: supabase functions deploy ai-proxy --project-ref qlpqybumoaxndzppddyk
 // Secrets necessários: ANTHROPIC_KEY, SB_SERVICE_ROLE_KEY
@@ -10,9 +10,9 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 // Chaves: nomes proprietários enviados pelo cliente (nunca expor à IA ao usuário)
 // Valores: IDs reais da API Anthropic
 const MODELOS_ANTHROPIC: Record<string, string> = {
-  'essencial': 'claude-haiku-4-5',    // Rápido
-  'avancado':  'claude-sonnet-4-5',   // Padrão
-  'completo':  'claude-opus-4-5',     // Premium
+  'essencial': 'claude-haiku-4-5-20251001', // Rápido
+  'avancado':  'claude-sonnet-4-6',          // Padrão
+  'completo':  'claude-opus-4-7',            // Premium
 };
 
 // ── MODELOS PERMITIDOS POR PLANO ─────────────────────────────────────────────
@@ -81,7 +81,7 @@ serve(async (req: Request) => {
     // 2. Buscar perfil do usuário na tabela gp_users
     const { data: perfil, error: perfilError } = await supabaseAdmin
       .from('gp_users')
-      .select('plano, pecas_mes, pecas_mes_reset')
+      .select('plano, pecas_mes, pecas_mes_reset, is_admin')
       .eq('id', user.id)
       .single();
 
@@ -90,14 +90,14 @@ serve(async (req: Request) => {
       console.error('Erro ao buscar perfil:', perfilError.message);
     }
 
-    const plano  = perfil?.plano ?? 'trial';
-    const limite = LIMITES_PLANO[plano] ?? LIMITES_PLANO['trial'];
+    const plano    = perfil?.plano ?? 'trial';
+    const isAdmin  = perfil?.is_admin === true;
+    const limite   = LIMITES_PLANO[plano] ?? LIMITES_PLANO['trial'];
 
     // 3. Verificar e resetar contador mensal se necessário
     let pecasMes = perfil?.pecas_mes ?? 0;
     if (deveResetarMes(perfil?.pecas_mes_reset ?? null)) {
       pecasMes = 0;
-      // Atualizar reset — não bloqueia a requisição se falhar
       supabaseAdmin.from('gp_users').upsert({
         id: user.id,
         pecas_mes: 0,
@@ -105,8 +105,8 @@ serve(async (req: Request) => {
       }, { onConflict: 'id' }).then(() => {}).catch(() => {});
     }
 
-    // 4. Verificar limite mensal
-    if (pecasMes >= limite) {
+    // 4. Verificar limite mensal (admin bypass)
+    if (!isAdmin && pecasMes >= limite) {
       return jsonResp({
         error: `Você atingiu o limite de ${limite} peças do seu plano este mês. Entre em contato para fazer upgrade.`,
         codigo: 'LIMITE_PLANO',

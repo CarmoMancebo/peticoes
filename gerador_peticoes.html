@@ -778,7 +778,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 /* Hover-card do topbar chip */
 .tb-chip-wrap { position:relative; display:inline-flex; align-items:center; }
 .tb-hover-card { position:absolute; top:calc(100% + 6px); right:0; background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px 14px; min-width:210px; box-shadow:0 8px 24px rgba(0,0,0,.12); font-size:12px; z-index:1000; display:none; }
-.tb-chip-wrap:hover .tb-hover-card { display:block; }
+.tb-hover-card.hc-visible { display:block; }
 .tb-hover-card .hc-nome { font-weight:700; font-size:13px; margin-bottom:2px; }
 .tb-hover-card .hc-plano { font-size:11px; color:var(--text3); margin-bottom:8px; }
 .tb-hover-card .hc-barra { height:4px; background:var(--border); border-radius:2px; overflow:hidden; margin-bottom:4px; }
@@ -1221,6 +1221,10 @@ tbody tr.st-p td{background:#b3e5fc}
       <span class="um-label">OAB</span>
       <span class="um-val" id="um-oab">—</span>
     </div>
+    <div class="um-row" id="um-row-ocupacao" style="display:none">
+      <span class="um-label">Ocupação</span>
+      <span class="um-val" id="um-ocupacao">—</span>
+    </div>
     <div class="um-row" id="um-row-expiry" style="display:none">
       <span class="um-label">Trial expira em</span>
       <span class="um-val" id="um-expiry">—</span>
@@ -1470,7 +1474,7 @@ tbody tr.st-p td{background:#b3e5fc}
 
       <div class="card">
         <div class="card-title">🔔 Notificações de prazo</div>
-        <p style="font-size:12px;color:var(--text3);margin-bottom:8px">Receba alertas no navegador sobre prazos críticos (D-2, hoje ou vencido).</p>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:8px">Receba alertas no navegador sobre prazos críticos (D-2, hoje ou vencido) e conclusão de geração.</p>
         <button class="btn btn-s btn-sm" onclick="ativarNotificacoes()">🔔 Ativar notificações</button>
         <span id="notif-st" style="font-size:11px;color:var(--text3);margin-left:8px"></span>
       </div>
@@ -2797,6 +2801,14 @@ function abrirModalUsuario() {
   if (nomeEl)   nomeEl.textContent   = info.nome;
   if (emailEl)  emailEl.textContent  = info.email || '—';
   if (oabEl)    oabEl.textContent    = info.oab ? 'OAB ' + info.oab : '—';
+
+  // S5 — ocupação (usuários pré-v2.2 podem não ter o campo)
+  var ocupacaoRow = document.getElementById('um-row-ocupacao');
+  var ocupacaoEl  = document.getElementById('um-ocupacao');
+  var ocupLabels  = { advogado:'Advogado(a)', procurador:'Procurador(a)', promotor:'Promotor(a)', assessor:'Assessor(a)', estagiario:'Estagiário(a)', outros:'Outros' };
+  var ocup = (_dadosUsuario && _dadosUsuario.ocupacao) || '';
+  if (ocupacaoEl) ocupacaoEl.textContent = ocupLabels[ocup] || ocup || '—';
+  if (ocupacaoRow) ocupacaoRow.style.display = ocup ? '' : 'none';
 
   // Plano e contador
   var plano = (_dadosUsuario && _dadosUsuario.plano) || 'trial';
@@ -4731,17 +4743,77 @@ function registrarProcRecente(num) {
 
 function mostrarRecentes() {
   try {
-    var hist = JSON.parse(localStorage.getItem("gp_prec")||"[]");
-    if (!hist.length) return;
     var inp = document.getElementById("f-proc");
     if (!inp) return;
     var list = document.getElementById("proc-recentes-list");
     if (!list) return;
-    list.innerHTML = hist.map(function(n){
-      return "<div class='rec-item' onclick='selecionarRecente(\""+n+"\")'>"+n+"</div>";
-    }).join("");
+    var html = '';
+
+    // Processos da planilha carregada
+    if (procs && procs.length) {
+      var filtro = inp.value.trim().toLowerCase();
+      var procsVisiveis = procs.filter(function(p) {
+        var num = (p.proc || p.pasta || '').toLowerCase();
+        return !filtro || num.includes(filtro);
+      }).slice(0, 10);
+      if (procsVisiveis.length) {
+        html += '<div style="font-size:10px;color:var(--text3);padding:4px 8px 2px;font-weight:600;border-bottom:1px solid var(--border)">Da planilha</div>';
+        html += procsVisiveis.map(function(p, i) {
+          var idx = procs.indexOf(p);
+          var label = p.proc || p.pasta || '—';
+          var sub = p.parte ? ' <span style="color:var(--text3);font-size:10px">· ' + p.parte.substring(0,30) + '</span>' : '';
+          return "<div class='rec-item' onclick='selecionarProcPlanilha(" + idx + ")'>" + label + sub + "</div>";
+        }).join('');
+      }
+    }
+
+    // Histórico recente do localStorage
+    var hist = JSON.parse(localStorage.getItem("gp_prec")||"[]");
+    if (hist.length) {
+      html += '<div style="font-size:10px;color:var(--text3);padding:4px 8px 2px;font-weight:600;border-bottom:1px solid var(--border)">Recentes</div>';
+      html += hist.map(function(n){
+        return "<div class='rec-item' onclick='selecionarRecente(\""+n+"\")'>"+n+"</div>";
+      }).join("");
+    }
+
+    if (!html) return;
+    list.innerHTML = html;
     list.style.display = "block";
   } catch(e){}
+}
+
+function selecionarProcPlanilha(idx) {
+  var p = procs[idx];
+  if (!p) return;
+  var list = document.getElementById("proc-recentes-list");
+  if (list) list.style.display = "none";
+  // Reutiliza a lógica existente de selProc sem navegar para a aba
+  document.getElementById('f-pasta').value = p.pasta || '';
+  document.getElementById('f-proc').value  = p.proc  || '';
+  var cliModo = document.getElementById('f-cliente-modo');
+  var cliInp  = document.getElementById('f-cliente');
+  if (p.cliente && cliModo && cliInp) {
+    cliModo.value = 'manual';
+    cliInp.disabled = false;
+    cliInp.style.background = '';
+    cliInp.value = p.cliente;
+  }
+  var parModo = document.getElementById('f-parte-modo');
+  var parInp  = document.getElementById('f-parte');
+  if (p.parte && parModo && parInp) {
+    parModo.value = 'manual';
+    parInp.disabled = false;
+    parInp.style.background = '';
+    parInp.value = p.parte;
+  }
+  if (p.desc) { var descEl = document.getElementById('f-desc'); if (descEl) descEl.value = p.desc; }
+  if (p.and && p.and.trim()) {
+    var fAnd = document.getElementById('f-and');
+    if (fAnd) { fAnd.value = p.and.trim(); _andamentoPreenchido(true); atualizarIndicadorContexto(); }
+  }
+  onProcInput();
+  checkBtn();
+  mostrarToast('✓ Processo carregado da planilha.', 'ok', 2500);
 }
 
 function selecionarRecente(num) {
@@ -8498,7 +8570,11 @@ function mostrarModalCompartilhamento(msg) {
 function mostrarToast(msg, tipo, duracaoMs) {
   tipo = tipo || 'ok'; duracaoMs = duracaoMs || 3000;
   var container = document.getElementById('gp-toast');
-  if (!container) return;
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'gp-toast';
+    document.body.appendChild(container);
+  }
   var el = document.createElement('div');
   el.className = 'gp-toast-item ' + tipo;
   el.textContent = msg;
@@ -8917,6 +8993,7 @@ async function verificarLimitePlano() {
   if (!GPStorage.userId) return { permitido: true }; // sem auth, permite
   if (!_dadosUsuario) await carregarDadosUsuario();
   if (!_dadosUsuario) return { permitido: true }; // sem dados, permite
+  if (_dadosUsuario.is_admin) return { permitido: true }; // admin sem limite
 
   var plano = _dadosUsuario.plano || 'trial';
   var limite = LIMITES_PLANO[plano] || 10;
@@ -8970,6 +9047,22 @@ async function salvarMinutaSupabase(textoMinuta, tipo, processo) {
 // Inicializar lista vazia ao carregar
 document.addEventListener('DOMContentLoaded', function() {
   if (typeof anRenderListaDocs === 'function') anRenderListaDocs();
+
+  // F3 — Hover-card grace period (200ms)
+  var chipWrap = document.getElementById('tb-chip-wrap');
+  if (chipWrap) {
+    var hoverCard = chipWrap.querySelector('.tb-hover-card');
+    var _hcTimer = null;
+    chipWrap.addEventListener('mouseenter', function() {
+      clearTimeout(_hcTimer);
+      if (hoverCard) hoverCard.classList.add('hc-visible');
+    });
+    chipWrap.addEventListener('mouseleave', function() {
+      _hcTimer = setTimeout(function() {
+        if (hoverCard) hoverCard.classList.remove('hc-visible');
+      }, 200);
+    });
+  }
 });
 
 // Atalhos de teclado globais (C8 + UX)
@@ -9144,6 +9237,7 @@ async function gerarMinuta() {
   var andamento=document.getElementById('f-and').value.trim();
   var _tipoParaValidar = document.getElementById('f-tipo').value;
   if (!andamento && _tipoParaValidar !== 'petição inicial'){ destacarCampoVazio('f-and','Cole ou carregue o andamento do tribunal antes de gerar.'); return; }
+  if (andamento && andamento.length < 30 && _tipoParaValidar !== 'petição inicial') { mostrarToast('⚠ Andamento muito curto. Cole o texto completo do tribunal para melhor resultado.', 'warn', 5000); }
   var procVal=document.getElementById('f-proc').value.trim();
   if (!procVal){ destacarCampoVazio('f-proc','Informe o número do processo (campo obrigatório).'); return; }
   registrarProcRecente(procVal);
