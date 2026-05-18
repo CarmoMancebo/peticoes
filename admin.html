@@ -4,36 +4,29 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Admin — Gerador de Petições</title>
-<!--
-  PAINEL ADMINISTRATIVO — Gerador de Petições
-  Acesso restrito a usuários com is_admin = true em gp_users.
-
-  SETUP INICIAL (executar uma única vez no SQL Editor do Supabase):
-  ─────────────────────────────────────────────────────────────────
-  UPDATE gp_users
-  SET is_admin = true
-  WHERE email = 'SEU_EMAIL_AQUI';
-  ─────────────────────────────────────────────────────────────────
--->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #F8FAFC;
-  --bg2: #F1F5F9;
-  --surface: #fff;
-  --border: #E2E8F0;
-  --text: #0F172A;
-  --text2: #475569;
-  --text3: #94A3B8;
-  --blue: #185FA5;
-  --blue-bg: #EFF6FF;
-  --green: #166534;
+  --bg:       #f5f4f0;
+  --bg2:      #ECEAE3;
+  --surface:  #fff;
+  --border:   rgba(0,0,0,.10);
+  --border2:  rgba(0,0,0,.18);
+  --text:     #1a1a18;
+  --text2:    #5f5e5a;
+  --text3:    #888780;
+  --blue:     #185FA5;
+  --blue-dark:#0C2E5B;
+  --blue-bg:  #E6F1FB;
+  --ouro:     #C8A96E;
+  --green:    #166534;
   --green-bg: #F0FDF4;
-  --red: #DC2626;
-  --red-bg: #FEF2F2;
-  --amber: #D97706;
+  --red:      #DC2626;
+  --red-bg:   #FEF2F2;
+  --amber:    #D97706;
   --amber-bg: #FFFBEB;
   --r: 8px;
 }
@@ -48,47 +41,70 @@ body {
 
 /* ── TOPBAR ── */
 .topbar {
-  background: #0C2340;
+  background: var(--blue-dark);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
-  height: 48px;
+  padding: 0 24px;
+  height: 52px;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  box-shadow: 0 2px 12px rgba(0,0,0,.25);
 }
-.topbar-title { font-weight: 700; font-size: 15px; letter-spacing: .3px; }
-.topbar-meta { font-size: 11px; color: rgba(255,255,255,.5); }
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-wordmark {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  color: #fff;
+}
+.topbar-badge {
+  background: var(--ouro);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  padding: 2px 7px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+.topbar-center {
+  text-align: center;
+  line-height: 1.3;
+}
+.topbar-center-name { font-size: 13px; font-weight: 500; }
+.topbar-center-oab  { font-size: 10px; color: rgba(255,255,255,.5); letter-spacing: .05em; }
 .topbar-right { display: flex; align-items: center; gap: 12px; }
-.topbar-user { font-size: 12px; color: rgba(255,255,255,.8); }
+.topbar-user { font-size: 12px; color: rgba(255,255,255,.75); }
 .btn-logout {
-  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
   color: #fff; padding: 4px 12px; border-radius: 6px; cursor: pointer;
   font-size: 11px; transition: background .15s;
 }
-.btn-logout:hover { background: rgba(255,255,255,.22); }
+.btn-logout:hover { background: rgba(255,255,255,.2); }
 
 /* ── LOGIN ── */
 #login-screen {
   display: flex; align-items: center; justify-content: center;
-  min-height: calc(100vh - 48px);
+  min-height: calc(100vh - 52px);
 }
 .login-box {
   background: var(--surface); border-radius: 12px;
   padding: 32px 36px; width: 340px;
-  box-shadow: 0 4px 24px rgba(0,0,0,.1);
-  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0,0,0,.09);
+  border: 1px solid var(--border2);
 }
-.login-box h2 { font-size: 18px; margin-bottom: 6px; }
+.login-box h2 { font-family: 'Cormorant Garamond', serif; font-size: 22px; margin-bottom: 4px; }
 .login-box p { font-size: 12px; color: var(--text2); margin-bottom: 20px; }
 .field label { display: block; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 4px; }
 .field input {
-  width: 100%; padding: 8px 10px; border: 1px solid var(--border);
-  border-radius: 6px; font-size: 13px; outline: none;
-  transition: border-color .15s;
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border2);
+  border-radius: 6px; font-size: 13px; outline: none; transition: border-color .15s;
+  background: var(--bg);
 }
 .field input:focus { border-color: var(--blue); }
 .field { margin-bottom: 14px; }
@@ -102,48 +118,84 @@ body {
 
 /* ── LAYOUT ── */
 #app-screen { display: none; }
-.container { max-width: 1400px; margin: 0 auto; padding: 20px 20px; }
+.container { max-width: 1440px; margin: 0 auto; padding: 20px 24px; }
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 700;
+  color: var(--blue-dark);
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--blue);
+  display: flex; align-items: center; gap: 8px;
+}
 
 /* ── STATS CARDS ── */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
   margin-bottom: 20px;
 }
 .stat-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r); padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  border-left: 3px solid var(--border2);
 }
-.stat-num { font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
-.stat-label { font-size: 11px; color: var(--text3); }
-.stat-card.blue .stat-num { color: var(--blue); }
-.stat-card.green .stat-num { color: var(--green); }
-.stat-card.red .stat-num { color: var(--red); }
-.stat-card.amber .stat-num { color: var(--amber); }
+.stat-card.blue   { border-left-color: var(--blue); }
+.stat-card.green  { border-left-color: var(--green); }
+.stat-card.red    { border-left-color: var(--red); }
+.stat-card.amber  { border-left-color: var(--amber); }
+.stat-card.purple { border-left-color: #7C3AED; }
+.stat-card.teal   { border-left-color: #0D9488; }
+.stat-num { font-size: 26px; font-weight: 700; line-height: 1; margin-bottom: 3px; }
+.stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .04em; }
+.stat-card.blue   .stat-num { color: var(--blue); }
+.stat-card.green  .stat-num { color: var(--green); }
+.stat-card.red    .stat-num { color: var(--red); }
+.stat-card.amber  .stat-num { color: var(--amber); }
+.stat-card.purple .stat-num { color: #7C3AED; }
+.stat-card.teal   .stat-num { color: #0D9488; }
 
 /* ── FILTROS ── */
-.filters {
+.toolbar {
   display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
-  margin-bottom: 14px;
-}
-.filters input, .filters select {
-  padding: 6px 10px; border: 1px solid var(--border);
-  border-radius: 6px; font-size: 12px; outline: none;
+  margin-bottom: 12px;
   background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 10px 12px;
 }
-.filters input:focus, .filters select:focus { border-color: var(--blue); }
-.filters input { width: 220px; }
+.toolbar input, .toolbar select {
+  padding: 6px 10px; border: 1px solid var(--border2);
+  border-radius: 6px; font-size: 12px; outline: none;
+  background: var(--bg);
+}
+.toolbar input:focus, .toolbar select:focus { border-color: var(--blue); }
+.toolbar input[type=text] { width: 220px; }
+.toolbar-sep { flex: 1; }
+
+/* ── BOTÕES ── */
+.btn-sm {
+  padding: 5px 11px; border-radius: 6px; font-size: 11px; font-weight: 600;
+  cursor: pointer; border: 1px solid var(--border2); background: var(--surface);
+  color: var(--text2); transition: all .12s; white-space: nowrap;
+}
+.btn-sm:hover { background: var(--bg2); }
+.btn-sm.blue { background: var(--blue); color: #fff; border-color: var(--blue); }
+.btn-sm.blue:hover { opacity: .88; }
 
 /* ── TABELA ── */
-.table-wrap { overflow-x: auto; border-radius: var(--r); border: 1px solid var(--border); }
+.table-wrap { overflow-x: auto; border-radius: var(--r); border: 1px solid var(--border2); }
 table { width: 100%; border-collapse: collapse; background: var(--surface); }
 thead { background: var(--bg2); }
 th {
-  text-align: left; padding: 10px 12px;
-  font-size: 11px; font-weight: 700; color: var(--text2);
-  border-bottom: 1px solid var(--border);
+  text-align: left; padding: 9px 12px;
+  font-size: 10px; font-weight: 700; color: var(--text3);
+  border-bottom: 1px solid var(--border2);
   white-space: nowrap; cursor: pointer; user-select: none;
+  text-transform: uppercase; letter-spacing: .05em;
 }
 th:hover { color: var(--blue); }
 td {
@@ -159,44 +211,72 @@ tr.banido-row td { background: #FFF5F5; }
   display: inline-block; padding: 2px 8px; border-radius: 10px;
   font-size: 10px; font-weight: 700; white-space: nowrap;
 }
-.badge-trial    { background: #EFF6FF; color: #1E40AF; }
-.badge-solo     { background: #ECFDF5; color: #065F46; }
-.badge-pro      { background: #F5F3FF; color: #5B21B6; }
-.badge-escrit   { background: #FFF9EB; color: #92400E; }
-.badge-admin    { background: #FEF2F2; color: #991B1B; border: 1px solid #FCA5A5; }
-.badge-banido   { background: var(--red-bg); color: var(--red); }
-.badge-ok       { background: var(--green-bg); color: var(--green); }
+.badge-demo   { background: #EFF6FF; color: #1E40AF; }
+.badge-agil   { background: #ECFDF5; color: #065F46; }
+.badge-avanc  { background: #F5F3FF; color: #5B21B6; }
+.badge-escrit { background: #FFF9EB; color: #92400E; }
+.badge-admin  { background: #FEF2F2; color: #991B1B; border: 1px solid #FCA5A5; }
+.badge-banido { background: var(--red-bg); color: var(--red); }
+.badge-ok     { background: var(--green-bg); color: var(--green); }
 
 /* ── AÇÕES ── */
 .action-btn {
   padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: 600;
-  cursor: pointer; border: 1px solid transparent; transition: all .12s;
-  white-space: nowrap;
+  cursor: pointer; border: 1px solid transparent; transition: all .12s; white-space: nowrap;
 }
 .action-btn.danger { background: var(--red-bg); color: var(--red); border-color: #FECACA; }
 .action-btn.danger:hover { background: var(--red); color: #fff; }
 .action-btn.success { background: var(--green-bg); color: var(--green); border-color: #86EFAC; }
 .action-btn.success:hover { background: var(--green); color: #fff; }
-.action-btn.neutral { background: var(--bg2); color: var(--text2); border-color: var(--border); }
-.action-btn.neutral:hover { background: var(--border); }
+.action-btn.neutral { background: var(--bg2); color: var(--text2); border-color: var(--border2); }
+.action-btn.neutral:hover { background: var(--border2); }
 .action-btn:disabled { opacity: .4; cursor: not-allowed; }
-
 .actions-cell { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
 
 /* ── SELECT plano inline ── */
 .plano-select {
-  padding: 3px 6px; border: 1px solid var(--border);
-  border-radius: 5px; font-size: 11px; background: var(--surface);
-  cursor: pointer;
+  padding: 3px 6px; border: 1px solid var(--border2);
+  border-radius: 5px; font-size: 11px; background: var(--surface); cursor: pointer;
 }
 
 /* ── BARRA DE USO ── */
-.uso-bar {
-  height: 4px; background: var(--border); border-radius: 2px;
-  overflow: hidden; width: 80px; display: inline-block; vertical-align: middle;
-  margin-right: 4px;
-}
+.uso-bar { height: 4px; background: var(--border2); border-radius: 2px; overflow: hidden; width: 80px; display: inline-block; vertical-align: middle; margin-right: 4px; }
 .uso-fill { height: 100%; border-radius: 2px; transition: width .3s; }
+
+/* ── CHURN ── */
+.churn-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.churn-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 14px 16px;
+}
+.churn-card-title { font-size: 11px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+.churn-card-num { font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 2px; }
+.churn-card-sub { font-size: 11px; color: var(--text3); }
+.churn-card.ok     .churn-card-num { color: var(--green); }
+.churn-card.risco  .churn-card-num { color: var(--amber); }
+.churn-card.perigo .churn-card-num { color: var(--red); }
+.churn-card.morto  .churn-card-num { color: var(--text3); }
+
+.churn-list { margin-top: 12px; }
+.churn-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.churn-item:last-child { border-bottom: none; }
+.churn-item-email { color: var(--text2); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.churn-dias { font-size: 11px; padding: 2px 7px; border-radius: 10px; font-weight: 700; white-space: nowrap; margin-left: 8px; }
+.churn-dias.risco  { background: var(--amber-bg); color: var(--amber); }
+.churn-dias.perigo { background: var(--red-bg); color: var(--red); }
+.churn-dias.morto  { background: var(--bg2); color: var(--text3); }
 
 /* ── MODAIS ── */
 .modal-overlay {
@@ -208,46 +288,50 @@ tr.banido-row td { background: #FFF5F5; }
   padding: 24px 28px; max-width: 440px; width: 90%;
   box-shadow: 0 8px 32px rgba(0,0,0,.2);
 }
-.modal-box h3 { margin-bottom: 10px; }
+.modal-box h3 { font-family: 'Cormorant Garamond', serif; font-size: 18px; margin-bottom: 8px; }
 .modal-box p { font-size: 12px; color: var(--text2); margin-bottom: 14px; }
 .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
 .modal-actions button {
   padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px;
-  border: 1px solid var(--border); background: var(--bg2); color: var(--text);
-  transition: background .12s;
+  border: 1px solid var(--border2); background: var(--bg2); color: var(--text);
 }
 .modal-actions button.danger { background: var(--red); color: #fff; border-color: var(--red); }
 .modal-actions button.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
 
-/* ── STATUS bar ── */
+/* ── STATUS BAR ── */
 #status-bar {
   position: fixed; bottom: 16px; right: 16px;
-  background: #0C2340; color: #fff; border-radius: 8px;
+  background: var(--blue-dark); color: #fff; border-radius: 8px;
   padding: 8px 14px; font-size: 12px; z-index: 9998;
   display: none; box-shadow: 0 4px 16px rgba(0,0,0,.3);
 }
 
-/* ── LOADING ── */
+/* ── MISC ── */
 .loading { color: var(--text3); font-size: 12px; padding: 20px; text-align: center; }
-
-/* ── PAGINAÇÃO ── */
 .pagination {
   display: flex; align-items: center; gap: 8px;
   margin-top: 12px; justify-content: flex-end; font-size: 12px;
 }
 .pagination button {
-  padding: 4px 10px; border: 1px solid var(--border);
-  border-radius: 5px; background: var(--surface); cursor: pointer;
+  padding: 4px 10px; border: 1px solid var(--border2);
+  border-radius: 5px; background: var(--surface); cursor: pointer; font-size: 12px;
 }
 .pagination button:disabled { opacity: .4; cursor: not-allowed; }
 .pagination button:hover:not(:disabled) { background: var(--bg2); }
+.contagem { font-size: 11px; color: var(--text3); }
+.section-gap { margin-bottom: 32px; }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div>
-    <span class="topbar-title">⚙️ Admin — Gerador de Petições</span>
+  <div class="topbar-left">
+    <span class="topbar-wordmark">Gerador de Petições</span>
+    <span class="topbar-badge">Admin</span>
+  </div>
+  <div class="topbar-center">
+    <div class="topbar-center-name">Carmo Mancebo | Advogado</div>
+    <div class="topbar-center-oab">OAB/SP 274.575</div>
   </div>
   <div class="topbar-right">
     <span class="topbar-user" id="admin-email-display"></span>
@@ -258,7 +342,7 @@ tr.banido-row td { background: #FFF5F5; }
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
-    <h2>🔐 Acesso Administrativo</h2>
+    <h2>Acesso Administrativo</h2>
     <p>Restrito a administradores autorizados.</p>
     <div class="field">
       <label>E-mail</label>
@@ -267,7 +351,7 @@ tr.banido-row td { background: #FFF5F5; }
     </div>
     <div class="field">
       <label>Senha</label>
-      <input type="password" id="adm-pwd" placeholder="Sua senha"
+      <input type="password" id="adm-pwd" placeholder="••••••••"
         onkeydown="if(event.key==='Enter')fazerLogin()" />
     </div>
     <button class="btn-primary" onclick="fazerLogin()" id="btn-login">Entrar</button>
@@ -279,97 +363,160 @@ tr.banido-row td { background: #FFF5F5; }
 <div id="app-screen">
   <div class="container">
 
-    <!-- Stats -->
-    <div class="stats-grid" id="stats-grid">
-      <div class="stat-card blue">
-        <div class="stat-num" id="stat-total">—</div>
-        <div class="stat-label">Total de usuários</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num" id="stat-trial">—</div>
-        <div class="stat-label">Em demonstração</div>
-      </div>
-      <div class="stat-card green">
-        <div class="stat-num" id="stat-pagos">—</div>
-        <div class="stat-label">Planos pagos</div>
-      </div>
-      <div class="stat-card red">
-        <div class="stat-num" id="stat-banidos">—</div>
-        <div class="stat-label">Suspensos</div>
-      </div>
-      <div class="stat-card amber">
-        <div class="stat-num" id="stat-ativos30">—</div>
-        <div class="stat-label">Ativos (30 dias)</div>
+    <!-- ── STATS ── -->
+    <div class="section-gap">
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-num" id="stat-total">—</div>
+          <div class="stat-label">Total usuários</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-trial">—</div>
+          <div class="stat-label">Demonstração</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-num" id="stat-pagos">—</div>
+          <div class="stat-label">Planos pagos</div>
+        </div>
+        <div class="stat-card teal">
+          <div class="stat-num" id="stat-novos7">—</div>
+          <div class="stat-label">Novos (7 dias)</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-num" id="stat-ativos7">—</div>
+          <div class="stat-label">Ativos (7 dias)</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-num" id="stat-limite">—</div>
+          <div class="stat-label">Próximos do limite</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-num" id="stat-banidos">—</div>
+          <div class="stat-label">Suspensos</div>
+        </div>
       </div>
     </div>
 
-    <!-- Filtros + ações -->
-    <div class="filters">
-      <input type="text" id="filtro-busca" placeholder="🔎 Buscar nome, e-mail, OAB..."
-        oninput="renderTabela()" />
-      <select id="filtro-plano" onchange="renderTabela()">
-        <option value="">Todos os planos</option>
-        <option value="trial">Demonstração</option>
-        <option value="solo">Ágil</option>
-        <option value="pro">Avançado</option>
-        <option value="escritorio">Escritório</option>
-      </select>
-      <select id="filtro-status" onchange="renderTabela()">
-        <option value="">Todos</option>
-        <option value="ativo">Ativos</option>
-        <option value="banido">Suspensos</option>
-      </select>
-      <button class="action-btn neutral" onclick="carregarUsuarios()">↺ Atualizar</button>
-      <button class="action-btn neutral" onclick="exportarCSV()" title="Exportar lista filtrada como CSV">⬇ Exportar CSV</button>
-      <span id="contagem-label" style="font-size:11px;color:var(--text3);margin-left:4px"></span>
+    <!-- ── USUÁRIOS ── -->
+    <div class="section-gap">
+      <div class="section-title">Usuários</div>
+
+      <div class="toolbar">
+        <input type="text" id="filtro-busca" placeholder="🔎 Nome, e-mail, OAB…" oninput="renderTabela()" />
+        <select id="filtro-plano" onchange="renderTabela()">
+          <option value="">Todos os planos</option>
+          <option value="trial">Demonstração</option>
+          <option value="solo">Ágil</option>
+          <option value="pro">Avançado</option>
+          <option value="escritorio">Escritório</option>
+        </select>
+        <select id="filtro-status" onchange="renderTabela()">
+          <option value="">Todos</option>
+          <option value="ativo">Ativos</option>
+          <option value="banido">Suspensos</option>
+        </select>
+        <select id="filtro-atividade" onchange="renderTabela()">
+          <option value="">Qualquer atividade</option>
+          <option value="7">Ativos nos últimos 7d</option>
+          <option value="30">Ativos nos últimos 30d</option>
+          <option value="inativos14">Sem acesso há 14d+</option>
+          <option value="inativos30">Sem acesso há 30d+</option>
+        </select>
+        <div class="toolbar-sep"></div>
+        <button class="btn-sm" onclick="carregarUsuarios()">↺ Atualizar</button>
+        <button class="btn-sm" onclick="exportarCSV()">⬇ CSV</button>
+        <span class="contagem" id="contagem-label"></span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th onclick="sortBy('nome')">Nome ↕</th>
+              <th onclick="sortBy('email')">E-mail ↕</th>
+              <th onclick="sortBy('plano')">Plano ↕</th>
+              <th onclick="sortBy('pecas_mes')">Uso/mês ↕</th>
+              <th onclick="sortBy('criado_em')">Cadastro ↕</th>
+              <th onclick="sortBy('ultimo_acesso')">Último acesso ↕</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-body">
+            <tr><td colspan="8" class="loading">Carregando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <button id="btn-prev" onclick="mudarPagina(-1)" disabled>← Anterior</button>
+        <span id="pag-label">—</span>
+        <button id="btn-next" onclick="mudarPagina(1)" disabled>Próxima →</button>
+      </div>
     </div>
 
-    <!-- Tabela -->
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th onclick="sortBy('nome')">Nome ↕</th>
-            <th onclick="sortBy('email')">E-mail ↕</th>
-            <th onclick="sortBy('plano')">Plano ↕</th>
-            <th onclick="sortBy('pecas_mes')">Uso / mês ↕</th>
-            <th onclick="sortBy('criado_em')">Cadastro ↕</th>
-            <th onclick="sortBy('ultimo_acesso')">Último acesso ↕</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="tabela-body">
-          <tr><td colspan="8" class="loading">Carregando...</td></tr>
-        </tbody>
-      </table>
+    <!-- ── S6: AUDITORIA DE ACESSO (CHURN) ── -->
+    <div class="section-gap">
+      <div class="section-title">Auditoria de Acesso</div>
+
+      <div class="churn-grid">
+        <div class="churn-card ok">
+          <div class="churn-card-title">✓ Ativos (últimos 7d)</div>
+          <div class="churn-card-num" id="churn-7d">—</div>
+          <div class="churn-card-sub">acessaram nos últimos 7 dias</div>
+        </div>
+        <div class="churn-card">
+          <div class="churn-card-title">○ Inativos (8–30d)</div>
+          <div class="churn-card-num" id="churn-30d" style="color:var(--text2)">—</div>
+          <div class="churn-card-sub">último acesso entre 8 e 30 dias</div>
+        </div>
+        <div class="churn-card risco">
+          <div class="churn-card-title">⚠ Em risco (31–90d)</div>
+          <div class="churn-card-num" id="churn-90d">—</div>
+          <div class="churn-card-sub">provável churn — reengajar</div>
+        </div>
+        <div class="churn-card perigo">
+          <div class="churn-card-title">✕ Perdidos (90d+)</div>
+          <div class="churn-card-num" id="churn-old">—</div>
+          <div class="churn-card-sub">sem acesso há mais de 90 dias</div>
+        </div>
+      </div>
+
+      <!-- Lista de usuários em risco -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Usuário</th>
+              <th>Plano</th>
+              <th>Último acesso</th>
+              <th>Dias sem acesso</th>
+              <th>Peças geradas</th>
+              <th>Situação</th>
+            </tr>
+          </thead>
+          <tbody id="churn-body">
+            <tr><td colspan="6" class="loading">Aguardando dados…</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <!-- Paginação -->
-    <div class="pagination">
-      <button id="btn-prev" onclick="mudarPagina(-1)" disabled>← Anterior</button>
-      <span id="pag-label">—</span>
-      <button id="btn-next" onclick="mudarPagina(1)" disabled>Próxima →</button>
-    </div>
-
-  </div>
-</div>
+  </div><!-- /container -->
+</div><!-- /app-screen -->
 
 <!-- Status bar -->
 <div id="status-bar"></div>
 
 <script>
-// ── CONFIGURAÇÃO SUPABASE ─────────────────────────────────────────────────────
 var SUPABASE_URL = 'https://qlpqybumoaxndzppddyk.supabase.co';
 var SUPABASE_KEY = 'sb_publishable_4jCX4bv9-Di7XA1oAOHPIw_sSREyHeL';
 var supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ── ESTADO ────────────────────────────────────────────────────────────────────
 var todosUsuarios = [];
 var sortCol = 'ultimo_acesso';
-var sortAsc = false;
+var sortAsc  = false;
 var paginaAtual = 1;
-var POR_PAGINA = 30;
+var POR_PAGINA  = 30;
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 async function fazerLogin() {
@@ -378,8 +525,7 @@ async function fazerLogin() {
   var errEl = document.getElementById('login-err');
   var btn   = document.getElementById('btn-login');
   errEl.textContent = '';
-  btn.disabled = true;
-  btn.textContent = 'Entrando...';
+  btn.disabled = true; btn.textContent = 'Entrando…';
   try {
     var r = await supa.auth.signInWithPassword({ email, password: pwd });
     if (r.error) throw r.error;
@@ -387,21 +533,23 @@ async function fazerLogin() {
   } catch(e) {
     errEl.textContent = e.message || 'Erro ao entrar.';
   } finally {
-    btn.disabled = false;
-    btn.textContent = 'Entrar';
+    btn.disabled = false; btn.textContent = 'Entrar';
   }
 }
 
 async function verificarAdmin(user) {
-  var r = await supa.from('gp_users').select('is_admin, nome, email').eq('id', user.id).maybeSingle();
+  var r = await supa.from('gp_users')
+    .select('is_admin, nome, email')
+    .eq('id', user.id)
+    .maybeSingle();
   if (!r.data || !r.data.is_admin) {
     await supa.auth.signOut();
     document.getElementById('login-err').textContent = 'Acesso negado. Conta sem privilégios de administrador.';
     return;
   }
   document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app-screen').style.display = '';
-  document.getElementById('admin-email-display').textContent = (r.data.nome || user.email);
+  document.getElementById('app-screen').style.display   = 'block'; // FIX: era '' (bug)
+  document.getElementById('admin-email-display').textContent = r.data.nome || user.email;
   carregarUsuarios();
 }
 
@@ -410,42 +558,109 @@ async function fazerLogout() {
   location.reload();
 }
 
-// Restaurar sessão ao carregar
 supa.auth.getSession().then(function(r) {
   if (r.data && r.data.session && r.data.session.user) {
     verificarAdmin(r.data.session.user);
   }
 });
 
-// ── CARREGAR DADOS ────────────────────────────────────────────────────────────
+// ── DADOS ─────────────────────────────────────────────────────────────────────
 async function carregarUsuarios() {
-  document.getElementById('tabela-body').innerHTML = '<tr><td colspan="8" class="loading">Carregando...</td></tr>';
+  document.getElementById('tabela-body').innerHTML = '<tr><td colspan="8" class="loading">Carregando…</td></tr>';
   try {
     var r = await supa.from('gp_users')
-      .select('id, nome, email, oab, plano, pecas_mes, criado_em, ultimo_acesso, banido, banido_motivo, is_admin, session_id')
+      .select('id, nome, email, oab, ocupacao, plano, pecas_mes, criado_em, ultimo_acesso, banido, banido_motivo, is_admin, session_id')
       .order('ultimo_acesso', { ascending: false });
     if (r.error) throw r.error;
     todosUsuarios = r.data || [];
     calcularStats();
     renderTabela();
+    renderChurn();
   } catch(e) {
-    document.getElementById('tabela-body').innerHTML = '<tr><td colspan="8" class="loading" style="color:var(--red)">Erro: ' + e.message + '</td></tr>';
+    document.getElementById('tabela-body').innerHTML =
+      '<tr><td colspan="8" class="loading" style="color:var(--red)">Erro: ' + esc(e.message) + '</td></tr>';
   }
 }
 
 // ── STATS ─────────────────────────────────────────────────────────────────────
 function calcularStats() {
+  var agora    = Date.now();
+  var d7       = new Date(agora - 7  * 86400000).toISOString();
+  var d30      = new Date(agora - 30 * 86400000).toISOString();
+
   var total    = todosUsuarios.length;
   var trial    = todosUsuarios.filter(function(u){ return u.plano === 'trial'; }).length;
   var pagos    = todosUsuarios.filter(function(u){ return u.plano !== 'trial'; }).length;
   var banidos  = todosUsuarios.filter(function(u){ return u.banido; }).length;
-  var limite30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  var ativos   = todosUsuarios.filter(function(u){ return u.ultimo_acesso && u.ultimo_acesso > limite30; }).length;
-  document.getElementById('stat-total').textContent    = total;
-  document.getElementById('stat-trial').textContent    = trial;
-  document.getElementById('stat-pagos').textContent    = pagos;
-  document.getElementById('stat-banidos').textContent  = banidos;
-  document.getElementById('stat-ativos30').textContent = ativos;
+  var novos7   = todosUsuarios.filter(function(u){ return u.criado_em && u.criado_em >= d7; }).length;
+  var ativos7  = todosUsuarios.filter(function(u){ return u.ultimo_acesso && u.ultimo_acesso >= d7; }).length;
+
+  var LIMITES = { trial:25, solo:150, pro:300, escritorio:300 };
+  var proximosLimite = todosUsuarios.filter(function(u) {
+    var lim = LIMITES[u.plano] || 25;
+    return !u.banido && (u.pecas_mes || 0) / lim >= 0.8;
+  }).length;
+
+  document.getElementById('stat-total').textContent   = total;
+  document.getElementById('stat-trial').textContent   = trial;
+  document.getElementById('stat-pagos').textContent   = pagos;
+  document.getElementById('stat-novos7').textContent  = novos7;
+  document.getElementById('stat-ativos7').textContent = ativos7;
+  document.getElementById('stat-limite').textContent  = proximosLimite;
+  document.getElementById('stat-banidos').textContent = banidos;
+}
+
+// ── CHURN (S6) ────────────────────────────────────────────────────────────────
+function renderChurn() {
+  var agora  = Date.now();
+  var d7     = new Date(agora -  7 * 86400000).toISOString();
+  var d30    = new Date(agora - 30 * 86400000).toISOString();
+  var d90    = new Date(agora - 90 * 86400000).toISOString();
+
+  var ativos7  = todosUsuarios.filter(function(u){ return u.ultimo_acesso && u.ultimo_acesso >= d7; }).length;
+  var inativo30= todosUsuarios.filter(function(u){ return u.ultimo_acesso && u.ultimo_acesso < d7 && u.ultimo_acesso >= d30; }).length;
+  var risco    = todosUsuarios.filter(function(u){ return u.ultimo_acesso && u.ultimo_acesso < d30 && u.ultimo_acesso >= d90; }).length;
+  var perdidos = todosUsuarios.filter(function(u){ return !u.ultimo_acesso || u.ultimo_acesso < d90; }).length;
+
+  document.getElementById('churn-7d').textContent  = ativos7;
+  document.getElementById('churn-30d').textContent = inativo30;
+  document.getElementById('churn-90d').textContent = risco;
+  document.getElementById('churn-old').textContent = perdidos;
+
+  // Tabela: usuários sem acesso há 14+ dias, ordenados por dias sem acesso desc
+  var LIMITES = { trial:25, solo:150, pro:300, escritorio:300 };
+  var d14 = new Date(agora - 14 * 86400000).toISOString();
+  var emRisco = todosUsuarios.filter(function(u){
+    return !u.banido && (!u.ultimo_acesso || u.ultimo_acesso < d14);
+  }).sort(function(a, b) {
+    var ta = a.ultimo_acesso ? new Date(a.ultimo_acesso).getTime() : 0;
+    var tb = b.ultimo_acesso ? new Date(b.ultimo_acesso).getTime() : 0;
+    return ta - tb;
+  }).slice(0, 50);
+
+  if (!emRisco.length) {
+    document.getElementById('churn-body').innerHTML = '<tr><td colspan="6" class="loading" style="color:var(--green)">✓ Todos os usuários acessaram nos últimos 14 dias.</td></tr>';
+    return;
+  }
+
+  var LABELS = { trial:'Demonstração', solo:'Ágil', pro:'Avançado', escritorio:'Escritório' };
+  document.getElementById('churn-body').innerHTML = emRisco.map(function(u) {
+    var ms    = u.ultimo_acesso ? agora - new Date(u.ultimo_acesso).getTime() : null;
+    var dias  = ms ? Math.floor(ms / 86400000) : null;
+    var dStr  = dias !== null ? dias + 'd' : 'Nunca';
+    var cls   = !dias ? 'morto' : dias >= 90 ? 'morto' : dias >= 30 ? 'perigo' : 'risco';
+    var lim   = LIMITES[u.plano] || 25;
+    var pct   = Math.min(100, Math.round(((u.pecas_mes||0)/lim)*100));
+    var corB  = pct >= 90 ? '#DC2626' : pct >= 70 ? '#D97706' : '#185FA5';
+    return '<tr>' +
+      '<td><strong>' + esc(u.nome||'—') + '</strong><br><span style="font-size:10px;color:var(--text3)">' + esc(u.email||'') + '</span></td>' +
+      '<td>' + (LABELS[u.plano]||u.plano||'—') + '</td>' +
+      '<td style="color:var(--text3)">' + (u.ultimo_acesso ? new Date(u.ultimo_acesso).toLocaleDateString('pt-BR') : '—') + '</td>' +
+      '<td><span class="churn-dias ' + cls + '">' + dStr + '</span></td>' +
+      '<td><div class="uso-bar"><div class="uso-fill" style="width:'+pct+'%;background:'+corB+'"></div></div>' + (u.pecas_mes||0) + '/' + lim + '</td>' +
+      '<td>' + (pct >= 80 ? '<span style="color:var(--amber);font-weight:700">Próximo do limite</span>' : '<span style="color:var(--text3)">Normal</span>') + '</td>' +
+    '</tr>';
+  }).join('');
 }
 
 // ── SORT ──────────────────────────────────────────────────────────────────────
@@ -457,18 +672,9 @@ function sortBy(col) {
 
 // ── EXPORTAR CSV ──────────────────────────────────────────────────────────────
 function exportarCSV() {
-  var busca  = (document.getElementById('filtro-busca').value || '').toLowerCase();
-  var plano  = document.getElementById('filtro-plano').value;
-  var status = document.getElementById('filtro-status').value;
-  var lista  = todosUsuarios.filter(function(u) {
-    if (busca  && !(u.nome||'').toLowerCase().includes(busca) && !(u.email||'').toLowerCase().includes(busca)) return false;
-    if (plano  && u.plano !== plano) return false;
-    if (status === 'ativo'  && u.banido) return false;
-    if (status === 'banido' && !u.banido) return false;
-    return true;
-  });
-  var cols = ['nome','email','oab','plano','pecas_mes','criado_em','ultimo_acesso','banido','banido_motivo'];
-  var headers = ['Nome','E-mail','OAB','Plano','Uso/mês','Cadastro','Último acesso','Suspenso','Motivo suspensão'];
+  var lista = filtrarUsuarios();
+  var cols = ['nome','email','oab','ocupacao','plano','pecas_mes','criado_em','ultimo_acesso','banido','banido_motivo'];
+  var headers = ['Nome','E-mail','OAB','Ocupação','Plano','Uso/mês','Cadastro','Último acesso','Suspenso','Motivo suspensão'];
   var rows = [headers.join(';')];
   lista.forEach(function(u) {
     rows.push(cols.map(function(c) {
@@ -477,30 +683,42 @@ function exportarCSV() {
     }).join(';'));
   });
   var blob = new Blob(['﻿' + rows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
-  var url  = URL.createObjectURL(blob);
-  var a    = document.createElement('a');
-  a.href = url; a.download = 'usuarios_' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click(); URL.revokeObjectURL(url);
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'usuarios_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
-// ── FILTROS + RENDER ──────────────────────────────────────────────────────────
-function renderTabela() {
-  var busca   = (document.getElementById('filtro-busca').value || '').toLowerCase();
-  var plano   = document.getElementById('filtro-plano').value;
-  var status  = document.getElementById('filtro-status').value;
+// ── FILTRO + RENDER ───────────────────────────────────────────────────────────
+function filtrarUsuarios() {
+  var busca  = (document.getElementById('filtro-busca').value || '').toLowerCase();
+  var plano  = document.getElementById('filtro-plano').value;
+  var status = document.getElementById('filtro-status').value;
+  var atv    = document.getElementById('filtro-atividade').value;
+  var agora  = Date.now();
 
-  var filtrados = todosUsuarios.filter(function(u) {
-    if (plano  && u.plano !== plano)                    return false;
-    if (status === 'banido' && !u.banido)               return false;
-    if (status === 'ativo'  && u.banido)                return false;
+  return todosUsuarios.filter(function(u) {
+    if (plano  && u.plano !== plano)                return false;
+    if (status === 'banido' && !u.banido)           return false;
+    if (status === 'ativo'  && u.banido)            return false;
     if (busca) {
-      var haystack = [(u.nome||''), (u.email||''), (u.oab||'')].join(' ').toLowerCase();
-      if (!haystack.includes(busca))                    return false;
+      var h = [(u.nome||''),(u.email||''),(u.oab||'')].join(' ').toLowerCase();
+      if (!h.includes(busca)) return false;
+    }
+    if (atv) {
+      var ua = u.ultimo_acesso ? new Date(u.ultimo_acesso).getTime() : 0;
+      if (atv === '7'         && ua < agora - 7  * 86400000) return false;
+      if (atv === '30'        && ua < agora - 30 * 86400000) return false;
+      if (atv === 'inativos14'&& ua >= agora - 14 * 86400000) return false;
+      if (atv === 'inativos30'&& ua >= agora - 30 * 86400000) return false;
     }
     return true;
   });
+}
 
-  // Sort
+function renderTabela() {
+  var filtrados = filtrarUsuarios();
   filtrados.sort(function(a, b) {
     var va = a[sortCol] ?? '';
     var vb = b[sortCol] ?? '';
@@ -509,11 +727,10 @@ function renderTabela() {
     return 0;
   });
 
-  // Paginação
-  var total  = filtrados.length;
-  var inicio = (paginaAtual - 1) * POR_PAGINA;
-  var fim    = Math.min(inicio + POR_PAGINA, total);
-  var pagina = filtrados.slice(inicio, fim);
+  var total = filtrados.length;
+  var ini   = (paginaAtual - 1) * POR_PAGINA;
+  var fim   = Math.min(ini + POR_PAGINA, total);
+  var pagina = filtrados.slice(ini, fim);
   var totalPags = Math.max(1, Math.ceil(total / POR_PAGINA));
 
   document.getElementById('contagem-label').textContent = total + ' usuário(s)';
@@ -526,70 +743,51 @@ function renderTabela() {
     return;
   }
 
-  var html = pagina.map(function(u) {
-    var limite  = { trial:25, solo:150, pro:300, escritorio:300 }[u.plano] || 25;
-    var pct     = Math.min(100, Math.round(((u.pecas_mes||0) / limite) * 100));
-    var corBarra= pct >= 90 ? '#DC2626' : pct >= 70 ? '#D97706' : '#185FA5';
-    var labelPlano = { trial:'Demonstração', solo:'Ágil', pro:'Avançado', escritorio:'Escritório' }[u.plano] || u.plano;
-    var classPlano = { trial:'badge-trial', solo:'badge-solo', pro:'badge-pro', escritorio:'badge-escrit' }[u.plano] || 'badge-trial';
+  var LIMITES = { trial:25, solo:150, pro:300, escritorio:300 };
+  var LABELS  = { trial:'Demonstração', solo:'Ágil', pro:'Avançado', escritorio:'Escritório' };
 
-    // Dias restantes do trial
-    var diasTrialHtml = '';
-    if (u.plano === 'trial' && u.criado_em) {
-      var expiraMs = new Date(u.criado_em).getTime() + 30 * 24 * 60 * 60 * 1000;
-      var diasRestantes = Math.ceil((expiraMs - Date.now()) / (24 * 60 * 60 * 1000));
-      if (diasRestantes <= 0) {
-        diasTrialHtml = ' <span style="color:#DC2626;font-size:10px">EXPIRADO</span>';
-      } else if (diasRestantes <= 7) {
-        diasTrialHtml = ' <span style="color:#D97706;font-size:10px">' + diasRestantes + 'd</span>';
-      }
+  document.getElementById('tabela-body').innerHTML = pagina.map(function(u) {
+    var lim  = LIMITES[u.plano] || 25;
+    var pct  = Math.min(100, Math.round(((u.pecas_mes||0)/lim)*100));
+    var corB = pct >= 90 ? '#DC2626' : pct >= 70 ? '#D97706' : '#185FA5';
+    var uid  = escId(u.id);
+
+    var diasSemAcesso = u.ultimo_acesso ? Math.floor((Date.now() - new Date(u.ultimo_acesso).getTime()) / 86400000) : null;
+    var corAcesso = '';
+    if (diasSemAcesso !== null) {
+      if (diasSemAcesso >= 90) corAcesso = 'color:var(--text3)';
+      else if (diasSemAcesso >= 30) corAcesso = 'color:var(--red)';
+      else if (diasSemAcesso >= 14) corAcesso = 'color:var(--amber)';
     }
 
-    var dataUltAcesso = u.ultimo_acesso ? new Date(u.ultimo_acesso).toLocaleDateString('pt-BR') : '—';
-    var dataCadastro  = u.criado_em     ? new Date(u.criado_em).toLocaleDateString('pt-BR')     : '—';
-    var uid = escId(u.id);
-
     return '<tr class="' + (u.banido ? 'banido-row' : '') + '">' +
-      '<td>' + esc(u.nome || '—') + (u.is_admin ? ' <span class="badge badge-admin">ADMIN</span>' : '') + '</td>' +
-      '<td style="color:var(--text2)">' + esc(u.email || '—') + '</td>' +
-      '<td>' +
-        '<select class="plano-select" onchange="alterarPlano(\'' + uid + '\',this.value)">' +
-          '<option value="trial"'      + (u.plano==='trial'      ? ' selected' : '') + '>Demonstração</option>' +
-          '<option value="solo"'       + (u.plano==='solo'       ? ' selected' : '') + '>Ágil</option>' +
-          '<option value="pro"'        + (u.plano==='pro'        ? ' selected' : '') + '>Avançado</option>' +
-          '<option value="escritorio"' + (u.plano==='escritorio' ? ' selected' : '') + '>Escritório</option>' +
-        '</select>' +
-        diasTrialHtml +
-      '</td>' +
-      '<td>' +
-        '<div class="uso-bar"><div class="uso-fill" style="width:' + pct + '%;background:' + corBarra + '"></div></div>' +
-        (u.pecas_mes||0) + '/' + limite +
-      '</td>' +
-      '<td style="color:var(--text3)">' + dataCadastro  + '</td>' +
-      '<td style="color:var(--text3)">' + dataUltAcesso + '</td>' +
+      '<td>' + esc(u.nome||'—') + (u.is_admin ? ' <span class="badge badge-admin">ADMIN</span>' : '') + '</td>' +
+      '<td style="color:var(--text2)">' + esc(u.email||'—') + '</td>' +
+      '<td><select class="plano-select" onchange="alterarPlano(\'' + uid + '\',this.value)">' +
+        '<option value="trial"'      + (u.plano==='trial'      ?' selected':'') + '>Demonstração</option>' +
+        '<option value="solo"'       + (u.plano==='solo'       ?' selected':'') + '>Ágil</option>' +
+        '<option value="pro"'        + (u.plano==='pro'        ?' selected':'') + '>Avançado</option>' +
+        '<option value="escritorio"' + (u.plano==='escritorio' ?' selected':'') + '>Escritório</option>' +
+      '</select></td>' +
+      '<td><div class="uso-bar"><div class="uso-fill" style="width:'+pct+'%;background:'+corB+'"></div></div>' + (u.pecas_mes||0) + '/' + lim + '</td>' +
+      '<td style="color:var(--text3)">' + (u.criado_em    ? new Date(u.criado_em).toLocaleDateString('pt-BR')    : '—') + '</td>' +
+      '<td style="' + corAcesso + '">'  + (u.ultimo_acesso? new Date(u.ultimo_acesso).toLocaleDateString('pt-BR') : '—') + (diasSemAcesso !== null && diasSemAcesso >= 14 ? ' <span style="font-size:10px">(' + diasSemAcesso + 'd)</span>' : '') + '</td>' +
       '<td>' + (u.banido
         ? '<span class="badge badge-banido" title="' + esc(u.banido_motivo||'') + '">🚫 Suspenso</span>'
-        : '<span class="badge badge-ok">✓ Ativo</span>') +
-      '</td>' +
+        : '<span class="badge badge-ok">✓ Ativo</span>') + '</td>' +
       '<td><div class="actions-cell">' +
         (u.banido
           ? '<button class="action-btn success" onclick="desbanirUsuario(\'' + uid + '\')">✓ Reativar</button>'
           : '<button class="action-btn danger"  onclick="banirUsuario(\'' + uid + '\',\'' + esc(u.nome||u.email||'') + '\')">🚫 Suspender</button>') +
-        '<button class="action-btn neutral" onclick="resetarContador(\'' + uid + '\')">↺ Zerar peças</button>' +
+        '<button class="action-btn neutral" onclick="resetarContador(\'' + uid + '\')">↺ Zerar</button>' +
         (u.is_admin
-          ? '<button class="action-btn danger" onclick="toggleAdmin(\'' + uid + '\',false)">− Admin</button>'
+          ? '<button class="action-btn danger"  onclick="toggleAdmin(\'' + uid + '\',false)">− Admin</button>'
           : '<button class="action-btn neutral" onclick="toggleAdmin(\'' + uid + '\',true)">+ Admin</button>') +
-      '</div></td>' +
-    '</tr>';
+      '</div></td></tr>';
   }).join('');
-
-  document.getElementById('tabela-body').innerHTML = html;
 }
 
-function mudarPagina(delta) {
-  paginaAtual += delta;
-  renderTabela();
-}
+function mudarPagina(delta) { paginaAtual += delta; renderTabela(); }
 
 // ── AÇÕES ─────────────────────────────────────────────────────────────────────
 async function alterarPlano(uid, novoPlano) {
@@ -597,8 +795,8 @@ async function alterarPlano(uid, novoPlano) {
 }
 
 function banirUsuario(uid, nome) {
-  var motivo = prompt('Motivo da suspensão para "' + nome + '" (será exibido ao usuário):\n\nEx: Uso indevido, compartilhamento de credenciais, pagamento pendente...', 'Uso indevido detectado pelo administrador');
-  if (motivo === null) return; // cancelado
+  var motivo = prompt('Motivo da suspensão para "' + nome + '":', 'Uso indevido detectado pelo administrador');
+  if (motivo === null) return;
   supaUpdate(uid, { banido: true, banido_motivo: motivo || 'Suspensão administrativa' }, 'Usuário suspenso.');
 }
 
@@ -612,8 +810,7 @@ async function resetarContador(uid) {
 }
 
 async function toggleAdmin(uid, valor) {
-  var acao = valor ? 'conceder' : 'remover';
-  if (!confirm('Deseja ' + acao + ' privilégios de administrador para este usuário?')) return;
+  if (!confirm((valor ? 'Conceder' : 'Remover') + ' privilégios de admin?')) return;
   await supaUpdate(uid, { is_admin: valor }, valor ? 'Admin concedido.' : 'Admin removido.');
 }
 
@@ -621,36 +818,32 @@ async function supaUpdate(uid, dados, msg) {
   try {
     var r = await supa.from('gp_users').update(dados).eq('id', uid);
     if (r.error) throw r.error;
-    // Atualizar cache local
     var idx = todosUsuarios.findIndex(function(u){ return u.id === uid; });
     if (idx !== -1) Object.assign(todosUsuarios[idx], dados);
     calcularStats();
     renderTabela();
-    mostrarStatus('✓ ' + msg, 2500);
+    renderChurn();
+    mostrarStatus('✓ ' + msg);
   } catch(e) {
     mostrarStatus('Erro: ' + e.message, 4000);
   }
 }
 
 // ── UTILS ─────────────────────────────────────────────────────────────────────
-function esc(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-function escId(str) { return String(str).replace(/[^a-zA-Z0-9\-]/g,''); }
+function escId(s) { return String(s).replace(/[^a-zA-Z0-9\-]/g,''); }
 
-function mostrarStatus(msg, duracao) {
+function mostrarStatus(msg, dur) {
   var el = document.getElementById('status-bar');
-  el.textContent = msg;
-  el.style.display = 'block';
-  clearTimeout(el._timer);
-  el._timer = setTimeout(function(){ el.style.display = 'none'; }, duracao || 2500);
+  el.textContent = msg; el.style.display = 'block';
+  clearTimeout(el._t);
+  el._t = setTimeout(function(){ el.style.display = 'none'; }, dur || 2500);
 }
 
-// Enter para login
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') {
-    fazerLogin();
-  }
+  if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') fazerLogin();
 });
 </script>
 </body>
