@@ -1111,7 +1111,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <button id="tb-modelo-btn" onclick="go('cfg')" title="Modelo de IA ativo — proxy seguro" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Essencial</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
-    <span class="tb-meta" id="tb-versao">versão 1.96</span>
+    <span class="tb-meta" id="tb-versao">versão 1.97</span>
   </div>
 </div>
 
@@ -1185,7 +1185,28 @@ tbody tr.st-p td{background:#b3e5fc}
       <div class="panel-title">Configuração</div>
       <div class="panel-sub">Selecione peças de referência para uso como modelo de estilo e estrutura.</div>
 
-
+      <!-- Card de boas-vindas (B2) — visível apenas para novos usuários -->
+      <div id="card-onboarding" style="display:none;margin-bottom:16px;padding:16px;background:linear-gradient(135deg,#EFF6FF 0%,#F0FDF4 100%);border:1px solid #93C5FD;border-radius:10px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#1e3a5f;margin-bottom:8px">👋 Bem-vindo ao Gerador de Petições!</div>
+            <div style="font-size:12px;color:#374151;line-height:1.7">
+              Siga estes 4 passos para gerar sua primeira peça:<br>
+              <span style="display:flex;flex-direction:column;gap:4px;margin-top:6px">
+                <span><strong style="color:#1d4ed8">1.</strong> Vá em <strong>Processos</strong> e adicione um processo (manual ou via planilha)</span>
+                <span><strong style="color:#1d4ed8">2.</strong> Abra <strong>Gerador</strong>, selecione o processo, área e tipo de peça</span>
+                <span><strong style="color:#1d4ed8">3.</strong> Preencha o andamento processual</span>
+                <span><strong style="color:#1d4ed8">4.</strong> Clique em <strong>Gerar minuta</strong> e aguarde a IA</span>
+              </span>
+            </div>
+          </div>
+          <button onclick="dispensarOnboarding()" title="Fechar" style="background:none;border:none;cursor:pointer;color:#6b7280;font-size:18px;padding:0;flex-shrink:0;line-height:1">×</button>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-p btn-sm" onclick="go('proc');dispensarOnboarding()">Ir para Processos</button>
+          <button class="btn btn-s btn-sm" onclick="dispensarOnboarding()">Entendido</button>
+        </div>
+      </div>
 
       <div class="card">
         <div class="card-title">Meu plano</div>
@@ -3257,6 +3278,7 @@ function atualizarTipos() {
 
 function atualizarSubareas() {
   var area = document.getElementById('f-area').value;
+  if (area) try { localStorage.setItem('gp_ultima_area', area); } catch(e) {}
   var subs = SUBAREAS[area] || [];
   var sel = document.getElementById('f-subarea');
   sel.innerHTML = subs.map(function(s){
@@ -3655,13 +3677,23 @@ function onProcInput() {
   checkBtn();
 }
 
+function dispensarOnboarding() {
+  try { localStorage.setItem('gp_onboarding_dismissed', '1'); } catch(e) {}
+  var el = document.getElementById('card-onboarding');
+  if (el) el.style.display = 'none';
+}
+
 function checkBtn() {
   var btn = document.getElementById('btn-ger');
   var statusEl = document.getElementById('btn-ger-status');
   var estaLogado = !!(GPStorage && GPStorage.userId);
   var procEl = document.getElementById('f-proc');
   var temProc = !!(procEl && procEl.value && procEl.value.trim().length > 0);
-  var habilitado = estaLogado && temProc;
+  var areaEl = document.getElementById('f-area');
+  var temArea = !!(areaEl && areaEl.value && areaEl.value.trim().length > 0);
+  var densEl = document.getElementById('f-densidade');
+  var temDens = !!(densEl && densEl.value && densEl.value.trim().length > 0);
+  var habilitado = estaLogado && temProc && temArea && temDens;
 
   if (btn) btn.disabled = !habilitado;
   var bPartes = document.getElementById('btn-partes'); if (bPartes) bPartes.disabled = !habilitado;
@@ -3671,10 +3703,20 @@ function checkBtn() {
     if (habilitado) {
       statusEl.textContent = '';
     } else {
-      var faltando = [];
-      if (!estaLogado) faltando.push('login');
-      if (!temProc) faltando.push('número do processo');
-      statusEl.innerHTML = '⚠ Falta preencher: <strong>' + faltando.join('</strong> e <strong>') + '</strong>';
+      var itens = [
+        { ok: estaLogado, label: 'Login' },
+        { ok: temProc,    label: 'Número do processo' },
+        { ok: temArea,    label: 'Área jurídica' },
+        { ok: temDens,    label: 'Densidade do texto' },
+      ];
+      var html = itens.map(function(it) {
+        return '<span style="display:inline-flex;align-items:center;gap:3px;margin-right:10px;white-space:nowrap">'
+          + (it.ok
+            ? '<span style="color:#16a34a;font-size:12px">✓</span><span style="color:var(--text3)">' + it.label + '</span>'
+            : '<span style="color:#dc2626;font-size:12px">✗</span><strong style="color:#dc2626">' + it.label + '</strong>')
+          + '</span>';
+      }).join('');
+      statusEl.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:4px">' + html + '</div>';
     }
   }
 }
@@ -9925,7 +9967,22 @@ function _modalKeyHandler(e) {
       }
     }
   }catch(e){}
-  // Inicializar subáreas (Cível como default)
+  // Card de boas-vindas (B2) — mostrar se nunca dispensado e sem processos
+  try {
+    if (!localStorage.getItem('gp_onboarding_dismissed')) {
+      var _ob = document.getElementById('card-onboarding');
+      if (_ob) _ob.style.display = 'block';
+    }
+  } catch(e) {}
+
+  // Inicializar subáreas — restaurar última área selecionada (A2)
+  var _areaRestored = localStorage.getItem('gp_ultima_area');
+  if (_areaRestored) {
+    var _areaEl = document.getElementById('f-area');
+    if (_areaEl && _areaEl.querySelector('option[value="'+_areaRestored+'"]')) {
+      _areaEl.value = _areaRestored;
+    }
+  }
   if (document.getElementById('f-area')) atualizarSubareas();
 
   checkBtn();
