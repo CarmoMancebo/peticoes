@@ -320,6 +320,7 @@ tr.banido-row td { background: #FFF5F5; }
         <option value="banido">Suspensos</option>
       </select>
       <button class="action-btn neutral" onclick="carregarUsuarios()">↺ Atualizar</button>
+      <button class="action-btn neutral" onclick="exportarCSV()" title="Exportar lista filtrada como CSV">⬇ Exportar CSV</button>
       <span id="contagem-label" style="font-size:11px;color:var(--text3);margin-left:4px"></span>
     </div>
 
@@ -452,6 +453,34 @@ function sortBy(col) {
   if (sortCol === col) { sortAsc = !sortAsc; } else { sortCol = col; sortAsc = true; }
   paginaAtual = 1;
   renderTabela();
+}
+
+// ── EXPORTAR CSV ──────────────────────────────────────────────────────────────
+function exportarCSV() {
+  var busca  = (document.getElementById('filtro-busca').value || '').toLowerCase();
+  var plano  = document.getElementById('filtro-plano').value;
+  var status = document.getElementById('filtro-status').value;
+  var lista  = todosUsuarios.filter(function(u) {
+    if (busca  && !(u.nome||'').toLowerCase().includes(busca) && !(u.email||'').toLowerCase().includes(busca)) return false;
+    if (plano  && u.plano !== plano) return false;
+    if (status === 'ativo'  && u.banido) return false;
+    if (status === 'banido' && !u.banido) return false;
+    return true;
+  });
+  var cols = ['nome','email','oab','plano','pecas_mes','criado_em','ultimo_acesso','banido','banido_motivo'];
+  var headers = ['Nome','E-mail','OAB','Plano','Uso/mês','Cadastro','Último acesso','Suspenso','Motivo suspensão'];
+  var rows = [headers.join(';')];
+  lista.forEach(function(u) {
+    rows.push(cols.map(function(c) {
+      var v = u[c] == null ? '' : String(u[c]);
+      return '"' + v.replace(/"/g,'""') + '"';
+    }).join(';'));
+  });
+  var blob = new Blob(['﻿' + rows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href = url; a.download = 'usuarios_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click(); URL.revokeObjectURL(url);
 }
 
 // ── FILTROS + RENDER ──────────────────────────────────────────────────────────

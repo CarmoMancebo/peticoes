@@ -1093,7 +1093,19 @@ tbody tr.st-p td{background:#b3e5fc}
         <input type="email" id="cad-email" placeholder="seu@email.com.br" />
       </div>
       <div class="login-field">
-        <label>OAB (opcional)</label>
+        <label>Ocupação <span style="color:#DC2626">*</span></label>
+        <select id="cad-ocupacao" onchange="toggleCadOab()" style="width:100%;padding:9px 10px;border:1px solid #D1D5DB;border-radius:6px;font-size:13px;background:#fff;color:#111;cursor:pointer">
+          <option value="" disabled selected>— selecione —</option>
+          <option value="advogado">Advogado(a)</option>
+          <option value="procurador">Procurador(a)</option>
+          <option value="promotor">Promotor(a) / Defensor(a)</option>
+          <option value="assessor">Assessor(a) Jurídico(a)</option>
+          <option value="estagiario">Estagiário(a)</option>
+          <option value="outros">Outros</option>
+        </select>
+      </div>
+      <div class="login-field" id="wrap-cad-oab" style="display:none">
+        <label>OAB <span style="color:#DC2626">*</span></label>
         <input type="text" id="cad-oab" placeholder="SP 274.575" />
       </div>
       <div class="login-field">
@@ -1125,7 +1137,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 2.1</div>
+    <div class="login-ver">versão 2.2</div>
   </div>
 </div>
 
@@ -1163,7 +1175,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <button id="tb-modelo-btn" onclick="go('cfg')" title="Modelo de IA ativo — proxy seguro" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Essencial</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
-    <span class="tb-meta" id="tb-versao">versão 2.1</span>
+    <span class="tb-meta" id="tb-versao">versão 2.2</span>
   </div>
 </div>
 
@@ -1740,30 +1752,40 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
       <div class="card">
         <div class="card-title">Configurações da peça</div>
         <div style="padding:8px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;font-size:11px;color:#1E40AF;margin-bottom:10px">
-          💡 Selecione a <strong>área do direito</strong> e o <strong>tipo de peça</strong>. A seleção afina o prompt e melhora a qualidade da minuta gerada. A ferramenta lembrará da última área usada em cada sessão.
+          💡 Selecione a <strong>área do direito</strong>, a <strong>subárea</strong> (incluindo sua posição processual — autora ou ré) e o <strong>tipo de peça</strong>. A seleção afina o conteúdo e melhora a qualidade da minuta. Após selecionar, você pode fixar uma área como padrão.
         </div>
         <div class="row2">
           <div class="field">
             <label>Área do direito</label>
             <select id="f-area" onchange="atualizarSubareas()">
               <option value="" disabled selected>— selecione a área —</option>
-
-              <optgroup label="── Cível ──">
-                <option value="civel">Saúde suplementar</option>
-                <option value="civel_geral">Cível geral</option>
+              <optgroup label="── Saúde ──">
+                <option value="civel">Saúde Suplementar</option>
               </optgroup>
-              <optgroup label="── Outras áreas ──">
-                <option value="trabalhista">Trabalhista</option>
-                <option value="previdenciario">Previdenciário</option>
-                <option value="tributario">Tributário</option>
-                <option value="criminal">Criminal / Penal</option>
-                <option value="empresarial">Empresarial / Societário</option>
+              <optgroup label="── Cível ──">
+                <option value="civel_geral">Cível Geral</option>
+                <option value="familia">Família e Sucessões</option>
                 <option value="imobiliario">Imobiliário</option>
+              </optgroup>
+              <optgroup label="── Trabalho / Previdência ──">
+                <option value="trabalhista">Trabalhista</option>
+                <option value="previdenciario">Previdenciário / INSS</option>
+              </optgroup>
+              <optgroup label="── Público ──">
                 <option value="administrativo">Administrativo</option>
-                <option value="ambiental">Ambiental</option>
-                <option value="digital">Digital / LGPD</option>
+                <option value="tributario">Tributário / Fiscal</option>
+                <option value="mp">Ministério Público</option>
+              </optgroup>
+              <optgroup label="── Empresarial ──">
+                <option value="empresarial">Empresarial / Societário</option>
                 <option value="bancario">Bancário / Financeiro</option>
                 <option value="internacional">Internacional / Arbitragem</option>
+              </optgroup>
+              <optgroup label="── Outras ──">
+                <option value="criminal">Criminal / Penal</option>
+                <option value="ambiental">Ambiental</option>
+                <option value="digital">Digital / LGPD</option>
+                <option value="consumidor">Defesa do Consumidor</option>
               </optgroup>
             </select>
             <div id="btn-pin-area" style="display:none;align-items:center;margin-top:5px;font-size:11px;color:var(--text2);gap:4px;padding:3px 8px;border:1px solid var(--border);border-radius:20px;width:fit-content;background:var(--bg2)">
@@ -2226,6 +2248,7 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
           <button class="btn btn-s" onclick="copiar()">📋 Copiar texto</button>
           <span style="width:1px;background:var(--border2);margin:0 4px"></span>
           <button class="btn btn-s" onclick="regenerarMinuta()" title="Gerar nova versão da mesma peça (Ctrl+R)">🔄 Regenerar</button>
+          <button class="btn btn-s" id="btn-diff-versoes" style="display:none" onclick="mostrarDiffVersoes()" title="Comparar esta versão com a anterior">⬛ Comparar versões</button>
           <button class="btn btn-s" onclick="continuarMinuta()" title="Continuar petição truncada a partir do fim">➕ Continuar</button>
           <span style="width:1px;background:var(--border2);margin:0 4px"></span>
           <button class="btn btn-d" onclick="descartar()">🗑 Descartar</button>
@@ -2857,17 +2880,26 @@ async function fazerLogin() {
   // Se sucesso: onAuthStateChange cuida de ocultar o login
 }
 
+function toggleCadOab() {
+  var ocup = (document.getElementById('cad-ocupacao').value || '');
+  var wrap = document.getElementById('wrap-cad-oab');
+  if (wrap) wrap.style.display = (ocup === 'advogado') ? 'block' : 'none';
+}
+
 async function fazerCadastro() {
-  var nome  = (document.getElementById('cad-nome').value || '').trim();
-  var email = (document.getElementById('cad-email').value || '').trim();
-  var oab   = (document.getElementById('cad-oab').value || '').trim();
-  var senha = (document.getElementById('cad-senha').value || '').trim();
-  var senha2 = (document.getElementById('cad-senha2').value || '').trim();
+  var nome     = (document.getElementById('cad-nome').value || '').trim();
+  var email    = (document.getElementById('cad-email').value || '').trim();
+  var ocupacao = (document.getElementById('cad-ocupacao').value || '').trim();
+  var oab      = ocupacao === 'advogado' ? (document.getElementById('cad-oab').value || '').trim() : '';
+  var senha    = (document.getElementById('cad-senha').value || '').trim();
+  var senha2   = (document.getElementById('cad-senha2').value || '').trim();
   var err = document.getElementById('cad-err');
   var btn = document.getElementById('btn-fazer-cadastro');
 
-  if (!nome)  { err.textContent = 'Informe seu nome.'; return; }
+  if (!nome)     { err.textContent = 'Informe seu nome.'; return; }
   if (!email || !email.includes('@')) { err.textContent = 'E-mail inválido.'; return; }
+  if (!ocupacao) { err.textContent = 'Selecione sua ocupação.'; return; }
+  if (ocupacao === 'advogado' && !oab) { err.textContent = 'Informe o número da OAB (obrigatório para advogados).'; return; }
   if (senha.length < 6) { err.textContent = 'A senha deve ter pelo menos 6 caracteres.'; return; }
   if (senha !== senha2) { err.textContent = 'As senhas não coincidem.'; return; }
 
@@ -2878,7 +2910,7 @@ async function fazerCadastro() {
   var result = await supa.auth.signUp({
     email: email,
     password: senha,
-    options: { data: { nome: nome, oab: oab } }
+    options: { data: { nome: nome, ocupacao: ocupacao, oab: oab } }
   });
 
   if (result.error) {
@@ -2947,83 +2979,136 @@ var LSP = 'gp_p', LSS = 'gp_s';
 // ── ENRIQUECIMENTO POR ÁREA DO DIREITO ────────────────────────
 var SUBAREAS = {
   civel: [
-    {v:'saude_suplementar', l:'Saúde suplementar (operadoras de planos de saúde)'}
+    {v:'ss_paciente',         l:'Beneficiário — negativa de cobertura'},
+    {v:'ss_paciente_custeio', l:'Beneficiário — reembolso e custeio'},
+    {v:'ss_paciente_rescisao',l:'Beneficiário — rescisão e cancelamento abusivo'},
+    {v:'ss_operadora',        l:'Operadora — defesa em ação de cobertura'},
+    {v:'ss_operadora_cobr',   l:'Operadora — cobrança de mensalidade/coparticipação'},
+    {v:'ss_cautelar',         l:'Tutela de urgência — Saúde Suplementar'},
   ],
   civel_geral: [
-    {v:'consumidor',            l:'Direito do Consumidor'},
-    {v:'responsabilidade_civil',l:'Responsabilidade Civil'},
-    {v:'contratos',             l:'Contratos'},
-    {v:'familia',               l:'Família e Sucessões'},
-    {v:'locacao',               l:'Locação e Imobiliário'},
-    {v:'condominio',            l:'Condomínio'},
+    {v:'cg_autor',            l:'Autor — responsabilidade civil e indenização'},
+    {v:'cg_reu',              l:'Réu — defesa em ação indenizatória'},
+    {v:'cg_contratos_autor',  l:'Autor — cumprimento/rescisão contratual'},
+    {v:'cg_contratos_reu',    l:'Réu — defesa em ação contratual'},
+    {v:'cg_condominio',       l:'Condomínio — cobranças e conflitos condominiais'},
+    {v:'cg_locador',          l:'Locador — despejo e cobrança de aluguel'},
+    {v:'cg_locatario',        l:'Locatário — defesa em ação de despejo'},
   ],
-  trabalhista: [
-    {v:'reclamante',   l:'Representação do Reclamante'},
-    {v:'reclamado',    l:'Representação do Reclamado'},
-    {v:'recursos_tst', l:'Recursos no TST'},
-  ],
-  previdenciario: [
-    {v:'beneficios',        l:'Benefícios INSS'},
-    {v:'revisoes',          l:'Revisões de Benefício'},
-    {v:'acidente_trabalho', l:'Acidente de Trabalho'},
-  ],
-  tributario: [
-    {v:'contencioso_adm', l:'Contencioso Administrativo'},
-    {v:'execucao_fiscal',  l:'Execução Fiscal (Defesa)'},
-    {v:'compensacao',      l:'Compensação e Restituição'},
-    {v:'planejamento',     l:'Planejamento Tributário (Defesas)'},
-  ],
-  criminal: [
-    {v:'defesa_criminal',  l:'Defesa Criminal'},
-    {v:'habeas_corpus',    l:'Habeas Corpus'},
-    {v:'tribunal_juri',   l:'Tribunal do Júri'},
-    {v:'execucao_penal',  l:'Execução Penal'},
-  ],
-  empresarial: [
-    {v:'societario',          l:'Societário e Dissolução'},
-    {v:'contratos_emp',       l:'Contratos Empresariais'},
-    {v:'recuperacao',         l:'Recuperação Judicial e Falência'},
-    {v:'responsabilidade_soc',l:'Responsabilidade de Sócios'},
+  familia: [
+    {v:'fam_divorcio',        l:'Divórcio e partilha de bens'},
+    {v:'fam_alimentos_cred',  l:'Alimentos — pedido/fixação (credor)'},
+    {v:'fam_alimentos_dev',   l:'Alimentos — defesa/revisão (devedor)'},
+    {v:'fam_guarda',          l:'Guarda e convivência parental'},
+    {v:'fam_inventario',      l:'Inventário e arrolamento'},
+    {v:'fam_uniao_estavel',   l:'União estável — reconhecimento/dissolução'},
+    {v:'fam_adocao',          l:'Adoção e destituição do poder familiar'},
   ],
   imobiliario: [
-    {v:'usucapiao',    l:'Usucapião'},
-    {v:'incorporacao', l:'Incorporação Imobiliária'},
-    {v:'regularizacao',l:'Regularização Fundiária'},
-    {v:'adjudicacao',  l:'Adjudicação Compulsória'},
-    {v:'locacao_imob', l:'Locação'},
+    {v:'imob_autor_usucap',   l:'Autor — usucapião e aquisição de propriedade'},
+    {v:'imob_adquirente',     l:'Adquirente — vícios construtivos e atraso de obra'},
+    {v:'imob_incorporadora',  l:'Incorporadora — defesa e cobrança'},
+    {v:'imob_regularizacao',  l:'Regularização fundiária'},
+    {v:'imob_locador',        l:'Locador — despejo e cobrança de aluguel'},
+    {v:'imob_locatario',      l:'Locatário — defesa em ação de despejo'},
+  ],
+  trabalhista: [
+    {v:'reclamante',          l:'Reclamante — ação trabalhista'},
+    {v:'reclamado',           l:'Reclamado — defesa em reclamação trabalhista'},
+    {v:'recursos_tst',        l:'Recursos no TST (qualquer parte)'},
+    {v:'trab_terceirizacao',  l:'Terceirização — responsabilidade subsidiária'},
+    {v:'trab_sindicato',      l:'Atuação sindical e negociação coletiva'},
+  ],
+  previdenciario: [
+    {v:'prev_segurado',       l:'Segurado — concessão/revisão de benefício'},
+    {v:'prev_acidente',       l:'Segurado — acidente de trabalho e indenização'},
+    {v:'prev_pensao',         l:'Dependente — pensão por morte e benefícios'},
+    {v:'prev_bpc',            l:'Autor — BPC/LOAS (concessão)'},
+    {v:'prev_inss_def',       l:'INSS — defesa administrativa ou judicial'},
   ],
   administrativo: [
-    {v:'licitacoes',     l:'Licitações (Lei 14.133/2021)'},
-    {v:'contratos_adm',  l:'Contratos Administrativos'},
-    {v:'improbidade',    l:'Improbidade Administrativa'},
-    {v:'ms_administrativo',l:'Mandado de Segurança'},
+    {v:'adm_licitacoes',      l:'Licitante — impugnação e recursos (Lei 14.133/2021)'},
+    {v:'adm_contratos',       l:'Particular — contratos administrativos'},
+    {v:'adm_poder_publico',   l:'Poder Público — defesa e execução contratual'},
+    {v:'adm_ms',              l:'Mandado de segurança — ato administrativo'},
+    {v:'adm_servidor',        l:'Servidor público — direitos e disciplinar'},
+    {v:'adm_improbidade_mp',  l:'Improbidade administrativa — polo ativo (MP/ente)'},
+    {v:'adm_improbidade_def', l:'Improbidade administrativa — defesa do réu'},
+    {v:'adm_concurso',        l:'Concurso público — impugnação de edital/resultado'},
+  ],
+  mp: [
+    {v:'mp_criminal',         l:'Ação penal pública — MP como titular'},
+    {v:'mp_acao_civil',       l:'Ação civil pública — MP como autor'},
+    {v:'mp_improbidade',      l:'Improbidade administrativa — MP como autor'},
+    {v:'mp_infancia',         l:'Infância e juventude — ECA'},
+    {v:'mp_investigacao',     l:'Procedimento investigatório criminal (PIC)'},
+    {v:'mp_cautelar',         l:'Medidas cautelares — MP'},
+    {v:'mp_defesa_proc',      l:'Defesa em procedimento do MP'},
+  ],
+  tributario: [
+    {v:'trib_contrib_adm',    l:'Contribuinte — defesa administrativa (impugnação)'},
+    {v:'trib_contrib_jud',    l:'Contribuinte — ação judicial (anulação/mandado)'},
+    {v:'trib_exec_def',       l:'Executado — embargos à execução fiscal'},
+    {v:'trib_faz_exec',       l:'Fazenda Pública — execução fiscal e cobrança'},
+    {v:'trib_compensacao',    l:'Contribuinte — compensação e restituição'},
+    {v:'trib_planejamento',   l:'Planejamento tributário'},
+  ],
+  criminal: [
+    {v:'crim_defesa',         l:'Defesa criminal — réu/acusado'},
+    {v:'crim_hc',             l:'Habeas corpus'},
+    {v:'crim_juri',           l:'Tribunal do Júri'},
+    {v:'crim_execucao',       l:'Execução penal'},
+    {v:'crim_vitima',         l:'Assistente de acusação (vítima)'},
+    {v:'crim_ms_penal',       l:'Mandado de segurança em matéria penal'},
+  ],
+  consumidor: [
+    {v:'cons_autor',          l:'Consumidor — ação indenizatória e reparação'},
+    {v:'cons_fornecedor',     l:'Fornecedor — defesa em ação consumerista'},
+    {v:'cons_negativa',       l:'Consumidor — negativação indevida (SPC/Serasa)'},
+    {v:'cons_vicio',          l:'Consumidor — vícios de produto ou serviço'},
+    {v:'cons_digital',        l:'Consumidor digital — e-commerce e plataformas'},
+    {v:'cons_coletiva',       l:'Ação coletiva de consumo'},
+  ],
+  empresarial: [
+    {v:'emp_societario',      l:'Societário — dissolução e conflitos entre sócios'},
+    {v:'emp_contratos_cred',  l:'Credor — contratos empresariais inadimplidos'},
+    {v:'emp_contratos_dev',   l:'Devedor — defesa em ação contratual empresarial'},
+    {v:'emp_recup_devedor',   l:'Devedor — recuperação judicial e falência'},
+    {v:'emp_recup_credor',    l:'Credor — habilitação em recuperação/falência'},
+    {v:'emp_responsab',       l:'Responsabilidade de sócios e administradores'},
   ],
   ambiental: [
-    {v:'licenciamento',   l:'Licenciamento Ambiental'},
-    {v:'responsab_amb',   l:'Responsabilidade Ambiental'},
-    {v:'defesa_orgaos',   l:'Defesas Administrativas (IBAMA/CETESB)'},
+    {v:'amb_autor',           l:'Autor/MP — ação civil pública ambiental'},
+    {v:'amb_reu',             l:'Réu — defesa em ação ambiental'},
+    {v:'amb_adm_autuado',     l:'Autuado — defesa em auto de infração (IBAMA/CETESB)'},
+    {v:'amb_licenciamento',   l:'Empreendedor — licenciamento ambiental'},
   ],
   digital: [
-    {v:'lgpd',               l:'LGPD — Proteção de Dados'},
-    {v:'cibercrimes',        l:'Cibercrimes e Crimes Digitais'},
-    {v:'prop_intelectual',   l:'Propriedade Intelectual'},
-    {v:'ecommerce',          l:'E-commerce e Plataformas Digitais'},
+    {v:'dig_lgpd_titular',    l:'Titular de dados — violação da LGPD'},
+    {v:'dig_lgpd_controlador',l:'Controlador/Operador — defesa em ação LGPD'},
+    {v:'dig_cibercrimes',     l:'Vítima de cibercrimes — ação e representação'},
+    {v:'dig_prop_intelectual',l:'Titular de propriedade intelectual — violação'},
+    {v:'dig_ecommerce',       l:'E-commerce e plataformas — relações digitais'},
   ],
   bancario: [
-    {v:'superendividamento', l:'Superendividamento (Lei 14.181/2021)'},
-    {v:'juros_abusivos',     l:'Juros Abusivos e Revisão Contratual'},
-    {v:'execucao_bancaria',  l:'Execução Bancária'},
-    {v:'fraudes_bancarias',  l:'Fraudes Bancárias'},
+    {v:'banc_devedor',        l:'Devedor — revisão contratual e superendividamento'},
+    {v:'banc_banco',          l:'Instituição financeira — cobrança e execução'},
+    {v:'banc_fraude_vitima',  l:'Vítima de fraude bancária — ação indenizatória'},
+    {v:'banc_exec_def',       l:'Executado — embargos à execução bancária'},
   ],
   internacional: [
-    {v:'arbitragem',    l:'Arbitragem'},
-    {v:'contratos_int', l:'Contratos Internacionais'},
-    {v:'homologacao',   l:'Homologação de Sentença Estrangeira'},
+    {v:'int_arbitragem_req',  l:'Arbitragem — parte requerente'},
+    {v:'int_arbitragem_reu',  l:'Arbitragem — parte requerida'},
+    {v:'int_contratos',       l:'Contratos internacionais'},
+    {v:'int_homologacao',     l:'Homologação de sentença estrangeira (STJ)'},
+    {v:'int_carta_rogatoria', l:'Carta rogatória'},
   ],
 };
 
 var ENRIQUECIMENTOS = {
-  'civel:saude_suplementar': 'CONTEXTO ESPECIALIZADO — SAÚDE SUPLEMENTAR:\n- Atuação voltada à defesa de operadoras de planos de saúde.\n- Marco regulatório central: Lei nº 9.656/1998, Lei nº 14.454/2022, RN ANS nº 565/2022, RN nº 465/2021 e atualizações do rol.\n- Usar ADI 7265 e Temas STJ da lista branca sem inventar dados de julgamento.\n- Verificar contrato, segmentação, rol/DUT, carência, CPT/DLP, rede, prazos assistenciais e negativa fundamentada.\n- Quando houver procedimento fora do rol, aplicar os requisitos cumulativos do § 13 do artigo 10 da Lei nº 9.656/1998.',
+  'civel': 'CONTEXTO ESPECIALIZADO — SAÚDE SUPLEMENTAR:\n- Marco regulatório central: Lei nº 9.656/1998, Lei nº 14.454/2022, RN ANS nº 565/2022, RN nº 465/2021 e atualizações do rol.\n- Usar ADI 7265 e Temas STJ da lista branca sem inventar dados de julgamento.\n- Verificar contrato, segmentação, rol/DUT, carência, CPT/DLP, rede, prazos assistenciais e negativa fundamentada.\n- Procedimento fora do rol: aplicar requisitos cumulativos do § 13 do artigo 10 da Lei nº 9.656/1998.\n- Para beneficiário/paciente: verificar negativa fundamentada, prazo de autorização e responsabilidade objetiva da operadora. Para operadora: verificar exclusão contratual lícita, carência, CPT e regular notificação.',
+  'civel:ss_paciente': 'CONTEXTO — SAÚDE SUPLEMENTAR (BENEFICIÁRIO/PACIENTE):\n- Representação do beneficiário. Verificar negativa de autorização, prazo de resposta da operadora (RN 259 ANS), e obrigação de cobertura conforme rol ou § 13 art. 10 Lei 9.656/1998.\n- Priorizar pedido de tutela de urgência para obrigar cobertura imediata.\n- Dano moral in re ipsa: STJ admite em caso de negativa abusiva que comprometa saúde do beneficiário.',
+  'civel:ss_operadora': 'CONTEXTO — SAÚDE SUPLEMENTAR (OPERADORA):\n- Representação da operadora. Estratégia: verificar cobertura contratual, rol vigente à época, carência cumprida, CPT/DLP, segmentação e rede credenciada.\n- Impugnar pedidos de procedimentos experimentais, não reconhecidos pelo CFM ou fora dos requisitos cumulativos do § 13 art. 10 Lei 9.656/1998.\n- Verificar se houve regular notificação e negativa fundamentada.',
   'civel_geral': 'CONTEXTO ESPECIALIZADO — CÍVEL GERAL:\n- Ramo: direito civil geral (consumidor, responsabilidade civil, contratos, família, locação, condomínio).\n- Marco regulatório: Código Civil (Lei nº 10.406/2002), CPC (Lei nº 13.105/2015), CDC (Lei nº 8.078/1990), Lei do Inquilinato (Lei nº 8.245/1991), Lei nº 10.931/2004.\n- Aplicar responsabilidade objetiva nas relações de consumo (art. 14 CDC); responsabilidade subjetiva no Código Civil salvo hipóteses legais.\n- Verificar prazo prescricional aplicável ao caso antes de qualquer peça.\n- Dano moral: fundamentar com critérios do STJ (proporcionalidade, gravidade, condição econômica das partes).',
   'civel_geral:consumidor': 'CONTEXTO ESPECIALIZADO — DIREITO DO CONSUMIDOR:\n- Marco regulatório: CDC (Lei nº 8.078/1990), Marco Civil da Internet (Lei nº 12.965/2014), LGPD (Lei nº 13.709/2018).\n- Responsabilidade objetiva e solidária do fornecedor; inversão do ônus da prova (art. 6º, VIII, CDC) quando verossímil ou hipossuficiente.\n- Distinguir vício do produto/serviço (arts. 18-25 CDC) de fato do produto/serviço (arts. 12-17 CDC).\n- Verificar prescrição: 5 anos para ação de reparação (art. 27 CDC); 30 dias/90 dias para reclamação de vício.\n- Dano moral nas relações de consumo: in re ipsa em casos de negativação indevida, inscrição no SPC/Serasa, cobrança abusiva.',
   'trabalhista': 'CONTEXTO ESPECIALIZADO — DIREITO DO TRABALHO:\n- Marco regulatório: CLT (Decreto-Lei nº 5.452/1943), Reforma Trabalhista (Lei nº 13.467/2017), Constituição Federal artigos 7º a 11.\n- Verificar vínculo empregatício (subordinação, pessoalidade, habitualidade, onerosidade) antes de qualquer análise.\n- Prescrição: 2 anos após extinção do contrato; 5 anos no curso do contrato (art. 7º, XXIX, CF).\n- Reforma Trabalhista (2017): validade das normas coletivas, banco de horas anual, teletrabalho, terceirização irrestrita.\n- Verificar Súmulas e OJs do TST aplicáveis antes de citar precedentes.',
@@ -3039,6 +3124,9 @@ var ENRIQUECIMENTOS = {
   'digital': 'CONTEXTO ESPECIALIZADO — DIREITO DIGITAL E LGPD:\n- Marco regulatório: LGPD (Lei nº 13.709/2018), Marco Civil da Internet (Lei nº 12.965/2014), Lei nº 12.737/2012 (Crimes Informáticos), Lei nº 9.610/1998 (Direitos Autorais).\n- LGPD: distinguir controlador de operador; verificar base legal do tratamento (art. 7º e 11 LGPD); fiscalização pela ANPD.\n- Responsabilidade civil por danos decorrentes de tratamento de dados: objetiva para o controlador (art. 42 LGPD).\n- Marco Civil: guarda de logs pelo provedor (6 meses para provedor de acesso; 6 meses para provedor de aplicação); ordem judicial para identificação de usuário.\n- Crimes digitais: competência no local do resultado do crime ou do provedor (STJ); aplicar Lei nº 12.737/2012 para invasão de dispositivo.',
   'bancario': 'CONTEXTO ESPECIALIZADO — DIREITO BANCÁRIO E FINANCEIRO:\n- Marco regulatório: Lei nº 4.595/1964 (sistema financeiro), CDC art. 3º §2º (relação de consumo com bancos), Lei nº 14.181/2021 (Superendividamento), Circular BACEN nº 3.909/2018.\n- STJ reconhece aplicação integral do CDC às instituições financeiras (Súmula 297 STJ).\n- Superendividamento (Lei nº 14.181/2021): direito ao mínimo existencial; revisão judicial de contratos; conciliação obrigatória.\n- Inscrição indevida no SPC/Serasa: dano moral in re ipsa (Súmula 385 STJ — exceto se preexistirem anotações legítimas).\n- Taxa de juros: STJ admite capitalização mensal se expressamente pactuada; vedação de anatocismo sem previsão contratual.',
   'internacional': 'CONTEXTO ESPECIALIZADO — DIREITO INTERNACIONAL E ARBITRAGEM:\n- Marco regulatório: Lei de Arbitragem (Lei nº 9.307/1996, alterada pela Lei nº 13.129/2015), CPC artigos 960-965 (homologação), Convenção de Nova York (Decreto nº 4.311/2002).\n- Arbitragem: princípio da kompetenz-kompetenz; cláusula compromissória é autônoma em relação ao contrato principal.\n- Homologação de sentença estrangeira: competência do STJ (art. 105, I, i, CF); requisitos do art. 963 CPC; não há revisão do mérito.\n- Carta rogatória: cumprida pelo STJ mediante exequatur (art. 105, I, i, CF); recusada se ofender soberania ou ordem pública.\n- Convenção de Nova York: reconhecimento e execução de laudos arbitrais estrangeiros em mais de 170 países signatários.',
+  'familia': 'CONTEXTO ESPECIALIZADO — DIREITO DE FAMÍLIA E SUCESSÕES:\n- Marco regulatório: Código Civil artigos 1.511-1.783-A, ECA (Lei nº 8.069/1990), Lei nº 11.340/2006 (Maria da Penha), CPC artigos 693-699.\n- Alimentos: verificar binômio necessidade/possibilidade (art. 1.694 CC); alimentos provisórios são devidos desde a citação.\n- Guarda: interesse superior da criança (art. 227 CF, ECA); guarda compartilhada é a regra (art. 1.584 CC).\n- Inventário: prazo de 2 meses do óbito para abertura; sobrepartilha; imposto ITCMD (estadual) incide sobre quinhão.\n- União estável: reconhecida por escritura ou ação declaratória; regime de bens aplicável conforme art. 1.725 CC.\n- Divórcio: extrajudicial se não houver filhos menores/incapazes e não houver litígio; partilha por sobrepartilha possível.',
+  'consumidor': 'CONTEXTO ESPECIALIZADO — DIREITO DO CONSUMIDOR:\n- Marco regulatório: CDC (Lei nº 8.078/1990), Marco Civil da Internet (Lei nº 12.965/2014), LGPD (Lei nº 13.709/2018), Lei nº 14.181/2021 (Superendividamento).\n- Responsabilidade objetiva e solidária do fornecedor (art. 12-14 e 18-20 CDC); inversão do ônus da prova (art. 6º, VIII, CDC).\n- Distinguir vício (arts. 18-25) de fato (arts. 12-17) para fins de prazo e responsável.\n- Prescrição: 5 anos para reparação por fato (art. 27 CDC); 30/90 dias para reclamação de vício.\n- Dano moral in re ipsa: negativação indevida, cobrança abusiva, recusa de atendimento (Súmula 297 STJ).\n- Superendividamento: preservar mínimo existencial; revisão judicial de contratos; conciliação obrigatória (Lei nº 14.181/2021).',
+  'mp': 'CONTEXTO ESPECIALIZADO — MINISTÉRIO PÚBLICO:\n- Marco regulatório: CF artigos 127-130-A, Lei nº 8.625/1993 (LONMP), LC nº 75/1993 (MPU), Lei nº 7.347/1985 (ACP), Lei nº 8.429/1992 (Improbidade, alterada pela Lei nº 14.230/2021).\n- Ação penal pública: MP é o titular exclusivo da ação penal pública (art. 129, I, CF); verificar justa causa para oferecimento de denúncia.\n- Ação civil pública: MP tem legitimidade ativa para tutela de interesses difusos, coletivos e individuais homogêneos (art. 1º Lei nº 7.347/1985).\n- Improbidade administrativa (pós-Lei 14.230/2021): exige dolo específico; somente o MP tem legitimidade ativa; responsabilidade não é objetiva.\n- PIC: Procedimento Investigatório Criminal presidido pelo MP; garantias constitucionais do investigado devem ser observadas.\n- ECA: MP atua na defesa dos direitos da criança e do adolescente; medidas socioeducativas e de proteção seguem arts. 98-101 ECA.',
 };
 
 // ── TIPOS DE PEÇA POR ÁREA ─────────────────────────────────────────────────
@@ -3375,6 +3463,73 @@ var TIPOS_HTML = {
       _tOpt('recurso especial','Recurso especial (STJ)'))+
     _tGrp('Outro',
       _tOpt('parecer jurídico internacional','Parecer jurídico internacional')+
+      _tOpt('manual','Preencher manualmente (digitar o tipo)')),
+
+  familia:
+    _T_AUTO+
+    _tGrp('Petição inicial',
+      _T_INIC+
+      _tOpt('petição de tutela de urgência autônoma','Petição de tutela de urgência autônoma'))+
+    _T_REV+
+    _tGrp('Fase de conhecimento',
+      _tOpt('contestação','Contestação')+
+      _tOpt('réplica à contestação','Réplica à contestação')+
+      _tOpt('especificação de provas','Especificação de provas')+
+      _tOpt('manifestação a decisão interlocutória','Manifestação a decisão interlocutória')+
+      _tOpt('petição simples','Petição simples / informativa')+
+      _tOpt('embargos de declaração','Embargos de declaração'))+
+    _tGrp('Inventário / Sucessões',
+      _tOpt('petição de inventário','Petição de abertura de inventário')+
+      _tOpt('partilha amigável','Petição de partilha amigável')+
+      _tOpt('impugnação à partilha','Impugnação à partilha'))+
+    _tGrp('Fase recursal',
+      _tOpt('agravo de instrumento','Agravo de instrumento')+
+      _tOpt('apelação','Apelação')+
+      _tOpt('contrarrazões de apelação','Contrarrazões de apelação'))+
+    _T_MANUAL,
+
+  consumidor:
+    _T_AUTO+
+    _tGrp('Petição inicial',
+      _T_INIC+
+      _tOpt('petição de tutela de urgência autônoma','Petição de tutela de urgência autônoma'))+
+    _T_REV+
+    _tGrp('Fase de conhecimento',
+      _tOpt('contestação','Contestação')+
+      _tOpt('réplica à contestação','Réplica à contestação')+
+      _tOpt('embargos de declaração','Embargos de declaração')+
+      _tOpt('especificação de provas','Especificação de provas')+
+      _tOpt('manifestação a decisão interlocutória','Manifestação a decisão interlocutória')+
+      _tOpt('petição simples','Petição simples / informativa'))+
+    _tGrp('JEC — Juizado Especial',
+      _tOpt('recurso inominado','Recurso inominado (JEC)')+
+      _tOpt('contrarrazões de recurso inominado','Contrarrazões ao recurso inominado (JEC)'))+
+    _tGrp('Fase recursal',
+      _tOpt('apelação','Apelação')+
+      _tOpt('contrarrazões de apelação','Contrarrazões de apelação')+
+      _tOpt('recurso especial','Recurso especial (STJ)'))+
+    _T_MANUAL,
+
+  mp:
+    _T_AUTO+
+    _tGrp('Peças criminais',
+      _tOpt('denúncia criminal','Denúncia criminal')+
+      _tOpt('aditamento à denúncia','Aditamento à denúncia')+
+      _tOpt('alegações finais mp','Alegações finais (MP)')+
+      _tOpt('recurso criminal mp','Recurso criminal (MP)')+
+      _tOpt('parecer ministerial criminal','Parecer ministerial — matéria criminal'))+
+    _T_REV+
+    _tGrp('Peças cíveis / ACP',
+      _tOpt('petição inicial','Ação civil pública (petição inicial)')+
+      _tOpt('petição inicial improbidade','Ação de improbidade administrativa (petição inicial)')+
+      _tOpt('manifestação a decisão interlocutória','Manifestação a decisão interlocutória')+
+      _tOpt('parecer ministerial cível','Parecer ministerial — matéria cível')+
+      _tOpt('recurso acp','Recurso em ACP / Improbidade'))+
+    _tGrp('ECA / Infância',
+      _tOpt('representação eca','Representação (ECA)')+
+      _tOpt('petição eca proteção','Petição de medida de proteção (ECA)'))+
+    _tGrp('Outro',
+      _tOpt('recomendação ministerial','Recomendação ministerial')+
       _tOpt('manual','Preencher manualmente (digitar o tipo)')),
 };
 
@@ -10072,15 +10227,57 @@ function atualizarContagem() {
   document.getElementById('res-char-count').textContent = chars + ' caracteres · ' + palavras + ' palavras';
 }
 
+// ── COMPARAR VERSÕES (N3) ─────────────────────────────────────
+var _minutaAnterior = '';
+
+function mostrarDiffVersoes() {
+  if (!_minutaAnterior || !minuta) { alert('Não há versão anterior para comparar.'); return; }
+  var ant = _minutaAnterior.split(/\n+/);
+  var nov = minuta.split(/\n+/);
+  var html = '<div style="font-size:12px;line-height:1.7;white-space:pre-wrap;font-family:monospace">';
+  var antSet = {};
+  ant.forEach(function(l){ antSet[l.trim()] = true; });
+  var novSet = {};
+  nov.forEach(function(l){ novSet[l.trim()] = true; });
+  // Mostrar linhas removidas e adicionadas
+  ant.forEach(function(l){
+    if (l.trim() && !novSet[l.trim()]) {
+      html += '<span style="background:#FEE2E2;color:#991B1B;display:block;padding:1px 4px;border-left:3px solid #DC2626">− ' + l.replace(/</g,'&lt;') + '</span>';
+    }
+  });
+  nov.forEach(function(l){
+    if (l.trim() && !antSet[l.trim()]) {
+      html += '<span style="background:#DCFCE7;color:#166534;display:block;padding:1px 4px;border-left:3px solid #16A34A">+ ' + l.replace(/</g,'&lt;') + '</span>';
+    }
+  });
+  html += '</div>';
+  if (html === '<div style="font-size:12px;line-height:1.7;white-space:pre-wrap;font-family:monospace"></div>') {
+    html = '<p style="color:var(--text2);font-size:13px">As versões são idênticas ou as diferenças são muito pequenas para exibir.</p>';
+  }
+  var m = document.getElementById('modal-confirm');
+  if (!m) { alert('Comparação indisponível.'); return; }
+  document.getElementById('modal-icon').textContent = '';
+  document.getElementById('modal-title').textContent = 'Diferenças entre versões';
+  document.getElementById('modal-msg').innerHTML = html;
+  var btnOk = document.getElementById('modal-ok');
+  var btnCan = document.getElementById('modal-cancel');
+  btnOk.textContent = 'Fechar'; btnCan.style.display = 'none';
+  m.style.display = 'flex';
+  btnOk.onclick = function(){ m.style.display='none'; btnCan.style.display=''; };
+}
+
 // ── REGENERAR / CONTINUAR ─────────────────────────────────────
 async function regenerarMinuta() {
   if (!ultimoSysPrompt || !ultimoUsrPrompt) { alert('Nenhuma petição gerada nesta sessão para regenerar.'); return; }
   var okRegen = await customConfirm('O texto atual será descartado e uma nova versão será gerada do zero.',
     { icon: '🔄', title: 'Gerar nova versão?', ok: 'Sim, gerar nova versão', cancel: 'Manter texto atual' });
   if (!okRegen) return;
+  _minutaAnterior = minuta; // guardar para comparação (N3)
   minuta = '';
   document.getElementById('res-txt').textContent = '';
   await executarGeracao(ultimoSysPrompt, ultimoUsrPrompt, false);
+  var btnDiff = document.getElementById('btn-diff-versoes');
+  if (btnDiff && _minutaAnterior) btnDiff.style.display = '';
 }
 
 async function continuarMinuta() {
@@ -10254,6 +10451,27 @@ async function importarBackup(inp) {
   inp.value = '';
 }
 
+// ── SESSION TIMEOUT PASSIVO (N6) ──────────────────────────────
+var _ultimaAtividade = Date.now();
+var _timeoutAvisado  = false;
+
+function _registrarAtividade() { _ultimaAtividade = Date.now(); _timeoutAvisado = false; }
+['mousemove','keydown','click','touchstart','scroll'].forEach(function(ev){
+  document.addEventListener(ev, _registrarAtividade, { passive: true });
+});
+
+setInterval(function() {
+  if (!GPStorage || !GPStorage.userId) return;
+  var ocioso = (Date.now() - _ultimaAtividade) / 60000;
+  if (ocioso >= 30) {
+    mostrarToast('Sessão encerrada por inatividade. Faça login novamente.', 'info', 6000);
+    setTimeout(function(){ getSupa().auth.signOut(); }, 2000);
+  } else if (ocioso >= 28 && !_timeoutAvisado) {
+    _timeoutAvisado = true;
+    mostrarToast('Você está inativo há 28 minutos. A sessão será encerrada em 2 minutos.', 'warn', 8000);
+  }
+}, 60000);
+
 // ── ATALHOS DE TECLADO ────────────────────────────────────────
 function handlerAtalhos(e) {
   // Não interferir em campos de texto
@@ -10349,6 +10567,13 @@ function _modalKeyHandler(e) {
     if (!localStorage.getItem('gp_onboarding_dismissed')) {
       var _ob = document.getElementById('card-onboarding');
       if (_ob) _ob.style.display = 'block';
+    }
+  } catch(e) {}
+
+  // Migração v2.2: limpar gp_area_favorita='civel' gravado automaticamente por versão anterior
+  try {
+    if (localStorage.getItem('gp_area_favorita') === 'civel') {
+      localStorage.removeItem('gp_area_favorita');
     }
   } catch(e) {}
 
