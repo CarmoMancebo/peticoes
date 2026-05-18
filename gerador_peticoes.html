@@ -757,6 +757,39 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .user-modal .um-actions button { flex: 1; padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--bg2); color: var(--text); }
 .user-modal .um-actions button.danger { background: #DC2626; color: #fff; border-color: #DC2626; }
 .user-modal .um-actions button.danger:hover { background: #B91C1C; }
+/* Foto de perfil no modal */
+.um-avatar-wrap { position:relative; cursor:pointer; flex-shrink:0; }
+.um-avatar-wrap:hover .um-avatar-edit { opacity:1; }
+.um-avatar-edit { position:absolute; inset:0; background:rgba(0,0,0,.45); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; opacity:0; transition:opacity .2s; border-radius:inherit; }
+.um-avatar img { width:48px; height:48px; border-radius:inherit; object-fit:cover; }
+
+/* Toast de feedback */
+#gp-toast { position:fixed; bottom:24px; right:24px; z-index:99999; display:flex; flex-direction:column; gap:6px; pointer-events:none; }
+.gp-toast-item { padding:10px 16px; border-radius:8px; font-size:12px; font-weight:500; color:#fff; background:#1e3a5f; box-shadow:0 4px 16px rgba(0,0,0,.18); opacity:0; transform:translateY(8px); transition:opacity .22s,transform .22s; pointer-events:none; max-width:300px; }
+.gp-toast-item.show { opacity:1; transform:translateY(0); pointer-events:auto; }
+.gp-toast-item.ok { background:#166534; }
+.gp-toast-item.warn { background:#92400E; }
+.gp-toast-item.err { background:#991B1B; }
+
+/* Shake + destaque de campo obrigatório vazio */
+@keyframes gp-shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-5px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(3px)} }
+.campo-erro { border-color:#DC2626 !important; box-shadow:0 0 0 2px rgba(220,38,38,.18) !important; animation:gp-shake .35s ease; }
+
+/* Hover-card do topbar chip */
+.tb-chip-wrap { position:relative; display:inline-flex; align-items:center; }
+.tb-hover-card { position:absolute; top:calc(100% + 6px); right:0; background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:12px 14px; min-width:210px; box-shadow:0 8px 24px rgba(0,0,0,.12); font-size:12px; z-index:1000; display:none; }
+.tb-chip-wrap:hover .tb-hover-card { display:block; }
+.tb-hover-card .hc-nome { font-weight:700; font-size:13px; margin-bottom:2px; }
+.tb-hover-card .hc-plano { font-size:11px; color:var(--text3); margin-bottom:8px; }
+.tb-hover-card .hc-barra { height:4px; background:var(--border); border-radius:2px; overflow:hidden; margin-bottom:4px; }
+.tb-hover-card .hc-fill  { height:100%; border-radius:2px; }
+.tb-hover-card .hc-txt   { font-size:10px; color:var(--text3); }
+
+/* Estado vazio do Resultado — melhorado */
+.res-empty-card { text-align:center; padding:2.5rem 1.5rem; color:var(--text3); }
+.res-empty-card .rec-icon { font-size:40px; line-height:1; margin-bottom:12px; }
+.res-empty-card .rec-titulo { font-size:14px; font-weight:600; color:var(--text2); margin-bottom:6px; }
+.res-empty-card .rec-sub { font-size:12px; line-height:1.6; margin-bottom:16px; }
 
 /* === BUSCA GLOBAL — Modal Cmd+K (C8) === */
 .busca-global-overlay {
@@ -1092,7 +1125,7 @@ tbody tr.st-p td{background:#b3e5fc}
       </div>
     </div>
 
-    <div class="login-ver">versão 2.0</div>
+    <div class="login-ver">versão 2.1</div>
   </div>
 </div>
 
@@ -1106,9 +1139,20 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="tb-oab">OAB/SP 274.575</div>
   </div>
   <div class="tb-right">
-    <span id="tb-user-chip" class="user-chip" title="Sua conta" onclick="abrirModalUsuario()" style="display:none;margin-right:8px">
-      <span class="user-avatar" id="tb-user-iniciais">—</span>
-      <span class="user-nome" id="tb-user-primeironome">—</span>
+    <span class="tb-chip-wrap" id="tb-chip-wrap" style="display:none;margin-right:8px">
+      <span id="tb-user-chip" class="user-chip" title="Clique para ver sua conta" onclick="abrirModalUsuario()">
+        <span class="user-avatar" id="tb-user-iniciais">—</span>
+        <span class="user-nome" id="tb-user-primeironome">—</span>
+      </span>
+      <div class="tb-hover-card">
+        <div class="hc-nome" id="hc-nome">—</div>
+        <div class="hc-plano" id="hc-plano">—</div>
+        <div class="hc-barra"><div class="hc-fill" id="hc-fill" style="width:0%;background:var(--blue)"></div></div>
+        <div class="hc-txt" id="hc-txt">—</div>
+        <div style="margin-top:10px;display:flex;gap:6px">
+          <button class="btn btn-s btn-sm" onclick="abrirModalUsuario();event.stopPropagation()" style="flex:1;font-size:10px">Minha conta</button>
+        </div>
+      </div>
     </span>
     <button id="btn-busca-global" onclick="abrirBuscaGlobal()" title="Busca global (Ctrl+K)" style="background:none;border:1px solid var(--border);border-radius:14px;cursor:pointer;font-size:11px;padding:3px 10px 3px 8px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s;display:inline-flex;align-items:center;gap:6px" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
       🔍 <span>Buscar</span> <span style="font-size:9px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1px 4px;color:var(--text3)">Ctrl K</span>
@@ -1119,7 +1163,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <button id="tb-modelo-btn" onclick="go('cfg')" title="Modelo de IA ativo — proxy seguro" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Essencial</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
-    <span class="tb-meta" id="tb-versao">versão 2.0</span>
+    <span class="tb-meta" id="tb-versao">versão 2.1</span>
   </div>
 </div>
 
@@ -1146,10 +1190,15 @@ tbody tr.st-p td{background:#b3e5fc}
 <div id="user-modal-overlay" class="user-modal-overlay" onclick="fecharModalUsuario(event)">
   <div class="user-modal" onclick="event.stopPropagation()">
     <div class="um-header">
-      <span class="um-avatar" id="um-avatar">—</span>
+      <div class="um-avatar-wrap" onclick="document.getElementById('inp-foto-perfil').click()" title="Clique para alterar a foto">
+        <span class="um-avatar" id="um-avatar">—</span>
+        <div class="um-avatar-edit">📷</div>
+      </div>
+      <input type="file" id="inp-foto-perfil" accept="image/*" style="display:none" onchange="carregarFotoPerfil(this)">
       <div>
         <div class="um-nome" id="um-nome">Usuário</div>
         <div class="um-email" id="um-email">—</div>
+        <div id="um-foto-hint" style="font-size:10px;color:var(--text3);margin-top:2px">clique no avatar para alterar foto</div>
       </div>
     </div>
     <div class="um-row">
@@ -1159,6 +1208,10 @@ tbody tr.st-p td{background:#b3e5fc}
     <div class="um-row">
       <span class="um-label">OAB</span>
       <span class="um-val" id="um-oab">—</span>
+    </div>
+    <div class="um-row" id="um-row-expiry" style="display:none">
+      <span class="um-label">Trial expira em</span>
+      <span class="um-val" id="um-expiry">—</span>
     </div>
     <div style="margin-top:14px">
       <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px">
@@ -2115,9 +2168,15 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
       <div class="panel-title">Resultado</div>
       <div class="panel-sub">Minuta gerada — revise antes de protocolar.</div>
       <div id="barra-progresso" class="indeterminado"><div id="barra-progresso-inner"></div></div>
-        <div id="res-empty" style="text-align:center;padding:3rem 1rem;color:var(--text3)">
-        <p>Nenhuma minuta gerada ainda.</p>
-      </div>
+        <div id="res-empty" class="res-empty-card">
+          <div class="rec-icon">⚖️</div>
+          <div class="rec-titulo">Nenhuma minuta gerada ainda</div>
+          <div class="rec-sub">
+            Configure a peça na aba <strong>Gerar petição</strong> e clique em <strong>Gerar minuta</strong>.<br>
+            Ou use a aba <strong>Análise de processo</strong> para resumir o caso antes de gerar.
+          </div>
+          <button class="btn btn-p btn-sm" onclick="go('ger')">→ Ir para Gerar petição</button>
+        </div>
       <div id="res-content" style="display:none">
         <div id="res-st"></div>
         <div id="res-nome" class="tip" style="margin-bottom:8px"></div>
@@ -2654,18 +2713,26 @@ function preencherDadosUsuario(user) {
   var nome = meta.nome || user.email || 'Usuário';
   var oab = meta.oab || '';
 
-  // Chip do usuário logado no topbar (C1)
-  var chip = document.getElementById('tb-user-chip');
+  // Chip do usuário logado no topbar (C1/T2)
+  var chipWrap = document.getElementById('tb-chip-wrap');
   var iniEl = document.getElementById('tb-user-iniciais');
   var pnEl  = document.getElementById('tb-user-primeironome');
-  if (chip && iniEl && pnEl) {
+  if (chipWrap && iniEl && pnEl) {
     var partes = nome.trim().split(/\s+/);
     var ini = partes.length >= 2
       ? (partes[0][0] + partes[partes.length-1][0]).toUpperCase()
       : (partes[0].slice(0,2) || '?').toUpperCase();
-    iniEl.textContent = ini;
+    iniEl.dataset.iniciais = ini;
+    // Aplicar foto ou iniciais
+    var _foto = null;
+    try { _foto = localStorage.getItem('gp_foto_perfil'); } catch(e) {}
+    if (_foto) {
+      iniEl.innerHTML = '<img src="'+_foto+'" alt="foto" style="width:22px;height:22px;border-radius:50%;object-fit:cover;margin:-2px">';
+    } else {
+      iniEl.textContent = ini;
+    }
     pnEl.textContent = partes[0] || 'Conta';
-    chip.style.display = 'inline-flex';
+    chipWrap.style.display = 'inline-flex';
   }
 
   // Guardar dados para o modal
@@ -2687,12 +2754,28 @@ function abrirModalUsuario() {
   var emailEl  = document.getElementById('um-email');
   var planoEl  = document.getElementById('um-plano');
   var oabEl    = document.getElementById('um-oab');
-  if (avatarEl) avatarEl.textContent = ini;
+
+  // Foto de perfil ou iniciais
+  var fotoPerfil = null;
+  try { fotoPerfil = localStorage.getItem('gp_foto_perfil'); } catch(e) {}
+  if (avatarEl) {
+    if (fotoPerfil) {
+      avatarEl.innerHTML = '<img src="'+fotoPerfil+'" alt="foto" style="width:48px;height:48px;border-radius:50%;object-fit:cover">';
+    } else {
+      avatarEl.textContent = ini;
+    }
+  }
+  var hint = document.getElementById('um-foto-hint');
+  if (hint) hint.textContent = fotoPerfil ? 'foto personalizada ativa · ' : 'clique no avatar para alterar foto';
+  if (hint && fotoPerfil) {
+    hint.innerHTML = 'foto personalizada ativa · <a href="#" onclick="removerFotoPerfil();return false;" style="color:var(--text3);font-size:10px">remover</a>';
+  }
+
   if (nomeEl)   nomeEl.textContent   = info.nome;
   if (emailEl)  emailEl.textContent  = info.email || '—';
   if (oabEl)    oabEl.textContent    = info.oab ? 'OAB ' + info.oab : '—';
 
-  // Preencher plano e contador de peças
+  // Plano e contador
   var plano = (_dadosUsuario && _dadosUsuario.plano) || 'trial';
   var labelPlano = { trial:'Demonstração', solo:'Ágil', pro:'Avançado', escritorio:'Escritório' }[plano] || plano;
   if (planoEl) planoEl.textContent = labelPlano;
@@ -2713,6 +2796,20 @@ function abrirModalUsuario() {
     ? restam + ' restantes — plano Demonstração não é renovável (30 dias / 25 peças).'
     : restam + ' restantes · renova no primeiro dia do mês seguinte.';
   if (inf) inf.textContent = infTxt;
+
+  // Data de expiração do trial (F2)
+  var rowExpiry = document.getElementById('um-row-expiry');
+  var valExpiry = document.getElementById('um-expiry');
+  if (plano === 'trial' && _dadosUsuario && _dadosUsuario.criado_em) {
+    var expiraMs = new Date(_dadosUsuario.criado_em).getTime() + 30 * 24 * 60 * 60 * 1000;
+    var expiraData = new Date(expiraMs).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' });
+    var diasRest = Math.max(0, Math.ceil((expiraMs - Date.now()) / (24 * 60 * 60 * 1000)));
+    var corExp = diasRest <= 3 ? '#DC2626' : diasRest <= 7 ? '#D97706' : 'var(--text)';
+    if (valExpiry) valExpiry.innerHTML = '<span style="color:'+corExp+'">'+expiraData+' ('+diasRest+' dias)</span>';
+    if (rowExpiry) rowExpiry.style.display = '';
+  } else {
+    if (rowExpiry) rowExpiry.style.display = 'none';
+  }
 
   var ov = document.getElementById('user-modal-overlay');
   if (ov) ov.classList.add('show');
@@ -3424,10 +3521,15 @@ function atualizarIndicadorModelo() {
 
   if (chaveEl) chaveEl.textContent = '✓';
 
+  var descs = {
+    'essencial': 'Rápido e eficiente — ideal para peças objetivas',
+    'avancado':  'Padrão recomendado — qualidade e velocidade',
+    'completo':  'Máxima precisão e profundidade'
+  };
   if (btn) {
     btn.classList.add('tb-modelo-ok');
     btn.classList.remove('tb-modelo-warn');
-    btn.title = 'Modo ativo: ' + nome + ' · Proxy seguro ativo';
+    btn.title = nome + ' — ' + (descs[val] || '') + ' · Clique para configurar';
   }
 
   if (statusEl) {
@@ -5029,16 +5131,25 @@ function verificarPrazosENotificar() {
 
 function ativarNotificacoes() {
   if (!("Notification" in window)) {
-    alert("Seu navegador não suporta notificações.");
+    mostrarToast('Seu navegador não suporta notificações.', 'warn');
+    return;
+  }
+  if (Notification.permission === 'granted') {
+    mostrarToast('✓ Notificações já estão ativas — você será alertado sobre prazos e conclusão de geração.', 'ok', 4000);
+    var st = document.getElementById('notif-st');
+    if (st) st.textContent = '✓ Ativas';
     return;
   }
   Notification.requestPermission().then(function(p){
-    if (p === "granted") {
-      localStorage.setItem("gp_notif", "1");
+    var st = document.getElementById('notif-st');
+    if (p === 'granted') {
+      try { localStorage.setItem('gp_notif', '1'); } catch(e) {}
       verificarPrazosENotificar();
-      alert("✅ Notificações ativadas! Você será alertado sobre prazos críticos ao abrir a ferramenta.");
+      mostrarToast('✓ Notificações ativadas! Você será alertado sobre prazos críticos e quando a geração de uma peça for concluída.', 'ok', 5000);
+      if (st) st.textContent = '✓ Ativas';
     } else {
-      alert("Permissão negada. Ative as notificações nas configurações do navegador.");
+      mostrarToast('Permissão negada. Ative as notificações nas configurações do navegador.', 'warn', 4000);
+      if (st) st.textContent = 'Permissão negada';
     }
   });
 }
@@ -5961,7 +6072,6 @@ function verHistoricoProcesso(proc) {
 }
 
 function registrarUso(modelo, tokensIn, tokensOut, tipoPeca) {
-  var c = calcularCusto(modelo, tokensIn, tokensOut);
   try {
     var hist = JSON.parse(localStorage.getItem('gp_uso') || '[]');
     hist.push({
@@ -5969,19 +6079,17 @@ function registrarUso(modelo, tokensIn, tokensOut, tipoPeca) {
       modelo: modelo,
       tipoPeca: tipoPeca || '',
       tokensIn: tokensIn,
-      tokensOut: tokensOut,
-      custoUsd: c.usd,
-      custoBrl: c.brl
+      tokensOut: tokensOut
     });
-    if (hist.length > 200) hist = hist.slice(-200); // limitar a 200 últimas
+    if (hist.length > 200) hist = hist.slice(-200);
     localStorage.setItem('gp_uso', JSON.stringify(hist));
   } catch(e) { console.warn('Erro ao registrar uso:', e); }
-  return c;
 }
 
 function exibirUsoNaUI(tokensIn, tokensOut, modelo, tipoPeca) {
-  var custoAtual = registrarUso(modelo, tokensIn, tokensOut, tipoPeca);
+  registrarUso(modelo, tokensIn, tokensOut, tipoPeca);
   var totTokens = tokensIn + tokensOut;
+  var nomeModAtual = (calcularCusto(modelo, tokensIn, tokensOut) || {}).nome || modelo;
 
   // Adicionar à sessão
   sessaoOps.push({
@@ -5992,35 +6100,17 @@ function exibirUsoNaUI(tokensIn, tokensOut, modelo, tipoPeca) {
     data: new Date()
   });
 
-  // Calcular custo em TODOS os modelos (comparativo para a op atual)
-  var comparativo = [];
-  ['claude-sonnet','claude-opus'].forEach(function(m){
-    var c = calcularCusto(m, tokensIn, tokensOut);
-    var marcadorAtual = (m === modelo) ? ' <strong style="color:var(--blue)">← usado</strong>' : '';
-    comparativo.push(
-      '<tr>'+
-      '<td style="padding:3px 10px 3px 0;color:var(--text)">'+c.nome+marcadorAtual+'</td>'+
-      '<td style="padding:3px 10px;text-align:right;font-variant-numeric:tabular-nums">US$ '+c.usd.toFixed(4)+'</td>'+
-      '<td style="padding:3px 0;text-align:right;font-variant-numeric:tabular-nums;color:var(--text2)">R$ '+c.brl.toFixed(3)+'</td>'+
-      '</tr>'
-    );
-  });
-
   // Tabela das operações da sessão (se houver mais de uma)
   var tabelaSessao = '';
   if (sessaoOps.length >= 2) {
-    var totInSes = 0, totOutSes = 0, totUsdSes = 0, totBrlSes = 0;
+    var totInSes = 0, totOutSes = 0;
     var linhasSes = sessaoOps.map(function(op){
-      var cp = calcularCusto(op.modelo, op.tokensIn, op.tokensOut);
       totInSes += op.tokensIn;
       totOutSes += op.tokensOut;
-      totUsdSes += cp.usd;
-      totBrlSes += cp.brl;
       var rotulo = op.tipo === 'resumo' ? '📝 Resumo' : (op.tipo && op.tipo !== 'auto' ? '⚖ ' + op.tipo.substring(0,30) : '⚖ Petição');
       return '<tr>'+
         '<td style="padding:2px 8px 2px 0;color:var(--text2);font-size:10px">'+rotulo+'</td>'+
-        '<td style="padding:2px 8px;text-align:right;font-size:10px;font-variant-numeric:tabular-nums;color:var(--text2)">'+(op.tokensIn+op.tokensOut).toLocaleString('pt-BR')+' tk</td>'+
-        '<td style="padding:2px 0;text-align:right;font-size:10px;font-variant-numeric:tabular-nums">US$ '+cp.usd.toFixed(4)+' · R$ '+cp.brl.toFixed(3)+'</td>'+
+        '<td style="padding:2px 0;text-align:right;font-size:10px;font-variant-numeric:tabular-nums;color:var(--text2)">'+(op.tokensIn+op.tokensOut).toLocaleString('pt-BR')+' tokens</td>'+
       '</tr>';
     });
     tabelaSessao = '<div style="margin-top:10px;padding-top:8px;border-top:1px dashed var(--border2)">'+
@@ -6029,35 +6119,23 @@ function exibirUsoNaUI(tokensIn, tokensOut, modelo, tipoPeca) {
       linhasSes.join('')+
       '<tr style="border-top:1px solid var(--border2)">'+
         '<td style="padding:4px 8px 2px 0;font-weight:600;font-size:11px">Total</td>'+
-        '<td style="padding:4px 8px 2px 0;text-align:right;font-size:11px;font-variant-numeric:tabular-nums;font-weight:600">'+(totInSes+totOutSes).toLocaleString('pt-BR')+' tk</td>'+
-        '<td style="padding:4px 0 2px 0;text-align:right;font-size:11px;font-variant-numeric:tabular-nums;font-weight:600;color:var(--blue)">US$ '+totUsdSes.toFixed(4)+' · R$ '+totBrlSes.toFixed(3)+'</td>'+
+        '<td style="padding:4px 0 2px 0;text-align:right;font-size:11px;font-variant-numeric:tabular-nums;font-weight:600;color:var(--blue)">'+(totInSes+totOutSes).toLocaleString('pt-BR')+' tokens</td>'+
       '</tr>'+
       '</table>'+
-      '<div style="margin-top:4px;display:flex;gap:12px">'+
-    '<a href="#" onclick="exportarCustosCSV();return false;" style="font-size:10px;color:var(--blue);text-decoration:none">📊 exportar CSV</a>'+
-    '<a href="#" onclick="resetarSessao();return false;" style="font-size:10px;color:var(--text3);text-decoration:none">↺ zerar contador</a>'+
-    '</div>'+
-    '</div>';
+      '<div style="margin-top:4px">'+
+      '<a href="#" onclick="resetarSessao();return false;" style="font-size:10px;color:var(--text3);text-decoration:none">↺ zerar contador da sessão</a>'+
+      '</div>'+
+      '</div>';
   }
 
   var html = '<div style="margin-top:8px;padding:10px 12px;background:var(--blue-bg);border:1px solid var(--blue-mid);border-radius:6px;font-size:12px;color:var(--text)">'+
-    '<div style="margin-bottom:6px"><strong>📊 Uso desta geração</strong> ('+custoAtual.nome+')</div>'+
-    '<div style="margin-bottom:8px">'+
+    '<div style="margin-bottom:6px"><strong>📊 Uso desta geração</strong> ('+nomeModAtual+')</div>'+
+    '<div>'+
       '<span style="color:var(--text2)">Tokens: </span>'+
       tokensIn.toLocaleString('pt-BR')+' entrada · '+
       tokensOut.toLocaleString('pt-BR')+' saída · '+
       '<strong>'+totTokens.toLocaleString('pt-BR')+' total</strong>'+
     '</div>'+
-    '<div style="font-size:11px;color:var(--text2);margin-bottom:4px">💰 Custo estimado (para estes tokens, nos 3 modelos):</div>'+
-    '<table style="font-size:11px;border-collapse:collapse;width:auto">'+
-      comparativo.join('')+
-    '</table>'+
-    '<div style="font-size:10px;color:var(--text3);margin-top:6px;display:flex;align-items:center;gap:6px">'+
-    '💱 Cotação USD/BRL: '+
-    '<input id="inp-cotacao-inline" type="number" step="0.01" min="1" value="'+COTACAO_USD_BRL.toFixed(2)+'" '+
-    'style="width:58px;font-size:10px;border:1px solid var(--border);border-radius:4px;padding:1px 4px;background:var(--bg2);color:var(--text)" '+
-    'oninput="atualizarCotacaoInline(this.value)" title="Edite para ajustar a cotação do dia"/>'+
-    '<span style="color:var(--text3)">R$ = 1 USD</span></div>'+
     tabelaSessao+
     '</div>';
   var container = document.getElementById('res-uso');
@@ -6424,7 +6502,7 @@ async function usarComoBase() {
   if (btnClear) btnClear.style.display = 'inline-flex';
   // Ir para aba Gerar
   go('ger');
-  alert('Resumo carregado como contexto. Configure o tipo de peça e clique em "Gerar minuta".');
+  mostrarToast('✓ Resumo carregado como contexto. Configure o tipo de peça e clique em Gerar minuta.', 'ok', 4500);
 }
 
 async function gerarResumoCaso() {
@@ -8261,6 +8339,98 @@ function mostrarModalCompartilhamento(msg) {
   );
 }
 
+// ── TOAST ───────────────────────────────────────────────────────────────
+function mostrarToast(msg, tipo, duracaoMs) {
+  tipo = tipo || 'ok'; duracaoMs = duracaoMs || 3000;
+  var container = document.getElementById('gp-toast');
+  if (!container) return;
+  var el = document.createElement('div');
+  el.className = 'gp-toast-item ' + tipo;
+  el.textContent = msg;
+  container.appendChild(el);
+  requestAnimationFrame(function(){ el.classList.add('show'); });
+  setTimeout(function(){
+    el.classList.remove('show');
+    setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); }, 300);
+  }, duracaoMs);
+}
+
+// ── FOTO DE PERFIL ───────────────────────────────────────────────────────
+function carregarFotoPerfil(input) {
+  var f = input.files && input.files[0];
+  if (!f) return;
+  if (f.size > 800 * 1024) { mostrarToast('Foto muito grande. Use uma imagem menor que 800 KB.', 'warn'); return; }
+  var rd = new FileReader();
+  rd.onload = function(e) {
+    var b64 = e.target.result;
+    try { localStorage.setItem('gp_foto_perfil', b64); } catch(ex) {}
+    aplicarFotoPerfil(b64);
+    mostrarToast('Foto atualizada com sucesso.', 'ok');
+    var hint = document.getElementById('um-foto-hint');
+    if (hint) hint.textContent = 'foto personalizada ativa';
+  };
+  rd.readAsDataURL(f);
+  input.value = '';
+}
+
+function aplicarFotoPerfil(b64) {
+  // Modal avatar
+  var av = document.getElementById('um-avatar');
+  if (av) {
+    if (b64) {
+      av.innerHTML = '<img src="'+b64+'" alt="foto" style="width:48px;height:48px;border-radius:50%;object-fit:cover">';
+    } else {
+      var info = window._gpUsuarioInfo || {};
+      var partes = (info.nome || 'U').trim().split(/\s+/);
+      av.innerHTML = partes.length >= 2
+        ? (partes[0][0] + partes[partes.length-1][0]).toUpperCase()
+        : (partes[0].slice(0,2) || '?').toUpperCase();
+    }
+  }
+  // Topbar chip
+  var chip = document.getElementById('tb-user-iniciais');
+  if (chip) {
+    if (b64) {
+      chip.innerHTML = '<img src="'+b64+'" alt="foto" style="width:22px;height:22px;border-radius:50%;object-fit:cover;margin:-2px">';
+    } else {
+      chip.innerHTML = chip.dataset.iniciais || '—';
+    }
+  }
+}
+
+function removerFotoPerfil() {
+  try { localStorage.removeItem('gp_foto_perfil'); } catch(e) {}
+  aplicarFotoPerfil(null);
+  mostrarToast('Foto removida.', 'ok');
+  var hint = document.getElementById('um-foto-hint');
+  if (hint) hint.textContent = 'clique no avatar para alterar foto';
+}
+
+// ── VALIDAÇÃO INLINE DE CAMPOS OBRIGATÓRIOS ──────────────────────────────
+function destacarCampoVazio(id, msg) {
+  go('ger');
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.add('campo-erro');
+  el.focus();
+  setTimeout(function(){ el.classList.remove('campo-erro'); }, 3000);
+  mostrarToast('⚠ ' + msg, 'warn', 4000);
+}
+
+// ── NOTIFICAÇÃO DE CONCLUSÃO DE PETIÇÃO ──────────────────────────────────
+function notificarConclusaoPeticao(tipoPeca) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  try {
+    var msg = tipoPeca && tipoPeca !== 'auto' ? tipoPeca : 'petição';
+    new Notification('Gerador de Petições — Pronto!', {
+      body: 'Minuta de ' + msg + ' gerada. Revise antes de protocolar.',
+      icon: '/favicon.ico',
+      tag: 'gp-geracao'
+    });
+  } catch(e) {}
+}
+
 function solicitarExclusaoConta() {
   var info = window._gpUsuarioInfo || {};
   var email = info.email || '(não identificado)';
@@ -8536,6 +8706,26 @@ function atualizarUIPlano() {
       txtBarra.textContent = pecasMes + ' de ' + limite + ' peças usadas este mês · ' + restam + ' restantes';
     }
   }
+
+  // Hover-card do topbar (T3)
+  var info = window._gpUsuarioInfo || {};
+  var hcNome = document.getElementById('hc-nome');
+  var hcPlano = document.getElementById('hc-plano');
+  var hcFill = document.getElementById('hc-fill');
+  var hcTxt = document.getElementById('hc-txt');
+  if (hcNome) hcNome.textContent = info.nome || '—';
+  if (hcPlano) hcPlano.textContent = labelBadge + ' · ' + pecasMes + '/' + limite + ' peças';
+  if (hcFill) {
+    hcFill.style.width = pct + '%';
+    hcFill.style.background = pct >= 90 ? '#DC2626' : pct >= 70 ? '#D97706' : 'var(--blue)';
+  }
+  if (hcTxt) {
+    if (plano === 'trial' && diasTrialRestantes !== null) {
+      hcTxt.textContent = diasTrialRestantes + ' dias restantes do trial';
+    } else {
+      hcTxt.textContent = restam + ' peças restantes este mês';
+    }
+  }
 }
 
 async function incrementarPecasMes() {
@@ -8798,9 +8988,9 @@ async function gerarMinuta() {
   var fmt = getFormatacao(); // necessário para injetar formato de data no prompt
   var andamento=document.getElementById('f-and').value.trim();
   var _tipoParaValidar = document.getElementById('f-tipo').value;
-  if (!andamento && _tipoParaValidar !== 'petição inicial'){alert('Cole ou carregue o andamento do tribunal.');return;}
+  if (!andamento && _tipoParaValidar !== 'petição inicial'){ destacarCampoVazio('f-and','Cole ou carregue o andamento do tribunal antes de gerar.'); return; }
   var procVal=document.getElementById('f-proc').value.trim();
-  if (!procVal){alert('Informe o número do processo (campo obrigatório).');return;}
+  if (!procVal){ destacarCampoVazio('f-proc','Informe o número do processo (campo obrigatório).'); return; }
   registrarProcRecente(procVal);
   var pasta=document.getElementById('f-pasta').value.trim();
   var proc=document.getElementById('f-proc').value.trim();
@@ -8926,6 +9116,7 @@ async function gerarMinuta() {
     nomeArq=(pasta?pasta+' - ':'')+nomePeca+' - GeradoPorIA';
     document.getElementById('res-nome').textContent='Arquivo: '+nomeArq+'.docx  ·  Modelo: '+nomeModelo;
     setSt2('res-st','ok','Minuta gerada com sucesso. Revise antes de protocolar.');
+    notificarConclusaoPeticao(tipo);
     var btnSO = document.getElementById('btn-segunda-opiniao'); if(btnSO) btnSO.style.display='';
     var btnContr = document.getElementById('btn-verificar-contradicao'); if(btnContr) btnContr.style.display='';
     // Incrementar contador + salvar no Supabase
@@ -10171,6 +10362,21 @@ function _modalKeyHandler(e) {
   }
   if (document.getElementById('f-area')) { atualizarSubareas(); atualizarBotaoPinArea(); }
 
+  // Aplicar foto de perfil salva (T2)
+  try {
+    var _fotoSalva = localStorage.getItem('gp_foto_perfil');
+    if (_fotoSalva) aplicarFotoPerfil(_fotoSalva);
+  } catch(e) {}
+
+  // Atualizar status de notificações (D5)
+  try {
+    var _notifSt = document.getElementById('notif-st');
+    if (_notifSt && 'Notification' in window) {
+      if (Notification.permission === 'granted') _notifSt.textContent = '✓ Ativas';
+      else if (Notification.permission === 'denied') _notifSt.textContent = 'Bloqueadas pelo navegador';
+    }
+  } catch(e) {}
+
   checkBtn();
   // Contador de chars/tokens no campo andamento
   var _fAnd = document.getElementById("f-and");
@@ -10341,5 +10547,8 @@ function _modalKeyHandler(e) {
           <div id="minutas-lista" style="padding:16px;overflow-y:auto;flex:1"></div>
         </div>
       </div>
+
+<!-- Toast container (D5/F3) -->
+<div id="gp-toast"></div>
 </body>
 </html>
