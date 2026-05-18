@@ -6,6 +6,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <title>Gerador de Petições — Carmo Mancebo</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
@@ -1077,7 +1078,14 @@ tbody tr.st-p td{background:#b3e5fc}
         • Após 30 dias ou 25 peças, é necessário contratar um plano pago para continuar<br>
         • O compartilhamento de login/senha é detectado automaticamente e ocasiona <strong>suspensão imediata</strong> da conta
       </div>
-      <button class="login-btn" onclick="fazerCadastro()" id="btn-fazer-cadastro">Criar conta</button>
+      <div style="margin-bottom:12px;display:flex;align-items:flex-start;gap:8px;font-size:11px;color:var(--text2);line-height:1.5">
+        <input type="checkbox" id="cad-lgpd" onchange="document.getElementById('btn-fazer-cadastro').disabled=!this.checked" style="margin-top:2px;flex-shrink:0;cursor:pointer" />
+        <label for="cad-lgpd" style="cursor:pointer">
+          Li e aceito a <button type="button" onclick="abrirPoliticaPrivacidade()" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:11px;padding:0;text-decoration:underline">Política de Privacidade e Termos de Uso</button>.
+          Estou ciente de que meus dados são processados exclusivamente para prestação do serviço e que o texto das intimações é enviado ao servidor para geração das peças.
+        </label>
+      </div>
+      <button class="login-btn" onclick="fazerCadastro()" id="btn-fazer-cadastro" disabled>Criar conta</button>
       <div id="cad-err" class="login-err"></div>
       <div id="cad-ok" style="display:none;margin-top:10px;padding:10px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;font-size:12px;color:#166534;text-align:center">
         ✓ Conta criada! Verifique seu e-mail para confirmar o cadastro.
@@ -1111,7 +1119,7 @@ tbody tr.st-p td{background:#b3e5fc}
     <button id="tb-modelo-btn" onclick="go('cfg')" title="Modelo de IA ativo — proxy seguro" style="background:none;border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:11px;padding:3px 10px;line-height:1;vertical-align:middle;margin-right:10px;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
       <span id="tb-modelo-icon">⚡</span> <span id="tb-modelo-label">Essencial</span> <span id="tb-modelo-chave" style="font-size:9px;margin-left:2px">✓</span>
     </button>
-    <span class="tb-meta" id="tb-versao">versão 1.98</span>
+    <span class="tb-meta" id="tb-versao">versão 1.99</span>
   </div>
 </div>
 
@@ -1221,15 +1229,15 @@ tbody tr.st-p td{background:#b3e5fc}
         </div>
         <div id="cfg-pecas-texto" style="font-size:11px;color:var(--text3);margin-bottom:10px"></div>
         <div style="font-size:11px;color:var(--text2);padding:8px 10px;background:var(--bg2);border-radius:6px">
-          🎁 <strong>Plano Demonstração ativo:</strong> 25 peças/mês com acesso aos modelos Essencial e Avançado.<br>
+          🎁 <strong>Plano Demonstração ativo:</strong> 25 peças/mês com acesso aos modelos Essencial e Ágil.<br>
           <span style="display:inline-block;margin-top:6px">
-            <span class="plano-badge plano-solo" style="margin-right:4px">Avançado</span>
+            <span class="plano-badge plano-solo" style="margin-right:4px">Ágil</span>
             <span style="color:var(--text3);font-size:10px">150 peças/mês · </span>
             <span style="background:#FEF3C7;color:#92400E;border:1px solid #F59E0B;border-radius:10px;padding:1px 6px;font-size:9px;font-weight:600">EM BREVE</span>
           </span><br>
           <span style="display:inline-block;margin-top:4px">
-            <span class="plano-badge plano-pro" style="margin-right:4px">Completo</span>
-            <span style="color:var(--text3);font-size:10px">300 peças/mês + modelo Completo · </span>
+            <span class="plano-badge plano-pro" style="margin-right:4px">Avançado</span>
+            <span style="color:var(--text3);font-size:10px">300 peças/mês + modelo Avançado · </span>
             <span style="background:#FEF3C7;color:#92400E;border:1px solid #F59E0B;border-radius:10px;padding:1px 6px;font-size:9px;font-weight:600">EM BREVE</span>
           </span><br>
           <span style="color:var(--text3);margin-top:6px;display:inline-block">Interesse em acesso antecipado? Entre em contato pelo e-mail do perfil.</span>
@@ -1250,11 +1258,11 @@ tbody tr.st-p td{background:#b3e5fc}
               <div class="densidade-desc">Rápido e eficiente — ideal para peças objetivas</div>
             </div>
             <div class="densidade-card" id="mgc-avancado" onclick="setModoGeracao('avancado')">
-              <div class="densidade-titulo">⭐ Avançado</div>
+              <div class="densidade-titulo">⭐ Ágil</div>
               <div class="densidade-desc">Padrão recomendado — qualidade e velocidade</div>
             </div>
             <div class="densidade-card" id="mgc-completo" style="opacity:.5;cursor:not-allowed;pointer-events:none" title="Disponível em breve">
-              <div class="densidade-titulo">🏆 Completo</div>
+              <div class="densidade-titulo">🏆 Avançado</div>
               <div class="densidade-desc">Máxima precisão e profundidade</div>
               <div style="margin-top:5px"><span style="background:#FEF3C7;color:#92400E;border:1px solid #F59E0B;border-radius:10px;padding:1px 6px;font-size:9px;font-weight:600">EM BREVE</span></div>
             </div>
@@ -1262,8 +1270,8 @@ tbody tr.st-p td{background:#b3e5fc}
           <!-- select oculto mantido para compatibilidade -->
           <select id="sel-modelo-global" style="display:none" onchange="sincronizarModeloGlobal(this.value)">
             <option value="essencial" selected>Essencial</option>
-            <option value="avancado">Avançado</option>
-            <option value="completo">Completo</option>
+            <option value="avancado">Ágil</option>
+            <option value="completo">Avançado</option>
           </select>
         </div>
         <div id="cfg-modelo-status" style="margin-top:8px;padding:7px 10px;border-radius:6px;font-size:11px;display:none"></div>
@@ -1430,7 +1438,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <div class="panel-title">Processos</div>
       <div class="panel-sub">Clique para selecionar · 📋 ficha · Duplo clique abre ficha · Shift+clique na coluna para ordenação secundária</div>
 
-      <div style="padding:12px 16px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;margin-bottom:14px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div id="card-proc-instrucao" style="padding:12px 16px;background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;margin-bottom:14px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
         <div>
           <div style="font-size:13px;font-weight:600;color:#166534;margin-bottom:4px">✅ Como usar a aba Processos</div>
           <ul style="font-size:12px;color:#166534;margin:0;padding-left:18px;line-height:1.7">
@@ -1540,8 +1548,8 @@ tbody tr.st-p td{background:#b3e5fc}
       <!-- sel-modelo (oculto) sincronizado com sel-modelo-global na Configuração -->
       <select id="sel-modelo" style="display:none" onchange="sincronizarModeloGlobal(this.value)">
         <option value="essencial" selected>Essencial</option>
-        <option value="avancado">Avançado</option>
-        <option value="completo">Completo</option>
+        <option value="avancado">Ágil</option>
+        <option value="completo">Avançado</option>
       </select>
 
       <div class="card">
@@ -2085,7 +2093,7 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
         <button class="btn btn-p" onclick="executarAnalise()" id="an-btn-executar">▶ Analisar</button>
         <button class="btn btn-s" onclick="anExportarMd()" id="an-btn-export" style="display:none">📥 Exportar (.md)</button>
         <button class="btn btn-s" onclick="anCopiarResultado()" id="an-btn-copy" style="display:none">📋 Copiar</button>
-        <button class="btn btn-s" onclick="abrirModalUsarPeticao()" id="an-btn-usar" style="display:none;background:rgba(24,95,165,.12);border-color:var(--blue);color:var(--blue);font-weight:600" title="Aproveitar o resultado desta análise na aba Gerar petição">→ Usar na petição</button>
+        <button class="btn btn-p" onclick="abrirModalUsarPeticao()" id="an-btn-usar" style="display:none" title="Aproveitar o resultado desta análise na aba Gerar petição">→ Usar na petição</button>
       </div>
 
       <div id="an-status" class="an-status"></div>
@@ -2685,7 +2693,7 @@ function abrirModalUsuario() {
 
   // Preencher plano e contador de peças
   var plano = (_dadosUsuario && _dadosUsuario.plano) || 'trial';
-  var labelPlano = { trial:'Demonstração', solo:'Avançado', pro:'Completo', escritorio:'Escritório' }[plano] || plano;
+  var labelPlano = { trial:'Demonstração', solo:'Ágil', pro:'Avançado', escritorio:'Escritório' }[plano] || plano;
   if (planoEl) planoEl.textContent = labelPlano;
 
   var limite = LIMITES_PLANO[plano] || 25;
@@ -3357,8 +3365,8 @@ function sincronizarModeloGlobal(val) {
 
 function nomeModoProprio(val) {
   if (val === 'essencial') return 'Essencial';
-  if (val === 'completo')  return 'Completo';
-  return 'Avançado';
+  if (val === 'completo')  return 'Avançado';
+  return 'Ágil';
 }
 
 function atualizarIndicadorModelo() {
@@ -4232,6 +4240,7 @@ function iniciarTabela() {
   document.getElementById('proc-hdr').style.display='block';
   document.getElementById('twrap').style.display='block';
   document.getElementById('nn-proc').classList.add('ok');
+  var _ci = document.getElementById('card-proc-instrucao'); if (_ci) _ci.style.display='none';
   atualizarFiltroTribunal();    // popula o select com os tribunais reais da planilha
   popularFiltroResponsavel();   // popula responsáveis e transferência a partir da planilha
   renderTabela();
@@ -4675,29 +4684,85 @@ function importarConfig() {
   inp.click();
 }
 
+var _dashCharts = {};
+function _destruirCharts() {
+  Object.values(_dashCharts).forEach(function(c){ try{c.destroy();}catch(e){} });
+  _dashCharts = {};
+}
+
 function renderDashboard() {
   var div = document.getElementById("dash-content");
   if (!div) return;
+  _destruirCharts();
   try {
     var hist = JSON.parse(localStorage.getItem("gp_uso")||"[]");
-    if (!hist.length) { div.innerHTML='<p style="color:var(--text3)">Nenhum dado de uso registrado ainda.</p>'; return; }
-    // Totais gerais
-    var totTk=0,totPecas=hist.length;
-    var porModelo={}; var porTipo={};
+    if (!hist.length) { div.innerHTML='<p style="color:var(--text3);padding:12px 0">Nenhum dado de uso registrado ainda. Gere sua primeira peça para ver o dashboard.</p>'; return; }
+
+    var totTk=0, totPecas=hist.length;
+    var porModelo={}, porTipo={}, porDia={};
+    var hoje = new Date(); hoje.setHours(0,0,0,0);
+    var diasLabels=[], diasVals=[];
+    for (var d=29; d>=0; d--) {
+      var dt = new Date(hoje); dt.setDate(dt.getDate()-d);
+      var lbl = ('0'+dt.getDate()).slice(-2)+'/'+('0'+(dt.getMonth()+1)).slice(-2);
+      diasLabels.push(lbl);
+      porDia[dt.toISOString().slice(0,10)] = 0;
+    }
+
     hist.forEach(function(h){
-      totTk  += (h.tokensIn||0)+(h.tokensOut||0);
-      var m=h.modelo||"?"; porModelo[m]=(porModelo[m]||0)+1;
-      var t=(h.tipoPeca||"?").substring(0,20); porTipo[t]=(porTipo[t]||0)+1;
+      totTk += (h.tokensIn||0)+(h.tokensOut||0);
+      var m = nomeModoProprio(h.modelo||'essencial');
+      porModelo[m] = (porModelo[m]||0)+1;
+      var t = (h.tipoPeca||'Outro').substring(0,28);
+      porTipo[t] = (porTipo[t]||0)+1;
+      if (h.data) {
+        var dKey = String(h.data).slice(0,10);
+        if (porDia.hasOwnProperty(dKey)) porDia[dKey]++;
+      }
     });
-    var modelos = Object.entries(porModelo).sort(function(a,b){return b[1]-a[1];}).map(function(e){return e[0]+": "+e[1];}).join(" · ");
-    var topTipos = Object.entries(porTipo).sort(function(a,b){return b[1]-a[1];}).slice(0,5).map(function(e){return e[0]+": "+e[1];}).join("<br>");
+
+    Object.values(porDia).forEach(function(v){ diasVals.push(v); });
+    var topTipos = Object.entries(porTipo).sort(function(a,b){return b[1]-a[1];}).slice(0,6);
+    var topModelos = Object.entries(porModelo).sort(function(a,b){return b[1]-a[1];});
+    var coresModelo = ['#185FA5','#0EA5E9','#6366F1'];
+    var coresTipo   = ['#185FA5','#0EA5E9','#6366F1','#8B5CF6','#10B981','#F59E0B'];
+    var isDark = document.body.classList.contains('dark');
+    var gridColor = isDark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.07)';
+    var textColor = isDark ? '#94A3B8' : '#64748B';
+
     div.innerHTML =
-      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px">'+
-      '<div style="background:var(--bg2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3)">Total de gerações</div><div style="font-size:24px;font-weight:700">'+totPecas+'</div></div>'+
-      '<div style="background:var(--bg2);border-radius:8px;padding:12px"><div style="font-size:11px;color:var(--text3)">Total de tokens</div><div style="font-size:24px;font-weight:700">'+Math.round(totTk/1000)+'k</div></div>'+
-      '</div>'+
-      '<div style="font-size:12px"><strong>Por modelo:</strong> '+modelos+'</div>'+
-      '<div style="font-size:12px;margin-top:8px"><strong>Top tipos de peça:</strong><br>'+topTipos+'</div>';
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px">' +
+      '<div style="background:var(--bg2);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">Total de peças</div><div style="font-size:28px;font-weight:700;color:var(--text)">'+totPecas+'</div></div>' +
+      '<div style="background:var(--bg2);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">Tokens processados</div><div style="font-size:28px;font-weight:700;color:var(--text)">'+Math.round(totTk/1000)+'k</div></div>' +
+      '<div style="background:var(--bg2);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">Últimos 30 dias</div><div style="font-size:28px;font-weight:700;color:var(--text)">'+diasVals.reduce(function(a,b){return a+b;},0)+'</div></div>' +
+      '</div>' +
+      '<div style="margin-bottom:18px"><div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Gerações por dia — últimos 30 dias</div>' +
+      '<div style="position:relative;height:140px"><canvas id="dash-chart-dias"></canvas></div></div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">' +
+      '<div><div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Por tipo de peça</div><div style="position:relative;height:160px"><canvas id="dash-chart-tipos"></canvas></div></div>' +
+      '<div><div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Por modelo</div><div style="position:relative;height:160px"><canvas id="dash-chart-modelos"></canvas></div></div>' +
+      '</div>';
+
+    var cfgBase = { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{color:textColor,font:{size:9}}, grid:{color:gridColor} }, y:{ ticks:{color:textColor,font:{size:9},stepSize:1}, grid:{color:gridColor}, beginAtZero:true } } };
+
+    _dashCharts.dias = new Chart(document.getElementById('dash-chart-dias'), {
+      type:'bar',
+      data:{ labels:diasLabels, datasets:[{ data:diasVals, backgroundColor:'rgba(24,95,165,.7)', borderRadius:3 }] },
+      options: Object.assign({}, cfgBase)
+    });
+
+    _dashCharts.tipos = new Chart(document.getElementById('dash-chart-tipos'), {
+      type:'doughnut',
+      data:{ labels:topTipos.map(function(e){return e[0];}), datasets:[{ data:topTipos.map(function(e){return e[1];}), backgroundColor:coresTipo }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ color:textColor, font:{size:10}, boxWidth:10, padding:6 } } } }
+    });
+
+    _dashCharts.modelos = new Chart(document.getElementById('dash-chart-modelos'), {
+      type:'doughnut',
+      data:{ labels:topModelos.map(function(e){return e[0];}), datasets:[{ data:topModelos.map(function(e){return e[1];}), backgroundColor:coresModelo }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ color:textColor, font:{size:10}, boxWidth:10, padding:6 } } } }
+    });
+
   } catch(e){ div.innerHTML='<p style="color:var(--red)">Erro: '+e.message+'</p>'; }
 }
 
@@ -5434,6 +5499,7 @@ function trocarPlanilha() {
     { icon: '🗑', title: 'Remover planilha?', ok: 'Sim, remover tudo', cancel: 'Cancelar' }).then(function(ok) { if (ok) {
     localStorage.removeItem(LSP); localStorage.removeItem(LSS); procs=[];
     document.getElementById('card-xlsx').style.display='block';
+    var _ci = document.getElementById('card-proc-instrucao'); if (_ci) _ci.style.display='';
     // Resetar select de tribunal para o estado vazio (sem planilha)
     var selTrib = document.getElementById('filtro-tribunal');
     if (selTrib) selTrib.innerHTML = '<option value="">Todos os tribunais</option>';
@@ -8158,6 +8224,29 @@ function mostrarModalCompartilhamento(msg) {
   );
 }
 
+function abrirPoliticaPrivacidade() {
+  _criarModal(
+    '<div style="background:var(--bg);border-radius:12px;padding:24px 28px;max-width:560px;width:93%;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2)">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">' +
+    '<h3 style="margin:0;font-size:16px;color:var(--text)">Política de Privacidade e Termos de Uso</h3>' +
+    '<button onclick="this.closest(\'[style*=fixed]\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text3);line-height:1">×</button>' +
+    '</div>' +
+    '<div style="font-size:12px;color:var(--text2);line-height:1.8">' +
+    '<p style="margin:0 0 10px"><strong>Responsável pelo tratamento:</strong> Carmo Martins Mancebo Segundo — OAB/SP 274.575 — <a href="mailto:carmo.mancebo@adv.oabsp.org.br" style="color:var(--blue)">carmo.mancebo@adv.oabsp.org.br</a></p>' +
+    '<p style="margin:0 0 8px"><strong>1. Dados coletados</strong><br>Nome, e-mail, número de OAB (opcional) e histórico de uso da ferramenta (quantidade de peças geradas). O texto inserido no campo Andamento é transmitido ao servidor para processamento pela IA e não é armazenado permanentemente.</p>' +
+    '<p style="margin:0 0 8px"><strong>2. Finalidade</strong><br>Os dados são usados exclusivamente para autenticação, controle de uso dos planos, prevenção de compartilhamento indevido de credenciais e melhoria do serviço.</p>' +
+    '<p style="margin:0 0 8px"><strong>3. Compartilhamento</strong><br>Os dados não são vendidos nem compartilhados com terceiros, exceto o provedor de infraestrutura (Supabase / Anthropic) para operação do serviço, sujeitos às suas próprias políticas de privacidade.</p>' +
+    '<p style="margin:0 0 8px"><strong>4. Armazenamento</strong><br>Os dados são armazenados em servidores seguros com criptografia em trânsito e em repouso. Dados locais (processos, configurações) ficam armazenados no próprio dispositivo do usuário via localStorage.</p>' +
+    '<p style="margin:0 0 8px"><strong>5. Direitos do titular (LGPD — Lei 13.709/2018)</strong><br>O usuário pode solicitar acesso, correção ou exclusão dos seus dados a qualquer momento pelo e-mail do responsável acima.</p>' +
+    '<p style="margin:0 0 8px"><strong>6. Termos de uso</strong><br>O uso da ferramenta é pessoal e intransferível. O compartilhamento de credenciais é proibido e resulta em suspensão imediata da conta. As peças geradas são de responsabilidade exclusiva do advogado signatário.</p>' +
+    '<p style="margin:0 0 16px"><strong>7. Cookies e armazenamento local</strong><br>A ferramenta usa localStorage para armazenar dados de sessão e preferências. Nenhum cookie de rastreamento de terceiros é utilizado.</p>' +
+    '</div>' +
+    '<div style="text-align:right">' +
+    '<button onclick="this.closest(\'[style*=fixed]\').remove()" style="background:var(--blue);color:white;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-size:13px">Fechar</button>' +
+    '</div></div>'
+  );
+}
+
 // ANTI-PROMPT INJECTION — Detector de tentativas de manipulação de IA
 // Caso de referência: TRT-8, 3ª Vara Parauapebas-PA — Processo 0001062-55.2025.5.08.0130
 // Advogadas multadas em R$ 84.250,08 por inserir comando oculto em petição
@@ -8310,7 +8399,7 @@ function atualizarUIPlano() {
   // Badge de plano na toolbar
   var badge = document.getElementById('tb-plano-badge');
   if (badge) {
-    var labelBadge = { trial:'Demonstração', solo:'Avançado', pro:'Completo', escritorio:'Escritório' }[plano] || plano;
+    var labelBadge = { trial:'Demonstração', solo:'Ágil', pro:'Avançado', escritorio:'Escritório' }[plano] || plano;
     badge.textContent = labelBadge;
     badge.className = 'plano-badge plano-' + (plano === 'escritorio' ? 'escr' : plano);
   }
@@ -8343,7 +8432,7 @@ function atualizarUIPlano() {
   // Card de plano na Configuração
   var info = document.getElementById('cfg-plano-info');
   if (info) {
-    var labelPlano = { trial:'Demonstração', solo:'Avançado', pro:'Completo', escritorio:'Escritório' }[plano] || plano;
+    var labelPlano = { trial:'Demonstração', solo:'Ágil', pro:'Avançado', escritorio:'Escritório' }[plano] || plano;
     var trialInfo = '';
     if (plano === 'trial') {
       if (diasTrialRestantes !== null) {

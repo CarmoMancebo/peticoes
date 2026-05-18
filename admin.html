@@ -310,8 +310,8 @@ tr.banido-row td { background: #FFF5F5; }
       <select id="filtro-plano" onchange="renderTabela()">
         <option value="">Todos os planos</option>
         <option value="trial">Demonstração</option>
-        <option value="solo">Avançado</option>
-        <option value="pro">Completo</option>
+        <option value="solo">Ágil</option>
+        <option value="pro">Avançado</option>
         <option value="escritorio">Escritório</option>
       </select>
       <select id="filtro-status" onchange="renderTabela()">
@@ -501,7 +501,7 @@ function renderTabela() {
     var limite  = { trial:25, solo:150, pro:300, escritorio:300 }[u.plano] || 25;
     var pct     = Math.min(100, Math.round(((u.pecas_mes||0) / limite) * 100));
     var corBarra= pct >= 90 ? '#DC2626' : pct >= 70 ? '#D97706' : '#185FA5';
-    var labelPlano = { trial:'Demonstração', solo:'Avançado', pro:'Completo', escritorio:'Escritório' }[u.plano] || u.plano;
+    var labelPlano = { trial:'Demonstração', solo:'Ágil', pro:'Avançado', escritorio:'Escritório' }[u.plano] || u.plano;
     var classPlano = { trial:'badge-trial', solo:'badge-solo', pro:'badge-pro', escritorio:'badge-escrit' }[u.plano] || 'badge-trial';
 
     // Dias restantes do trial
@@ -526,8 +526,8 @@ function renderTabela() {
       '<td>' +
         '<select class="plano-select" onchange="alterarPlano(\'' + uid + '\',this.value)">' +
           '<option value="trial"'      + (u.plano==='trial'      ? ' selected' : '') + '>Demonstração</option>' +
-          '<option value="solo"'       + (u.plano==='solo'       ? ' selected' : '') + '>Avançado</option>' +
-          '<option value="pro"'        + (u.plano==='pro'        ? ' selected' : '') + '>Completo</option>' +
+          '<option value="solo"'       + (u.plano==='solo'       ? ' selected' : '') + '>Ágil</option>' +
+          '<option value="pro"'        + (u.plano==='pro'        ? ' selected' : '') + '>Avançado</option>' +
           '<option value="escritorio"' + (u.plano==='escritorio' ? ' selected' : '') + '>Escritório</option>' +
         '</select>' +
         diasTrialHtml +
