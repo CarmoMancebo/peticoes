@@ -1105,7 +1105,7 @@ tbody tr.st-p td{background:#b3e5fc}
       <span class="user-avatar" id="tb-user-iniciais">—</span>
       <span class="user-nome" id="tb-user-primeironome">—</span>
     </span>
-    <span class="tb-meta" id="tb-versao">versão 1.94</span>
+    <span class="tb-meta" id="tb-versao">versão 1.95</span>
   </div>
 </div>
 
@@ -1213,11 +1213,27 @@ tbody tr.st-p td{background:#b3e5fc}
         </div>
         <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Selecione o modo de geração das peças. O acesso é realizado exclusivamente pelo proxy seguro do servidor.</p>
         <div class="field" style="margin-bottom:10px">
-          <label>Modo de geração</label>
-          <select id="sel-modelo-global" onchange="sincronizarModeloGlobal(this.value)" style="width:100%">
-            <option value="essencial">Essencial — rápido e eficiente</option>
-            <option value="avancado" selected>Avançado — padrão recomendado</option>
-            <option value="completo" disabled>Completo — máxima precisão · Em breve (plano Completo)</option>
+          <label style="margin-bottom:8px;display:block">Modo de geração</label>
+          <div class="densidade-opts">
+            <div class="densidade-card" id="mgc-essencial" onclick="setModoGeracao('essencial')">
+              <div class="densidade-titulo">⚡ Essencial</div>
+              <div class="densidade-desc">Rápido e eficiente — ideal para peças objetivas</div>
+            </div>
+            <div class="densidade-card selected" id="mgc-avancado" onclick="setModoGeracao('avancado')">
+              <div class="densidade-titulo">⭐ Avançado</div>
+              <div class="densidade-desc">Padrão recomendado — qualidade e velocidade</div>
+            </div>
+            <div class="densidade-card" id="mgc-completo" style="opacity:.5;cursor:not-allowed;pointer-events:none" title="Disponível em breve">
+              <div class="densidade-titulo">🏆 Completo</div>
+              <div class="densidade-desc">Máxima precisão e profundidade</div>
+              <div style="margin-top:5px"><span style="background:#FEF3C7;color:#92400E;border:1px solid #F59E0B;border-radius:10px;padding:1px 6px;font-size:9px;font-weight:600">EM BREVE</span></div>
+            </div>
+          </div>
+          <!-- select oculto mantido para compatibilidade -->
+          <select id="sel-modelo-global" style="display:none" onchange="sincronizarModeloGlobal(this.value)">
+            <option value="essencial">Essencial</option>
+            <option value="avancado" selected>Avançado</option>
+            <option value="completo">Completo</option>
           </select>
         </div>
         <div id="cfg-modelo-status" style="margin-top:8px;padding:7px 10px;border-radius:6px;font-size:11px;display:none"></div>
@@ -1572,7 +1588,10 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
 
       <div class="card">
         <div class="card-title">📁 Contexto adicional (opcional)</div>
-        <p style="font-size:12px;color:var(--text2);margin-bottom:10px">Carregue cópias de peças complementares para enriquecer o contexto. A IA usará estes documentos para embasar a fundamentação sem misturar indevidamente com o andamento principal.</p>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:8px">Carregue cópias de peças complementares para enriquecer o contexto. A IA usará estes documentos para embasar a fundamentação sem misturar indevidamente com o andamento principal.</p>
+        <div style="padding:8px 10px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;font-size:11px;color:#1E40AF;margin-bottom:10px">
+          💡 <strong>Dica de uso:</strong> prefira carregar as <strong>peças principais</strong> do processo — petição inicial, contestação, sentença, recurso ou apelação. Evite carregar o processo inteiro; foque nos documentos que concentram os pontos controvertidos. Prefira arquivos <strong>.txt</strong> quando disponíveis.
+        </div>
 
         <!-- Peças iniciais e decisões de fase de conhecimento -->
         <div class="field" style="margin-bottom:12px">
@@ -1629,7 +1648,25 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
         <div class="row2">
           <div class="field">
             <label>Área do direito</label>
-            <select id="f-area" onchange="atualizarSubareas()"><option value="civel" selected>Saúde suplementar</option></select>
+            <select id="f-area" onchange="atualizarSubareas()">
+              <optgroup label="── Cível ──">
+                <option value="civel" selected>Saúde suplementar</option>
+                <option value="civel_geral">Cível geral</option>
+              </optgroup>
+              <optgroup label="── Outras áreas ──">
+                <option value="trabalhista">Trabalhista</option>
+                <option value="previdenciario">Previdenciário</option>
+                <option value="tributario">Tributário</option>
+                <option value="criminal">Criminal / Penal</option>
+                <option value="empresarial">Empresarial / Societário</option>
+                <option value="imobiliario">Imobiliário</option>
+                <option value="administrativo">Administrativo</option>
+                <option value="ambiental">Ambiental</option>
+                <option value="digital">Digital / LGPD</option>
+                <option value="bancario">Bancário / Financeiro</option>
+                <option value="internacional">Internacional / Arbitragem</option>
+              </optgroup>
+            </select>
           </div>
           <div class="field">
             <label>Subárea / Especialização</label>
@@ -1709,6 +1746,70 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
           <label>Peça a revisar <span style="color:var(--red)">*</span></label>
           <textarea id="f-peca-revisar" rows="10" placeholder="Cole aqui a peça que deseja revisar. A IA irá corrigir a redação, adequar à terminologia jurídica obrigatória, verificar a estrutura dos tópicos, corrigir o uso de § e parágrafo, e aprimorar a argumentação mantendo o conteúdo original."></textarea>
         </div>
+
+        <!-- CARD PETIÇÃO INICIAL — aparece quando tipo = 'petição inicial' -->
+        <div class="card" id="card-peticao-inicial" style="display:none;margin-bottom:12px;border:1.5px solid #BFDBFE;background:#F0F7FF">
+          <div class="card-title" style="color:#1E40AF">📝 Dados estruturados — Petição inicial</div>
+          <p style="font-size:11px;color:var(--text2);margin-bottom:10px">Preencha os campos abaixo. A IA usará esses dados para estruturar a petição. O campo "Andamento / decisão" acima pode conter contexto adicional do caso (opcional para petição inicial).</p>
+          <div class="row2">
+            <div class="field">
+              <label>Parte autora — polo ativo <span style="color:var(--red)">*</span></label>
+              <input type="text" id="pi-autor-nome" placeholder="Nome completo / Razão social" />
+            </div>
+            <div class="field">
+              <label>Qualificação da parte autora</label>
+              <input type="text" id="pi-autor-qualif" placeholder="CPF/CNPJ, estado civil, profissão, endereço" />
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>Parte ré — polo passivo <span style="color:var(--red)">*</span></label>
+              <input type="text" id="pi-reu-nome" placeholder="Nome completo / Razão social" />
+            </div>
+            <div class="field">
+              <label>Qualificação da parte ré</label>
+              <input type="text" id="pi-reu-qualif" placeholder="CNPJ/CPF, endereço para citação" />
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>Tipo de tutela jurisdicional</label>
+              <select id="pi-tutela">
+                <option value="conhecimento">Processo de conhecimento (procedimento comum)</option>
+                <option value="urgencia_antecipada">Tutela de urgência antecipada (art. 300 CPC) — com pedido liminar</option>
+                <option value="urgencia_cautelar">Tutela de urgência cautelar (art. 305 CPC) — com pedido liminar</option>
+                <option value="evidencia">Tutela de evidência (art. 311 CPC) — sem urgência</option>
+                <option value="jec">Juizado Especial Cível (valor até 40 salários mínimos)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Valor da causa (R$)</label>
+              <input type="text" id="pi-valor-causa" placeholder="Ex: R$ 25.000,00" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Foro / Competência</label>
+            <input type="text" id="pi-foro" placeholder="Ex: Foro Central da Comarca de São Paulo/SP — Vara Cível" />
+          </div>
+          <div class="field">
+            <label>Síntese dos fatos <span style="color:var(--red)">*</span></label>
+            <textarea id="pi-fatos" style="min-height:100px" placeholder="Descreva os fatos relevantes em ordem cronológica. Inclua datas, documentos e contexto do caso. A IA desenvolverá a narrativa jurídica com base nessa síntese."></textarea>
+          </div>
+          <div class="field">
+            <label>Pedidos principais <span style="color:var(--red)">*</span></label>
+            <textarea id="pi-pedidos" style="min-height:80px" placeholder="Liste os pedidos. Ex: &#10;a) condenação ao pagamento de R$ XX a título de danos materiais;&#10;b) condenação ao pagamento de R$ XX a título de danos morais;&#10;c) concessão dos benefícios da justiça gratuita."></textarea>
+          </div>
+          <div class="field">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+              <input type="checkbox" id="pi-liminar-chk" onchange="toggleLiminarPI()" style="width:auto;margin:0" />
+              <span>Incluir pedido liminar / antecipação de tutela</span>
+            </label>
+            <div id="pi-liminar-box" style="display:none;margin-top:8px">
+              <textarea id="pi-liminar-texto" style="min-height:70px" placeholder="Descreva o fundamento da urgência e o que se pede em sede liminar. Ex: perigo de dano irreparável pois o tratamento precisa ser iniciado imediatamente, conforme laudo médico em anexo."></textarea>
+            </div>
+          </div>
+        </div>
+
         <div class="card" id="card-calc-prazo" style="margin-bottom:12px">
           <div class="card-title" style="cursor:pointer" onclick="toggleCardPrazo()">
             ⏱ Calcular prazo a partir da decisão
@@ -1737,17 +1838,6 @@ Quanto mais completo o andamento, mais precisa e fundamentada será a peça gera
             </div>
             <div id="feriados-cidades-tags" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;min-height:10px"></div>
             <div id="feriados-st" style="font-size:11px;color:var(--text3);margin-top:3px"></div>
-          </div>
-        </div>
-        <div class="card" style="margin-bottom:12px">
-          <div class="card-title" style="cursor:pointer;display:flex;justify-content:space-between" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none'">
-            <span>✏️ Revisar / conferir peça existente</span>
-            <span style="font-size:11px;color:var(--text3)">▼</span>
-          </div>
-          <div style="display:none;padding:8px 0 4px">
-            <p style="font-size:12px;color:var(--text3);margin-bottom:6px">Cole a peça e clique em "▶ Ativar revisão" para a IA corrigir redação e estrutura.</p>
-            <textarea id="f-peca-revisar-card" rows="8" placeholder="Cole aqui a peça a revisar..."></textarea>
-            <button class="btn btn-s" onclick="ativarModoRevisao()" style="margin-top:6px">▶ Ativar revisão</button>
           </div>
         </div>
         <div class="field">
@@ -2685,12 +2775,451 @@ var LSP = 'gp_p', LSS = 'gp_s';
 var SUBAREAS = {
   civel: [
     {v:'saude_suplementar', l:'Saúde suplementar (operadoras de planos de saúde)'}
-  ]
+  ],
+  civel_geral: [
+    {v:'consumidor',            l:'Direito do Consumidor'},
+    {v:'responsabilidade_civil',l:'Responsabilidade Civil'},
+    {v:'contratos',             l:'Contratos'},
+    {v:'familia',               l:'Família e Sucessões'},
+    {v:'locacao',               l:'Locação e Imobiliário'},
+    {v:'condominio',            l:'Condomínio'},
+  ],
+  trabalhista: [
+    {v:'reclamante',   l:'Representação do Reclamante'},
+    {v:'reclamado',    l:'Representação do Reclamado'},
+    {v:'recursos_tst', l:'Recursos no TST'},
+  ],
+  previdenciario: [
+    {v:'beneficios',        l:'Benefícios INSS'},
+    {v:'revisoes',          l:'Revisões de Benefício'},
+    {v:'acidente_trabalho', l:'Acidente de Trabalho'},
+  ],
+  tributario: [
+    {v:'contencioso_adm', l:'Contencioso Administrativo'},
+    {v:'execucao_fiscal',  l:'Execução Fiscal (Defesa)'},
+    {v:'compensacao',      l:'Compensação e Restituição'},
+    {v:'planejamento',     l:'Planejamento Tributário (Defesas)'},
+  ],
+  criminal: [
+    {v:'defesa_criminal',  l:'Defesa Criminal'},
+    {v:'habeas_corpus',    l:'Habeas Corpus'},
+    {v:'tribunal_juri',   l:'Tribunal do Júri'},
+    {v:'execucao_penal',  l:'Execução Penal'},
+  ],
+  empresarial: [
+    {v:'societario',          l:'Societário e Dissolução'},
+    {v:'contratos_emp',       l:'Contratos Empresariais'},
+    {v:'recuperacao',         l:'Recuperação Judicial e Falência'},
+    {v:'responsabilidade_soc',l:'Responsabilidade de Sócios'},
+  ],
+  imobiliario: [
+    {v:'usucapiao',    l:'Usucapião'},
+    {v:'incorporacao', l:'Incorporação Imobiliária'},
+    {v:'regularizacao',l:'Regularização Fundiária'},
+    {v:'adjudicacao',  l:'Adjudicação Compulsória'},
+    {v:'locacao_imob', l:'Locação'},
+  ],
+  administrativo: [
+    {v:'licitacoes',     l:'Licitações (Lei 14.133/2021)'},
+    {v:'contratos_adm',  l:'Contratos Administrativos'},
+    {v:'improbidade',    l:'Improbidade Administrativa'},
+    {v:'ms_administrativo',l:'Mandado de Segurança'},
+  ],
+  ambiental: [
+    {v:'licenciamento',   l:'Licenciamento Ambiental'},
+    {v:'responsab_amb',   l:'Responsabilidade Ambiental'},
+    {v:'defesa_orgaos',   l:'Defesas Administrativas (IBAMA/CETESB)'},
+  ],
+  digital: [
+    {v:'lgpd',               l:'LGPD — Proteção de Dados'},
+    {v:'cibercrimes',        l:'Cibercrimes e Crimes Digitais'},
+    {v:'prop_intelectual',   l:'Propriedade Intelectual'},
+    {v:'ecommerce',          l:'E-commerce e Plataformas Digitais'},
+  ],
+  bancario: [
+    {v:'superendividamento', l:'Superendividamento (Lei 14.181/2021)'},
+    {v:'juros_abusivos',     l:'Juros Abusivos e Revisão Contratual'},
+    {v:'execucao_bancaria',  l:'Execução Bancária'},
+    {v:'fraudes_bancarias',  l:'Fraudes Bancárias'},
+  ],
+  internacional: [
+    {v:'arbitragem',    l:'Arbitragem'},
+    {v:'contratos_int', l:'Contratos Internacionais'},
+    {v:'homologacao',   l:'Homologação de Sentença Estrangeira'},
+  ],
 };
 
 var ENRIQUECIMENTOS = {
-  'civel:saude_suplementar': 'CONTEXTO ESPECIALIZADO — SAÚDE SUPLEMENTAR:\n- Atuação voltada à defesa de operadoras de planos de saúde.\n- Marco regulatório central: Lei nº 9.656/1998, Lei nº 14.454/2022, RN ANS nº 565/2022, RN nº 465/2021 e atualizações do rol.\n- Usar ADI 7265 e Temas STJ da lista branca sem inventar dados de julgamento.\n- Verificar contrato, segmentação, rol/DUT, carência, CPT/DLP, rede, prazos assistenciais e negativa fundamentada.\n- Quando houver procedimento fora do rol, aplicar os requisitos cumulativos do § 13 do artigo 10 da Lei nº 9.656/1998.'
+  'civel:saude_suplementar': 'CONTEXTO ESPECIALIZADO — SAÚDE SUPLEMENTAR:\n- Atuação voltada à defesa de operadoras de planos de saúde.\n- Marco regulatório central: Lei nº 9.656/1998, Lei nº 14.454/2022, RN ANS nº 565/2022, RN nº 465/2021 e atualizações do rol.\n- Usar ADI 7265 e Temas STJ da lista branca sem inventar dados de julgamento.\n- Verificar contrato, segmentação, rol/DUT, carência, CPT/DLP, rede, prazos assistenciais e negativa fundamentada.\n- Quando houver procedimento fora do rol, aplicar os requisitos cumulativos do § 13 do artigo 10 da Lei nº 9.656/1998.',
+  'civel_geral': 'CONTEXTO ESPECIALIZADO — CÍVEL GERAL:\n- Ramo: direito civil geral (consumidor, responsabilidade civil, contratos, família, locação, condomínio).\n- Marco regulatório: Código Civil (Lei nº 10.406/2002), CPC (Lei nº 13.105/2015), CDC (Lei nº 8.078/1990), Lei do Inquilinato (Lei nº 8.245/1991), Lei nº 10.931/2004.\n- Aplicar responsabilidade objetiva nas relações de consumo (art. 14 CDC); responsabilidade subjetiva no Código Civil salvo hipóteses legais.\n- Verificar prazo prescricional aplicável ao caso antes de qualquer peça.\n- Dano moral: fundamentar com critérios do STJ (proporcionalidade, gravidade, condição econômica das partes).',
+  'civel_geral:consumidor': 'CONTEXTO ESPECIALIZADO — DIREITO DO CONSUMIDOR:\n- Marco regulatório: CDC (Lei nº 8.078/1990), Marco Civil da Internet (Lei nº 12.965/2014), LGPD (Lei nº 13.709/2018).\n- Responsabilidade objetiva e solidária do fornecedor; inversão do ônus da prova (art. 6º, VIII, CDC) quando verossímil ou hipossuficiente.\n- Distinguir vício do produto/serviço (arts. 18-25 CDC) de fato do produto/serviço (arts. 12-17 CDC).\n- Verificar prescrição: 5 anos para ação de reparação (art. 27 CDC); 30 dias/90 dias para reclamação de vício.\n- Dano moral nas relações de consumo: in re ipsa em casos de negativação indevida, inscrição no SPC/Serasa, cobrança abusiva.',
+  'trabalhista': 'CONTEXTO ESPECIALIZADO — DIREITO DO TRABALHO:\n- Marco regulatório: CLT (Decreto-Lei nº 5.452/1943), Reforma Trabalhista (Lei nº 13.467/2017), Constituição Federal artigos 7º a 11.\n- Verificar vínculo empregatício (subordinação, pessoalidade, habitualidade, onerosidade) antes de qualquer análise.\n- Prescrição: 2 anos após extinção do contrato; 5 anos no curso do contrato (art. 7º, XXIX, CF).\n- Reforma Trabalhista (2017): validade das normas coletivas, banco de horas anual, teletrabalho, terceirização irrestrita.\n- Verificar Súmulas e OJs do TST aplicáveis antes de citar precedentes.',
+  'trabalhista:reclamante': 'CONTEXTO — TRABALHISTA (RECLAMANTE):\n- Representação do trabalhador. Priorizar: reconhecimento de vínculo, verbas rescisórias, horas extras, adicional de insalubridade/periculosidade, equiparação salarial, danos morais e materiais.\n- Verificar TRCT, CTPS, recibos de pagamento e registros de ponto antes de formular pedidos.\n- Reforma Trabalhista (Lei nº 13.467/2017): atenção à validade de cláusulas normativas e ao teto de gratuidade judiciária.',
+  'trabalhista:reclamado': 'CONTEXTO — TRABALHISTA (RECLAMADO):\n- Representação do empregador. Estratégia: impugnar fatos, negar vínculo se couber, atacar prescrição, impugnar cálculos, apresentar documentos de quitação.\n- Reforma Trabalhista: fundamentar validade de acordos individuais escritos, banco de horas, PLR, teletrabalho.\n- Verificar se houve homologação de rescisão, pagamento correto das verbas e registro adequado na CTPS.',
+  'previdenciario': 'CONTEXTO ESPECIALIZADO — DIREITO PREVIDENCIÁRIO:\n- Marco regulatório: Lei nº 8.213/1991, Lei nº 8.212/1991, Decreto nº 3.048/1999, Emenda Constitucional nº 103/2019 (Reforma da Previdência).\n- Verificar carência, qualidade de segurado, data de início da incapacidade (DII) e data de início do benefício (DIB).\n- Incapacidade laboral: distinguir incapacidade parcial (auxílio por incapacidade temporária) de total e permanente (aposentadoria por incapacidade permanente).\n- Prescrição: 5 anos para parcelas vencidas, imprescritibilidade do fundo do direito.\n- Acidente de trabalho: CAT, nexo causal, responsabilidade objetiva do INSS (Súmula 229 STJ).',
+  'tributario': 'CONTEXTO ESPECIALIZADO — DIREITO TRIBUTÁRIO:\n- Marco regulatório: CTN (Lei nº 5.172/1966), CF artigos 145-162, legislação específica de cada tributo.\n- Verificar competência tributária (federal/estadual/municipal) antes de qualquer análise.\n- Prescrição e decadência: 5 anos para constituição do crédito (art. 173 CTN); 5 anos para cobrança após constituição (art. 174 CTN).\n- Anterioridade e irretroatividade: tributos não podem retroagir nem ser exigidos no mesmo exercício sem ressalvas constitucionais.\n- CARF: instância administrativa federal; CSRF é instância especial. Respeitar o processo administrativo antes de judicializar.',
+  'criminal': 'CONTEXTO ESPECIALIZADO — DIREITO PENAL E PROCESSUAL PENAL:\n- Marco regulatório: CP (Decreto-Lei nº 2.848/1940), CPP (Decreto-Lei nº 3.689/1941), Lei nº 9.099/1995 (JECrim), Lei nº 12.403/2011 (prisão e liberdade provisória).\n- Verificar tipicidade, ilicitude e culpabilidade; analisar excludentes de ilicitude (art. 23 CP) e de culpabilidade.\n- Prescrição: calcular pena máxima abstrata para a pretensão punitiva; verificar causas interruptivas (art. 117 CPP).\n- Prisão preventiva: presença simultânea de fumus comissi delicti e periculum libertatis; fundamentação individualizada exigida pelo STF.\n- Proibição de reformatio in pejus: não agravar situação do réu em recurso exclusivo da defesa.',
+  'empresarial': 'CONTEXTO ESPECIALIZADO — DIREITO EMPRESARIAL E SOCIETÁRIO:\n- Marco regulatório: Código Civil artigos 966-1.195, Lei das S.A. (Lei nº 6.404/1976), Lei de Falências (Lei nº 11.101/2005), Lei nº 14.195/2021.\n- Verificar tipo societário (LTDA, S.A., EIRELI/SLU) antes de analisar responsabilidade de sócios.\n- Desconsideração da personalidade jurídica: art. 50 CC — confusão patrimonial ou abuso; não se aplica por mero inadimplemento.\n- Recuperação judicial: plano deve ser aprovado pela assembleia de credores; prazo de 180 dias de suspensão (stay period).\n- Dissolução parcial: direito de retirada, exclusão de sócio e apuração de haveres devem seguir contrato social e art. 1.031 CC.',
+  'imobiliario': 'CONTEXTO ESPECIALIZADO — DIREITO IMOBILIÁRIO:\n- Marco regulatório: CC artigos 1.196-1.510, Lei do Inquilinato (Lei nº 8.245/1991), Lei nº 4.591/1964 (incorporação), Lei nº 13.465/2017 (regularização fundiária).\n- Verificar cadeia dominial, matrícula no RGI e eventuais ônus (hipoteca, alienação fiduciária, penhora).\n- Usucapião: verificar modalidade aplicável (ordinária, extraordinária, especial urbana/rural, coletiva, familiar) e lapso temporal.\n- Despejo: cumprimento de prazos do art. 59 da Lei nº 8.245/1991; liminar em 15 dias nos casos autorizados.\n- Alienação fiduciária de imóvel (Lei nº 9.514/1997): procedimento extrajudicial de consolidação da propriedade e leilão.',
+  'administrativo': 'CONTEXTO ESPECIALIZADO — DIREITO ADMINISTRATIVO:\n- Marco regulatório: CF artigos 37-43, Lei nº 14.133/2021 (Nova Lei de Licitações), Lei nº 8.429/1992 (Improbidade, alterada pela Lei nº 14.230/2021), Lei nº 9.784/1999 (Processo Administrativo Federal).\n- Princípios administrativos: legalidade, impessoalidade, moralidade, publicidade, eficiência (art. 37 CF).\n- Improbidade: exige dolo específico após Lei nº 14.230/2021; afastada a modalidade culposa.\n- Mandado de segurança: prazo decadencial de 120 dias do ato coator (art. 23 Lei nº 12.016/2009).\n- Licitações: verificar modalidade, fase de habilitação, julgamento, homologação e adjudicação conforme Lei nº 14.133/2021.',
+  'ambiental': 'CONTEXTO ESPECIALIZADO — DIREITO AMBIENTAL:\n- Marco regulatório: CF art. 225, Lei nº 6.938/1981 (PNMA), Lei nº 9.605/1998 (Crimes Ambientais), Lei nº 12.651/2012 (Código Florestal), Resolução CONAMA 237/1997.\n- Responsabilidade civil ambiental: objetiva e solidária (art. 14, § 1º, Lei nº 6.938/1981); imprescritível para reparação de dano ambiental (STJ).\n- Verificar licenciamento ambiental trifásico: LP, LI e LO; competência do órgão licenciador (federal/estadual/municipal).\n- IBAMA: autuações e infrações administrativas seguem o PAF (Decreto nº 6.514/2008); prazo de defesa de 20 dias.\n- Princípio da precaução e do poluidor-pagador como vetores interpretativos centrais.',
+  'digital': 'CONTEXTO ESPECIALIZADO — DIREITO DIGITAL E LGPD:\n- Marco regulatório: LGPD (Lei nº 13.709/2018), Marco Civil da Internet (Lei nº 12.965/2014), Lei nº 12.737/2012 (Crimes Informáticos), Lei nº 9.610/1998 (Direitos Autorais).\n- LGPD: distinguir controlador de operador; verificar base legal do tratamento (art. 7º e 11 LGPD); fiscalização pela ANPD.\n- Responsabilidade civil por danos decorrentes de tratamento de dados: objetiva para o controlador (art. 42 LGPD).\n- Marco Civil: guarda de logs pelo provedor (6 meses para provedor de acesso; 6 meses para provedor de aplicação); ordem judicial para identificação de usuário.\n- Crimes digitais: competência no local do resultado do crime ou do provedor (STJ); aplicar Lei nº 12.737/2012 para invasão de dispositivo.',
+  'bancario': 'CONTEXTO ESPECIALIZADO — DIREITO BANCÁRIO E FINANCEIRO:\n- Marco regulatório: Lei nº 4.595/1964 (sistema financeiro), CDC art. 3º §2º (relação de consumo com bancos), Lei nº 14.181/2021 (Superendividamento), Circular BACEN nº 3.909/2018.\n- STJ reconhece aplicação integral do CDC às instituições financeiras (Súmula 297 STJ).\n- Superendividamento (Lei nº 14.181/2021): direito ao mínimo existencial; revisão judicial de contratos; conciliação obrigatória.\n- Inscrição indevida no SPC/Serasa: dano moral in re ipsa (Súmula 385 STJ — exceto se preexistirem anotações legítimas).\n- Taxa de juros: STJ admite capitalização mensal se expressamente pactuada; vedação de anatocismo sem previsão contratual.',
+  'internacional': 'CONTEXTO ESPECIALIZADO — DIREITO INTERNACIONAL E ARBITRAGEM:\n- Marco regulatório: Lei de Arbitragem (Lei nº 9.307/1996, alterada pela Lei nº 13.129/2015), CPC artigos 960-965 (homologação), Convenção de Nova York (Decreto nº 4.311/2002).\n- Arbitragem: princípio da kompetenz-kompetenz; cláusula compromissória é autônoma em relação ao contrato principal.\n- Homologação de sentença estrangeira: competência do STJ (art. 105, I, i, CF); requisitos do art. 963 CPC; não há revisão do mérito.\n- Carta rogatória: cumprida pelo STJ mediante exequatur (art. 105, I, i, CF); recusada se ofender soberania ou ordem pública.\n- Convenção de Nova York: reconhecimento e execução de laudos arbitrais estrangeiros em mais de 170 países signatários.',
 };
+
+// ── TIPOS DE PEÇA POR ÁREA ─────────────────────────────────────────────────
+var _tOpt = function(v,l){ return '<option value="'+v+'">'+l+'</option>'; };
+var _tGrp = function(l,opts){ return '<optgroup label="── '+l+' ──">'+opts+'</optgroup>'; };
+var _T_AUTO   = _tOpt('auto','Identificar automaticamente pelo andamento');
+var _T_INIC   = _tOpt('petição inicial','Petição inicial');
+var _T_REV    = _tGrp('Revisão', _tOpt('roteiro de audiência','🎤 Roteiro de audiência')+_tOpt('revisão de peça','✏️ Revisar peça existente'));
+var _T_MANUAL = _tGrp('Outro', _tOpt('manual','Preencher manualmente (digitar o tipo)'));
+
+var TIPOS_HTML = {
+  civel:
+    _T_AUTO+
+    _tGrp('Petição inicial',_T_INIC)+
+    _T_REV+
+    _tGrp('Fase de conhecimento',
+      _tOpt('contestação','Contestação')+
+      _tOpt('contestação de liminar','Contestação de liminar / Pedido de reconsideração')+
+      _tOpt('embargos de declaração','Embargos de declaração')+
+      _tOpt('especificação de provas','Especificação de provas')+
+      _tOpt('manifestação a decisão interlocutória','Manifestação a decisão interlocutória')+
+      _tOpt('manifestação a despacho','Manifestação a despacho / ato ordinatório')+
+      _tOpt('manifestação sobre laudo pericial','Manifestação sobre laudo pericial')+
+      _tOpt('petição de quesitos','Petição de quesitos (perícia)')+
+      _tOpt('petição simples','Petição simples / informativa')+
+      _tOpt('réplica à contestação','Réplica à contestação'))+
+    _tGrp('Fase recursal',
+      _tOpt('agravo de instrumento','Agravo de instrumento')+
+      _tOpt('agravo em recurso especial','Agravo em Recurso Especial (AREsp)')+
+      _tOpt('agravo interno','Agravo interno')+
+      _tOpt('apelação','Apelação')+
+      _tOpt('contrarrazões de apelação','Contrarrazões de apelação')+
+      _tOpt('contrarrazões de agravo de instrumento','Contrarrazões ao agravo de instrumento')+
+      _tOpt('contrarrazões de recurso especial','Contrarrazões de recurso especial')+
+      _tOpt('recurso inominado','Recurso inominado (JEC)')+
+      _tOpt('contrarrazões de recurso inominado','Contrarrazões ao recurso inominado (JEC)')+
+      _tOpt('recurso especial','Recurso especial (STJ)')+
+      _tOpt('recurso extraordinário','Recurso extraordinário (STF)'))+
+    _tGrp('Cumprimento de sentença / execução',
+      _tOpt('exceção de pré-executividade','Exceção de pré-executividade')+
+      _tOpt('impugnação a cálculos','Petição de cálculos / impugnação a cálculos')+
+      _tOpt('impugnação ao cumprimento de sentença','Impugnação ao cumprimento de sentença (artigo 525 CPC)')+
+      _tOpt('impugnação ao cumprimento provisório','Impugnação ao cumprimento provisório'))+
+    _T_MANUAL,
+
+  civel_geral:
+    _T_AUTO+
+    _tGrp('Petição inicial',
+      _T_INIC+
+      _tOpt('petição de tutela de urgência autônoma','Petição de tutela de urgência autônoma'))+
+    _T_REV+
+    _tGrp('Fase de conhecimento',
+      _tOpt('contestação','Contestação')+
+      _tOpt('réplica à contestação','Réplica à contestação')+
+      _tOpt('embargos de declaração','Embargos de declaração')+
+      _tOpt('especificação de provas','Especificação de provas')+
+      _tOpt('manifestação a decisão interlocutória','Manifestação a decisão interlocutória')+
+      _tOpt('manifestação a despacho','Manifestação a despacho / ato ordinatório')+
+      _tOpt('manifestação sobre laudo pericial','Manifestação sobre laudo pericial')+
+      _tOpt('petição de quesitos','Petição de quesitos (perícia)')+
+      _tOpt('petição simples','Petição simples / informativa'))+
+    _tGrp('Fase recursal',
+      _tOpt('agravo de instrumento','Agravo de instrumento')+
+      _tOpt('agravo interno','Agravo interno')+
+      _tOpt('apelação','Apelação')+
+      _tOpt('contrarrazões de apelação','Contrarrazões de apelação')+
+      _tOpt('contrarrazões de agravo de instrumento','Contrarrazões ao agravo de instrumento')+
+      _tOpt('recurso especial','Recurso especial (STJ)')+
+      _tOpt('recurso extraordinário','Recurso extraordinário (STF)'))+
+    _tGrp('Cumprimento / Execução',
+      _tOpt('impugnação ao cumprimento de sentença','Impugnação ao cumprimento de sentença')+
+      _tOpt('embargos à execução','Embargos à execução')+
+      _tOpt('exceção de pré-executividade','Exceção de pré-executividade')+
+      _tOpt('impugnação a cálculos','Impugnação a cálculos'))+
+    _T_MANUAL,
+
+  trabalhista:
+    _T_AUTO+
+    _tGrp('Petição inicial',
+      _tOpt('petição inicial','Reclamação trabalhista (petição inicial)')+
+      _tOpt('dissídio coletivo','Dissídio coletivo'))+
+    _tGrp('Revisão', _tOpt('revisão de peça','✏️ Revisar peça existente'))+
+    _tGrp('Fase de conhecimento',
+      _tOpt('contestação trabalhista','Contestação (CLT)')+
+      _tOpt('defesa prévia','Defesa prévia')+
+      _tOpt('impugnação a documentos','Impugnação a documentos')+
+      _tOpt('manifestação sobre laudo pericial','Manifestação sobre laudo pericial')+
+      _tOpt('especificação de provas','Especificação de provas')+
+      _tOpt('razões finais','Razões finais / Memorial'))+
+    _tGrp('Recursos',
+      _tOpt('recurso ordinário trabalhista','Recurso ordinário (TRT)')+
+      _tOpt('contrarrazões ao recurso ordinário','Contrarrazões ao recurso ordinário')+
+      _tOpt('recurso de revista','Recurso de revista (TST)')+
+      _tOpt('contrarrazões ao recurso de revista','Contrarrazões ao recurso de revista')+
+      _tOpt('agravo de instrumento trabalhista','Agravo de instrumento (TST)')+
+      _tOpt('embargos de declaração','Embargos de declaração')+
+      _tOpt('agravo regimental trabalhista','Agravo regimental'))+
+    _tGrp('Execução',
+      _tOpt('impugnação a cálculos','Impugnação a cálculos trabalhistas')+
+      _tOpt('embargos à execução trabalhista','Embargos à execução trabalhista')+
+      _tOpt('exceção de pré-executividade','Exceção de pré-executividade'))+
+    _T_MANUAL,
+
+  previdenciario:
+    _T_AUTO+
+    _tGrp('Petição inicial',
+      _tOpt('petição inicial','Ação de concessão / revisão de benefício')+
+      _tOpt('ação acidentária','Ação acidentária'))+
+    _tGrp('Revisão', _tOpt('revisão de peça','✏️ Revisar peça existente'))+
+    _tGrp('Recursos administrativos',
+      _tOpt('recurso crps','Recurso ao CRPS (Junta de Recursos)')+
+      _tOpt('recurso ordinário previdenciário','Recurso ordinário previdenciário')+
+      _tOpt('pedido de reconsideração previdenciário','Pedido de reconsideração (INSS)'))+
+    _tGrp('Ações judiciais',
+      _tOpt('contestação','Contestação')+
+      _tOpt('embargos de declaração','Embargos de declaração')+
+      _tOpt('apelação','Apelação')+
+      _tOpt('recurso especial','Recurso especial (STJ)'))+
+    _tGrp('Urgência',
+      _tOpt('tutela de urgência previdenciária','Tutela de urgência (concessão liminar)'))+
+    _T_MANUAL,
+
+  tributario:
+    _T_AUTO+
+    _tGrp('Petição inicial',
+      _tOpt('petição inicial','Ação anulatória de lançamento')+
+      _tOpt('mandado de segurança tributário','Mandado de segurança tributário')+
+      _tOpt('ação declaratória tributária','Ação declaratória tributária')+
+      _tOpt('ação de repetição de indébito','Ação de repetição de indébito'))+
+    _tGrp('Revisão', _tOpt('revisão de peça','✏️ Revisar peça existente'))+
+    _tGrp('Contencioso administrativo',
+      _tOpt('impugnação ao auto de infração','Impugnação ao auto de infração')+
+      _tOpt('recurso voluntário carf','Recurso voluntário (CARF)')+
+      _tOpt('recurso especial csrf','Recurso especial tributário (CSRF)')+
+      _tOpt('consulta fiscal','Consulta fiscal')+
+      _tOpt('defesa administrativa fiscal','Defesa em processo administrativo fiscal')+
+      _tOpt('pedido de parcelamento','Pedido de parcelamento / REFIS'))+
+    _tGrp('Execução fiscal',
+      _tOpt('embargos à execução fiscal','Embargos à execução fiscal')+
+      _tOpt('exceção de pré-executividade','Exceção de pré-executividade tributária')+
+      _tOpt('impugnação a penhora','Impugnação a penhora'))+
+    _tGrp('Recursos judiciais',
+      _tOpt('apelação','Apelação')+
+      _tOpt('recurso especial','Recurso especial (STJ)')+
+      _tOpt('embargos de declaração','Embargos de declaração'))+
+    _tGrp('Outro',
+      _tOpt('pedido de compensação restituição','Pedido de compensação / restituição')+
+      _tOpt('manual','Preencher manualmente (digitar o tipo)')),
+
+  criminal:
+    _T_AUTO+
+    _tGrp('Peças inaugurais',
+      _tOpt('petição inicial','Queixa-crime / Petição inicial penal')+
+      _tOpt('pedido de arquivamento','Pedido de arquivamento'))+
+    _tGrp('Revisão', _tOpt('revisão de peça','✏️ Revisar peça existente'))+
+    _tGrp('Fase investigatória',
+      _tOpt('memorando de defesa','Memorando de defesa (delegacia)')+
+      _tOpt('impugnação ao flagrante','Impugnação ao auto de prisão em flagrante'))+
+    _tGrp('Fase processual',
+      _tOpt('resposta à acusação','Resposta à acusação (artigo 396-A CPP)')+
+      _tOpt('alegações finais criminal','Alegações finais')+
+      _tOpt('memorial de defesa','Memorial de defesa')+
+      _tOpt('reperguntas rol de testemunhas','Rol de testemunhas / Reperguntas'))+
+    _tGrp('Tutela da liberdade',
+      _tOpt('habeas corpus','Habeas corpus')+
+      _tOpt('liberdade provisória','Pedido de liberdade provisória')+
+      _tOpt('relaxamento de prisão','Pedido de relaxamento de prisão')+
+      _tOpt('revogação prisão preventiva','Revogação da prisão preventiva'))+
+    _tGrp('Recursos',
+      _tOpt('recurso em sentido estrito','Recurso em sentido estrito')+
+      _tOpt('apelação criminal','Apelação criminal')+
+      _tOpt('embargos de declaração','Embargos de declaração')+
+      _tOpt('revisão criminal','Revisão criminal')+
+      _tOpt('habeas corpus stj stf','Habeas corpus (STJ / STF)'))+
+    _tGrp('Execução penal',
+      _tOpt('progressão de regime','Pedido de progressão de regime')+
+      _tOpt('livramento condicional','Livramento condicional')+
+      _tOpt('agravo em execução penal','Agravo em execução penal'))+
+    _T_MANUAL,
+
+  empresarial:
+    _T_AUTO+
+    _tGrp('Petição inicial',
+      _T_INIC+
+      _tOpt('ação de dissolução parcial','Ação de dissolução parcial de sociedade')+
+      _tOpt('ação de apuração de haveres','Ação de apuração de haveres')+
+      _tOpt('ação de exclusão de sócio','Ação de exclusão de sócio'))+
+    _T_REV+
+    _tGrp('Fase de conhecimento',
+      _tOpt('contestação','Contestação')+
+      _tOpt('réplica à contestação','Réplica')+
+      _tOpt('embargos de declaração','Embargos de declaração')+
+      _tOpt('manifestação a decisão interlocutória','Manifestação a decisão interlocutória'))+
+    _tGrp('Recuperação judicial / Falência',
+      _tOpt('defesa em recuperação judicial','Defesa em recuperação judicial')+
+      _tOpt('impugnação de crédito','Impugnação de crédito')+
+      _tOpt('habilitação de crédito','Habilitação de crédito')+
+      _tOpt('pedido de falência','Requerimento de falência'))+
+    _tGrp('Recursos',
+      _tOpt('agravo de instrumento','Agravo de instrumento')+
+      _tOpt('apelação','Apelação')+
+      _tOpt('recurso especial','Recurso especial (STJ)'))+
+    _T_MANUAL,
+
+  imobiliario:
+    _T_AUTO+
+    _tGrp('Petição inicial',
+      _T_INIC+
+      _tOpt('ação de usucapião','Ação de usucapião')+
+      _tOpt('ação de adjudicação compulsória','Ação de adjudicação compulsória')+
+      _tOpt('ação de despejo','Ação de despejo')+
+      _tOpt('ação de consignação em pagamento','Ação de consignação em pagamento'))+
+    _T_REV+
+    _tGrp('Fase de conhecimento',
+      _tOpt('contestação','Contestação')+
+      _tOpt('embargos de terceiro','Embargos de terceiro')+
+      _tOpt('embargos de declaração','Embargos de declaração')+
+      _tOpt('especificação de provas','Especificação de provas'))+
+    _tGrp('Execução',
+      _tOpt('embargos à execução','Embargos à execução')+
+      _tOpt('exceção de pré-executividade','Exceção de pré-executividade')+
+      _tOpt('impugnação a cálculos','Impugnação a cálculos'))+
+    _tGrp('Recursos',
+      _tOpt('agravo de instrumento','Agravo de instrumento')+
+      _tOpt('apelação','Apelação')+
+      _tOpt('contrarrazões de apelação','Contrarrazões'))+
+    _T_MANUAL,
+
+  administrativo:
+    _T_AUTO+
+    _tGrp('Petição inicial',
+      _T_INIC+
+      _tOpt('mandado de segurança','Mandado de segurança')+
+      _tOpt('ação popular','Ação popular')+
+      _tOpt('defesa em ação de improbidade','Defesa em ação de improbidade administrativa'))+
+    _T_REV+
+    _tGrp('Processo administrativo',
+      _tOpt('defesa em processo administrativo','Defesa em processo administrativo')+
+      _tOpt('recurso administrativo','Recurso administrativo')+
+      _tOpt('impugnação à licitação','Impugnação à licitação / edital')+
+      _tOpt('recurso em licitação','Recurso em fase de licitação')+
+      _tOpt('pedido de reconsideração','Pedido de reconsideração'))+
+    _tGrp('Fase judicial',
+      _tOpt('contestação','Contestação')+
+      _tOpt('embargos de declaração','Embargos de declaração')+
+      _tOpt('apelação','Apelação')+
+      _tOpt('recurso especial','Recurso especial (STJ)'))+
+    _T_MANUAL,
+
+  ambiental:
+    _T_AUTO+
+    _tGrp('Petição inicial',
+      _T_INIC+
+      _tOpt('ação anulatória de multa ambiental','Ação anulatória de multa ambiental')+
+      _tOpt('mandado de segurança ambiental','Mandado de segurança ambiental')+
+      _tOpt('ação civil pública defesa','Defesa em ação civil pública ambiental'))+
+    _T_REV+
+    _tGrp('Processo administrativo',
+      _tOpt('defesa administrativa ibama','Defesa administrativa (IBAMA)')+
+      _tOpt('defesa administrativa cetesb','Defesa administrativa (CETESB)')+
+      _tOpt('defesa administrativa sema','Defesa administrativa (SEMA / órgão estadual)')+
+      _tOpt('recurso administrativo ambiental','Recurso administrativo ambiental')+
+      _tOpt('pedido de reconsideração ambiental','Pedido de reconsideração'))+
+    _tGrp('Fase judicial',
+      _tOpt('contestação','Contestação')+
+      _tOpt('embargos de declaração','Embargos de declaração')+
+      _tOpt('apelação','Apelação'))+
+    _T_MANUAL,
+
+  digital:
+    _T_AUTO+
+    _tGrp('Petição inicial',
+      _T_INIC+
+      _tOpt('ação de remoção de conteúdo','Ação de remoção de conteúdo')+
+      _tOpt('tutela de urgência digital','Tutela de urgência (remoção de conteúdo / dados)')+
+      _tOpt('mandado de segurança lgpd','Mandado de segurança (LGPD)'))+
+    _T_REV+
+    _tGrp('LGPD / ANPD',
+      _tOpt('defesa administrativa anpd','Defesa em processo administrativo (ANPD)')+
+      _tOpt('recurso administrativo anpd','Recurso administrativo (ANPD)')+
+      _tOpt('notificação extrajudicial lgpd','Notificação extrajudicial LGPD'))+
+    _tGrp('Crimes digitais',
+      _tOpt('habeas corpus digital','Habeas corpus (crimes digitais)')+
+      _tOpt('resposta à acusação digital','Resposta à acusação (crimes digitais)')+
+      _tOpt('alegações finais criminal','Alegações finais'))+
+    _tGrp('Propriedade intelectual',
+      _tOpt('defesa de marca','Defesa de violação de marca')+
+      _tOpt('impugnação de patente','Contestação de patente')+
+      _tOpt('defesa de direitos autorais','Defesa — direitos autorais'))+
+    _tGrp('Recursos',
+      _tOpt('apelação','Apelação')+
+      _tOpt('embargos de declaração','Embargos de declaração'))+
+    _T_MANUAL,
+
+  bancario:
+    _T_AUTO+
+    _tGrp('Petição inicial',
+      _T_INIC+
+      _tOpt('ação revisional bancária','Ação revisional de contrato bancário')+
+      _tOpt('defesa em superendividamento','Defesa em processo de superendividamento')+
+      _tOpt('ação anulatória de débito','Ação anulatória de débito'))+
+    _T_REV+
+    _tGrp('Contencioso bancário',
+      _tOpt('contestação','Contestação')+
+      _tOpt('embargos à execução bancária','Embargos à execução bancária')+
+      _tOpt('exceção de pré-executividade','Exceção de pré-executividade')+
+      _tOpt('impugnação a cálculos','Impugnação a cálculos')+
+      _tOpt('embargos de declaração','Embargos de declaração'))+
+    _tGrp('Superendividamento',
+      _tOpt('plano de pagamento superend','Plano de pagamento (superendividamento)')+
+      _tOpt('impugnação ao plano superend','Impugnação ao plano de pagamento'))+
+    _tGrp('Recursos',
+      _tOpt('agravo de instrumento','Agravo de instrumento')+
+      _tOpt('apelação','Apelação')+
+      _tOpt('recurso especial','Recurso especial (STJ)'))+
+    _tGrp('Outro',
+      _tOpt('recurso ao bacen','Recurso / Reclamação ao BACEN')+
+      _tOpt('manual','Preencher manualmente (digitar o tipo)')),
+
+  internacional:
+    _T_AUTO+
+    _tGrp('Petição inicial',
+      _tOpt('petição inicial','Pedido de homologação de sentença estrangeira (STJ)')+
+      _tOpt('impugnação à homologação','Impugnação à homologação de sentença estrangeira')+
+      _tOpt('ação de carta rogatória','Carta rogatória'))+
+    _T_REV+
+    _tGrp('Arbitragem',
+      _tOpt('memorial de arbitragem','Memorial de arbitragem (parte demandante)')+
+      _tOpt('contrarrazões arbitragem','Contrarrazões em arbitragem')+
+      _tOpt('impugnação competência arbitral','Impugnação à competência arbitral')+
+      _tOpt('pedido de medida cautelar arbitral','Pedido de medida cautelar arbitral'))+
+    _tGrp('Judicial',
+      _tOpt('embargos de declaração','Embargos de declaração')+
+      _tOpt('recurso especial','Recurso especial (STJ)'))+
+    _tGrp('Outro',
+      _tOpt('parecer jurídico internacional','Parecer jurídico internacional')+
+      _tOpt('manual','Preencher manualmente (digitar o tipo)')),
+};
+
+function atualizarTipos() {
+  var area = document.getElementById('f-area').value;
+  var sel  = document.getElementById('f-tipo');
+  if (!sel) return;
+  var anterior = sel.value;
+  sel.innerHTML = TIPOS_HTML[area] || TIPOS_HTML['civel'];
+  // Tentar restaurar seleção anterior se o valor ainda existe
+  if (anterior && sel.querySelector('option[value="'+anterior+'"]')) {
+    sel.value = anterior;
+  } else {
+    sel.value = 'auto';
+  }
+  onTipoChange();
+}
+
 function atualizarSubareas() {
   var area = document.getElementById('f-area').value;
   var subs = SUBAREAS[area] || [];
@@ -2698,12 +3227,13 @@ function atualizarSubareas() {
   sel.innerHTML = subs.map(function(s){
     return '<option value="'+s.v+'">'+s.l+'</option>';
   }).join('');
+  atualizarTipos();
 }
 
 function getEnriquecimento() {
   var area = document.getElementById('f-area').value;
-  var sub = document.getElementById('f-subarea').value;
-  return ENRIQUECIMENTOS[area+':'+sub] || '';
+  var sub  = document.getElementById('f-subarea').value;
+  return ENRIQUECIMENTOS[area+':'+sub] || ENRIQUECIMENTOS[area] || '';
 }
 
 function toggleSidebarMobile() {
@@ -2730,6 +3260,16 @@ function setDensidade(val) {
   });
 }
 
+function setModoGeracao(val) {
+  ['essencial','avancado','completo'].forEach(function(m) {
+    var el = document.getElementById('mgc-' + m);
+    if (el) el.classList.toggle('selected', m === val);
+  });
+  var sel = document.getElementById('sel-modelo-global');
+  if (sel && sel.value !== val) sel.value = val;
+  sincronizarModeloGlobal(val);
+}
+
 function sincronizarModeloGlobal(val) {
   if (!val) return;
   // Normalizar: valores legados mapeados para proprietários
@@ -2740,6 +3280,11 @@ function sincronizarModeloGlobal(val) {
   ['sel-modelo', 'sel-modelo-global'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el && el.value !== val) el.value = val;
+  });
+  // Sincronizar cards visuais
+  ['essencial','avancado','completo'].forEach(function(m) {
+    var el = document.getElementById('mgc-' + m);
+    if (el) el.classList.toggle('selected', m === val);
   });
   // Atualizar indicador da toolbar
   atualizarIndicadorModelo();
@@ -2987,8 +3532,15 @@ function detectarSistemaPorNumero(num) {
 
 function onTipoChange() {
   var tipo = document.getElementById("f-tipo").value;
+
+  // card revisão
   var cardRev = document.getElementById("card-revisar-peca");
   if (cardRev) cardRev.style.display = tipo === "revisão de peça" ? "block" : "none";
+
+  // card petição inicial
+  var cardPI = document.getElementById("card-peticao-inicial");
+  if (cardPI) cardPI.style.display = tipo === "petição inicial" ? "block" : "none";
+
   // Sugestão de tipo quando está em automático
   var hint = document.getElementById("tipo-hint");
   if (hint) {
@@ -3012,6 +3564,12 @@ function onTipoChange() {
     inp.value = '';
   }
   checkBtn();
+}
+
+function toggleLiminarPI() {
+  var chk = document.getElementById('pi-liminar-chk');
+  var box = document.getElementById('pi-liminar-box');
+  if (box) box.style.display = (chk && chk.checked) ? 'block' : 'none';
 }
 
 function onProcInput() {
@@ -7732,20 +8290,95 @@ document.addEventListener('keydown', function(ev) {
   }
 });
 
-function montarSystemPromptPeticao(enriquecimento, tipo, inst, andamento) {
+// Nomes descritivos das áreas para o prompt de identidade
+var _AREA_NOME_PROMPT = {
+  civel:          'direito civil — saúde suplementar, atuando na defesa técnica de operadoras de planos de saúde',
+  civel_geral:    'direito civil geral — consumidor, responsabilidade civil, contratos, família e sucessões',
+  trabalhista:    'direito do trabalho',
+  previdenciario: 'direito previdenciário e acidentário',
+  tributario:     'direito tributário e contencioso fiscal',
+  criminal:       'direito penal e processual penal',
+  empresarial:    'direito empresarial e societário',
+  imobiliario:    'direito imobiliário e registral',
+  administrativo: 'direito administrativo e regulatório',
+  ambiental:      'direito ambiental',
+  digital:        'direito digital, proteção de dados (LGPD) e propriedade intelectual',
+  bancario:       'direito bancário e financeiro',
+  internacional:  'direito internacional privado e arbitragem',
+};
+
+function montarSystemPromptPeticao(enriquecimento, tipo, inst, andamento, area) {
+  area = area || 'civel';
   var blocos = [];
-  blocos.push('Você é advogado especializado em contencioso de saúde suplementar, atuando na defesa técnica de operadoras de planos de saúde. Redija peças em português jurídico formal, com precisão normativa, objetividade estratégica e aderência aos fatos fornecidos. A ferramenta é exclusivamente de saúde suplementar: não use contextos trabalhistas, penais, tributários, administrativos ou de outras áreas salvo se o usuário trouxer fato indispensável ao caso.');
-  if (enriquecimento) blocos.push('CONTEXTO ADICIONAL DO USUÁRIO:\n' + enriquecimento);
-  blocos.push('PROTOCOLO ANTI-ALUCINAÇÃO DE JURISPRUDÊNCIA: você não tem acesso à internet nem a bases jurisprudenciais em tempo real. Jamais invente número de processo, REsp, AREsp, relator, data, ementa ou trecho de julgado. Use livremente apenas estes precedentes por nome/tema, sem relator ou data: STF ADI 7265; STJ Temas 990, 952, 106, 1036, 988, 1076, 610, 297 e 940; Súmula Vinculante 7; Súmula Normativa ANS nº 27. A Súmula 102 do TJSP foi revogada em 10/09/2025 e não deve ser citada como vigente. Para qualquer precedente fora dessa lista, use [CITAÇÃO_PENDENTE: descreva o tema] para pesquisa posterior pelo advogado. Prefira fundamentação legal quando suficiente.');
-  blocos.push('PROTOCOLO DE REFERÊNCIA A DOCUMENTOS: sempre que mencionar petição, decisão, sentença, acórdão, laudo, parecer, nota técnica, contrato, procuração, comprovante, recurso, ofício, documento da ANS/NATJUS ou outro documento dos autos, indique evento, id., fls. ou doc. quando a informação constar do contexto. Se não constar, use [REF_DOC: descrição do documento]. Uma peça sem rastreabilidade documental é incompleta.');
+
+  // ── Bloco 1: identidade (genérica, área-específica) ─────────────────────
+  var areaDesc = _AREA_NOME_PROMPT[area] || 'direito';
+  blocos.push('Você é advogado especializado em ' + areaDesc + '. Redija peças em português jurídico formal, com precisão normativa, objetividade estratégica e aderência estrita aos fatos fornecidos.');
+
+  // ── Bloco 2: enriquecimento da área (do objeto ENRIQUECIMENTOS) ──────────
+  if (enriquecimento) blocos.push(enriquecimento);
+
+  // ── Bloco 3: anti-alucinação (genérico; precedentes ANS apenas para cível) ─
+  var antiAluc = 'PROTOCOLO ANTI-ALUCINAÇÃO DE JURISPRUDÊNCIA: você não tem acesso à internet nem a bases jurisprudenciais em tempo real. Jamais invente número de processo, REsp, AREsp, relator, data, ementa ou trecho de julgado.';
+  if (area === 'civel') {
+    antiAluc += ' Use livremente apenas estes precedentes por nome/tema, sem relator ou data: STF ADI 7265; STJ Temas 990, 952, 106, 1036, 988, 1076, 610, 297 e 940; Súmula Vinculante 7; Súmula Normativa ANS nº 27. A Súmula 102 do TJSP foi revogada em 10/09/2025 e não deve ser citada como vigente.';
+  }
+  antiAluc += ' Para qualquer outro precedente use [CITAÇÃO_PENDENTE: descreva o tema] para pesquisa posterior pelo advogado. Prefira fundamentação legal quando suficiente.';
+  blocos.push(antiAluc);
+
+  // ── Bloco 4: referência a documentos (genérico) ──────────────────────────
+  blocos.push('PROTOCOLO DE REFERÊNCIA A DOCUMENTOS: sempre que mencionar petição, decisão, sentença, acórdão, laudo, parecer, nota técnica, contrato, procuração, comprovante, recurso ou outro documento dos autos, indique evento, id., fls. ou doc. quando a informação constar do contexto. Se não constar, use [REF_DOC: descrição do documento]. Uma peça sem rastreabilidade documental é incompleta.');
+
+  // ── Bloco 5: regras de estilo (genérico) ─────────────────────────────────
   blocos.push('REGRAS DE ESTILO: escreva artigo por extenso, nunca art.; use inciso por extenso; use § para parágrafos numerados e parágrafo único por extenso; use Constituição da República, nunca CF/88; evite Vossa Excelência e prefira esse juízo ou esse órgão julgador; nunca use a presente peça/demanda como muleta; títulos em CAIXA ALTA, sem markdown; pedidos com Ante ao exposto, requer-se: e alíneas a), b), c); datas em dd/mm/aaaa salvo instrução diversa; não use símbolos de markdown como **, #, > ou listas com hífen na peça final.');
-  blocos.push('NORMAS E TESES CENTRAIS DE SAÚDE SUPLEMENTAR: Lei nº 9.656/1998; Lei nº 14.454/2022, especialmente os critérios do § 13 do artigo 10 da Lei nº 9.656/1998; RN ANS nº 565/2022 como norma vigente de cobertura assistencial obrigatória, observando que revogou a RN nº 309/2012 e a RN nº 566/2022; RN nº 465/2021 e atualizações do rol; ADI 7265 como eixo constitucional; distinção entre obrigação contratual/regulatória da operadora e dever universal do Estado pelo SUS.');
-  blocos.push('CATÁLOGO ANS ESSENCIAL: RN nº 162/2007 para doença ou lesão preexistente e cobertura parcial temporária; RN nº 438/2018 para portabilidade; RN nº 63/2003 e RN nº 171/2008 para reajustes; RN nº 279/2011 para manutenção de ex-empregado/aposentado; RN nº 259/2011 para prazos assistenciais; RN nº 623/2024 para regras de atendimento e negativa fundamentada; RN nº 365/2015, RN nº 417/2016 e RN nº 585/2023 para rede assistencial; Resolução CONSU nº 13/1998 para urgência e emergência; RN nº 483/2022 e RN nº 489/2022 para fiscalização e sanções.');
-  blocos.push('FLUXO DE VERIFICAÇÃO REGULATÓRIA: identifique tipo de contrato e data; verifique segmentação; confira se o procedimento está no rol e se há DUT; se estiver fora do rol, aplique cumulativamente os critérios da Lei nº 14.454/2022; verifique carência, CPT/DLP, rede, prazos de atendimento e comunicação formal da negativa; diferencie prescrição médica de obrigação de cobertura. NATJUS elabora nota técnica, não laudo pericial.');
-  blocos.push('ESTRATÉGIA DEFENSIVA: quando houver procedimento fora do rol, estruturar tópico próprio sobre ausência de cobertura obrigatória com três camadas: inexistência no Anexo I/DUT aplicável; não preenchimento dos requisitos do § 13 do artigo 10 da Lei nº 9.656/1998; ausência de recomendação CONITEC ou de órgão internacional aprovado para uso no Brasil. O ônus de provar os requisitos legais é do autor, nos termos do artigo 373, inciso I, do Código de Processo Civil.');
+
+  // ── Blocos 6–9: específicos de saúde suplementar (apenas area = civel) ───
+  if (area === 'civel') {
+    blocos.push('NORMAS E TESES CENTRAIS DE SAÚDE SUPLEMENTAR: Lei nº 9.656/1998; Lei nº 14.454/2022, especialmente os critérios do § 13 do artigo 10 da Lei nº 9.656/1998; RN ANS nº 565/2022 como norma vigente de cobertura assistencial obrigatória, observando que revogou a RN nº 309/2012 e a RN nº 566/2022; RN nº 465/2021 e atualizações do rol; ADI 7265 como eixo constitucional; distinção entre obrigação contratual/regulatória da operadora e dever universal do Estado pelo SUS.');
+    blocos.push('CATÁLOGO ANS ESSENCIAL: RN nº 162/2007 para doença ou lesão preexistente e cobertura parcial temporária; RN nº 438/2018 para portabilidade; RN nº 63/2003 e RN nº 171/2008 para reajustes; RN nº 279/2011 para manutenção de ex-empregado/aposentado; RN nº 259/2011 para prazos assistenciais; RN nº 623/2024 para regras de atendimento e negativa fundamentada; RN nº 365/2015, RN nº 417/2016 e RN nº 585/2023 para rede assistencial; Resolução CONSU nº 13/1998 para urgência e emergência; RN nº 483/2022 e RN nº 489/2022 para fiscalização e sanções.');
+    blocos.push('FLUXO DE VERIFICAÇÃO REGULATÓRIA: identifique tipo de contrato e data; verifique segmentação; confira se o procedimento está no rol e se há DUT; se estiver fora do rol, aplique cumulativamente os critérios da Lei nº 14.454/2022; verifique carência, CPT/DLP, rede, prazos de atendimento e comunicação formal da negativa; diferencie prescrição médica de obrigação de cobertura. NATJUS elabora nota técnica, não laudo pericial.');
+    blocos.push('ESTRATÉGIA DEFENSIVA: quando houver procedimento fora do rol, estruturar tópico próprio sobre ausência de cobertura obrigatória com três camadas: inexistência no Anexo I/DUT aplicável; não preenchimento dos requisitos do § 13 do artigo 10 da Lei nº 9.656/1998; ausência de recomendação CONITEC ou de órgão internacional aprovado para uso no Brasil. O ônus de provar os requisitos legais é do autor, nos termos do artigo 373, inciso I, do Código de Processo Civil.');
+  }
+
+  // ── Bloco 10: instrução de estrutura e densidade ──────────────────────────
   blocos.push(getInstrucaoEstrutura(tipo === 'auto' ? inferir((inst || '') + ' ' + andamento) : tipo));
   blocos.push(getInstrucaoDensidade());
+
   return blocos.filter(Boolean).join('\n\n');
+}
+
+// Coleta dados do formulário de petição inicial
+function montarDadosPeticaoInicial() {
+  var g = function(id){ return (document.getElementById(id)||{}).value||''; };
+  var autor   = g('pi-autor-nome').trim();
+  var autorQ  = g('pi-autor-qualif').trim();
+  var reu     = g('pi-reu-nome').trim();
+  var reuQ    = g('pi-reu-qualif').trim();
+  var tutela  = g('pi-tutela');
+  var valor   = g('pi-valor-causa').trim();
+  var foro    = g('pi-foro').trim();
+  var fatos   = g('pi-fatos').trim();
+  var pedidos = g('pi-pedidos').trim();
+  var limChk  = document.getElementById('pi-liminar-chk');
+  var limTxt  = g('pi-liminar-texto').trim();
+  var tutelaMap = {
+    'conhecimento':       'Processo de conhecimento (procedimento comum)',
+    'urgencia_antecipada':'Tutela de urgência antecipada (art. 300 CPC)',
+    'urgencia_cautelar':  'Tutela de urgência cautelar (art. 305 CPC)',
+    'evidencia':          'Tutela de evidência (art. 311 CPC)',
+    'jec':                'Juizado Especial Cível',
+  };
+  var linhas = ['=== DADOS DA PETIÇÃO INICIAL ==='];
+  if (autor)   linhas.push('Parte autora (polo ativo): ' + autor + (autorQ ? ' — ' + autorQ : ''));
+  if (reu)     linhas.push('Parte ré (polo passivo): '   + reu   + (reuQ   ? ' — ' + reuQ   : ''));
+  linhas.push('Tipo de tutela: ' + (tutelaMap[tutela] || tutela));
+  if (valor)   linhas.push('Valor da causa: ' + valor);
+  if (foro)    linhas.push('Foro / Competência: ' + foro);
+  if (fatos)   linhas.push('\nSÍNTESE DOS FATOS:\n' + fatos);
+  if (pedidos) linhas.push('\nPEDIDOS PRINCIPAIS:\n' + pedidos);
+  if (limChk && limChk.checked && limTxt) linhas.push('\nPEDIDO LIMINAR / TUTELA DE URGÊNCIA:\n' + limTxt);
+  linhas.push('=== FIM DOS DADOS DA PETIÇÃO INICIAL ===');
+  return linhas.join('\n');
 }
 async function gerarMinuta() {
   // 1. Verificar limite do plano
@@ -7810,7 +8443,8 @@ async function gerarMinuta() {
   var key='', modelo=getModeloSelecionado();
   var fmt = getFormatacao(); // necessário para injetar formato de data no prompt
   var andamento=document.getElementById('f-and').value.trim();
-  if (!andamento){alert('Cole ou carregue o andamento do tribunal.');return;}
+  var _tipoParaValidar = document.getElementById('f-tipo').value;
+  if (!andamento && _tipoParaValidar !== 'petição inicial'){alert('Cole ou carregue o andamento do tribunal.');return;}
   var procVal=document.getElementById('f-proc').value.trim();
   if (!procVal){alert('Informe o número do processo (campo obrigatório).');return;}
   registrarProcRecente(procVal);
@@ -7878,7 +8512,7 @@ async function gerarMinuta() {
   var nomeModelo=nomeModoProprio(modelo);
   setSt2('res-st','info','Aguarde — gerando via '+nomeModelo+'...');
   var enriquecimento = getEnriquecimento();
-  var sys = montarSystemPromptPeticao(enriquecimento, tipo, inst, andamento);
+  var sys = montarSystemPromptPeticao(enriquecimento, tipo, inst, andamento, _area);
   var ctxExtra = montarContextoAdicional();
   var procModo = document.getElementById('f-proc-modo') ? document.getElementById('f-proc-modo').value : 'manual';
   var procInfo = procModo === 'auto' ? 'IDENTIFICAR AUTOMATICAMENTE no andamento' : (proc || 'não informado');
@@ -7897,7 +8531,10 @@ async function gerarMinuta() {
   } else {
     advInstrucao = '\n\nSem bloco de assinatura. NÃO incluir marcador [ADV_AUTO].';
   }
-  var usr='Processo: '+procInfo+'\nSistema: '+sis+'\nPasta: '+pasta+'\nCliente: '+clienteInfo+'\nParte contrária: '+parteInfo+'\nDemanda (Tarefa): '+(desc||'não informado')+advInstrucao+'\n\nAndamento/Decisão principal:\n'+andamento+ctxExtra+'\n\nTipo de peça: '+(tipo==='auto'?'identificar automaticamente pelo andamento':tipo)+(inst?'\n\nInstruções específicas:\n'+inst:'')+refBlock+'\n\nFormato de data obrigatório nas peças: '+( fmt.formatoData === 'numerica' ? 'numérico (DD/MM/AAAA — ex: 25/04/2026). Use SEMPRE este formato em datas no corpo da peça.' : fmt.formatoData === 'abreviada' ? 'abreviado (D.M.AAAA — ex: 25.4.2026). Use SEMPRE este formato em datas no corpo da peça.' : 'por extenso (ex: 25 de abril de 2026). Use SEMPRE este formato em datas no corpo da peça.' )+(tipo === 'revisão de peça' && document.getElementById('f-peca-revisar') && document.getElementById('f-peca-revisar').value.trim() ?
+  // Dados da petição inicial (apenas quando tipo = 'petição inicial')
+  var _dadosPI = tipo === 'petição inicial' ? ('\n\n' + montarDadosPeticaoInicial()) : '';
+
+  var usr='Processo: '+procInfo+'\nSistema: '+sis+'\nPasta: '+pasta+'\nCliente: '+clienteInfo+'\nParte contrária: '+parteInfo+'\nDemanda (Tarefa): '+(desc||'não informado')+advInstrucao+(andamento?'\n\nAndamento/Decisão principal:\n'+andamento:'')+_dadosPI+ctxExtra+'\n\nTipo de peça: '+(tipo==='auto'?'identificar automaticamente pelo andamento':tipo)+(inst?'\n\nInstruções específicas:\n'+inst:'')+refBlock+'\n\nFormato de data obrigatório nas peças: '+( fmt.formatoData === 'numerica' ? 'numérico (DD/MM/AAAA — ex: 25/04/2026). Use SEMPRE este formato em datas no corpo da peça.' : fmt.formatoData === 'abreviada' ? 'abreviado (D.M.AAAA — ex: 25.4.2026). Use SEMPRE este formato em datas no corpo da peça.' : 'por extenso (ex: 25 de abril de 2026). Use SEMPRE este formato em datas no corpo da peça.' )+(tipo === 'revisão de peça' && document.getElementById('f-peca-revisar') && document.getElementById('f-peca-revisar').value.trim() ?
     '\n\nMODO REVISÃO: Abaixo está a peça que deve ser revisada. Mantenha o conteúdo e os argumentos originais, mas: (1) corrija a redação para linguagem jurídica técnica; (2) aplique todas as regras de terminologia obrigatória (artigo por extenso, § com número ordinal/cardinal, parágrafo único, inciso, alínea); (3) organize nos tópicos corretos em CAIXA ALTA; (4) corrija o uso de § vs parágrafo conforme a LC 95/1998; (5) aprimorem a argumentação sem alterar a tese; (6) elimine redundâncias e vícios de linguagem.\n\n=== PEÇA ORIGINAL ===\n' + document.getElementById('f-peca-revisar').value.trim() + '\n=== FIM DA PEÇA ORIGINAL ==='
     : '\\n\\nElabore a peça completa pronta para protocolo.' +
   (_ultimoPrazoCaculado && tipo && /contrar|apela|agravo|recurso|inominado/i.test(tipo) ?
